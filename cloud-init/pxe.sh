@@ -3,6 +3,7 @@ set -e
 
 RELEASE=24.04
 CODENAME=noble
+# see https://launchpad.net/ubuntu/+cdmirrors
 MIRROR=https://releases.ubuntu.com
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -29,11 +30,11 @@ sha256sum --check --ignore-missing ../SHA256SUMS
 tar xf "ubuntu-$RELEASE-netboot-amd64.tar.gz" ./amd64/ --strip-components=2 
 rm "ubuntu-$RELEASE-netboot-amd64.tar.gz"
 # pull image from local source instead of the default public mirro
-sed -i 's/https:\/\/releases.ubuntu.com\/24.04/ftp:\/\/192.168.1.2/g' grub/grub.cfg 
-sed -i 's/https:\/\/releases.ubuntu.com\/24.04/ftp:\/\/192.168.1.2/g' pxelinux.cfg/default
+sed -i "s|https://releases.ubuntu.com/$RELEASE|ftp://192.168.1.2|g" grub/grub.cfg 
+sed -i "s|https://releases.ubuntu.com/$RELEASE|ftp://192.168.1.2|g" pxelinux.cfg/default
 # auto-install using cloud-init, point to the locally hosted CIDATA
-sed -i 's/---/autoinstall ds=nocloud-net\\;s=http:\/\/192.168.1.2:8080\/configs\/ ---/g' grub/grub.cfg # grub treats an unescaped semicolon as beginning of a comment
-sed -i 's/---/autoinstall ds=nocloud-net;s=http:\/\/192.168.1.2:8080\/configs\/ ---/g' pxelinux.cfg/default
+sed -i 's|---|autoinstall ds=nocloud-net\\;s=http://192.168.1.2:8080/configs/ ---|g' grub/grub.cfg # grub treats an unescaped semicolon as beginning of a comment
+sed -i 's|---|autoinstall ds=nocloud-net;s=http://192.168.1.2:8080/configs/ ---|g' pxelinux.cfg/default
 cd ..
 
 if [ -e ftp ]; then
