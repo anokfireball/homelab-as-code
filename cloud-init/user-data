@@ -1,0 +1,36 @@
+#cloud-config
+autoinstall:
+  # https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html
+  version: 1
+
+  ssh:
+    install-server: true
+    allow-pw: false
+
+  user-data:
+    disable_root: true
+    timezone: Europe/Berlin
+    package_upgrade: false
+    users:
+      - name: admin
+        groups: sudo
+        lock_passwd: true
+        shell: /bin/bash
+        ssh_authorized_keys:
+          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAYLx7VS8zBK3d0d7fle8+T5qzKaS9vEYfDyaShx0phF admin"
+        sudo: ALL=(ALL) NOPASSWD:ALL
+      - name: ansible
+        groups: sudo
+        lock_passwd: true
+        shell: /bin/bash
+        ssh_authorized_keys:
+          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPKEMAPH+VJ9maDpv5QQxLe4vsFaNDNjvhftEHUvnoY ansbile"
+        sudo: ALL=(ALL) NOPASSWD:ALL
+
+  late-commands:
+    # random hostname
+    - echo ubuntu-host-$(openssl rand -hex 3) > /target/etc/hostname
+    # show IP on login screen
+    - echo "Ubuntu 24.04 LTS \nIP - $(hostname -I)\n" > /target/etc/issue
+    - curtin in-target --target=/target -- lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
+    - curtin in-target --target=/target -- resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
