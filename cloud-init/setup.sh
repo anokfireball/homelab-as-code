@@ -29,6 +29,9 @@ wget "$MIRROR/$CODENAME/ubuntu-$RELEASE-netboot-amd64.tar.gz"
 sha256sum --check --ignore-missing ../SHA256SUMS
 tar xf "ubuntu-$RELEASE-netboot-amd64.tar.gz" ./amd64/ --strip-components=2 
 rm "ubuntu-$RELEASE-netboot-amd64.tar.gz"
+# increase ramdisk size to fit entire image
+sed -i 's|---|root=/dev/ram0 ramdisk_size=3000000 ---|g' grub/grub.cfg
+sed -i -E 's|ramdisk_size=([0-9]+)|ramdisk_size=3000000|g' pxelinux.cfg/default
 # pull image from local source instead of the default public mirro
 sed -i "s|https://releases.ubuntu.com/$RELEASE|ftp://192.168.1.2|g" grub/grub.cfg 
 sed -i "s|https://releases.ubuntu.com/$RELEASE|ftp://192.168.1.2|g" pxelinux.cfg/default

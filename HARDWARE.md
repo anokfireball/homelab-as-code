@@ -4,6 +4,7 @@
 - **RAM**: 1x4GB DDR3 @1600MHz
 - **SSD**: 250GB Western Digital WD Blue (SATA)
 - **BIOS**: [R1.18.0](https://support.ts.fujitsu.com/IndexDownload.asp?SoftwareGuid=137C187E-DD46-48AF-93D5-CC49E35203AB)
+- **NOTE**: ACPI bug - OS-level poweroff does not properly put the system into soft-off (S5). NIC is powered off completely, disabling WOL. Solution: power-cycle and turn off from POST/BIOS.
 
 # Worker
 ## 2x [Fujitsu Esprimo Q956](https://support.ts.fujitsu.com/indexdownload.asp?Softwareguid=09105f90-92ff-4658-b3c0-f4adf5c3f023)
