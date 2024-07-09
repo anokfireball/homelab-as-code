@@ -3,6 +3,20 @@ autoinstall:
   # https://canonical-subiquity.readthedocs-hosted.com/en/latest/reference/autoinstall-reference.html
   version: 1
 
+  network:
+    # https://netplan.readthedocs.io/en/latest/netplan-yaml/
+    version: 2
+    ethernets:
+      eth0:
+        match:
+          driver: [
+            "e1000e",  # Q956 (Intel I219-LM)
+            "r816*",   # Q556 (Realtek RTL8111GN)
+          ]
+        set-name: eth0
+        wakeonlan: true
+        dhcp4: yes
+
   ssh:
     install-server: true
     allow-pw: false
@@ -27,10 +41,15 @@ autoinstall:
           - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPKEMAPH+VJ9maDpv5QQxLe4vsFaNDNjvhftEHUvnoY ansbile"
         sudo: ALL=(ALL) NOPASSWD:ALL
 
+  packages:
+    - r8168-dkms  # gets WoL working more reliably than r8169
+
   late-commands:
-    # random hostname
+    # randomly generate the hostname & show the IP at boot
     - echo ubuntu-host-$(openssl rand -hex 3) > /target/etc/hostname
-    # show IP on login screen
+    # dump the IP out at login screen
     - echo "Ubuntu 24.04 LTS \nIP - $(hostname -I)\n" > /target/etc/issue
     - curtin in-target --target=/target -- lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
     - curtin in-target --target=/target -- resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
+    # make sure S5 WoL is enabled
+    - curtin in-target --target=/target -- echo "options r8168 aspm=1 s5wol=1" >> /etc/modprobe.d/r8168-dkms.conf
