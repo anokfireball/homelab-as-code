@@ -1,10 +1,9 @@
 # Control Plane
-## 3x [Fujitsu Futro S920](http://support.ts.fujitsu.com/indexdownload.asp?Softwareguid=098da43c-f3ab-4b51-9744-0f4517d0279a)
-- **CPU**: AMD GX-415GA 4C/4T x86 @1.5GHz
-- **RAM**: 1x4GB DDR3 @1600MHz
+## 3x [Fujitsu Esprimo Q556/2](https://support.ts.fujitsu.com/IndexDownload.asp?SoftwareGuid=E9D6B346-40C3-40A6-A9C0-5B06766A2112)
+- **CPU**: Intel Pentium G4400T 2C/2T x86 @2.90GHz
+- **RAM**: 2x4GB DDR4 @2133MHz
 - **SSD**: 250GB Western Digital WD Blue (SATA)
-- **BIOS**: [R1.18.0](https://support.ts.fujitsu.com/IndexDownload.asp?SoftwareGuid=137C187E-DD46-48AF-93D5-CC49E35203AB)
-- **NOTE**: ACPI bug - OS-level poweroff does not properly put the system into soft-off (S5). NIC is powered off completely, disabling WOL. Solution: power-cycle and turn off from POST/BIOS.
+- **BIOS**: [R1.32.0](https://support.ts.fujitsu.com/IndexDownload.asp?SoftwareGuid=6236E45F-F03E-474A-8791-F4F94F89C1CC)
 
 # Worker
 ## 2x [Fujitsu Esprimo Q956](https://support.ts.fujitsu.com/indexdownload.asp?Softwareguid=09105f90-92ff-4658-b3c0-f4adf5c3f023)
