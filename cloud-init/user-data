@@ -41,15 +41,10 @@ autoinstall:
           - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPKEMAPH+VJ9maDpv5QQxLe4vsFaNDNjvhftEHUvnoY ansbile"
         sudo: ALL=(ALL) NOPASSWD:ALL
 
-  packages:
-    - r8168-dkms  # gets WoL working more reliably than r8169
-
   late-commands:
-    # randomly generate the hostname & show the IP at boot
+    # generate random hostname
     - echo ubuntu-host-$(openssl rand -hex 3) > /target/etc/hostname
-    # dump the IP out at login screen
+    # show IP at login screen (static)
     - echo "Ubuntu 24.04 LTS \nIP - $(hostname -I)\n" > /target/etc/issue
     - curtin in-target --target=/target -- lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
     - curtin in-target --target=/target -- resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
-    # make sure S5 WoL is enabled
-    - curtin in-target --target=/target -- echo "options r8168 aspm=1 s5wol=1" >> /etc/modprobe.d/r8168-dkms.conf
