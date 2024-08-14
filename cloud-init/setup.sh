@@ -7,6 +7,7 @@ CODENAME=noble
 MIRROR=https://releases.ubuntu.com
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+mkdir -p $SCRIPT_DIR/data
 cd $SCRIPT_DIR/data
 
 if [ -e SHA256SUMS ]; then
@@ -29,10 +30,13 @@ wget "$MIRROR/$CODENAME/ubuntu-$RELEASE-netboot-amd64.tar.gz"
 sha256sum --check --ignore-missing ../SHA256SUMS
 tar xf "ubuntu-$RELEASE-netboot-amd64.tar.gz" ./amd64/ --strip-components=2 
 rm "ubuntu-$RELEASE-netboot-amd64.tar.gz"
+# instantly boot installer without timeout or human interaction
+sed -i '1 i\set timeout=0' grub/grub.cfg
+sed -i '/DEFAULT install/a PROMPT 0' pxelinux.cfg/default
 # increase ramdisk size to fit entire image
 sed -i 's|---|root=/dev/ram0 ramdisk_size=3000000 ---|g' grub/grub.cfg
 sed -i -E 's|ramdisk_size=([0-9]+)|ramdisk_size=3000000|g' pxelinux.cfg/default
-# pull image from local source instead of the default public mirro
+# pull image from local source instead of the default public mirror
 sed -i "s|https://releases.ubuntu.com/$RELEASE|ftp://192.168.1.2|g" grub/grub.cfg 
 sed -i "s|https://releases.ubuntu.com/$RELEASE|ftp://192.168.1.2|g" pxelinux.cfg/default
 # auto-install using cloud-init, point to the locally hosted CIDATA
@@ -56,6 +60,6 @@ mkdir -p http/configs
 cd http/configs
 touch meta-data
 cp $SCRIPT_DIR/user-data .
-cd ..
 
+cd $SCRIPT_DIR/data
 rm -rf SHA256SUMS SHA256SUMS.gpg

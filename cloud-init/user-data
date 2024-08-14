@@ -38,7 +38,7 @@ autoinstall:
         lock_passwd: true
         shell: /bin/bash
         ssh_authorized_keys:
-          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKPKEMAPH+VJ9maDpv5QQxLe4vsFaNDNjvhftEHUvnoY ansbile"
+          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKfqnqPPeq8jseq2tXxOl2KNiASOB+YJ3r3e9UDNMgCl ansible"
         sudo: ALL=(ALL) NOPASSWD:ALL
 
   late-commands:
