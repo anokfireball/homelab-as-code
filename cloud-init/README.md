@@ -1,0 +1,1 @@
+![system boot and autoinstall schema](./.drawio.svg)
