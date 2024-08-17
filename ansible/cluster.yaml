@@ -1,0 +1,8 @@
+---
+- hosts: cluster
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: os-base }
+    - { role: os-power }
+    - { role: k8s-base }

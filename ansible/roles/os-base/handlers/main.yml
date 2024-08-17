@@ -1,0 +1,8 @@
+---
+- name: restart unattended-upgrades
+  systemd_service:
+    state: restarted
+    name: unattended-upgrades
+
+- name: reboot
+  reboot: 

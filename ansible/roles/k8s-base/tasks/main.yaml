@@ -1,0 +1,77 @@
+---
+  - name: add signing key for k8s repo
+    get_url:
+      url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/Release.key"
+      dest: "/etc/apt/keyrings/kubernetes-v{{ k8s_version }}.asc"
+
+  - name: add k8s repo
+    apt_repository:
+      repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-v{{ k8s_version }}.asc] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/ /"
+      state: present
+
+  - name: add signing key for docker repo
+    get_url:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      dest: /etc/apt/keyrings/docker.asc
+
+  - name: add docker repo
+    apt_repository:
+      repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable
+      state: present
+
+  - name: install k8s core dependencies
+    apt:
+      pkg:
+        - "kubelet={{ k8s_version }}.*"
+        - "kubeadm={{ k8s_version }}.*"
+        - "kubectl={{ k8s_version }}.*"
+      state: present
+      allow_change_held_packages: true # here be dragons
+    notify: restart kubelet
+
+  - name: install containerd
+    apt:
+      pkg:
+        # https://containerd.io/releases/#kubernetes-support
+        - "containerd.io>={{ containerd_version }}"
+      state: present
+      allow_change_held_packages: true # here be dragons
+    register: containerd_install
+
+  - name: install CRI tools
+    apt:
+      pkg:
+        - "cri-tools={{ k8s_version }}.*"
+      state: present
+      allow_change_held_packages: true # here be dragons
+
+  - name: mark k8s core dependencies as hold
+    dpkg_selections:
+      name: "{{ item }}"
+      selection: hold
+    with_items:
+      - kubelet
+      - kubeadm
+      - kubectl
+      - containerd.io
+      - cri-tools
+
+  - name: enable IPv4 packet forwarding
+    sysctl:
+      name: net.ipv4.ip_forward
+      value: '1'
+      sysctl_set: true
+
+  - name: generate default containerd config
+    shell: |
+      mkdir -p /etc/containerd
+      containerd config default > /etc/containerd/config.toml
+    when: containerd_install.changed
+
+  - name: use sytemd cgroup driver in containerd
+    replace:
+      path: /etc/containerd/config.toml
+      after: '[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]'
+      regexp: '^(\s*SystemdCgroup = ).+$'
+      replace: '\1true'
+    notify: restart containerd

@@ -1,0 +1,10 @@
+---
+- name: restart kubelet
+  systemd_service:
+    name: kubelet
+    state: restarted
+
+- name: restart containerd
+  systemd_service:
+    name: containerd
+    state: restarted
