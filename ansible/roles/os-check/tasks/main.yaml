@@ -1,0 +1,5 @@
+---
+- name: OS check
+  fail:
+    msg: "OS should be Ubuntu 24.04, not {{ ansible_distribution }} {{ ansible_distribution_version }}"
+  when: ansible_distribution != 'Ubuntu' or ansible_distribution_version != '24.04'
