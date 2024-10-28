@@ -1,0 +1,5 @@
+---
+# https://github.com/kube-vip/kube-vip/releases
+kube_vip_version: v0.8.4
+vip: 192.168.1.210
+interface: eth0

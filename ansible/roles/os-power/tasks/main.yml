@@ -44,10 +44,12 @@
     aspm_policy: '{{ aspm_policies["content"] | b64decode | split | last | replace("[","") | replace("]","") }}'
 
 - name: setup kernel parameters
-  lineinfile: 
+  lineinfile:
     path: /etc/default/grub
     regexp: '^GRUB_CMDLINE_LINUX="(.*)"$'
     line: 'GRUB_CMDLINE_LINUX="mitigations=off nowatchdog pcie_aspm=force pcie_aspm.policy={{ aspm_policy }}"'
   notify:
     - update GRUB
     - reboot
+
+- meta: flush_handlers

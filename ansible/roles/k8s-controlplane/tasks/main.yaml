@@ -1,0 +1,129 @@
+---
+- name: pull kube-vip container
+  shell: "ctr image pull ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }}"
+  register: kube_vip_pull_output
+  changed_when: "kube_vip_pull_output.stdout is search('total:\\s*0.0\\s*B') == False"
+
+- name: generate kube-vip manifest
+  shell: >
+    ctr run --rm --net-host ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }} vip /kube-vip manifest pod
+    --interface {{ interface }}
+    --address {{ vip }}
+    --controlplane
+    --arp
+    --leaderElection
+  register: kube_vip_manifest
+  changed_when: false
+
+- name: modify kube-vip manifest content
+  set_fact:
+    # https://github.com/kube-vip/kube-vip/issues/684
+    modified_kube_vip_manifest: "{{ kube_vip_manifest.stdout | regex_replace('path: /etc/kubernetes/admin.conf', 'path: /etc/kubernetes/super-admin.conf') }}"
+
+- name: ensure /etc/kubernetes/manifests directory exists
+  file:
+    path: /etc/kubernetes/manifests
+    state: directory
+    mode: '0755'
+
+- name: write modified kube-vip manifest to file
+  copy:
+    content: "{{ modified_kube_vip_manifest }}"
+    dest: /etc/kubernetes/manifests/kube-vip.yaml
+
+- name: check if kubeadm init/join has already been run
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubeadm_run_previously
+
+- name: run initial kubeadm init
+  block:
+  - name: kubeadm init
+    shell: >
+      kubeadm init
+      --control-plane-endpoint {{ vip }}:6443
+      --upload-certs
+      --token-ttl 15m
+    register: kubeadm_init_output
+
+  - name: create temporary file
+    ansible.builtin.tempfile:
+      state: file
+    register: kubeadm_init_output_tempfile
+
+  - name: write kubeadm init output to the temporary file
+    copy:
+      content: "{{ kubeadm_init_output.stdout }}"
+      dest: "{{ kubeadm_init_output_tempfile.path }}"
+
+  - name: extract kubeadm controlplane join command
+    shell: >
+      sed -n '/kubeadm join/,/^$/p' {{ kubeadm_init_output_tempfile.path }}
+      | sed -n '1,/^$/p'
+      | head -n -1
+    register: kubeadm_join_command_controlplane
+    changed_when: false
+
+  - name: remove temporary file
+    file:
+      path: "{{ kubeadm_init_output_tempfile.path }}"
+      state: absent
+
+  - name: set kubeadm join command fact
+    set_fact:
+      kubeadm_join_command_controlplane: "{{ kubeadm_join_command_controlplane.stdout }}"
+  when: inventory_hostname == "controlplane1" and not kubeadm_run_previously.stat.exists
+
+- name: recreate kubeadm join command
+  block:
+  - name: create new kubeadm token
+    shell: kubeadm token create --ttl 15m
+    register: kubeadm_token
+
+  - name: retrieve CA certificate hash
+    shell: >
+      openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt
+      | openssl rsa -pubin -outform der 2>/dev/null
+      | openssl dgst -sha256 -hex
+      | sed 's/^.* //'
+    register: ca_cert_hash
+    changed_when: false
+
+  - name: generate certificate key
+    shell: kubeadm certs certificate-key
+    register: certificate_key
+
+  - name: reload certificates
+    shell: >
+      kubeadm init phase upload-certs
+      --certificate-key {{ certificate_key.stdout_lines | last }}
+      --upload-certs
+
+  - name: Construct the kubeadm join command
+    set_fact:
+      kubeadm_join_command_controlplane: |
+        kubeadm join {{ vip }}:6443 \
+          --token {{ kubeadm_token.stdout }} \
+          --discovery-token-ca-cert-hash sha256:{{ ca_cert_hash.stdout }} \
+          --control-plane \
+          --certificate-key {{ certificate_key.stdout_lines | last }}
+  when: inventory_hostname == "controlplane1" and kubeadm_run_previously.stat.exists
+
+# https://github.com/kube-vip/kube-vip/issues/684
+- name: fetch super-admin.conf from initial control plane node
+  fetch:
+    src: /etc/kubernetes/super-admin.conf
+    dest: /tmp/super-admin.conf
+    flat: yes
+  when: inventory_hostname == "controlplane1"
+- name: distribute super-admin.conf to all control plane nodes
+  copy:
+    src: /tmp/super-admin.conf
+    dest: /etc/kubernetes/super-admin.conf
+  when: inventory_hostname != "controlplane1"
+
+- name: kubeadm join
+  shell: "{{ hostvars['controlplane1'].kubeadm_join_command_controlplane }}"
+  when: inventory_hostname != "controlplane1" and not kubeadm_run_previously.stat.exists
+
+- meta: flush_handlers
