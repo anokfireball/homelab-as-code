@@ -5,4 +5,4 @@
     name: unattended-upgrades
 
 - name: reboot
-  reboot: 
+  reboot:

@@ -1,4 +1,9 @@
 ---
+- name: set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  notify: reboot
+
 - name: update APT packages
   apt:
     upgrade: full
@@ -9,7 +14,7 @@
 
 - name: install common packages
   apt:
-    pkg: 
+    pkg:
       - neovim
       - tmux
       - inxi
@@ -19,14 +24,14 @@
 
 - name: remove default vim installations
   apt:
-    pkg: 
+    pkg:
       - vim*
     state: absent
 
 - name: create aliases for nvim
   file:
     src: /usr/bin/nvim
-    dest: "/usr/local/bin/{{ item }}" 
+    dest: "/usr/local/bin/{{ item }}"
     state: link
   with_items:
     - vi
@@ -54,7 +59,7 @@
       fi
 
 - name: enable and configure unattended-upgrades
-  lineinfile: 
+  lineinfile:
     path: "{{ item.path }}"
     create: true
     regexp: "^.*{{ item.key }} \".+\";$"
@@ -94,4 +99,5 @@
   file:
     path: "{{ swap_file.stdout }}"
     state: absent
-    
+
+- meta: flush_handlers
