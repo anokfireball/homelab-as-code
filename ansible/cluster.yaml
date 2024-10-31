@@ -5,5 +5,4 @@
   roles:
     - { role: os-base }
     - { role: os-power }
-    - { role: k8s-base }
-    - { role: k8s-controlplane, when: "'controlplane' in group_names" }
+    - { role: k8s-cluster }
