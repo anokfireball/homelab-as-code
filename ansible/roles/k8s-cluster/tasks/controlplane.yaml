@@ -1,0 +1,70 @@
+---
+- name: check if kubeadm init/join has already been run
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: kubeadm_run_previously
+
+- name: kubeadm init
+  shell: >
+    kubeadm init
+    --control-plane-endpoint {{ vip }}:6443
+  when: inventory_hostname == "controlplane1" and not kubeadm_run_previously.stat.exists
+
+- name: recreate kubeadm join command
+  block:
+  - name: create new kubeadm token
+    shell: kubeadm token create --ttl 2h
+    register: kubeadm_token
+
+  - name: retrieve CA certificate hash
+    shell: >
+      openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt
+      | openssl rsa -pubin -outform der 2>/dev/null
+      | openssl dgst -sha256 -hex
+      | sed 's/^.* //'
+    register: ca_cert_hash
+    changed_when: false
+
+  - name: generate certificate key
+    shell: kubeadm certs certificate-key
+    register: certificate_key
+
+  - name: reload certificates
+    shell: >
+      kubeadm init phase upload-certs
+      --certificate-key {{ certificate_key.stdout_lines | last }}
+      --upload-certs
+
+  - name: construct the kubeadm join command for control plane nodes
+    set_fact:
+      kubeadm_join_command_controlplane: |
+        kubeadm join {{ vip }}:6443 \
+          --token {{ kubeadm_token.stdout }} \
+          --discovery-token-ca-cert-hash sha256:{{ ca_cert_hash.stdout }} \
+          --control-plane \
+          --certificate-key {{ certificate_key.stdout_lines | last }}
+
+  - name: construct the kubeadm join command for worker nodes
+    set_fact:
+      kubeadm_join_command_worker: |
+        kubeadm join {{ vip }}:6443 \
+          --token {{ kubeadm_token.stdout }} \
+          --discovery-token-ca-cert-hash sha256:{{ ca_cert_hash.stdout }}
+  when: inventory_hostname == "controlplane1"
+
+# https://github.com/kube-vip/kube-vip/issues/684
+- name: fetch super-admin.conf from initial control plane node
+  fetch:
+    src: /etc/kubernetes/super-admin.conf
+    dest: /tmp/super-admin.conf
+    flat: yes
+  when: inventory_hostname == "controlplane1"
+- name: distribute super-admin.conf to all control plane nodes
+  copy:
+    src: /tmp/super-admin.conf
+    dest: /etc/kubernetes/super-admin.conf
+  when: inventory_hostname != "controlplane1"
+
+- name: kubeadm join
+  shell: "{{ hostvars['controlplane1'].kubeadm_join_command_controlplane }}"
+  when: inventory_hostname != "controlplane1" and not kubeadm_run_previously.stat.exists
