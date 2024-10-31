@@ -2,6 +2,7 @@
 - hosts: cluster
   gather_facts: yes
   become: yes
+  any_errors_fatal: yes
   roles:
     - { role: os-base }
     - { role: os-power }

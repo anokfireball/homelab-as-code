@@ -99,5 +99,3 @@
   file:
     path: "{{ swap_file.stdout }}"
     state: absent
-
-- meta: flush_handlers

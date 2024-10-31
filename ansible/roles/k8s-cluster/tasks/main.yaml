@@ -11,4 +11,6 @@
   - import_tasks: worker.yaml
   when: "'worker' in group_names"
 
-- meta: flush_handlers
+- ansible.builtin.import_tasks:
+    file: calico.yaml
+  when: inventory_hostname == "controlplane1"

@@ -1,7 +1,7 @@
 ---
 - name: check if kubeadm join has already been run
   stat:
-    path: /etc/kubernetes/admin.conf
+    path: /etc/kubernetes/kubelet.conf
   register: kubeadm_run_previously
 
 - name: kubeadm join
