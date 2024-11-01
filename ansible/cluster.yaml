@@ -7,3 +7,4 @@
     - { role: os-base }
     - { role: os-power }
     - { role: k8s-cluster }
+    - { role: k8s-flux }
