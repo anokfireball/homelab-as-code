@@ -12,16 +12,18 @@
 
 - name: check if calico operator already exists
   shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl get deployments -n tigera-operator -o json | jq ".items | length"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
   register: calico_operator_exists
   ignore_errors: true
 
 - name: apply calico operator manifest
   shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
     # CRD bundle too large to use kubectl apply
     kubectl {{ 'create' if calico_operator_exists.stdout == '0' else 'replace' }} -f /etc/calico/tigera-operator.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
 
 - name: copy calico custom resource manifest
   template:
@@ -30,12 +32,14 @@
 
 - name: check  if calico custom resource already exists
   shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl get installations -o json | jq ".items | length"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
   register: calico_custom_resource_exists
   ignore_errors: true
 
 - name: apply custom calico resource manifest
   shell: |
-    export KUBECONFIG=/etc/kubernetes/admin.conf
     kubectl {{ 'create' if calico_custom_resource_exists.stdout == '0' else 'replace' }} -f /etc/calico/custom-resources.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
