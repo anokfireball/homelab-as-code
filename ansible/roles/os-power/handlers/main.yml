@@ -1,6 +1,0 @@
----
-- name: update GRUB
-  shell: /usr/sbin/update-grub
-
-- name: reboot
-  reboot:

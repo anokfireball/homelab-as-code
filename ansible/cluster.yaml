@@ -1,10 +1,11 @@
 ---
-- hosts: cluster
-  gather_facts: yes
-  become: yes
-  any_errors_fatal: yes
+- name: bootstrap k8s cluster
+  hosts: cluster
+  gather_facts: true
+  become: true
+  any_errors_fatal: true
   roles:
-    - { role: os-base }
-    - { role: os-power }
-    - { role: k8s-cluster }
-    - { role: k8s-flux }
+    - { role: os_base }
+    - { role: os_power }
+    - { role: k8s_cluster }
+    - { role: k8s_flux }

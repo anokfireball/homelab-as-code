@@ -1,0 +1,56 @@
+---
+- when: inventory_hostname == "controlplane1"
+  block:
+    - name: download flux checksums
+      get_url:
+        url: "https://github.com/fluxcd/flux2/releases/download/v{{ flux_version }}/flux_{{ flux_version }}_checksums.txt"
+        dest: /tmp/flux_{{ flux_version }}_checksums.txt
+
+    - name: extract flux binary checksum
+      command: grep "flux_{{ flux_version }}_linux_amd64.tar.gz" /tmp/flux_{{ flux_version }}_checksums.txt
+      changed_when: false
+      register: flux_checksum
+      failed_when: flux_checksum.stdout == ""
+
+    - name: download flux archive
+      get_url:
+        url: "https://github.com/fluxcd/flux2/releases/download/v{{ flux_version }}/flux_{{ flux_version }}_linux_amd64.tar.gz"
+        dest: /tmp/flux_{{ flux_version }}_linux_amd64.tar.gz
+        checksum: "sha256:{{ flux_checksum.stdout.split()[0] }}"
+
+    - name: extract flux binary
+      unarchive:
+        src: /tmp/flux_{{ flux_version }}_linux_amd64.tar.gz
+        dest: /usr/local/bin/
+        owner: root
+        group: root
+        mode: "0755"
+        remote_src: true
+
+    - name: obtain github personal access token
+      community.sops.load_vars:
+        file: token.sops.yaml
+
+    - name: bootstrap flux
+      command: >
+        flux bootstrap github
+          --token-auth
+          --owner={{ github_user }}
+          --repository={{ github_repository }}
+          --branch={{ github_branch }}
+          --path=clusters/my-cluster
+          --personal
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+        GITHUB_TOKEN: "{{ github_personal_access_token }}"
+      register: flux_bootstrap
+      changed_when: false
+      failed_when: flux_bootstrap.rc != 0
+
+    - name: flux sanity check
+      command: flux check
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: flux_check
+      changed_when: false
+      failed_when: flux_check.rc != 0

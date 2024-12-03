@@ -1,0 +1,9 @@
+exclude_paths:
+  - '**/vars/*.sops.yaml'
+
+skip_list:
+  - 'fqcn[action-core]' # Skip requiring fully qualified collection names
+  - 'name[casing]'      # Skip checking for name casing
+  - 'name[missing]'     # Skip checking for missing names
+  - 'var-naming[no-role-prefix]'
+  - 'risky-file-permissions'

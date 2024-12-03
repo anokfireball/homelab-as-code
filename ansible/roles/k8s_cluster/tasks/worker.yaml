@@ -1,0 +1,10 @@
+---
+- name: check if kubeadm join has already been run
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubeadm_run_previously
+
+- name: kubeadm join
+  command: "{{ kubeadm_join_command_worker }}"
+  when: not kubeadm_run_previously.stat.exists
+  changed_when: true
