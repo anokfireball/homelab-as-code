@@ -1,6 +1,0 @@
----
-flux_version: 2.4.0
-github_user: C0nsultant
-github_repository: homelab-as-code
-github_branch: main
-github_path: clusters/production
