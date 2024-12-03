@@ -12,6 +12,11 @@ spec:
   secretRef:
     name: flux-system
   url: https://github.com/C0nsultant/homelab-as-code.git
+  ignore: |
+    # all
+    /*
+    # ... but this directory
+    !/flux
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -25,3 +30,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
