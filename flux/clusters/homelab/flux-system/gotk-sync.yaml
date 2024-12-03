@@ -20,7 +20,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./clusters/my-cluster
+  path: ./flux/clusters/homelab
   prune: true
   sourceRef:
     kind: GitRepository

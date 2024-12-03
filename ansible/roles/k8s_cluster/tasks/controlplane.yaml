@@ -3,7 +3,7 @@
   apt:
     pkg:
       - "kubectl={{ k8s_version }}.*"
-    state: latest
+    state: present
     allow_change_held_packages: true # here be dragons
 
 - name: mark kubectl as hold
@@ -40,6 +40,8 @@
         | openssl rsa -pubin -outform der 2>/dev/null
         | openssl dgst -sha256 -hex
         | sed 's/^.* //'
+      args:
+        executable: /bin/bash
       register: ca_cert_hash
       changed_when: false
 
