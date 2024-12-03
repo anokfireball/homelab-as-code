@@ -18,6 +18,8 @@
   shell: |
     set -o pipefail
     dmidecode -t 1 | grep 'Product Name' | awk -F: '{print $2}' | xargs
+  args:
+    executable: /bin/bash
   changed_when: false
   register: product_name
 

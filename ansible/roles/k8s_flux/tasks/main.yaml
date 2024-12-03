@@ -27,6 +27,8 @@
         mode: "0755"
         remote_src: true
 
+    # also need to set the age key as a secret in the cluster
+    # https://fluxcd.io/flux/guides/mozilla-sops/#encrypting-secrets-using-age
     - name: obtain github personal access token
       community.sops.load_vars:
         file: token.sops.yaml
@@ -38,7 +40,7 @@
           --owner={{ github_user }}
           --repository={{ github_repository }}
           --branch={{ github_branch }}
-          --path=clusters/my-cluster
+          --path=flux/clusters/homelab
           --personal
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf

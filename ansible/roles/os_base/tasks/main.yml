@@ -79,6 +79,8 @@
   shell: |
     set -o pipefail
     swapon -s
+  args:
+    executable: /bin/bash
   changed_when: false
   register: swap
 
@@ -86,6 +88,8 @@
   shell: |
     set -o pipefail
     swapoff -a
+  args:
+    executable: /bin/bash
   when: swap.stdout | length > 0
   changed_when: true
 
@@ -100,6 +104,8 @@
   shell: |
     set -o pipefail
     grep -e "^#.*[[:space:]]swap[[:space:]]sw[[:space:]].*$" /etc/fstab | awk '{print $2}'
+  args:
+    executable: /bin/bash
   register: swap_file
   changed_when: false
 
