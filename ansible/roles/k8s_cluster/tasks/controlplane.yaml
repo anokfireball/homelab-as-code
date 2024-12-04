@@ -2,7 +2,7 @@
 - name: install kubectl
   apt:
     pkg:
-      - "kubectl={{ k8s_version }}.*"
+      - "kubectl={{ k8s_version }}-*"
     state: present
     allow_change_held_packages: true # here be dragons
 
