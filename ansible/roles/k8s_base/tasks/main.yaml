@@ -1,12 +1,16 @@
 ---
+- name: strip patch version from k8s version
+  set_fact:
+    k8s_version_stripped: "{{ k8s_version | regex_replace('^(\\d+\\.\\d+)\\.\\d+$', '\\1') }}"
+
 - name: add signing key for k8s repo
   get_url:
-    url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/Release.key"
-    dest: "/etc/apt/keyrings/kubernetes-v{{ k8s_version }}.asc"
+    url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_stripped }}/deb/Release.key"
+    dest: "/etc/apt/keyrings/kubernetes-v{{ k8s_version_stripped }}.asc"
 
 - name: add k8s repo
   apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-v{{ k8s_version }}.asc] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/ /"
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-v{{ k8s_version_stripped }}.asc] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_stripped }}/deb/ /"
     state: present
 
 - name: add signing key for docker repo
@@ -22,8 +26,8 @@
 - name: install k8s core dependencies
   apt:
     pkg:
-      - "kubelet={{ k8s_version }}.*"
-      - "kubeadm={{ k8s_version }}.*"
+      - "kubelet={{ k8s_version }}-*"
+      - "kubeadm={{ k8s_version }}-*"
     state: present
     allow_change_held_packages: true # here be dragons
   notify: restart kubelet
@@ -39,7 +43,7 @@
 - name: install CRI tools
   apt:
     pkg:
-      - "cri-tools={{ k8s_version }}.*"
+      - "cri-tools={{ k8s_version_stripped }}.*"
     state: present
     allow_change_held_packages: true # here be dragons
 
