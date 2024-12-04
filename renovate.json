@@ -1,6 +1,99 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
-  ]
+    "config:best-practices"
+  ],
+  "ansible": {
+    "fileMatch": [
+      "ansible/.+\\.ya?ml$"
+    ]
+  },
+  "ansible-galaxy": {
+    "fileMatch": [
+      "ansible/requirements\\.ya?ml$"
+    ]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update cluster k8s version",
+      "fileMatch": [
+        "ansible/roles/k8s_base/vars/main.yaml"
+      ],
+      "matchStrings": [
+        "k8s_version: \"(?<currentValue>\\d+\\.\\d+.\\d+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "kubernetes/kubernetes",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update cluster containerd version",
+      "fileMatch": [
+        "ansible/roles/k8s_base/vars/main.yaml"
+      ],
+      "matchStrings": [
+        "containerd_version: \"(?<currentValue>\\d+\\.\\d+.\\d+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "containerd/containerd",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update cluster calico version",
+      "fileMatch": [
+        "ansible/roles/k8s_cluster/vars/main.yaml"
+      ],
+      "matchStrings": [
+        "calico_version: (?<currentValue>v\\d+\\.\\d+.\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "projectcalico/calico",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update cluster kube-vip version",
+      "fileMatch": [
+        "ansible/roles/k8s_cluster/vars/main.yaml"
+      ],
+      "matchStrings": [
+        "kube_vip_version: (?<currentValue>v\\d+\\.\\d+.\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "kube-vip/kube-vip",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update cluster flux version",
+      "fileMatch": [
+        "ansible/roles/k8s_flux/vars/main.yaml"
+      ],
+      "matchStrings": [
+        "flux_version: \"(?<currentValue>\\d+\\.\\d+.\\d+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "fluxcd/flux2",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    }
+  ],
+  "flux": {
+    "fileMatch": [
+      "flux/clusters/.+gotk-components\\.ya?ml$",
+      "flux/infrastructure/.+\\.ya?ml$"
+    ]
+  },
+  "kustomize": {
+    "fileMatch": [
+      "flux/.+kustomization\\.ya?ml$"
+    ]
+  }
 }
