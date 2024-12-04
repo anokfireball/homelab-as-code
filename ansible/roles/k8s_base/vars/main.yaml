@@ -1,5 +1,5 @@
 ---
 # https://cdn.dl.k8s.io/release/stable.txt
-k8s_version: "1.31.1"
+k8s_version: "1.31.3"
 # https://containerd.io/releases/#kubernetes-support
 containerd_version: "1.7.20"
