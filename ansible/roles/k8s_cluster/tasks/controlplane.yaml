@@ -57,18 +57,18 @@
 
     - name: construct the kubeadm join command for control plane nodes
       set_fact:
-        kubeadm_join_command_controlplane: |
-          kubeadm join {{ vip }}:6443 \
-            --token {{ kubeadm_token.stdout }} \
-            --discovery-token-ca-cert-hash sha256:{{ ca_cert_hash.stdout }} \
-            --control-plane \
+        kubeadm_join_command_controlplane: >
+          kubeadm join {{ vip }}:6443
+            --token {{ kubeadm_token.stdout }}
+            --discovery-token-ca-cert-hash sha256:{{ ca_cert_hash.stdout }}
+            --control-plane
             --certificate-key {{ certificate_key.stdout_lines | last }}
 
     - name: construct the kubeadm join command for worker nodes
       set_fact:
-        kubeadm_join_command_worker: |
-          kubeadm join {{ vip }}:6443 \
-            --token {{ kubeadm_token.stdout }} \
+        kubeadm_join_command_worker: >
+          kubeadm join {{ vip }}:6443
+            --token {{ kubeadm_token.stdout }}
             --discovery-token-ca-cert-hash sha256:{{ ca_cert_hash.stdout }}
 
 # https://github.com/kube-vip/kube-vip/issues/684
