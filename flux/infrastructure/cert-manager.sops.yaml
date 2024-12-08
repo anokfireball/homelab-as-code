@@ -1,3 +1,94 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: cert-manager-system
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAvZi9sVlFWN0YzNEM1Tjdv
+            cXMzV2d1QUx6am5hNk5HSmJJNTFqM05meWxzCjlQYTBHdjNteENQMVZRQTFhTVY5
+            NE1GN09jOFVMODM4NHNYVWV3OXhVblEKLS0tIGdib0VlT0RBajZ5ZmVZZlNQa0NK
+            aktKbTNBRVJ0MTNSWlUyMzhyWkozVncKQyu+Que2dXrQ26BavoBroDWT8JDvjYgp
+            qHuUz0xh3SMKW3KwQHyWGD/rz+09CSXe9In+tRuCtiK1JPNVnwOprQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-08T19:05:52Z"
+    mac: ENC[AES256_GCM,data:983y+q8WeDKHzHIC7SErVS+0eYYhuAc8mr7HzBaZYvAxY075F4jFMeSdTZBO1jmQpyIvmnvAOrvZDvZksE3W4zGtozDlwabPHILoZN/GvgE1ds40EDkAlDIai+1fALzodAbX6M2tcvlN2rIuUhKF12irSo/dDxg5RpPeQ+EN7/U=,iv:T+7YAlxqtzE9XtLoNRt4XxDYl4On2QGOhSbGN8sdFCo=,tag:vjDcRPBouf1VbUCcE0MsFQ==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(email|api-token)$
+    version: 3.9.2
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+    name: jetstack
+    namespace: cert-manager-system
+spec:
+    url: https://charts.jetstack.io
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAvZi9sVlFWN0YzNEM1Tjdv
+            cXMzV2d1QUx6am5hNk5HSmJJNTFqM05meWxzCjlQYTBHdjNteENQMVZRQTFhTVY5
+            NE1GN09jOFVMODM4NHNYVWV3OXhVblEKLS0tIGdib0VlT0RBajZ5ZmVZZlNQa0NK
+            aktKbTNBRVJ0MTNSWlUyMzhyWkozVncKQyu+Que2dXrQ26BavoBroDWT8JDvjYgp
+            qHuUz0xh3SMKW3KwQHyWGD/rz+09CSXe9In+tRuCtiK1JPNVnwOprQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-08T19:05:52Z"
+    mac: ENC[AES256_GCM,data:983y+q8WeDKHzHIC7SErVS+0eYYhuAc8mr7HzBaZYvAxY075F4jFMeSdTZBO1jmQpyIvmnvAOrvZDvZksE3W4zGtozDlwabPHILoZN/GvgE1ds40EDkAlDIai+1fALzodAbX6M2tcvlN2rIuUhKF12irSo/dDxg5RpPeQ+EN7/U=,iv:T+7YAlxqtzE9XtLoNRt4XxDYl4On2QGOhSbGN8sdFCo=,tag:vjDcRPBouf1VbUCcE0MsFQ==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(email|api-token)$
+    version: 3.9.2
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+    name: cert-manager
+    namespace: cert-manager-system
+spec:
+    interval: 1m
+    chart:
+        spec:
+            chart: cert-manager
+            version: v1.16.2
+            sourceRef:
+                kind: HelmRepository
+                name: jetstack
+                namespace: cert-manager-system
+    values:
+        crds:
+            enabled: true
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSAvZi9sVlFWN0YzNEM1Tjdv
+            cXMzV2d1QUx6am5hNk5HSmJJNTFqM05meWxzCjlQYTBHdjNteENQMVZRQTFhTVY5
+            NE1GN09jOFVMODM4NHNYVWV3OXhVblEKLS0tIGdib0VlT0RBajZ5ZmVZZlNQa0NK
+            aktKbTNBRVJ0MTNSWlUyMzhyWkozVncKQyu+Que2dXrQ26BavoBroDWT8JDvjYgp
+            qHuUz0xh3SMKW3KwQHyWGD/rz+09CSXe9In+tRuCtiK1JPNVnwOprQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-08T19:05:52Z"
+    mac: ENC[AES256_GCM,data:983y+q8WeDKHzHIC7SErVS+0eYYhuAc8mr7HzBaZYvAxY075F4jFMeSdTZBO1jmQpyIvmnvAOrvZDvZksE3W4zGtozDlwabPHILoZN/GvgE1ds40EDkAlDIai+1fALzodAbX6M2tcvlN2rIuUhKF12irSo/dDxg5RpPeQ+EN7/U=,iv:T+7YAlxqtzE9XtLoNRt4XxDYl4On2QGOhSbGN8sdFCo=,tag:vjDcRPBouf1VbUCcE0MsFQ==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(email|api-token)$
+    version: 3.9.2
 ---
 apiVersion: v1
 kind: Secret
@@ -22,8 +113,8 @@ sops:
             aktKbTNBRVJ0MTNSWlUyMzhyWkozVncKQyu+Que2dXrQ26BavoBroDWT8JDvjYgp
             qHuUz0xh3SMKW3KwQHyWGD/rz+09CSXe9In+tRuCtiK1JPNVnwOprQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-08T17:32:52Z"
-    mac: ENC[AES256_GCM,data:FnEqDwWnatKc1J2ARkYXP/ZIcRlzSRKIMpCg7Z0zxT9bJ28gsiBbpzB2TDMQI1C+ekK6CaYsIBA2R+E++EzWlkfCtryqGkwFFZBqjMgZJVHOaU19UmeJgcUTfNzYviLE9E7tzyo+tRLoRecqQUa++20Qc2Ebh6Gb1iLy0ybeMkI=,iv:OnBc5nsxR6f3aEA3Hvg4MW+r5Le3QL5nUZ3SmwcI8A4=,tag:QT2LF7tjoXiuFjGyhTpvUg==,type:str]
+    lastmodified: "2024-12-08T19:05:52Z"
+    mac: ENC[AES256_GCM,data:983y+q8WeDKHzHIC7SErVS+0eYYhuAc8mr7HzBaZYvAxY075F4jFMeSdTZBO1jmQpyIvmnvAOrvZDvZksE3W4zGtozDlwabPHILoZN/GvgE1ds40EDkAlDIai+1fALzodAbX6M2tcvlN2rIuUhKF12irSo/dDxg5RpPeQ+EN7/U=,iv:T+7YAlxqtzE9XtLoNRt4XxDYl4On2QGOhSbGN8sdFCo=,tag:vjDcRPBouf1VbUCcE0MsFQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(email|api-token)$
     version: 3.9.2
@@ -36,13 +127,14 @@ metadata:
 spec:
     acme:
         server: https://acme-v02.api.letsencrypt.org/directory
-        email: ENC[AES256_GCM,data:TepY4vjXo18wnL+j6zOmaw==,iv:8IQvJ3fJYWcvBBlApyj1S/R/VCtveCJwKSd1FWPvxtg=,tag:ObZm7Ft6i2zkDzrNOZOInQ==,type:str]
+        email: ENC[AES256_GCM,data:v+3lu/exLlyoaXbB5HtP4+d1m0SBh+Y2,iv:Y/DalpXs/tyvzh0M0kwnM38lK4NoiyYFjGEkduvkDtc=,tag:CzMva7XoRTDsMUx/G7vvEQ==,type:str]
         privateKeySecretRef:
             name: letsencrypt
         solvers:
             - dns01:
                 cloudflare:
-                    serviceAccountSecretRef:
+                    email: ENC[AES256_GCM,data:1Y0Xqp/b055zNFnMy3SGBxd68qA/RoY=,iv:z2tDHlSBXbEHSTItJsjDbU0/bvWqfzXkOS0vNJ4RDC4=,tag:tiFrewDJdAAu17Diyc/AAw==,type:str]
+                    apiKeySecretRef:
                         name: cert-manager-system
                         key: api-token
 sops:
@@ -60,8 +152,8 @@ sops:
             aktKbTNBRVJ0MTNSWlUyMzhyWkozVncKQyu+Que2dXrQ26BavoBroDWT8JDvjYgp
             qHuUz0xh3SMKW3KwQHyWGD/rz+09CSXe9In+tRuCtiK1JPNVnwOprQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-08T17:32:52Z"
-    mac: ENC[AES256_GCM,data:FnEqDwWnatKc1J2ARkYXP/ZIcRlzSRKIMpCg7Z0zxT9bJ28gsiBbpzB2TDMQI1C+ekK6CaYsIBA2R+E++EzWlkfCtryqGkwFFZBqjMgZJVHOaU19UmeJgcUTfNzYviLE9E7tzyo+tRLoRecqQUa++20Qc2Ebh6Gb1iLy0ybeMkI=,iv:OnBc5nsxR6f3aEA3Hvg4MW+r5Le3QL5nUZ3SmwcI8A4=,tag:QT2LF7tjoXiuFjGyhTpvUg==,type:str]
+    lastmodified: "2024-12-08T19:05:52Z"
+    mac: ENC[AES256_GCM,data:983y+q8WeDKHzHIC7SErVS+0eYYhuAc8mr7HzBaZYvAxY075F4jFMeSdTZBO1jmQpyIvmnvAOrvZDvZksE3W4zGtozDlwabPHILoZN/GvgE1ds40EDkAlDIai+1fALzodAbX6M2tcvlN2rIuUhKF12irSo/dDxg5RpPeQ+EN7/U=,iv:T+7YAlxqtzE9XtLoNRt4XxDYl4On2QGOhSbGN8sdFCo=,tag:vjDcRPBouf1VbUCcE0MsFQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(email|api-token)$
     version: 3.9.2
