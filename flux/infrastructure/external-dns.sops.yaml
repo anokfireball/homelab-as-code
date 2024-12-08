@@ -1,3 +1,56 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: external-dns-system
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+              -----BEGIN AGE ENCRYPTED FILE-----
+              YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBld252Y3F3RTFaektnZzRG
+              SVZmOS9LZm5HTkxFamI5QTRyYUI1Zms5Y3lnCldWenNtYUtmemZKVG0za1E0c0tT
+              b2EvL3dXRFE3em9ud1BBU3lYUXRHa0EKLS0tIFpxaVJtM0twZUI4a05IV3Q1bnI4
+              UXhTWkNVbjJCai9mcFlFUWwvNUs0TTAKXYNpGFeLBD0OkmSPOZsl7rIU0X+Wryu+
+              IgN7dIJdoKQRiQZj90hQeFYJ13wy4I2bf0ujM5nafXTaJrkj/AlPuQ==
+              -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-08T18:40:21Z"
+    mac: ENC[AES256_GCM,data:0tQ8Duu7osKFy0WwtiSVrAGu1iizTQ6VWQDmvhTeAP9ep2KOYPSpyIvIMFAsAgyS3HJ29ldLaBUp3faaevhwZOEHPmAmmyriJ5T6OOSbIuySgzx4xoNUEKLGN71T0Ulo68d9TN3V8GQCo6iIRdLDkaXja900Wo9t09C2eF21zfQ=,iv:3Tml12YTJYD4I83HYKzrsAtlcDCo6wm4vRQimuUg8e4=,tag:b3tbFJ8CLb+U+9a82RXEFg==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(provider|extraArgs)$
+    version: 3.9.2
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+    name: external-dns
+    namespace: external-dns-system
+spec:
+    url: https://kubernetes-sigs.github.io/external-dns/
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+              -----BEGIN AGE ENCRYPTED FILE-----
+              YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBld252Y3F3RTFaektnZzRG
+              SVZmOS9LZm5HTkxFamI5QTRyYUI1Zms5Y3lnCldWenNtYUtmemZKVG0za1E0c0tT
+              b2EvL3dXRFE3em9ud1BBU3lYUXRHa0EKLS0tIFpxaVJtM0twZUI4a05IV3Q1bnI4
+              UXhTWkNVbjJCai9mcFlFUWwvNUs0TTAKXYNpGFeLBD0OkmSPOZsl7rIU0X+Wryu+
+              IgN7dIJdoKQRiQZj90hQeFYJ13wy4I2bf0ujM5nafXTaJrkj/AlPuQ==
+              -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-08T18:40:21Z"
+    mac: ENC[AES256_GCM,data:0tQ8Duu7osKFy0WwtiSVrAGu1iizTQ6VWQDmvhTeAP9ep2KOYPSpyIvIMFAsAgyS3HJ29ldLaBUp3faaevhwZOEHPmAmmyriJ5T6OOSbIuySgzx4xoNUEKLGN71T0Ulo68d9TN3V8GQCo6iIRdLDkaXja900Wo9t09C2eF21zfQ=,iv:3Tml12YTJYD4I83HYKzrsAtlcDCo6wm4vRQimuUg8e4=,tag:b3tbFJ8CLb+U+9a82RXEFg==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(provider|extraArgs)$
+    version: 3.9.2
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -32,15 +85,15 @@ sops:
     age:
         - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
           enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBld252Y3F3RTFaektnZzRG
-            SVZmOS9LZm5HTkxFamI5QTRyYUI1Zms5Y3lnCldWenNtYUtmemZKVG0za1E0c0tT
-            b2EvL3dXRFE3em9ud1BBU3lYUXRHa0EKLS0tIFpxaVJtM0twZUI4a05IV3Q1bnI4
-            UXhTWkNVbjJCai9mcFlFUWwvNUs0TTAKXYNpGFeLBD0OkmSPOZsl7rIU0X+Wryu+
-            IgN7dIJdoKQRiQZj90hQeFYJ13wy4I2bf0ujM5nafXTaJrkj/AlPuQ==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-06T13:27:54Z"
-    mac: ENC[AES256_GCM,data:GDzvJTgBAPR8MecD/sPTXIpe2RGtioDSGLj/3D1LSP7ylXQtO5ddmw0JrCG+sB+aKyZ03GDGUU/cFRAFhkE69b4y9SYgOmrYoOFiHdY3yYnZNQ0IPr77JexRoZMnCp3GAQq+tKjlnKfSwniwV01uVDB9TLAQN1as124MpQThv4A=,iv:XP9JPGs7sh2ycOG0LGYsERtSRbdfYquQkCPCYyVbyGQ=,tag:8aU896YwHtfpMWFEj4IvtQ==,type:str]
+              -----BEGIN AGE ENCRYPTED FILE-----
+              YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBld252Y3F3RTFaektnZzRG
+              SVZmOS9LZm5HTkxFamI5QTRyYUI1Zms5Y3lnCldWenNtYUtmemZKVG0za1E0c0tT
+              b2EvL3dXRFE3em9ud1BBU3lYUXRHa0EKLS0tIFpxaVJtM0twZUI4a05IV3Q1bnI4
+              UXhTWkNVbjJCai9mcFlFUWwvNUs0TTAKXYNpGFeLBD0OkmSPOZsl7rIU0X+Wryu+
+              IgN7dIJdoKQRiQZj90hQeFYJ13wy4I2bf0ujM5nafXTaJrkj/AlPuQ==
+              -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-08T18:40:21Z"
+    mac: ENC[AES256_GCM,data:0tQ8Duu7osKFy0WwtiSVrAGu1iizTQ6VWQDmvhTeAP9ep2KOYPSpyIvIMFAsAgyS3HJ29ldLaBUp3faaevhwZOEHPmAmmyriJ5T6OOSbIuySgzx4xoNUEKLGN71T0Ulo68d9TN3V8GQCo6iIRdLDkaXja900Wo9t09C2eF21zfQ=,iv:3Tml12YTJYD4I83HYKzrsAtlcDCo6wm4vRQimuUg8e4=,tag:b3tbFJ8CLb+U+9a82RXEFg==,type:str]
     pgp: []
     encrypted_regex: ^.*(provider|extraArgs)$
     version: 3.9.2

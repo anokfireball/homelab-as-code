@@ -7,3 +7,7 @@ creation_rules:
     encrypted_regex: "^.*(provider|extraArgs)$"
     age: >-
       age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+  - path_regex: flux/infrastructure/cert-manager\.sops\.ya?ml
+    encrypted_regex: "^.*(email|api-token)$"
+    age: >-
+      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
