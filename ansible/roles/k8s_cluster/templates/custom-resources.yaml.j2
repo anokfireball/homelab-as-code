@@ -9,8 +9,14 @@ spec:
     bgp: Disabled
     ipPools:
     - name: default-ipv4-ippool
-      blockSize: {{ calico_node_subnet_prefix_length }}
-      cidr: {{ pod_network_cidr }}
+      blockSize: {{ calico_node_subnet_prefix_length_v4 }}
+      cidr: {{ pod_network_cidr_v4 }}
+      encapsulation: VXLANCrossSubnet
+      natOutgoing: Enabled
+      nodeSelector: all()
+    - name: default-ipv6-ippool
+      blockSize: {{ calico_node_subnet_prefix_length_v6 }}
+      cidr: {{ pod_network_cidr_v6 }}
       encapsulation: VXLANCrossSubnet
       natOutgoing: Enabled
       nodeSelector: all()

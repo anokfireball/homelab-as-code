@@ -76,20 +76,12 @@
   notify: restart unattended-upgrades
 
 - name: check SWAP
-  shell: |
-    set -o pipefail
-    swapon -s
-  args:
-    executable: /bin/bash
+  command: swapon -s
   changed_when: false
   register: swap
 
 - name: disable SWAP (temporarily)
-  shell: |
-    set -o pipefail
-    swapoff -a
-  args:
-    executable: /bin/bash
+  command: swapoff -a
   when: swap.stdout | length > 0
   changed_when: true
 

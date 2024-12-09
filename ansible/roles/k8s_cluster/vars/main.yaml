@@ -1,10 +1,16 @@
 ---
-pod_network_cidr: 172.32.0.0/16
-service_cidr: 172.16.0.0/16
+pod_network_cidr_v4: 172.32.0.0/16
+pod_network_cidr_v6: fd08:172:32::/56
+service_cidr_v4: 172.16.0.0/24
+service_cidr_v6: fd08:172:16::/112
 # https://github.com/kube-vip/kube-vip/releases
 kube_vip_version: v0.8.7
 vip: 192.168.1.210
 interface: eth0
 # https://github.com/projectcalico/calico/releases
 calico_version: v3.29.1
-calico_node_subnet_prefix_length: 24
+calico_node_subnet_prefix_length_v4: 24
+calico_node_subnet_prefix_length_v6: 112
+
+reset_cluster: false
+reset_confirmation: ""

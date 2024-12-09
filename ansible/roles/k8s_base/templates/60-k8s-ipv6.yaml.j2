@@ -1,0 +1,10 @@
+network:
+    ethernets:
+        eth0:
+            dhcp6: false
+            accept-ra: true
+            addresses:
+              - "{{ ula_prefix }}{{ node_suffix }}/64"
+            routes:
+              - to: "{{ ula_prefix }}/64"
+                via: "{{ ula_prefix }}1"

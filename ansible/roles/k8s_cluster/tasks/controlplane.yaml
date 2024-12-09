@@ -17,11 +17,11 @@
   register: kubeadm_run_previously
 
 - name: kubeadm init
-  shell: >
+  command: >
     kubeadm init
     --control-plane-endpoint {{ vip }}:6443
-    --pod-network-cidr {{ pod_network_cidr }}
-    --service-cidr {{ service_cidr }}
+    --pod-network-cidr {{ pod_network_cidr_v4 }},{{ pod_network_cidr_v6 }}
+    --service-cidr {{ service_cidr_v4 }},{{ service_cidr_v6 }}
   when: inventory_hostname == "controlplane1" and not kubeadm_run_previously.stat.exists
   changed_when: true
 

@@ -1,4 +1,8 @@
 ---
+- name: reload systemd daemon
+  systemd_service:
+    daemon_reload: true
+
 - name: restart kubelet
   systemd_service:
     name: kubelet
