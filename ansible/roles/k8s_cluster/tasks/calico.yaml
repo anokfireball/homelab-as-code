@@ -13,7 +13,10 @@
 
 - name: check if calico operator already exists
   shell: |
+    set -o pipefail
     kubectl get deployments -n tigera-operator -o json | jq ".items | length"
+  args:
+    executable: /bin/bash
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   register: calico_operator_exists
@@ -21,8 +24,8 @@
   changed_when: calico_operator_exists.stdout == '0'
 
 - name: apply calico operator manifest
-  shell: |
-    # CRD bundle too large to use kubectl apply
+  # CRD bundle too large to use kubectl apply
+  command: |
     kubectl {{ 'create' if calico_operator_exists.stdout == '0' else 'replace' }} -f /etc/calico/tigera-operator.yaml
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
@@ -36,7 +39,10 @@
 
 - name: check  if calico custom resource already exists
   shell: |
+    set -o pipefail
     kubectl get installations -o json | jq ".items | length"
+  args:
+    executable: /bin/bash
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   register: calico_custom_resource_exists
@@ -44,7 +50,7 @@
   changed_when: calico_custom_resource_exists.stdout == '0'
 
 - name: apply custom calico resource manifest
-  shell: |
+  command: |
     kubectl {{ 'create' if calico_custom_resource_exists.stdout == '0' else 'replace' }} -f /etc/calico/custom-resources.yaml
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf

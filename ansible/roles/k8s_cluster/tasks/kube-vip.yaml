@@ -20,6 +20,12 @@
     # https://github.com/kube-vip/kube-vip/issues/684
     modified_kube_vip_manifest: "{{ kube_vip_manifest.stdout | regex_replace('path: /etc/kubernetes/admin.conf', 'path: /etc/kubernetes/super-admin.conf') }}"
 
+- name: ensure kube manifest directory exists
+  file:
+    path: /etc/kubernetes/manifests
+    state: directory
+    mode: "0755"
+
 - name: write modified kube-vip manifest to file
   copy:
     content: "{{ modified_kube_vip_manifest }}"

@@ -27,11 +27,31 @@
         mode: "0755"
         remote_src: true
 
-    # also need to set the age key as a secret in the cluster
-    # https://fluxcd.io/flux/guides/mozilla-sops/#encrypting-secrets-using-age
-    - name: obtain github personal access token
+    - name: obtain secrets
       community.sops.load_vars:
-        file: token.sops.yaml
+        file: secrets.sops.yaml
+
+    - name: create sops age key secret manifest
+      template:
+        src: sops-age.secret.yaml.j2
+        dest: /tmp/sops-age.secret.yaml
+        owner: root
+        group: root
+        mode: "0640"
+      changed_when: false
+
+    - name: apply sops age key secret
+      command: kubectl apply -f /tmp/sops-age.secret.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: sops_age_secret
+      changed_when: '" created" in sops_age_secret.stdout or " configured" in sops_age_secret.stdout'
+
+    - name: clean up age key secret manifest
+      file:
+        path: /tmp/sops-age.secret.yaml
+        state: absent
+      changed_when: false
 
     - name: bootstrap flux
       command: >
