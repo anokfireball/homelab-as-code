@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-system
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: nginx-stable
+  namespace: nginx-system
+spec:
+  url: https://helm.nginx.com/stable
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nginx-ingress
+  namespace: nginx-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: nginx-ingress
+      version: "1.4.2"
+      sourceRef:
+        kind: HelmRepository
+        name: nginx-stable
+        namespace: nginx-system
+  values:
+    controller:
+      service:
+        ipFamilyPolicy: RequireDualStack
