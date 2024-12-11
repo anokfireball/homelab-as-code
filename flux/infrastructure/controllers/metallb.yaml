@@ -32,8 +32,3 @@ spec:
         kind: HelmRepository
         name: metallb
         namespace: metallb-system
-  values:
-    speaker:
-      enabled: true
-      frr:
-        enabled: false
