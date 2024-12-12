@@ -31,18 +31,62 @@
       when: ip_addr_show_result.stdout_lines | length > 0
       changed_when: true
 
+- name: determine node execution strategy
+  block:
+    - name: check installed version of kubelet
+      package_facts:
+        manager: apt
+    - name: check if kubelet has valid configuration
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf_stat
+    - set_fact:
+        containerd_upgrade: |
+          {{
+            upgrade_cluster
+            and ansible_facts.packages['containerd.io'] is defined
+            and (ansible_facts.packages['containerd.io'][0].version | regex_replace("^(\d+\.\d+\.\d+).*$", "\1") is version(containerd_version, '<'))
+          }}
+        k8s_downgrade: |
+          {{
+            ansible_facts.packages['kubelet'] is defined
+            and (ansible_facts.packages['kubelet'][0].version | regex_replace("^(\d+\.\d+\.\d+).*$", "\1") is version(k8s_version, '>'))
+          }}
+        k8s_upgrade: |
+          {{
+            upgrade_cluster
+            and ansible_facts.packages['kubelet'] is defined
+            and (ansible_facts.packages['kubelet'][0].version | regex_replace("^(\d+\.\d+\.\d+).*$", "\1") is version(k8s_version, '<'))
+          }}
+        k8s_join: |
+          {{ not kubelet_conf_stat.stat.exists }}
+
+- fail:
+    msg: "downgrade ({{ ansible_facts.packages['kubelet'][0].version }} to {{ k8s_version }}) is not supported, please just re-provision the node"
+  when: k8s_downgrade and not reset_cluster
+
+- name: strip patch version from k8s version
+  set_fact:
+    k8s_version_stripped: "{{ k8s_version | regex_replace('^(\\d+\\.\\d+)\\.\\d+$', '\\1') }}"
+
+- import_tasks: tasks/network.yaml
+
+- import_tasks: tasks/repos.yaml
+
+- import_tasks: tasks/containerd.yaml
+
 - when: "'controlplane' in group_names"
-  block:
-    - import_tasks: kube-vip.yaml
-    - import_tasks: controlplane.yaml
+  import_tasks: tasks/kube-vip.yaml
 
-- when: "'worker' in group_names"
+- when: not k8s_upgrade
   block:
-    - name: set join command for worker nodes
-      set_fact:
-        kubeadm_join_command_worker: "{{ hostvars['controlplane1'].kubeadm_join_command_worker }}"
-    - import_tasks: worker.yaml
+    - import_tasks: tasks/kubeadm.yaml
+    - import_tasks: tasks/kubelet.yaml
 
-- import_tasks:
-    file: calico.yaml
+- import_tasks: join.yaml
+
+- when: k8s_upgrade
+  ansible.builtin.import_tasks: upgrade.yaml
+
+- import_tasks: tasks/calico.yaml
   when: inventory_hostname == "controlplane1"

@@ -1,4 +1,12 @@
 ---
+k8s_version: "1.31.4"
+# https://containerd.io/releases/#kubernetes-support
+containerd_version: "1.7.24"
+
+upgrade_cluster: false
+
+node_ula_prefix: "fd08:192:168:1::"
+
 pod_network_cidr_v4: 172.32.0.0/16
 pod_network_cidr_v6: fd08:172:32::/56
 service_cidr_v4: 172.16.0.0/24

@@ -1,0 +1,17 @@
+---
+- name: mark kubeadm as unheld
+  when: k8s_upgrade
+  dpkg_selections:
+    name: kubeadm
+    selection: install
+
+- name: install kubeadm
+  apt:
+    pkg:
+      - "kubeadm={{ k8s_version }}-*"
+    state: present
+
+- name: mark kubeadm as held
+  dpkg_selections:
+    name: kubeadm
+    selection: hold

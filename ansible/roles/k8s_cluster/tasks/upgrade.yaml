@@ -1,0 +1,60 @@
+---
+- name: kubeadm upgrade primary control plane node
+  when: inventory_hostname == "controlplane1"
+  block:
+    - include_tasks: kubeadm.yaml
+
+    - name: kubeadm upgrade
+      command: "kubeadm upgrade apply v{{ k8s_version }} --yes"
+      changed_when: true
+
+- name: kubeadm upgrade all other nodes
+  when: inventory_hostname != "controlplane1"
+  block:
+    - include_tasks: kubeadm.yaml
+
+    - name: kubeadm upgrade
+      command: "kubeadm upgrade node"
+      changed_when: true
+
+- name: upgrade kubelet on primary control plane node
+  when: inventory_hostname == "controlplane1"
+  block:
+    - name: drain the node
+      command: "kubectl drain controlplane1 --ignore-daemonsets --delete-emptydir-data"
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      delegate_to: controlplane2
+
+    - include_tasks: kubelet.yaml
+
+    - meta: flush_handlers
+
+    - name: uncordon the node
+      command: "kubectl uncordon controlplane1"
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      delegate_to: controlplane2
+
+- name: upgrade kubelet on all other nodes
+  when: inventory_hostname != "controlplane1"
+  block:
+    - name: drain the node
+      command: "kubectl drain {{ item }} --ignore-daemonsets --delete-emptydir-data"
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      delegate_to: controlplane1
+      loop: "{{ play_hosts }}"
+      run_once: true
+
+    - include_tasks: kubelet.yaml
+
+    - meta: flush_handlers
+
+    - name: uncordon the node
+      command: "kubectl uncordon {{ item }}"
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      delegate_to: controlplane1
+      loop: "{{ play_hosts }}"
+      run_once: true

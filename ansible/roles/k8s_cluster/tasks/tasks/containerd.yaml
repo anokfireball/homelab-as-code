@@ -1,0 +1,40 @@
+---
+- name: mark containerd as unheld
+  when: containerd_upgrade
+  dpkg_selections:
+    name: containerd.io
+    selection: install
+
+- name: install containerd
+  apt:
+    pkg:
+      - "containerd.io={{ containerd_version }}-*"
+    state: present
+
+- name: mark containerd as held
+  dpkg_selections:
+    name: containerd.io
+    selection: hold
+
+- name: ensure /etc/containerd directory exists
+  file:
+    path: /etc/containerd
+    state: directory
+    mode: "0755"
+
+- name: generate default containerd config
+  command: containerd config default
+  register: containerd_config
+  changed_when: false
+
+- name: modify containerd config
+  set_fact:
+    modified_containerd_config: "{{ containerd_config.stdout | regex_replace('SystemdCgroup = false', 'SystemdCgroup = true ') }}"
+
+- name: write modified containerd config to file
+  copy:
+    content: "{{ modified_containerd_config }}"
+    dest: /etc/containerd/config.toml
+  notify: restart containerd
+
+- meta: flush_handlers

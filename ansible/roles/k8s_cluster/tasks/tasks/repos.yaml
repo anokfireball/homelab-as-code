@@ -1,0 +1,20 @@
+---
+- name: add signing key for k8s repo
+  get_url:
+    url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_stripped }}/deb/Release.key"
+    dest: "/etc/apt/keyrings/kubernetes-v{{ k8s_version_stripped }}.asc"
+
+- name: add k8s repo
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-v{{ k8s_version_stripped }}.asc] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_stripped }}/deb/ /"
+    state: present
+
+- name: add signing key for docker repo
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+
+- name: add docker repo
+  apt_repository:
+    repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
