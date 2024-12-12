@@ -4,11 +4,13 @@
   block:
     - name: kubeadm reset
       command: kubeadm reset -f
+      throttle: 1
       register: reset_result
-      retries: 3
+      retries: 1
       until: reset_result.rc == 0
       changed_when: true
       failed_when: reset_result.rc != 0 and reset_result.attempts|default(1) == 3
+
     - name: remove k8s-related folders
       file:
         path: "{{ item }}"
@@ -17,11 +19,13 @@
         - /etc/kubernetes
         - /var/lib/kubelet
         - /root/.kube
+
     - name: check if VIP is assigned
       command: ip addr show to {{ vip }}/32 dev eth0
       register: ip_addr_show_result
       changed_when: false
       failed_when: false
+
     - name: remove VIP from interface
       command: ip addr del {{ vip }}/32 dev eth0
       when: ip_addr_show_result.stdout_lines | length > 0
