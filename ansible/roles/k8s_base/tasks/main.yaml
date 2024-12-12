@@ -29,7 +29,6 @@
       - "kubelet={{ k8s_version }}-*"
       - "kubeadm={{ k8s_version }}-*"
     state: present
-    allow_change_held_packages: true # here be dragons
   notify: restart kubelet
 
 - name: install containerd
@@ -37,7 +36,6 @@
     pkg:
       - "containerd.io>={{ containerd_version }}"
     state: present
-    allow_change_held_packages: true # here be dragons
   register: containerd_install
 
 - name: install CRI tools
@@ -45,7 +43,6 @@
     pkg:
       - "cri-tools={{ k8s_version_stripped }}.*"
     state: present
-    allow_change_held_packages: true # here be dragons
 
 - name: mark k8s core dependencies as hold
   dpkg_selections:
