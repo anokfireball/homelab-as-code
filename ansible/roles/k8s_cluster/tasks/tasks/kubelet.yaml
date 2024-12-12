@@ -1,0 +1,50 @@
+---
+- name: mark core k8s dependencies unheld
+  when: k8s_upgrade
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: install
+  with_items:
+    - kubelet
+    - kubectl
+    - cri-tools
+
+- name: install core k8s dependencies
+  apt:
+    pkg:
+      - "kubelet={{ k8s_version }}-*"
+      - "kubectl={{ k8s_version }}-*"
+    state: present
+  notify:
+    - reload systemd daemon
+    - restart kubelet
+
+- name: install cri-tools
+  apt:
+    pkg:
+      - "cri-tools={{ k8s_version_stripped }}.*"
+    allow_downgrade: true
+    allow_change_held_packages: true
+    state: present
+  notify:
+    - reload systemd daemon
+
+- name: mark core k8s dependencies as held
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  with_items:
+    - kubelet
+    - kubectl
+    - cri-tools
+
+- name: configure kubelet IPs
+  copy:
+    dest: /etc/default/kubelet
+    content: |
+      Environment="KUBELET_EXTRA_ARGS=--node-ip={{ ansible_default_ipv4.address }},{{ node_ula_prefix }}{{ node_suffix }}"
+  notify:
+    - reload systemd daemon
+    - restart kubelet
+
+- meta: flush_handlers

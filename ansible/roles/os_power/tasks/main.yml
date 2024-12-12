@@ -24,7 +24,7 @@
   register: product_name
 
 - name: force ASPM states for nodes with Realtek NICs
-  when: product_name.stdout == 'ESPRIMO Q556/2'
+  when: product_name.stdout == "ESPRIMO Q556/2"
   # https://wireless.wiki.kernel.org/en/users/documentation/aspm
   # L1 seems to be bugged for the Realtek NIC, do only L0s (i.e. 0x41) for now
   block:
@@ -44,7 +44,7 @@
 
 - name: determine most efficient ASPM policy
   set_fact:
-    aspm_policy: '{{ aspm_policies["content"] | b64decode | split | last | replace("[", "") | replace("]", "") }}'
+    aspm_policy: "{{ aspm_policies['content'] | b64decode | split | last | replace('[', '') | replace(']', '') }}"
 
 - name: setup kernel parameters
   lineinfile:
