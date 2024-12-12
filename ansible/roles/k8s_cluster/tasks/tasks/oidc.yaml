@@ -1,0 +1,14 @@
+---
+- name: obtain secrets
+  community.sops.load_vars:
+    file: secrets.sops.yaml
+
+- name: add OIDC provider to kube-apiserver config
+  lineinfile:
+    path: /etc/kubernetes/manifests/kube-apiserver.yaml
+    insertafter: '^    - kube-apiserver$'
+    line: '    {{ item }}'
+    regexp: '^    {{ item | regex_escape() }}$'
+  with_items:
+    - '- --oidc-issuer-url=https://{{ oidc_issuer_url }}'
+    - '- --oidc-client-id={{ oidc_client_id }}'

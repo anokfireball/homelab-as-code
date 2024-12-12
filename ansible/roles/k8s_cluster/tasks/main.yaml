@@ -76,7 +76,9 @@
 - import_tasks: tasks/containerd.yaml
 
 - when: "'controlplane' in group_names"
-  import_tasks: tasks/kube-vip.yaml
+  block:
+    - import_tasks: tasks/kube-vip.yaml
+    - import_tasks: tasks/oidc.yaml
 
 - when: not k8s_upgrade
   block:
@@ -86,7 +88,7 @@
 - import_tasks: join.yaml
 
 - when: k8s_upgrade
-  ansible.builtin.import_tasks: upgrade.yaml
+  import_tasks: upgrade.yaml
 
 - import_tasks: tasks/calico.yaml
   when: inventory_hostname == "controlplane1"

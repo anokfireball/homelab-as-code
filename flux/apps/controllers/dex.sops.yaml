@@ -1,0 +1,159 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: dex-system
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiVG5pUmc2NnR5NUhsMFo1
+            M1ZWZDZhWk9WTzNyYWlUZEt6MHBWcWZleHdnClhlZUZPMnhXOWpUYWczUlgzV0ky
+            TzVZN2E2QXBWNDJQOUxGaU9XWjFQRUUKLS0tIFkya1I3bEYxS3VlbWgydU8xdklm
+            anUzU2loNWswYlFseEpqN2tYWnpiN3cKtjP06NDuB5cSYaMyA8df30gP03FlT91B
+            Pa2EOBQz8KLIMumaIRUxYyP9mwXwkTGzzNP3eliOkd9m7tkMrZSuXQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-12T22:50:11Z"
+    mac: ENC[AES256_GCM,data:fLbsHvOfm1a60hjXlEMZ7Bql0fSc/uRqghxke/ug8dsOx2LXzP8DPGFj28WtMybcyNXWszWphA48T1sbG6plbPmB+7O6XLtvJk/ygx2Dxq5qtV411uE24zi9NFasme7l5Kmx5nQO9Q450qiNBkO8yEsHuSHS6mj1gKKFl7Ls1o0=,iv:zIqT3PxqbyqkVYnNJO4l2AZKsX2xkNTuLOonDVV2v1w=,tag:tMNCKysF3msw6Kj1lKsqoA==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(values|subjects)$
+    version: 3.9.2
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+    name: dexidp
+    namespace: dex-system
+spec:
+    url: https://charts.dexidp.io
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiVG5pUmc2NnR5NUhsMFo1
+            M1ZWZDZhWk9WTzNyYWlUZEt6MHBWcWZleHdnClhlZUZPMnhXOWpUYWczUlgzV0ky
+            TzVZN2E2QXBWNDJQOUxGaU9XWjFQRUUKLS0tIFkya1I3bEYxS3VlbWgydU8xdklm
+            anUzU2loNWswYlFseEpqN2tYWnpiN3cKtjP06NDuB5cSYaMyA8df30gP03FlT91B
+            Pa2EOBQz8KLIMumaIRUxYyP9mwXwkTGzzNP3eliOkd9m7tkMrZSuXQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-12T22:50:11Z"
+    mac: ENC[AES256_GCM,data:fLbsHvOfm1a60hjXlEMZ7Bql0fSc/uRqghxke/ug8dsOx2LXzP8DPGFj28WtMybcyNXWszWphA48T1sbG6plbPmB+7O6XLtvJk/ygx2Dxq5qtV411uE24zi9NFasme7l5Kmx5nQO9Q450qiNBkO8yEsHuSHS6mj1gKKFl7Ls1o0=,iv:zIqT3PxqbyqkVYnNJO4l2AZKsX2xkNTuLOonDVV2v1w=,tag:tMNCKysF3msw6Kj1lKsqoA==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(values|subjects)$
+    version: 3.9.2
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+    name: dex
+    namespace: dex-system
+spec:
+    interval: 1m
+    chart:
+        spec:
+            chart: dex
+            version: 0.19.1
+            sourceRef:
+                kind: HelmRepository
+                name: dexidp
+                namespace: dex-system
+    values:
+        config:
+            issuer: ENC[AES256_GCM,data:RIqyeVYjn9uqw+xVXIx17tuYFRckttKlaw==,iv:iNMVcxb52nTC+muWXfW2LAc01+vtEAGAUjSsaDiaPHc=,tag:79NfSEuLSdCUA+C8KJmVuw==,type:str]
+            storage:
+                type: ENC[AES256_GCM,data:/4ZS8x4w142lNQ==,iv:dZko1idxycCX1X4Wp+VMbBQW2i++YgIAu7Cq90/qNow=,tag:116d5S8A8Mn3A2ub0HtCwg==,type:str]
+                config:
+                    inCluster: ENC[AES256_GCM,data:z20xZA==,iv:oWFJ88APGZOlnMkyUqd/uE1IjBwaAYalnY1IjU0eJg8=,tag:Hlpwx6Sep+4G4XC/P1EqZQ==,type:bool]
+            connectors:
+                - type: ENC[AES256_GCM,data:Vq1sf9Ey,iv:AA+FI8iW5vwBQR6wxNujbf/k2IyarfltimqN1BWB7wQ=,tag:ZBWdXXpXJm/5v23WMyXpiQ==,type:str]
+                  id: ENC[AES256_GCM,data:hajGsnMV,iv:4tAGjtnGOsqBn+2ZECixX9aF4Ygn0VxhZ++nPfkRXrw=,tag:ypXKhT0o7o+2hJexWBEvDA==,type:str]
+                  name: ENC[AES256_GCM,data:J6Jjv0/6,iv:SIS+wdG3ts+WeLf/aDaNur08rlylh8qXgN5y/LQYBQY=,tag:SGqxXZcElMeLfqGfe7NyMQ==,type:str]
+                  config:
+                    clientID: ENC[AES256_GCM,data:mJc22eie0F7lKF6bi8HVCAI5VY8=,iv:31Zg/yjc61kOOwXjzItI+3T5/xi3dxzYSWgYbsTz1y8=,tag:SpSWC0bUxkls+9gctdUP3w==,type:str]
+                    clientSecret: ENC[AES256_GCM,data:WhIv3cCTgauaie9hfetAtwYzD7MQucf2TH+pVlSiqZ8+MLcZQAiujQ==,iv:xKCbjFqQp5no6mcphjuTXjbMNdpm228pWq9Lx9KsSJ4=,tag:H5vhHtoeRXW7uCsVf3G+4A==,type:str]
+                    redirectURI: ENC[AES256_GCM,data:LsjUd2cESTs7tmhvSZIbvDMqtwb2Xncq2vIHKU8cG2HEug==,iv:0gqiH5CHGh3BvDmSxjwX0SOkJio4od+0I8ft2hnUuE8=,tag:Zm3JJPPBmydInzTwm6jcHA==,type:str]
+            staticClients:
+                - ENC[AES256_GCM,data:Bm23aaSIYFXpcKQjGjFIAd6CbkpE+D4HssACmKnGcPJLKZfDwFpnG7g3CKBN6UXNcMHmSorRyA/YS2cbUuMzRtXZSmIkTOz7ct+hLDmYkKUELc7JUnU=,iv:dGwSEm8SIvzzNTLB26QWNSvNhpEZKyKfZp4yoKhPnl8=,tag:aKG7GJyreN+u3k5+bAjX3w==,type:comment]
+                - id: ENC[AES256_GCM,data:3Dyn5Bp1jURYbqY=,iv:9hAidkIAjJm5tu/GpYReWkN9u2hqT1meKnvyCTGVRv8=,tag:C1/rb1DSIOYL5WLciY5OPw==,type:str]
+                  name: ENC[AES256_GCM,data:tWYLcXa+hg==,iv:BPC6Ibk2qLsKUbzkWkIFANkPXDGcehYWgw5mybJMjA0=,tag:ikO3U9ejyQ6Ag7I7iqFoFg==,type:str]
+                  redirectURIs:
+                    - ENC[AES256_GCM,data:LvjsQ+S684NcNMh+XXGQSrpypw7g,iv:xj9LVT7USzIRVFv8qWVt9KJFSruhXL/X91kk1MKfOm4=,tag:eqgGqhzPqc4J8hUNAye6zg==,type:str]
+                  secret: ENC[AES256_GCM,data:YtHmxLkRYA7VlvUcTjWUn6k7xWz6aHVUvUW4ibx5Cgkkq+SwB7C3IuCar2v1BCV/90Jyp8Aa8+o2xQcIW1JdtQ==,iv:HiiU8vXyzQIccZcGCWvudj0g44SCDg8wm7R7A6hxnvI=,tag:RNVCoPbn1L3col7WC/HnRA==,type:str]
+        ingress:
+            enabled: ENC[AES256_GCM,data:eCHfpQ==,iv:NO8j4w7UNkZypPra+b0O7MKaZF3SLYf7Y23D28EN3LU=,tag:IGNDIP7MIlwGj5Fb1/fsMg==,type:bool]
+            className: ENC[AES256_GCM,data:NKDJ7NA=,iv:AUfinJSaETIQ4YLMg5W+9usPKnugAQBNcg6CJqiP4sg=,tag:vCxinE0B+FZHjHci8mG+BQ==,type:str]
+            annotations:
+                kubernetes.io/ingress.class: ENC[AES256_GCM,data:z17ShiE=,iv:UDhbNV6ZKd0ygpjsmlzhx1zNpxHrylYI4Spmkk4qZ6o=,tag:4f7kwBNC57T1feSWBPS8eA==,type:str]
+                external-dns.alpha.kubernetes.io/hostname: ENC[AES256_GCM,data:JfFo1onOZKmRzCxcsl/QOjk=,iv:OCQ3rBCt9v3m6wpwX6o6azuNEvRQIWaJ2Akp/FU2Rpw=,tag:jNb6x/dTuNew7JcrwjnEVw==,type:str]
+                cert-manager.io/cluster-issuer: ENC[AES256_GCM,data:u5KZj56IDV3noHg=,iv:GN7udad3c/xRVwdDOjw4TPaXiW0iG2v0wisvhzHXRHM=,tag:LwUj9wDaLpDkgr0SKhqzNw==,type:str]
+            hosts:
+                - host: ENC[AES256_GCM,data:Xvju8REKrfRIi7SESDgGkyk=,iv:S4Wnv+RHfEc7PTPkxw5wVdTbXMuGd3uXp8PMFC3V1+k=,tag:AvWSUe9icvVGHpARgkMKKA==,type:str]
+                  paths:
+                    - path: ENC[AES256_GCM,data:fQ==,iv:tcAA4jSfuoOal45FWQSvMAE6c82nVGxIeOgOmGFp2rI=,tag:d0bwpB0lj0lAF7OrZty5RA==,type:str]
+                      pathType: ENC[AES256_GCM,data:/MSuy0ee,iv:kyQ6DqCztKfbX/izAMYtR5ei4vC93Iah9WcuEFFar9g=,tag:eNN8nyWQB4ZxXrIIb81o/w==,type:str]
+            tls:
+                - secretName: ENC[AES256_GCM,data:8b1KydQQow==,iv:iC++lSNV66w638U1WL5hG3ZuvyWB5TcbR4G34dBEkDE=,tag:p1nlwHQeo88tX8wjfePNlQ==,type:str]
+                  hosts:
+                    - ENC[AES256_GCM,data:c7OhVoVvB2OeycfQ6yqTCKE=,iv:NlVq2tnE+H2nwNKeytNfRZKYCdkg63huDWaKgpT5mZg=,tag:It63eDAHR9+O92kc6W9EIQ==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiVG5pUmc2NnR5NUhsMFo1
+            M1ZWZDZhWk9WTzNyYWlUZEt6MHBWcWZleHdnClhlZUZPMnhXOWpUYWczUlgzV0ky
+            TzVZN2E2QXBWNDJQOUxGaU9XWjFQRUUKLS0tIFkya1I3bEYxS3VlbWgydU8xdklm
+            anUzU2loNWswYlFseEpqN2tYWnpiN3cKtjP06NDuB5cSYaMyA8df30gP03FlT91B
+            Pa2EOBQz8KLIMumaIRUxYyP9mwXwkTGzzNP3eliOkd9m7tkMrZSuXQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-12T22:50:11Z"
+    mac: ENC[AES256_GCM,data:fLbsHvOfm1a60hjXlEMZ7Bql0fSc/uRqghxke/ug8dsOx2LXzP8DPGFj28WtMybcyNXWszWphA48T1sbG6plbPmB+7O6XLtvJk/ygx2Dxq5qtV411uE24zi9NFasme7l5Kmx5nQO9Q450qiNBkO8yEsHuSHS6mj1gKKFl7Ls1o0=,iv:zIqT3PxqbyqkVYnNJO4l2AZKsX2xkNTuLOonDVV2v1w=,tag:tMNCKysF3msw6Kj1lKsqoA==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(values|subjects)$
+    version: 3.9.2
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: oidc-cluster-admin
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: cluster-admin
+subjects:
+    - apiGroup: ENC[AES256_GCM,data:NyLAV4YFvN5hDmRUp6sGukGCXyicvZCoRg==,iv:+O5bd7DRiwEHihxXX2+SBgWZB9r+lUZsoOwoVn6kyfs=,tag:MT39CL3Stt4EP9MuZF443g==,type:str]
+      kind: ENC[AES256_GCM,data:YOh5dg==,iv:eRh0Evc6nuYoEunN9705JIE/u1kL7zepbXk4pNe9oT4=,tag:nokVX8N7cQtyltXfwsOTxw==,type:str]
+      name: ENC[AES256_GCM,data:BwlPDWowhHB43eb2k5BaO6imU8NKOyKrTQgLJzXDVi8z2EJ+KU6Cf9CMxzFK8Fl6Zg==,iv:i54K3Ky5zy66M3BfluXqoJuGU2E71OzN2PM/R0TtHeg=,tag:J5ae+m0jaZ0wb/wixWNlMg==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiVG5pUmc2NnR5NUhsMFo1
+            M1ZWZDZhWk9WTzNyYWlUZEt6MHBWcWZleHdnClhlZUZPMnhXOWpUYWczUlgzV0ky
+            TzVZN2E2QXBWNDJQOUxGaU9XWjFQRUUKLS0tIFkya1I3bEYxS3VlbWgydU8xdklm
+            anUzU2loNWswYlFseEpqN2tYWnpiN3cKtjP06NDuB5cSYaMyA8df30gP03FlT91B
+            Pa2EOBQz8KLIMumaIRUxYyP9mwXwkTGzzNP3eliOkd9m7tkMrZSuXQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-12T22:50:11Z"
+    mac: ENC[AES256_GCM,data:fLbsHvOfm1a60hjXlEMZ7Bql0fSc/uRqghxke/ug8dsOx2LXzP8DPGFj28WtMybcyNXWszWphA48T1sbG6plbPmB+7O6XLtvJk/ygx2Dxq5qtV411uE24zi9NFasme7l5Kmx5nQO9Q450qiNBkO8yEsHuSHS6mj1gKKFl7Ls1o0=,iv:zIqT3PxqbyqkVYnNJO4l2AZKsX2xkNTuLOonDVV2v1w=,tag:tMNCKysF3msw6Kj1lKsqoA==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(values|subjects)$
+    version: 3.9.2

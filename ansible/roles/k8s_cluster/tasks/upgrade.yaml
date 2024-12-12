@@ -36,6 +36,7 @@
         KUBECONFIG: /etc/kubernetes/admin.conf
       delegate_to: controlplane2
 
+# TODO this needs to be run sequentially, not in parallel
 - name: upgrade kubelet on all other nodes
   when: inventory_hostname != "controlplane1"
   block:
@@ -44,8 +45,6 @@
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       delegate_to: controlplane1
-      loop: "{{ play_hosts }}"
-      run_once: true
 
     - include_tasks: kubelet.yaml
 
@@ -56,5 +55,3 @@
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       delegate_to: controlplane1
-      loop: "{{ play_hosts }}"
-      run_once: true
