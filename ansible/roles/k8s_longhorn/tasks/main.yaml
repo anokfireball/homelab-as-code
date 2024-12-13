@@ -1,0 +1,38 @@
+---
+- name: install open-iscsi
+  apt:
+    name: open-iscsi
+    state: present
+
+- name: make sure iscsi kernel module is loaded
+  modprobe:
+    name: iscsi_tcp
+    state: present
+    persistent: present
+
+- name: make sure iscsid is running
+  service:
+    name: iscsid
+    state: started
+    enabled: true
+
+- name: install nfsv4 packages
+  apt:
+    name: nfs-common
+
+- name: install required nix packages
+  apt:
+    name:
+      - bash
+      - curl
+      # findmnt, blkid, lsblk
+      - util-linux
+      - grep
+      - mawk
+    state: present
+
+- name: remove multipathd
+  apt:
+    name: multipath-tools
+    state: absent
+    purge: true
