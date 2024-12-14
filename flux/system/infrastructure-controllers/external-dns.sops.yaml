@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: external-dns-system
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBaVVVScG9xSlZpajV5VUhC
+            MmM5d3ZaK3RsazZ3bUxLalgvaW85QU5vUWw4CjI5T0duQW4xTktvOXhCM2R1WjJ4
+            eXJzWXN4bktIY21wdjRQQ1p1bzcvOWcKLS0tIHpwQTZORHU4SXU4dTFnVDdwSFAw
+            U2IreDFtV1NpazZOTXVQdHo0ODcrUzQKcP4cMxoP10nXR2/6gB4aWTJ3KWoaxoOC
+            uawcpNbEGFoOvSpvf/NmYNp+PKUbfjnrtQAWhhH8VmzZ7kgIb0y6cA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-14T15:50:06Z"
+    mac: ENC[AES256_GCM,data:Wb65W5dH0m0mn6MQHT51lqTqZME2EcAIW9PLDGua5gveGZLJI+jMgUTzR4UL8kCa6H+/JGnfO/fMWLAidwU68MZasD/mABT3j/BEgp0WHVeYEsnfbHfaAuCaLeGKs+ROfeWnXQ91TwgZaLmnbj19TPvkHx+PMJMe0d/warxJ0+Q=,iv:5Xz73j0hDziwiQikpIfnPliBGK+ej8j+T3jtmf12yb4=,tag:fX4JK8Skvh/bN+FTbuHf4g==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(env)$
+    version: 3.9.2
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+    name: external-dns
+    namespace: external-dns-system
+spec:
+    url: https://kubernetes-sigs.github.io/external-dns/
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBaVVVScG9xSlZpajV5VUhC
+            MmM5d3ZaK3RsazZ3bUxLalgvaW85QU5vUWw4CjI5T0duQW4xTktvOXhCM2R1WjJ4
+            eXJzWXN4bktIY21wdjRQQ1p1bzcvOWcKLS0tIHpwQTZORHU4SXU4dTFnVDdwSFAw
+            U2IreDFtV1NpazZOTXVQdHo0ODcrUzQKcP4cMxoP10nXR2/6gB4aWTJ3KWoaxoOC
+            uawcpNbEGFoOvSpvf/NmYNp+PKUbfjnrtQAWhhH8VmzZ7kgIb0y6cA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-14T15:50:06Z"
+    mac: ENC[AES256_GCM,data:Wb65W5dH0m0mn6MQHT51lqTqZME2EcAIW9PLDGua5gveGZLJI+jMgUTzR4UL8kCa6H+/JGnfO/fMWLAidwU68MZasD/mABT3j/BEgp0WHVeYEsnfbHfaAuCaLeGKs+ROfeWnXQ91TwgZaLmnbj19TPvkHx+PMJMe0d/warxJ0+Q=,iv:5Xz73j0hDziwiQikpIfnPliBGK+ej8j+T3jtmf12yb4=,tag:fX4JK8Skvh/bN+FTbuHf4g==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(env)$
+    version: 3.9.2
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+    name: external-dns
+    namespace: external-dns-system
+spec:
+    interval: 1m
+    chart:
+        spec:
+            chart: external-dns
+            version: v1.15.0
+            sourceRef:
+                kind: HelmRepository
+                name: external-dns
+                namespace: external-dns-system
+    values:
+        policy: sync
+        provider:
+            name: webhook
+            webhook:
+                image:
+                    repository: ghcr.io/jobs62/opnsense_unbound_external-dns_webhook
+                    tag: v0.4.5
+                securityContext:
+                    runAsNonRoot: true
+                    runAsUser: 1000
+                    runAsGroup: 1000
+                    allowPrivilegeEscalation: false
+                env:
+                    - name: ENC[AES256_GCM,data:Vmpq+aw74pvWOVdM6g==,iv:SqzHDdZsHdME9p/e9h6BuBYBQ/lz8rAMoWrL8tFKrs8=,tag:h7/8osF6UIZuJsgXcO6xYQ==,type:str]
+                      value: ENC[AES256_GCM,data:JajkQLUoKkGkjGHYysVx1+VLIg==,iv:z46k9XxqiJaMOF2lvC3L4r9h80dB1M+aa2NoE/efutU=,tag:+0Ac7nkUXy9ZXvs/dy9HWQ==,type:str]
+                    - name: ENC[AES256_GCM,data:B7jprt4PP8jEGV63Cw==,iv:O/yukVnUvyf8CeNRGoZVAIzetjs9gnuLiJumffjUW0I=,tag:Go8g6T0xTVDfez8QXCPx1g==,type:str]
+                      value: ENC[AES256_GCM,data:J5Hszef6FizV9bWK,iv:Obi8gSNoh8eeqsDZYmYwyCYWwSacA4LHfYOaIFRq2Y0=,tag:NWX+opYYKCeg2F+uw39Nzg==,type:str]
+                    - name: ENC[AES256_GCM,data:SjJtVeWyLgpz9J0HZajfqlnrsBeMNhY=,iv:e8b0MpaSTzQGP5ufdmAdrFz/7/o9tCL3Ob9v10O0Oj8=,tag:/78exQx55C0gdoRtaVFoGQ==,type:str]
+                      value: ENC[AES256_GCM,data:UBCA3ior4xvnNMff1ctcKQQ=,iv:l/jNu5SXLmqWdIFVJ3K6vWihDhWeqCODjl5EshpKe5I=,tag:FV6jSalqjq4PmzxTXPH0XQ==,type:str]
+                    - name: ENC[AES256_GCM,data:2uWO4RTqPxmHMB0h,iv:T0BhQ78chPWa4t3CjhtM0ffw9owkJzmE+TT1QSxQ5iM=,tag:5xMlQ5C2pZKp+Ups0I/GSg==,type:str]
+                      value: ENC[AES256_GCM,data:ilRHfLOrZApXeuwgw5jjpvy4Ho2G81lwoZYuTNfSPfGNtMFCpabyUrPZjxoig8oryU6lNgFjyFESNhjdx/Uo+Rqme6N/qwYeVcgDy7y/Ch4=,iv:00g/qdWFyXsQ6eFKWJOjaFYOi6qZiQliQyZpHCB6wIY=,tag:aRjOrHWVIBD+puZFkeCAaQ==,type:str]
+                    - name: ENC[AES256_GCM,data:pNfSEw4rUNvsp7aA7rMR,iv:BXqzxSfqy7jQq2OnceUQbI+jkWcHrEDfJVioEWXArOc=,tag:YpM2KJ861QrmOYu3bUC8Wg==,type:str]
+                      value: ENC[AES256_GCM,data:EEtoDLHkp5FETNaAogkkIGmWETm2rL19GvVTukV+GZK9Xa8Wx7DIsUUES4Y/zqSXHQZUObyVdiv0nbRh78hxyaoYJueOu77YrVVgAYYoV+E=,iv:Ueu/W0rjMC6oMD6iu+kTh4AlrLG6az5KKBe+WHuhvxg=,tag:jDoLGWsRhqnliILSxCPx8A==,type:str]
+        registry: noop
+        extraArgs:
+            - --webhook-provider-url=http://localhost:8080
+        managedRecordTypes:
+            - A
+            - AAAA
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBaVVVScG9xSlZpajV5VUhC
+            MmM5d3ZaK3RsazZ3bUxLalgvaW85QU5vUWw4CjI5T0duQW4xTktvOXhCM2R1WjJ4
+            eXJzWXN4bktIY21wdjRQQ1p1bzcvOWcKLS0tIHpwQTZORHU4SXU4dTFnVDdwSFAw
+            U2IreDFtV1NpazZOTXVQdHo0ODcrUzQKcP4cMxoP10nXR2/6gB4aWTJ3KWoaxoOC
+            uawcpNbEGFoOvSpvf/NmYNp+PKUbfjnrtQAWhhH8VmzZ7kgIb0y6cA==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-14T15:50:06Z"
+    mac: ENC[AES256_GCM,data:Wb65W5dH0m0mn6MQHT51lqTqZME2EcAIW9PLDGua5gveGZLJI+jMgUTzR4UL8kCa6H+/JGnfO/fMWLAidwU68MZasD/mABT3j/BEgp0WHVeYEsnfbHfaAuCaLeGKs+ROfeWnXQ91TwgZaLmnbj19TPvkHx+PMJMe0d/warxJ0+Q=,iv:5Xz73j0hDziwiQikpIfnPliBGK+ej8j+T3jtmf12yb4=,tag:fX4JK8Skvh/bN+FTbuHf4g==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(env)$
+    version: 3.9.2

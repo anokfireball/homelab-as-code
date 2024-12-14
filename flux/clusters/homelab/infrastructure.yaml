@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infrastructure-controllers
+  name: system-infrastructure-controllers
   namespace: flux-system
 spec:
   interval: 1h
@@ -11,7 +11,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./flux/infrastructure/controllers
+  path: ./flux/system/infrastructure-controllers
   prune: true
   wait: true
   decryption:
@@ -22,7 +22,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infrastructure-configs
+  name: system-infrastructure-configs
   namespace: flux-system
 spec:
   interval: 1h
@@ -31,11 +31,55 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./flux/infrastructure/configs
+  path: ./flux/system/infrastructure-configs
   prune: true
   wait: true
   dependsOn:
-    - name: infrastructure-controllers
+    - name: system-infrastructure-controllers
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: system-app-controllers
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./flux/system/app-controllers
+  prune: true
+  wait: true
+  dependsOn:
+    - name: system-infrastructure-configs
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: system-app-configs
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./flux/system/app-configs
+  prune: true
+  wait: true
+  dependsOn:
+    - name: system-app-controllers
   decryption:
     provider: sops
     secretRef:

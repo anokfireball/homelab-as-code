@@ -88,8 +88,7 @@
   "flux": {
     "fileMatch": [
       "flux/clusters/.+gotk-components\\.ya?ml$",
-      "flux/apps/.+\\.ya?ml$",
-      "flux/infrastructure/.+\\.ya?ml$"
+      "flux/system/.+\\.ya?ml$"
     ]
   },
   "kustomize": {
