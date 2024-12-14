@@ -21,9 +21,9 @@
         "ansible/roles/k8s_cluster/vars/main.yaml"
       ],
       "matchStrings": [
-        "k8s_version: \"(?<currentValue>\\d+\\.\\d+.\\d+)\""
+        "k8s_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
-      "datasourceTemplate": "github-tags",
+      "datasourceTemplate": "github-releases",
       "packageNameTemplate": "kubernetes/kubernetes",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
@@ -35,9 +35,9 @@
         "ansible/roles/k8s_cluster/vars/main.yaml"
       ],
       "matchStrings": [
-        "containerd_version: \"(?<currentValue>\\d+\\.\\d+.\\d+)\""
+        "containerd_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
-      "datasourceTemplate": "github-tags",
+      "datasourceTemplate": "github-releases",
       "packageNameTemplate": "containerd/containerd",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
@@ -49,9 +49,9 @@
         "ansible/roles/k8s_cluster/vars/main.yaml"
       ],
       "matchStrings": [
-        "calico_version: (?<currentValue>v\\d+\\.\\d+.\\d+)"
+        "calico_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
       ],
-      "datasourceTemplate": "github-tags",
+      "datasourceTemplate": "github-releases",
       "packageNameTemplate": "projectcalico/calico",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
@@ -63,9 +63,9 @@
         "ansible/roles/k8s_cluster/vars/main.yaml"
       ],
       "matchStrings": [
-        "kube_vip_version: (?<currentValue>v\\d+\\.\\d+.\\d+)"
+        "kube_vip_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
       ],
-      "datasourceTemplate": "github-tags",
+      "datasourceTemplate": "github-releases",
       "packageNameTemplate": "kube-vip/kube-vip",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
@@ -77,12 +77,26 @@
         "ansible/roles/k8s_flux/vars/main.yaml"
       ],
       "matchStrings": [
-        "flux_version: \"(?<currentValue>\\d+\\.\\d+.\\d+)\""
+        "flux_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
-      "datasourceTemplate": "github-tags",
+      "datasourceTemplate": "github-releases",
       "packageNameTemplate": "fluxcd/flux2",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update opnsense_unbound_external-dns_webhook sidecar",
+      "fileMatch": [
+        "flux/system/infrastructure-controllers/external-dns.sops.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "jobs62/opnsense_unbound_external-dns_webhook",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
