@@ -27,3 +27,10 @@ spec:
         kind: HelmRepository
         name: longhorn
         namespace: longhorn-system
+  values:
+    # all nodes are supposed to be used for storage
+    global:
+      tolerations:
+        - operator: Exists
+    persistence:
+      defaultFsType: "xfs"
