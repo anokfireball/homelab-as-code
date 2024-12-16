@@ -56,7 +56,7 @@
     # yamllint disable rule:line-length
     block: |
       if [[ -n $SSH_CONNECTION && -z "$TMUX" ]] ; then
-        sudo inxi --color 2 --cpu --disk --ip --ip-limit 1 --swap --memory-modules --machine --network-advanced --partitions-full --sensors --system --no-host --width 120 | grep -v "Output throttled."
+        sudo inxi --color 2 --cpu --disk --ip --swap --memory-modules --machine --network-advanced --sensors --system --no-host --width 120 | grep -v "Output throttled." | grep -v "calic*" | grep -v "noprefixroute" | grep -v "1IET" | grep -v "VIRTUAL-DISK"
       fi
     # yamllint enable rule:line-length
 
