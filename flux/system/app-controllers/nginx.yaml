@@ -10,19 +10,19 @@ metadata:
   name: nginx-stable
   namespace: nginx-system
 spec:
-  url: https://helm.nginx.com/stable
+  url: https://kubernetes.github.io/ingress-nginx
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: nginx-ingress
+  name: ingress-nginx
   namespace: nginx-system
 spec:
   interval: 1m
   chart:
     spec:
-      chart: nginx-ingress
-      version: "1.4.2"
+      chart: ingress-nginx
+      version: "4.11.3"
       sourceRef:
         kind: HelmRepository
         name: nginx-stable
