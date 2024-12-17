@@ -36,3 +36,4 @@ spec:
           - IPv6
         annotations:
          metallb.io/allow-shared-ip: default
+      allowSnippetAnnotations: true

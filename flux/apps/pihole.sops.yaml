@@ -43,7 +43,6 @@ spec:
                 namespace: default
     values:
         # TODO set cache size to 0 to avoid double-caching
-        replicaCount: 2
         dualStack:
             enabled: true
         serviceDns:
