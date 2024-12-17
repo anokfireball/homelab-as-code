@@ -20,8 +20,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-17T09:07:06Z"
-    mac: ENC[AES256_GCM,data:O5G/yAgtzI4kRqTbOPdLYhVlMEYlJDUhNuODuHno/bqWWiTXxEBZCIfrGUVoqH5hOFo8KpC6OrRaudThiK4YM1WyiYSSFTrD7hzvrjZPHnUNu5ZuApHjfH0XsMXaAL0ZHHmyKHhvSmKfIQHtMl34bdkmOe+YzwQGflIHzkojfVM=,iv:2SfYs0BoSGKcBj/1zIiGZWNr1n9AFd4PRYfQXJ+U9Zc=,tag:IGgCGQUxzmlrsuTUHTOYIg==,type:str]
+    lastmodified: "2024-12-17T22:50:56Z"
+    mac: ENC[AES256_GCM,data:rUU3/nFsOeOpmHZnAW+vTDrug4RXiaYSM5UQHLBHPS4ce3yKf6XUucfKXQxBL0XiLj199Qbkk6XgzvC5PLRnDEHtw8JhosepvAXyzH9CKDLY3KJlvW9/BounR6svP6KLzfSmda7UPOg8NJt/KWJLKrnIcbWCEzjcs3XIz5uGjMY=,iv:mBnZEesEK/gwhmxxG4zhxW7/q+pqeGWVxlXet6GsFFo=,tag:gHdgR01RXtrQvTsxj13iZA==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
@@ -42,7 +42,6 @@ spec:
                 name: nextcloud
                 namespace: default
     values:
-        replicaCount: 2
         image:
             flavor: fpm-alpine
         # https://github.com/nextcloud/helm/issues/10
@@ -63,6 +62,30 @@ spec:
                 nginx.ingress.kubernetes.io/cors-allow-headers: X-Forwarded-For
                 nginx.ingress.kubernetes.io/enable-cors: "true"
                 nginx.ingress.kubernetes.io/proxy-body-size: 4G
+                nginx.ingress.kubernetes.io/server-snippet: |-
+                    server_tokens off;
+                    proxy_hide_header X-Powered-By;
+                    rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
+                    rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
+                    rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+                    rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+                    location = /.well-known/carddav {
+                        return 301 $scheme://$host/remote.php/dav;
+                    }
+                    location = /.well-known/caldav {
+                        return 301 $scheme://$host/remote.php/dav;
+                    }
+                    location = /robots.txt {
+                        allow all;
+                        log_not_found off;
+                        access_log off;
+                    }
+                    location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+                        deny all;
+                    }
+                    location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
+                        deny all;
+                    }
             tls:
                 - secretName: nextcloud-tls
                   hosts:
@@ -170,8 +193,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-17T09:07:06Z"
-    mac: ENC[AES256_GCM,data:O5G/yAgtzI4kRqTbOPdLYhVlMEYlJDUhNuODuHno/bqWWiTXxEBZCIfrGUVoqH5hOFo8KpC6OrRaudThiK4YM1WyiYSSFTrD7hzvrjZPHnUNu5ZuApHjfH0XsMXaAL0ZHHmyKHhvSmKfIQHtMl34bdkmOe+YzwQGflIHzkojfVM=,iv:2SfYs0BoSGKcBj/1zIiGZWNr1n9AFd4PRYfQXJ+U9Zc=,tag:IGgCGQUxzmlrsuTUHTOYIg==,type:str]
+    lastmodified: "2024-12-17T22:50:56Z"
+    mac: ENC[AES256_GCM,data:rUU3/nFsOeOpmHZnAW+vTDrug4RXiaYSM5UQHLBHPS4ce3yKf6XUucfKXQxBL0XiLj199Qbkk6XgzvC5PLRnDEHtw8JhosepvAXyzH9CKDLY3KJlvW9/BounR6svP6KLzfSmda7UPOg8NJt/KWJLKrnIcbWCEzjcs3XIz5uGjMY=,iv:mBnZEesEK/gwhmxxG4zhxW7/q+pqeGWVxlXet6GsFFo=,tag:gHdgR01RXtrQvTsxj13iZA==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
