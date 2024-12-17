@@ -2,6 +2,7 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
     name: nextcloud
+    namespace: default
 spec:
     url: https://nextcloud.github.io/helm/
 sops:
@@ -19,8 +20,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-16T17:56:38Z"
-    mac: ENC[AES256_GCM,data:nSN+0PxcFK8toxrKYg1p7ehwuhzlXadjWXRcYBWYUa99wyZj/WbfNL4lvjJWhOfwCyjpAjJIhJLMrLquyU4WnRf3eJl0DvYCGC+2dMU7CCHlA63zjyfSVZ2UK8funaLTfGwBYWa7nmhZ6As2ZHpk8gwx5y1uF3uYKeCHimuAdOE=,iv:JXsPfdMLPkr3Fiv2V3zC5MNRPpi7ySM414o2+0L41is=,tag:35E1vLtXd56XArDZd0u2lw==,type:str]
+    lastmodified: "2024-12-17T09:04:48Z"
+    mac: ENC[AES256_GCM,data:lORdS2b7sLINUSBBEDLeKgHgXcz9Z5IOevxRdNrivKRxdkL1dexj6S/bZqHaxJg3shM07ByRYIhRwnQV2Zdfb9QxojMSzNsYeoGPdvTV+EkELIs1okAjid/M4MFvgBLdeJTsbSnY3/8wTalCWYr73QfFI0FeamddZz7Wim/Jr44=,iv:f4bif3mkD0hBNhJkCsEjzAGsBDWj1XxiEQrwz+7OUAQ=,tag:1pvHwBoZ8vNFbuP27CzNHQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
@@ -29,6 +30,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
     name: nextcloud
+    namespace: default
 spec:
     interval: 1m
     chart:
@@ -38,6 +40,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: nextcloud
+                namespace: default
     values:
         replicaCount: 2
         image:
@@ -167,8 +170,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-16T17:56:38Z"
-    mac: ENC[AES256_GCM,data:nSN+0PxcFK8toxrKYg1p7ehwuhzlXadjWXRcYBWYUa99wyZj/WbfNL4lvjJWhOfwCyjpAjJIhJLMrLquyU4WnRf3eJl0DvYCGC+2dMU7CCHlA63zjyfSVZ2UK8funaLTfGwBYWa7nmhZ6As2ZHpk8gwx5y1uF3uYKeCHimuAdOE=,iv:JXsPfdMLPkr3Fiv2V3zC5MNRPpi7ySM414o2+0L41is=,tag:35E1vLtXd56XArDZd0u2lw==,type:str]
+    lastmodified: "2024-12-17T09:04:48Z"
+    mac: ENC[AES256_GCM,data:lORdS2b7sLINUSBBEDLeKgHgXcz9Z5IOevxRdNrivKRxdkL1dexj6S/bZqHaxJg3shM07ByRYIhRwnQV2Zdfb9QxojMSzNsYeoGPdvTV+EkELIs1okAjid/M4MFvgBLdeJTsbSnY3/8wTalCWYr73QfFI0FeamddZz7Wim/Jr44=,iv:f4bif3mkD0hBNhJkCsEjzAGsBDWj1XxiEQrwz+7OUAQ=,tag:1pvHwBoZ8vNFbuP27CzNHQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
