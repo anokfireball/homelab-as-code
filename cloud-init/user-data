@@ -16,6 +16,8 @@ autoinstall:
         set-name: eth0
         wakeonlan: true
         dhcp4: yes
+        nameservers:
+          addresses: [192.168.1.1]
 
   ssh:
     install-server: true
