@@ -51,7 +51,7 @@ spec:
             type: LoadBalancer
             externalTrafficPolicy: Cluster
             annotations:
-                metallb.universe.tf/allow-shared-ip: default
+                metallb.io/allow-shared-ip: default
         serviceDhcp:
             enabled: false
         ingress:

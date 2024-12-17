@@ -32,4 +32,4 @@ spec:
       service:
         ipFamilyPolicy: RequireDualStack
         annotations:
-         metallb.universe.tf/allow-shared-ip: default
+         metallb.io/allow-shared-ip: default
