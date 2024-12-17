@@ -31,5 +31,8 @@ spec:
     controller:
       service:
         ipFamilyPolicy: RequireDualStack
+        ipFamilies:
+          - IPv4
+          - IPv6
         annotations:
          metallb.io/allow-shared-ip: default
