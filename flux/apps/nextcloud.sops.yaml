@@ -20,8 +20,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-17T22:50:56Z"
-    mac: ENC[AES256_GCM,data:rUU3/nFsOeOpmHZnAW+vTDrug4RXiaYSM5UQHLBHPS4ce3yKf6XUucfKXQxBL0XiLj199Qbkk6XgzvC5PLRnDEHtw8JhosepvAXyzH9CKDLY3KJlvW9/BounR6svP6KLzfSmda7UPOg8NJt/KWJLKrnIcbWCEzjcs3XIz5uGjMY=,iv:mBnZEesEK/gwhmxxG4zhxW7/q+pqeGWVxlXet6GsFFo=,tag:gHdgR01RXtrQvTsxj13iZA==,type:str]
+    lastmodified: "2024-12-18T22:37:14Z"
+    mac: ENC[AES256_GCM,data:E3wRYHx4A4rtrtVWUFhHnf6Cz10NQMALWV9hjyWGBX7mEwMqrOjfgf7+wUNLxh+wBO6q/TXHxF1QNYDC3rrXX/p0fchSx2hYZDd70/BWmII/DRMcRS8M8xC15OH0skU95FftvexeDGhPSeA1xZwKD/pK+YkFUmiVicmuU8HuQBw=,iv:VWu5ziNLBsZTMG3kRt7X2PmD5Yh74qQ/zECEWQQvxAQ=,tag:+jHsEmikZHfTmGIUtomX8g==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
@@ -151,6 +151,9 @@ spec:
                 password: ENC[AES256_GCM,data:hS8BbQ5ne5LJTzV59t6Rb7WZYyKoxaNU+T+UM6mYEx0=,iv:6O4umMYflwQPY2ia6mrutOvAHQrH9RHVaFgUJ153RTM=,tag:W8Inqk/0Et5H91D4PlLCrw==,type:str]
             global:
                 storageClass: cluster-local
+            master:
+                persistence:
+                    size: 2Gi
             architecture: standalone
         cronjob:
             enabled: true
@@ -169,14 +172,14 @@ spec:
                 persistence:
                     enabled: true
                     storageClass: cluster-replicated
+                    size: 2Gi
         persistence:
             enabled: true
             storageClass: cluster-replicated
-            accessMode: ReadWriteMany
+            size: 2Gi
             nextcloudData:
                 enabled: true
                 storageClass: cluster-replicated
-                accessMode: ReadWriteMany
                 size: 100Gi
 sops:
     kms: []
@@ -193,8 +196,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-17T22:50:56Z"
-    mac: ENC[AES256_GCM,data:rUU3/nFsOeOpmHZnAW+vTDrug4RXiaYSM5UQHLBHPS4ce3yKf6XUucfKXQxBL0XiLj199Qbkk6XgzvC5PLRnDEHtw8JhosepvAXyzH9CKDLY3KJlvW9/BounR6svP6KLzfSmda7UPOg8NJt/KWJLKrnIcbWCEzjcs3XIz5uGjMY=,iv:mBnZEesEK/gwhmxxG4zhxW7/q+pqeGWVxlXet6GsFFo=,tag:gHdgR01RXtrQvTsxj13iZA==,type:str]
+    lastmodified: "2024-12-18T22:37:14Z"
+    mac: ENC[AES256_GCM,data:E3wRYHx4A4rtrtVWUFhHnf6Cz10NQMALWV9hjyWGBX7mEwMqrOjfgf7+wUNLxh+wBO6q/TXHxF1QNYDC3rrXX/p0fchSx2hYZDd70/BWmII/DRMcRS8M8xC15OH0skU95FftvexeDGhPSeA1xZwKD/pK+YkFUmiVicmuU8HuQBw=,iv:VWu5ziNLBsZTMG3kRt7X2PmD5Yh74qQ/zECEWQQvxAQ=,tag:+jHsEmikZHfTmGIUtomX8g==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
