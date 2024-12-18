@@ -2,32 +2,84 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-    name: cluster-scratch
+  name: cluster-scratch
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
 reclaimPolicy: Delete
 parameters:
-    numberOfReplicas: "1"
+  numberOfReplicas: "1"
+  migratable: "true"
+  recurringJobSelector: |
+   [
+      {
+        "name":"monthly-trim",
+        "isGroup":false
+      }
+    ]
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-    name: cluster-local
+  name: cluster-local
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
 reclaimPolicy: Delete
 parameters:
-    numberOfReplicas: "1"
-    # TODO blocks drainage https://github.com/longhorn/longhorn/issues/8753#issuecomment-2168446728
-    dataLocality: strict-local
+  numberOfReplicas: "1"
+  # TODO blocks drainage https://github.com/longhorn/longhorn/issues/8753#issuecomment-2168446728
+  dataLocality: strict-local
+  recurringJobSelector: |
+   [
+      {
+        "name":"monthly-trim",
+        "isGroup":false
+      },
+      {
+        "name":"daily-backup",
+        "isGroup":false
+      }
+    ]
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-    name: cluster-replicated
+  name: cluster-replicated
 provisioner: driver.longhorn.io
 allowVolumeExpansion: true
 reclaimPolicy: Retain
 parameters:
-    numberOfReplicas: "3"
-    replicaAutoBalance: least-effort
+  numberOfReplicas: "3"
+  migratable: "true"
+  replicaAutoBalance: least-effort
+  recurringJobSelector: |
+   [
+      {
+        "name":"monthly-trim",
+        "isGroup":false
+      },
+      {
+        "name":"daily-backup",
+        "isGroup":false
+      }
+    ]
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: daily-backup
+  namespace: longhorn-system
+spec:
+  name: daily-backup
+  cron: "45 23 * * *"
+  task: backup
+  retain: 1
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: monthly-trim
+  namespace: longhorn-system
+spec:
+  name: monthly-trim
+  cron: "0 0 1 * *"
+  task: filesystem-trim
