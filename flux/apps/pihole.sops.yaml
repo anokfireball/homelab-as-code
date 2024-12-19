@@ -14,16 +14,16 @@ sops:
         - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBUQlJPUzRjb0J3TzVJeHcy
-            T0tRMDJWWmU0VXBMaXd2c2VKbURnam4rTVhvCjBFOFNyZGM5L2RDR3dNQWpKalp1
-            dS9iOWRIR3lnZ1R6L3dUYTE0K3djNUUKLS0tIEl5eFpla084RVRtNHRJd3Zpaldm
-            c1ljVVYzZFhaTGJGcmE4a0cwK1ZhNkUKBM5FqdIBU8ApVADuv35L6RQ00guHduhN
-            63uAVCPyHjzx5nzi2WSJNHubHQTpn4MC7gv9YkEIMgDyu+MhdS6lig==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBQR0lFdVFHaUNzNjRzdlRk
+            SDcvWUN3am8vOWo5TmdMNHB3RDZXTlU5U0RBCldhM2R2dkYrUTdaUXMxekFrbFNK
+            dVBnRDV0R1pPRTM0WElQOTZvc0N2YjAKLS0tIGI4dTg5bXRQb0tvYWVPUjNBWmQ3
+            VmYwVSs4TFM4VkI4Znl6Y1VHclBlejAK4jPTJuZjgBUHheKhE4PgFUTUb3ylZA59
+            ltnuoNdy6Bssa5iFvsPGlc0qP8QQvY01Xi6x2+M3g+HzfqMf7btRJQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-17T13:38:57Z"
-    mac: ENC[AES256_GCM,data:NJcy5YkXlKiGpwCe/Nxk59oLIxxdeBD6D460eE9aDnECXhZW4WoNpE1T3sAGRMTZ73CaO/Si7wZPGu/clCHz7UVj0V0DvF36kyUlvDJaIFYbtwMiiGa5ZrDaA7PM0numWlCNSAl9gOsQNUZciz6azR+C2681Izo6pG5cpI8w/vs=,iv:CU0zC7OQ3A1vNL2TzhaUSfZPsxq+vUZotd/U0aJZxlE=,tag:5lO3A2rzdo/XcqhIMUQ1vw==,type:str]
+    lastmodified: "2024-12-19T15:16:16Z"
+    mac: ENC[AES256_GCM,data:kyoVVOsdeDtNsMRIrf2cpgbYCIt8WyUwHavgZQIExx6hocSsuULWxYl0gmXmzgM/EnzD3AVk+ol3AVYd8dCoUwRI6T0evVnuMjHg1DEDv0c+bqdtFYIlNQjbXrJzZ7oWiM6tyejKy1dARlQUpAGenQlDtouUImTeOkSyPrBBvK8=,iv:poAUMo49iiYt3ghvRENwxw5fbKE1ERQ1Nv8SedQUqu0=,tag:IHUMfeBQrz9FJe25aWnLkA==,type:str]
     pgp: []
-    encrypted_regex: ^.*(hosts)$
+    encrypted_regex: ^.*(hosts|whitelist)$
     version: 3.9.2
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -59,11 +59,11 @@ spec:
             annotations:
                 cert-manager.io/cluster-issuer: letsencrypt
             hosts:
-                - ENC[AES256_GCM,data:AiQ7uRpZx3wOK6HvqKrOEajiog==,iv:eCIFmyqDj0bKg4FUt+/hnyV6o8A6eWW74ZUfLKTX/4E=,tag:QzQ4s6B7mVRiPCEdJZWyKw==,type:str]
+                - ENC[AES256_GCM,data:/5GvCCl2d9++Qpfr1vv3wkQUuA==,iv:i0KoiZJJX1UKyXFIwdHGor82ZeZY4t+6x1cF/LYOVQk=,tag:rrDYM5z80Jty8g6X1Y0lnw==,type:str]
             tls:
                 - secretName: pihole-tls
                   hosts:
-                    - ENC[AES256_GCM,data:jr70ZwufkIcZCk399X7yrAC6Sg==,iv:15VJRydi+1+nuRkZZfR6AniIhEsnUIZPYktUGh3gW8Q=,tag:PJse3KQN1W8AiUVHDJgppQ==,type:str]
+                    - ENC[AES256_GCM,data:YNIBQ2OtxBA5n8fgBWOgx60kZw==,iv:7rf7n0Ru3nlDCh3+UHaiA7bkkNdmmu+sM4uGsRH+BAY=,tag:qBpDB+DLgqwFnr2q/D3x7A==,type:str]
         admin:
             enabled: false
         DNS1: 192.168.1.1
@@ -133,6 +133,8 @@ spec:
             # DOH (DNS is totalitarian in this network!)
             - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/doh.txt
             - https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH/DOHadb.txt
+        whitelist:
+            - ENC[AES256_GCM,data:Lt0qpsWsQZTRF8pr,iv:FNlfWUSgAq6FaupBDOzc2SD0TzJOqQv+nuAEvjtlsos=,tag:Jvb8Qez3b7qKUuWsK1o9Wg==,type:str]
         podDnsConfig:
             enabled: true
             policy: None
@@ -148,14 +150,14 @@ sops:
         - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBUQlJPUzRjb0J3TzVJeHcy
-            T0tRMDJWWmU0VXBMaXd2c2VKbURnam4rTVhvCjBFOFNyZGM5L2RDR3dNQWpKalp1
-            dS9iOWRIR3lnZ1R6L3dUYTE0K3djNUUKLS0tIEl5eFpla084RVRtNHRJd3Zpaldm
-            c1ljVVYzZFhaTGJGcmE4a0cwK1ZhNkUKBM5FqdIBU8ApVADuv35L6RQ00guHduhN
-            63uAVCPyHjzx5nzi2WSJNHubHQTpn4MC7gv9YkEIMgDyu+MhdS6lig==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBQR0lFdVFHaUNzNjRzdlRk
+            SDcvWUN3am8vOWo5TmdMNHB3RDZXTlU5U0RBCldhM2R2dkYrUTdaUXMxekFrbFNK
+            dVBnRDV0R1pPRTM0WElQOTZvc0N2YjAKLS0tIGI4dTg5bXRQb0tvYWVPUjNBWmQ3
+            VmYwVSs4TFM4VkI4Znl6Y1VHclBlejAK4jPTJuZjgBUHheKhE4PgFUTUb3ylZA59
+            ltnuoNdy6Bssa5iFvsPGlc0qP8QQvY01Xi6x2+M3g+HzfqMf7btRJQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-17T13:38:57Z"
-    mac: ENC[AES256_GCM,data:NJcy5YkXlKiGpwCe/Nxk59oLIxxdeBD6D460eE9aDnECXhZW4WoNpE1T3sAGRMTZ73CaO/Si7wZPGu/clCHz7UVj0V0DvF36kyUlvDJaIFYbtwMiiGa5ZrDaA7PM0numWlCNSAl9gOsQNUZciz6azR+C2681Izo6pG5cpI8w/vs=,iv:CU0zC7OQ3A1vNL2TzhaUSfZPsxq+vUZotd/U0aJZxlE=,tag:5lO3A2rzdo/XcqhIMUQ1vw==,type:str]
+    lastmodified: "2024-12-19T15:16:16Z"
+    mac: ENC[AES256_GCM,data:kyoVVOsdeDtNsMRIrf2cpgbYCIt8WyUwHavgZQIExx6hocSsuULWxYl0gmXmzgM/EnzD3AVk+ol3AVYd8dCoUwRI6T0evVnuMjHg1DEDv0c+bqdtFYIlNQjbXrJzZ7oWiM6tyejKy1dARlQUpAGenQlDtouUImTeOkSyPrBBvK8=,iv:poAUMo49iiYt3ghvRENwxw5fbKE1ERQ1Nv8SedQUqu0=,tag:IHUMfeBQrz9FJe25aWnLkA==,type:str]
     pgp: []
-    encrypted_regex: ^.*(hosts)$
+    encrypted_regex: ^.*(hosts|whitelist)$
     version: 3.9.2
