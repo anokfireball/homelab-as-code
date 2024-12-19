@@ -3,6 +3,14 @@
   "extends": [
     "config:best-practices"
   ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "pinDigests": false
+    }
+  ],
   "ansible": {
     "fileMatch": [
       "ansible/.+\\.ya?ml$"
@@ -109,7 +117,7 @@
       ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "vaultwarden/server",
-      "versioningTemplate": "regex",
+      "versioningTemplate": "docker",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-alpine)$"
     },
     {
@@ -124,7 +132,7 @@
       ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "bitnami/postgresql",
-      "versioningTemplate": "regex",
+      "versioningTemplate": "docker",
       "extractVersionTemplate": "^(?<version>15\\.\\d+\\.\\d+)$"
     }
   ],
