@@ -97,6 +97,35 @@
       "packageNameTemplate": "jobs62/opnsense_unbound_external-dns_webhook",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update vaultwarden container",
+      "fileMatch": [
+        "flux/apps/bitwarden.sops.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-alpine)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "vaultwarden/server",
+      "versioningTemplate": "regex",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-alpine)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update postgres container",
+      "fileMatch": [
+        "flux/apps/bitwarden.sops.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>15\\.\\d+\\.\\d+)",
+        "image: docker\\.io/bitnami/postgresql:(?<currentValue>15\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "bitnami/postgresql",
+      "versioningTemplate": "regex",
+      "extractVersionTemplate": "^(?<version>15\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
