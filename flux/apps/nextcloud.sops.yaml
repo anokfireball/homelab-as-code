@@ -20,8 +20,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-18T22:37:14Z"
-    mac: ENC[AES256_GCM,data:E3wRYHx4A4rtrtVWUFhHnf6Cz10NQMALWV9hjyWGBX7mEwMqrOjfgf7+wUNLxh+wBO6q/TXHxF1QNYDC3rrXX/p0fchSx2hYZDd70/BWmII/DRMcRS8M8xC15OH0skU95FftvexeDGhPSeA1xZwKD/pK+YkFUmiVicmuU8HuQBw=,iv:VWu5ziNLBsZTMG3kRt7X2PmD5Yh74qQ/zECEWQQvxAQ=,tag:+jHsEmikZHfTmGIUtomX8g==,type:str]
+    lastmodified: "2024-12-19T12:45:57Z"
+    mac: ENC[AES256_GCM,data:VFY2IRuj71W8tZtbZXAsx0uCaoJMBbIId+/00FAzYEXKMxbiStXkzA9FXZpiW6Xzdo3m59RkkypiwXFd63MjNbO2EguabnIZRu8jP4MdzlZCB6O4+qkIBPG7h9BSWHd3ffa0/JmYjbgpyfoD6ZDigR5kiO0fRAOmEcktyxxo2S8=,iv:WRgxWH3dpzex2IL+n9PxybgiB8J6SeXRNc1NyOUksT4=,tag:evBDbaBCnFjyKtp07nK3VQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
@@ -97,6 +97,8 @@ spec:
             trustedDomains:
                 - ENC[AES256_GCM,data:pFbIz/b01FSf,iv:+X+a0/ULVZ3S4O/3a1Vi0Jo+nGGwqQJqf7AhwGu95NU=,tag:V1eh3E3F8PE1L4ZVQgaFEg==,type:str]
                 - ENC[AES256_GCM,data:+JygrOhV1Mp6phxC2chJHaBzA+9WFg==,iv:nCM1Ib8lWwl21tBrxxuOgRT5iGo6DwhiLnN6Te5CD5Y=,tag:ZfmJcsvS2tdByRZFcLB/Ww==,type:str]
+            defaultConfigs:
+                imaginary.config.php: true
             configs:
                 proxy.config.php: |-
                     <?php
@@ -110,24 +112,6 @@ spec:
                       ),
                       'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
                     );
-                previews.config.php: |-
-                    <?php
-                    $CONFIG = array (
-                      'enable_previews' => true,
-                      'enabledPreviewProviders' => array (
-                        'OC\Preview\Movie',
-                        'OC\Preview\PNG',
-                        'OC\Preview\JPEG',
-                        'OC\Preview\GIF',
-                        'OC\Preview\BMP',
-                        'OC\Preview\XBitmap',
-                        'OC\Preview\MP3',
-                        'OC\Preview\MP4',
-                        'OC\Preview\TXT',
-                        'OC\Preview\MarkDown',
-                        'OC\Preview\PDF'
-                      ),
-                    );
             mail:
                 enabled: true
                 fromAddress: ENC[AES256_GCM,data:KNk85i8WfPq7,iv:PnbQ1szgVcvkqtguGfy7z/E6t6TvhhW3aH++cdXex4k=,tag:rSnrGJqBpqB9Aos231lFqQ==,type:str]
@@ -139,6 +123,8 @@ spec:
                     authtype: ENC[AES256_GCM,data:vsTxG68=,iv:u4kTr0gc0igT1FppJq9wJ7BqMf+d9myCgiiFpKxX4Vc=,tag:ZsAYldFVOJG7dJCKWJDftg==,type:str]
                     name: ENC[AES256_GCM,data:PVuFuUXX,iv:gkWo096Zcm2lIGxv1Xixjvb9S6WW1GGQ2R4MmJL96+M=,tag:6FHhL0HxWmXHB8y0iv1Jjg==,type:str]
                     password: ENC[AES256_GCM,data:HJWtyPsXCtVCniNzPJzovRgoe4AHUe/ZKHg+odB0IOWWwEotRaCC5A7IMAk/1+41wdARwK9G9S8OxPVz5QhNXGkZ+PQ2,iv:5J7riXFJ3ZBeQoial7x/YyUGEpmoOKwgPx1Xz3CQt88=,tag:JqFJ//8xuG3Jcsfrr9m6uA==,type:str]
+        imaginary:
+            enabled: true
         nginx:
             enabled: true
             ipFamilies:
@@ -196,8 +182,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-18T22:37:14Z"
-    mac: ENC[AES256_GCM,data:E3wRYHx4A4rtrtVWUFhHnf6Cz10NQMALWV9hjyWGBX7mEwMqrOjfgf7+wUNLxh+wBO6q/TXHxF1QNYDC3rrXX/p0fchSx2hYZDd70/BWmII/DRMcRS8M8xC15OH0skU95FftvexeDGhPSeA1xZwKD/pK+YkFUmiVicmuU8HuQBw=,iv:VWu5ziNLBsZTMG3kRt7X2PmD5Yh74qQ/zECEWQQvxAQ=,tag:+jHsEmikZHfTmGIUtomX8g==,type:str]
+    lastmodified: "2024-12-19T12:45:57Z"
+    mac: ENC[AES256_GCM,data:VFY2IRuj71W8tZtbZXAsx0uCaoJMBbIId+/00FAzYEXKMxbiStXkzA9FXZpiW6Xzdo3m59RkkypiwXFd63MjNbO2EguabnIZRu8jP4MdzlZCB6O4+qkIBPG7h9BSWHd3ffa0/JmYjbgpyfoD6ZDigR5kiO0fRAOmEcktyxxo2S8=,iv:WRgxWH3dpzex2IL+n9PxybgiB8J6SeXRNc1NyOUksT4=,tag:evBDbaBCnFjyKtp07nK3VQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
