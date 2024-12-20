@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: monitoring-system
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2WlFKQm9Od3diSGhsUVdX
+            VW9US1ZKdCsvdFN3UUNMdHNWak42akZSTkVvCmsxbktsMUIxRmFmZ2o2aHBjOUxn
+            SGo5bGdKYnFKOGxOa2lKdTNpb2RnUzAKLS0tIG1BRG1aOEduZUFPSCtjWGo5RytP
+            eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
+            GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-20T23:22:53Z"
+    mac: ENC[AES256_GCM,data:Je990QtDwzfcOPqrt0RTjHrA8ntSr4ToRD6Bh9iBrx0fsIJNx/qfsdA5xDW2kbdx8lIUtdBfsOT4Pc+gm4YFMUIWqMx1l4v9nRgusYAmpwPT4bFwBcOQhcP2+kZ6YkHVSNv3rQY4jsrp1/rVsqGTioXHknItr6THCkoX2ShEYp0=,iv:1hj+HxZI3yhPlvitFsx0n0SFYqviOUp55+5HhO+gdHE=,tag:zzHD61NpW0qQSUyybzpESQ==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(ingress|adminPassword)$
+    version: 3.9.2
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+    name: prometheus-community
+    namespace: monitoring-system
+spec:
+    url: https://prometheus-community.github.io/helm-charts
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2WlFKQm9Od3diSGhsUVdX
+            VW9US1ZKdCsvdFN3UUNMdHNWak42akZSTkVvCmsxbktsMUIxRmFmZ2o2aHBjOUxn
+            SGo5bGdKYnFKOGxOa2lKdTNpb2RnUzAKLS0tIG1BRG1aOEduZUFPSCtjWGo5RytP
+            eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
+            GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-20T23:22:53Z"
+    mac: ENC[AES256_GCM,data:Je990QtDwzfcOPqrt0RTjHrA8ntSr4ToRD6Bh9iBrx0fsIJNx/qfsdA5xDW2kbdx8lIUtdBfsOT4Pc+gm4YFMUIWqMx1l4v9nRgusYAmpwPT4bFwBcOQhcP2+kZ6YkHVSNv3rQY4jsrp1/rVsqGTioXHknItr6THCkoX2ShEYp0=,iv:1hj+HxZI3yhPlvitFsx0n0SFYqviOUp55+5HhO+gdHE=,tag:zzHD61NpW0qQSUyybzpESQ==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(ingress|adminPassword)$
+    version: 3.9.2
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+    name: kube-prometheus-stack
+    namespace: monitoring-system
+spec:
+    interval: 1m
+    chart:
+        spec:
+            chart: kube-prometheus-stack
+            version: 67.4.0
+            sourceRef:
+                kind: HelmRepository
+                name: prometheus-community
+                namespace: monitoring-system
+    values:
+        alertmanager:
+            ingress:
+                enabled: ENC[AES256_GCM,data:CDf0Xw==,iv:YWKHNk7fKjPBjeuQPIMcEtnn21CrZ416qEbznST184o=,tag:Tmjpks3XloKvzkuO6C1YvQ==,type:bool]
+                ingressClassName: ENC[AES256_GCM,data:xRJ7INQ=,iv:mOxOCo+3ZitEc3/PS2SWTAvKP4RGRqSNstjG5Ly5gNE=,tag:IAGYrTYIVTkpLc3iGWuZdg==,type:str]
+                annotations:
+                    external-dns.alpha.kubernetes.io/hostname: ENC[AES256_GCM,data:+jOQf1UFGpqhi0aQHwSXRYI3JOMCLY6upg==,iv:OJiKl8mtg3rMGRpClm+c7/5sXYk7rJKcJ3GYVVX1nGo=,tag:CZP2uOIhO7SvGpAVFr+2rQ==,type:str]
+                    cert-manager.io/cluster-issuer: ENC[AES256_GCM,data:9df3Mz7+91mrDgk=,iv:hcvvFWXnBC3xB0zf9MADVURM5GhJ9zoo81uzXfFyKpY=,tag:ahIXj95eJGKowQcpMrjgNw==,type:str]
+                hosts:
+                    - ENC[AES256_GCM,data:CAqMBDPKcrOHdpCzaeEAbbMpD3dYJkETjQ==,iv:BwzbB7f7V2HLT2T1tCzmjnUXh/zAN71LYtDxHmDNz9E=,tag:6e1j7zDCp2KTCBMMMqBhbg==,type:str]
+                tls:
+                    - secretName: ENC[AES256_GCM,data:DhhA976DhkOgOUCtPqX5rA==,iv:mH8XqMIlxpIlrjHIv2aduGblzjSJqLUnWlQxPUxeG3I=,tag:l1LFyWdNaoqdIoJP2pu4ZA==,type:str]
+                      hosts:
+                        - ENC[AES256_GCM,data:DV3OTABbmrxtMXoi1XVTeo09YNkNMs7lSw==,iv:byDINiPIMztjhK/Qg8Accecga2VFvdpY7uJDqe2jwGw=,tag:5FDGGBzAv46CWiVZ2m9SzA==,type:str]
+            alertmanagerSpec:
+                retention: 168h
+                storage:
+                    volumeClaimTemplate:
+                        spec:
+                            storageClassName: cluster-local
+                            resources:
+                                requests:
+                                    storage: 1Gi
+        grafana:
+            adminPassword: ENC[AES256_GCM,data:osclrX+OTZKIEgaJsHGRAmpw8Uj76TH+qB+fygAVhhw=,iv:xv3RgzjpcJdcI0BYMqraFpbqr0k5tXQlARZ7zLBWh3Y=,tag:UTQ7sLnHxHLnFFke5Rz6Cg==,type:str]
+            ingress:
+                enabled: ENC[AES256_GCM,data:7YbTGg==,iv:aqh5CSEUuVbmG1rXbjD7+iRi3DFWMvv9aUPeO1ITT2Q=,tag:+SLT4wibdAgQJMN7kHNFzA==,type:bool]
+                ingressClassName: ENC[AES256_GCM,data:cORsi1A=,iv:UPuURvxj9LYbm/glVQ4N2mySqloy2r4Zep0PykxNfdE=,tag:Axl9fTZJsT/sDOev4Bdilw==,type:str]
+                annotations:
+                    external-dns.alpha.kubernetes.io/hostname: ENC[AES256_GCM,data:ajsmOMa1Ta2BcnUxvKMN0XNZl/U=,iv:6ZEtwN4dbc8OIscDcH1SB/e9jz+g1QibL3dFVIL2WQw=,tag:D7RoGrzdYRURUE25S62eOw==,type:str]
+                    cert-manager.io/cluster-issuer: ENC[AES256_GCM,data:5xvvN636NW7tgLs=,iv:1bGOeoPRr95P7TXq3PhCgVTPXYi9Dx7oL40lliNuDjc=,tag:Jy9IlBq9nw1pXeY6HTsOyA==,type:str]
+                hosts:
+                    - ENC[AES256_GCM,data:HDxjXvIfKVpfycKk4YiBtezYysU=,iv:Z0jlKf9XsD3Xk8KJZ08pn0gbUDGMrWUYwLlE5Pqcj5M=,tag:I8NWZ+atGupnyk6mIw6qCw==,type:str]
+                tls:
+                    - secretName: ENC[AES256_GCM,data:CoqY0uH/0bFPyO0=,iv:zMzusTAoVUI1EamjFJWMpROMWednD/DbkfRlWG53LhI=,tag:dzya65DzStVS8gzI9OArQA==,type:str]
+                      hosts:
+                        - ENC[AES256_GCM,data:3NfOufpl87R4y5PvZpeQMdCcgWw=,iv:1ITxnTynAIPFIMiTYdBGXDr+J8jNaWHBxA6HtCPBUfs=,tag:uBwR6ljZuhjPxkUFY2ZVYw==,type:str]
+            persistence:
+                enabled: true
+                storageClassName: cluster-replicated
+                size: 2Gi
+        prometheus:
+            ingress:
+                enabled: ENC[AES256_GCM,data:EJyljg==,iv:8feMeBdrj58OWsFsLNf2mKSKXcNdEoGyx0WnZpU0ntw=,tag:nsmMdYpmu5PCGGlob9Iz3Q==,type:bool]
+                ingressClassName: ENC[AES256_GCM,data:/HqT66Q=,iv:9D13LMXinewl3CRP87ldvbN//sRH3Fc5jkuBN28P6ns=,tag:w2dcgBf1l9Xk8LHEDd5hKw==,type:str]
+                annotations:
+                    external-dns.alpha.kubernetes.io/hostname: ENC[AES256_GCM,data:0f5GrOpBAD2i10i+6pJtVnnf1sOXL7s=,iv:gvOAF9UOUWMj3LlXUzMewLoySGCm+zEkgJ+l68uuFNA=,tag:nVtpAepFc9+wkdOMU9yWJA==,type:str]
+                    cert-manager.io/cluster-issuer: ENC[AES256_GCM,data:5gMm/zqdOv6HoZo=,iv:4QQhJ2lVpB9oxZ5X5QF9NT50sIev6PaYvVrI9a8AwH0=,tag:6ZALLm851+Yh04IUn1vfOQ==,type:str]
+                hosts:
+                    - ENC[AES256_GCM,data:h/pTCqoUl39/Sn+zvGoO0b1jMREYS14=,iv:NWdvhdLqpfnM1k82WbBU1x967axZlTu0GcS1iSxT8Ro=,tag:Vnz61lru8ohwRhwwwwCuKg==,type:str]
+                tls:
+                    - secretName: ENC[AES256_GCM,data:dTwmYHHjV45VX/6B5qw=,iv:8S7xpHZdYEanBuscAtmxjY1HYx/bZVM9iu0/ejcsi8A=,tag:xg3FOEx4AviCzQEmT6XWQw==,type:str]
+                      hosts:
+                        - ENC[AES256_GCM,data:dFVOgzzHmUog2GnfebeotGTS/YjGNCs=,iv:7g9mMxLKYrTSX98dNQiqVHA0QAiWCKoD8Tc1enlL7ak=,tag:5jCcmMjuLgRoPz0z4vX62g==,type:str]
+            prometheusSpec:
+                retention: 14d
+                retentionSize: 20GiB
+                storageSpec:
+                    volumeClaimTemplate:
+                        spec:
+                            storageClassName: cluster-replicated
+                            resources:
+                                requests:
+                                    storage: 20Gi
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2WlFKQm9Od3diSGhsUVdX
+            VW9US1ZKdCsvdFN3UUNMdHNWak42akZSTkVvCmsxbktsMUIxRmFmZ2o2aHBjOUxn
+            SGo5bGdKYnFKOGxOa2lKdTNpb2RnUzAKLS0tIG1BRG1aOEduZUFPSCtjWGo5RytP
+            eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
+            GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-20T23:22:53Z"
+    mac: ENC[AES256_GCM,data:Je990QtDwzfcOPqrt0RTjHrA8ntSr4ToRD6Bh9iBrx0fsIJNx/qfsdA5xDW2kbdx8lIUtdBfsOT4Pc+gm4YFMUIWqMx1l4v9nRgusYAmpwPT4bFwBcOQhcP2+kZ6YkHVSNv3rQY4jsrp1/rVsqGTioXHknItr6THCkoX2ShEYp0=,iv:1hj+HxZI3yhPlvitFsx0n0SFYqviOUp55+5HhO+gdHE=,tag:zzHD61NpW0qQSUyybzpESQ==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(ingress|adminPassword)$
+    version: 3.9.2
