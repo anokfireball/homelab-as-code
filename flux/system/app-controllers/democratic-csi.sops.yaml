@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-    name: democratic-csi-system-system
+    name: democratic-csi-system
 sops:
     kms: []
     gcp_kms: []
@@ -17,8 +17,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-14T21:13:54Z"
-    mac: ENC[AES256_GCM,data:Q2K1il6yO/EWyN4ZDa4VTbJxrX7WmWFbSrnWj/phqT4ZtUknkcNke4Mv+j5STrvX0fQifwGqQbU/qIcO4uynJ/sONCWE71yN2lz3yXSOf6gVOgi0rfVV9XZlUCzm3SKpWKeKYXmQNK9cIc4FdtyHiw1ZKMtkqtecoBcw4OJo6jE=,iv:7cZxnaaxMkzHhUWUYnitp7FNk7KPeOLBpJP7TI6UqKo=,tag:i3RR4ObhhLyDD/bHd9xy7g==,type:str]
+    lastmodified: "2024-12-20T11:38:17Z"
+    mac: ENC[AES256_GCM,data:Tzf+ZHutKLYX/AEDCsnGdHJammXRSrj7uXrEg93w+V19bhy3T/I3yhFlWnkq01B6e4A0kaXRW97N3WlS9wMDLpZ3avCO8y1U2hHAwVolled6iCIzmfDej/BnkFDvJ5F/I9hxeagFC793PZ/+or1QiOv+FNg1nPcwHMNTfLHcH6A=,iv:uRJGU2LvY9DhWqnDt2Pz3ZVG4HPDT0cgHFDSsyZqiKY=,tag:QrK46XSCpwdXgm4c7dWeGg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
@@ -27,7 +27,7 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
     name: democratic-csi
-    namespace: democratic-csi-system-system
+    namespace: democratic-csi-system
 spec:
     url: https://democratic-csi.github.io/charts/
 sops:
@@ -45,8 +45,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-14T21:13:54Z"
-    mac: ENC[AES256_GCM,data:Q2K1il6yO/EWyN4ZDa4VTbJxrX7WmWFbSrnWj/phqT4ZtUknkcNke4Mv+j5STrvX0fQifwGqQbU/qIcO4uynJ/sONCWE71yN2lz3yXSOf6gVOgi0rfVV9XZlUCzm3SKpWKeKYXmQNK9cIc4FdtyHiw1ZKMtkqtecoBcw4OJo6jE=,iv:7cZxnaaxMkzHhUWUYnitp7FNk7KPeOLBpJP7TI6UqKo=,tag:i3RR4ObhhLyDD/bHd9xy7g==,type:str]
+    lastmodified: "2024-12-20T11:38:17Z"
+    mac: ENC[AES256_GCM,data:Tzf+ZHutKLYX/AEDCsnGdHJammXRSrj7uXrEg93w+V19bhy3T/I3yhFlWnkq01B6e4A0kaXRW97N3WlS9wMDLpZ3avCO8y1U2hHAwVolled6iCIzmfDej/BnkFDvJ5F/I9hxeagFC793PZ/+or1QiOv+FNg1nPcwHMNTfLHcH6A=,iv:uRJGU2LvY9DhWqnDt2Pz3ZVG4HPDT0cgHFDSsyZqiKY=,tag:QrK46XSCpwdXgm4c7dWeGg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
@@ -55,7 +55,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
     name: democratic-csi-ssd
-    namespace: democratic-csi-system-system
+    namespace: democratic-csi-system
 spec:
     interval: 1m
     chart:
@@ -65,7 +65,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: democratic-csi
-                namespace: democratic-csi-system-system
+                namespace: democratic-csi-system
     values:
         csiDriver:
             name: nas-ssd
@@ -83,33 +83,33 @@ spec:
                 - nfsvers=3
         driver:
             config:
-                driver: ENC[AES256_GCM,data:dYESFrUFqyNgtBg=,iv:ITIZAo+hCXdcyn9UFhR7ZNZ43uAOfRrqkQSU8/EbPcc=,tag:tRNqIzsVTo5k3BrmqSIm5w==,type:str]
+                driver: ENC[AES256_GCM,data:VlBGOic6nZbqUhA=,iv:6bL50w02vYx7/tMxf+MEj3WqRDF4LiGgrclIRzDeElU=,tag:+UPj4Xz0QpAS7qyW2KsAGg==,type:str]
                 instance_id: null
                 httpConnection:
-                    protocol: ENC[AES256_GCM,data:I1kDsQ==,iv:IwK66xETjmpeYNsRTW0BmX2WJSDMJJ0/jJlzeYdysWU=,tag:m0Ilwzpx0bs6QcavkdfaGQ==,type:str]
-                    host: ENC[AES256_GCM,data:yPgu/bg/5paoU6c=,iv:UdJ0uhKi3oYhXpD/lWwmbqSZnam/CuggIe+mh9lLMMk=,tag:5EUrWO73Nw0jFajG7I0aEw==,type:str]
-                    port: ENC[AES256_GCM,data:6c0=,iv:FudycRfqZGcLaSzV3d+e4wUB+rbOd8BdjgE/cPJFxkI=,tag:sBnvjQ/cX6MPKCsLqwrnpA==,type:int]
-                    username: ENC[AES256_GCM,data:67MGqQ==,iv:NRRHIB6M/A/CDVAgegYj5Kh/l4toFBgr3/lYNlyvI60=,tag:Pc3JPMKHNNhkBk52CnpeRA==,type:str]
-                    password: ENC[AES256_GCM,data:pRhxj7C84DGiwMl3u+sNihp90Q==,iv:Blq4u+wd74I77FIFdSSLvVmX16Y0NwQmXEIpm1Dhb8I=,tag:A3EkDacXegCicA+oHiwf7w==,type:str]
-                    allowInsecure: ENC[AES256_GCM,data:Vh9JkQ==,iv:2CIawLuOWDlHw7aIFGkYOrWsim6Rd9b11+3TEWRSELo=,tag:NEAnFyiwrElP+W3ictI4Jw==,type:bool]
+                    protocol: ENC[AES256_GCM,data:yhoEsA==,iv:46C11HeaBqKmuqhTCSaSMuCNhyhsBxJxL2xc7hLNuqA=,tag:xJmcvYz55x+TBzqlz0laeA==,type:str]
+                    host: ENC[AES256_GCM,data:Qd8OjOPPZy+akOo=,iv:sPFz9fAQhm0sv63mOPBTEKxCta1fIrHnN6bVGgiGp64=,tag:YC/DHultJla6GBVJEN48OQ==,type:str]
+                    port: ENC[AES256_GCM,data:NPE=,iv:6nT7eW2Da4St7u+YPwWDzgF/MIZEMIUsvKZkHVU/3pg=,tag:J0O5J1CC771BZzoBFr7Sqg==,type:int]
+                    username: ENC[AES256_GCM,data:FHxV+Q==,iv:n/4Dr4b5XNQauUGjabqc8mfBnLdudyXKzN+N9SPm/5E=,tag:1deX3K1Ij5V9/fiy95cunA==,type:str]
+                    password: ENC[AES256_GCM,data:9pv65/BqblvL8DlbNaFTbPs50w==,iv:raY/RHBCypvvmVC/U14ohft6YwMz5d2rVccR8kTjHrk=,tag:Fob6J9VtN5emz0S0fkrrpw==,type:str]
+                    allowInsecure: ENC[AES256_GCM,data:bCgeiw==,iv:1ChItt584iCSrSH3iER6g2V0rzNpVe8sNnWDX8bOF1o=,tag:SX20TIATzOpk848tNtoY6Q==,type:bool]
                 sshConnection:
-                    host: ENC[AES256_GCM,data:kkPiiwKTBvLthNI=,iv:yxrmabCArNtEStRcpI5v4EsRSCXsLXzvOFFKH7zCs/Q=,tag:MJcoYJYMT1iR3fO49oJalw==,type:str]
-                    port: ENC[AES256_GCM,data:qfg=,iv:ElvAOI+E0TwxkC75dd3cZmbj/YG8kioiP0it+qsjnXc=,tag:UO8iuWzcj6xzwJWIMo8d1w==,type:int]
-                    username: ENC[AES256_GCM,data:ct+aIA==,iv:d47zA5CYRodQqEALKPLxT8/Xs3/PNh/MC0OoPsm6rLE=,tag:NcZPtk6sIovHvldkbWGJIQ==,type:str]
-                    password: ENC[AES256_GCM,data:IyvstRJhRDFQVEl21qfs6rNbCg==,iv:XEFjqk8biOOcP+AOHVAaKkolzpbvlp4urjhXNkUlWy4=,tag:ZvtFTF57g7K2sY+SVSV/Sw==,type:str]
+                    host: ENC[AES256_GCM,data:iKSeRP8kikGxfdo=,iv:jec7rGONe0Cp7LK/6+To+lnrPJ3SqxUn3aMYsK25aek=,tag:BXq2XNnwBZsBHu/W8o0fmA==,type:str]
+                    port: ENC[AES256_GCM,data:vd0=,iv:it5VDdoQU2a+FGfIdT3rSQjCrTn34a2WYdPSY3aWSGQ=,tag:owIqa3XsLpAcO4UQVubCkw==,type:int]
+                    username: ENC[AES256_GCM,data:+m3jJw==,iv:VV8qj6LzzYjLv+xUMlWrvkjUAg4cSai1axA9HE/sA/U=,tag:vVRKJPBskyJC9497aAfm2g==,type:str]
+                    password: ENC[AES256_GCM,data:NUr4TYuWpiW+0YikZqsH9wInEg==,iv:vYC2M3Ueg3hnOQruguzJvKOTFTKqr7nYvZLkxfHLlV4=,tag:xoMFkzmQClM50vZMBFAr6A==,type:str]
                 zfs:
                     datasetParentName: ENC[AES256_GCM,data:VD65JLrjcxDhG8c=,iv:+jT6Tj7XnD74x+wOf3TQ7R0Mog/cPP6PDGuBmSEVu/E=,tag:rHwk5HDj3DNtH5pLj0QGwQ==,type:str]
                     detachedSnapshotsDatasetParentName: ENC[AES256_GCM,data:C2tC0wnYv0jV6TIPTQ==,iv:OjDl+ca8RM4k5c7wCq81zVmi8VDpaPXdimZAkJlDar4=,tag:MPzsxKQ11XYl3LHOgW50ow==,type:str]
-                    datasetEnableQuotas: ENC[AES256_GCM,data:XjxfJQ==,iv:eJbm5I0iA4VcQLnqaRN3rYfedQGkffs/nEdWW06CHGg=,tag:gsX3bOW7TAZbGDjc9L+wwQ==,type:bool]
-                    datasetEnableReservation: ENC[AES256_GCM,data:1BD0wIw=,iv:HbhHxqkT/APhJL24Qrv3xMcpO01+E7sI+PxPCtnugf0=,tag:4bq6MOnfPqNhENAeoY9e/Q==,type:bool]
-                    datasetPermissionsMode: ENC[AES256_GCM,data:a5Yfvg==,iv:l/8ZTBD5LHz4S47RWsjUWmNwk3iAAmrjlGu24ZwNlRA=,tag:J/23cHBMHKzVBXWDReklHw==,type:str]
-                    datasetPermissionsUser: ENC[AES256_GCM,data:pA==,iv:MgmqN41hETtBJuKu9EQ5Lc5rq0867j/tJlkZe0ETbWM=,tag:4+upeorBOIolJjxwTeFg+A==,type:int]
-                    datasetPermissionsGroup: ENC[AES256_GCM,data:mA==,iv:vwmYK4/mkI4bx8lqgpdy4iATJEwnpx/Jepj89wtQiM0=,tag:g4E4Ll9itYPmZB4puwVKCQ==,type:int]
+                    datasetEnableQuotas: ENC[AES256_GCM,data:elkG7w==,iv:ELOWngHnXxchRbwafeN6X+Mu8berQ60z6T0NNekNwg4=,tag:9CErgBilubKMqc1UOR/lpw==,type:bool]
+                    datasetEnableReservation: ENC[AES256_GCM,data:nZMyIEI=,iv:RotIMMGs62d8F8Wj4F2evZhagz8X6M2holFZudR2MaQ=,tag:XHqH4EthUqPxZyzbEAZ8lw==,type:bool]
+                    datasetPermissionsMode: ENC[AES256_GCM,data:9/Hsbg==,iv:9vu1X8IFc+jjwPhu/bOJGrqVKBBk9dM456WB3YQAHPs=,tag:gOzmxWMXbczWz20FXyGp8w==,type:str]
+                    datasetPermissionsUser: ENC[AES256_GCM,data:kQ==,iv:UGc6LPlY58VNGeFBcFpEuRTtLPeFoZUndyOatCu1YHQ=,tag:FFx/owCDWKKMarGRgOKEog==,type:int]
+                    datasetPermissionsGroup: ENC[AES256_GCM,data:hQ==,iv:sWUVeca9yMwbk+YFPf7frm9YK06xqgHwJWHFOPZwVro=,tag:KV/q3HdHzqlTUni0Qd2osw==,type:int]
                 nfs:
-                    shareHost: ENC[AES256_GCM,data:DmKlpkwiyfd2aGM=,iv:EI7JojU0Y2kuNaqBPkpDXfX7ye/+FPWfy8F/rucDDt4=,tag:B9Be6UXFN1GtxwAzM0npPg==,type:str]
-                    shareAlldirs: ENC[AES256_GCM,data:jPP+QoE=,iv:p8ayzoTbNfieNMRwPTbxmz9Q/APQuv+pDHf7MIkKN4k=,tag:0M99KVtGxoWx7m6Oe1B1lA==,type:bool]
-                    shareMaprootUser: ENC[AES256_GCM,data:KoiahQ==,iv:lLZtZQd2vvn0asHtzLTB3+ZEk7Q/DEPWsKcY7keg9qw=,tag:pXF5mEAGEvs/xhTGKrQ20A==,type:str]
-                    shareMaprootGroup: ENC[AES256_GCM,data:6nZrVF8=,iv:YXOqfeP2TQ2aL6rCjJafTtI/W0Su4aI0fHBvM7rl9yU=,tag:8CmLDJ1OStcpUvu45ljOhA==,type:str]
+                    shareHost: ENC[AES256_GCM,data:vdEac2yJMw/CWhI=,iv:oG0H6txPppOMrSqkrLffnMrkJQ/pqG+T77O7DNz070E=,tag:d1VKYPrviTzFZ0b/+WJIoQ==,type:str]
+                    shareAlldirs: ENC[AES256_GCM,data:WM7lH1c=,iv:Or0/uITW12qUgzSi10StAvVQEoc0fi+wAd6P/Wl/Il4=,tag:otRaFECWzzvk3A0Z+xCcTA==,type:bool]
+                    shareMaprootUser: ENC[AES256_GCM,data:8c7Olg==,iv:Dc9uipdNySYEYQJ0mEm/r3rArfPf7sWJPZ4czqTqhsc=,tag:JIh6nrn67n7ERtmjwsI4Hg==,type:str]
+                    shareMaprootGroup: ENC[AES256_GCM,data:+RkPjRs=,iv:biqB07QCTDvxvgsP1gwduPNXAMAblQLNAXzAQNCifvg=,tag:L8ONmyr2IIj3v3J/3PLISA==,type:str]
 sops:
     kms: []
     gcp_kms: []
@@ -125,8 +125,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-14T21:13:54Z"
-    mac: ENC[AES256_GCM,data:Q2K1il6yO/EWyN4ZDa4VTbJxrX7WmWFbSrnWj/phqT4ZtUknkcNke4Mv+j5STrvX0fQifwGqQbU/qIcO4uynJ/sONCWE71yN2lz3yXSOf6gVOgi0rfVV9XZlUCzm3SKpWKeKYXmQNK9cIc4FdtyHiw1ZKMtkqtecoBcw4OJo6jE=,iv:7cZxnaaxMkzHhUWUYnitp7FNk7KPeOLBpJP7TI6UqKo=,tag:i3RR4ObhhLyDD/bHd9xy7g==,type:str]
+    lastmodified: "2024-12-20T11:38:17Z"
+    mac: ENC[AES256_GCM,data:Tzf+ZHutKLYX/AEDCsnGdHJammXRSrj7uXrEg93w+V19bhy3T/I3yhFlWnkq01B6e4A0kaXRW97N3WlS9wMDLpZ3avCO8y1U2hHAwVolled6iCIzmfDej/BnkFDvJ5F/I9hxeagFC793PZ/+or1QiOv+FNg1nPcwHMNTfLHcH6A=,iv:uRJGU2LvY9DhWqnDt2Pz3ZVG4HPDT0cgHFDSsyZqiKY=,tag:QrK46XSCpwdXgm4c7dWeGg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
@@ -135,7 +135,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
     name: democratic-csi-hdd
-    namespace: democratic-csi-system-system
+    namespace: democratic-csi-system
 spec:
     interval: 1m
     chart:
@@ -145,7 +145,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: democratic-csi
-                namespace: democratic-csi-system-system
+                namespace: democratic-csi-system
     values:
         csiDriver:
             name: nas-hdd
@@ -205,8 +205,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-14T21:13:54Z"
-    mac: ENC[AES256_GCM,data:Q2K1il6yO/EWyN4ZDa4VTbJxrX7WmWFbSrnWj/phqT4ZtUknkcNke4Mv+j5STrvX0fQifwGqQbU/qIcO4uynJ/sONCWE71yN2lz3yXSOf6gVOgi0rfVV9XZlUCzm3SKpWKeKYXmQNK9cIc4FdtyHiw1ZKMtkqtecoBcw4OJo6jE=,iv:7cZxnaaxMkzHhUWUYnitp7FNk7KPeOLBpJP7TI6UqKo=,tag:i3RR4ObhhLyDD/bHd9xy7g==,type:str]
+    lastmodified: "2024-12-20T11:38:17Z"
+    mac: ENC[AES256_GCM,data:Tzf+ZHutKLYX/AEDCsnGdHJammXRSrj7uXrEg93w+V19bhy3T/I3yhFlWnkq01B6e4A0kaXRW97N3WlS9wMDLpZ3avCO8y1U2hHAwVolled6iCIzmfDej/BnkFDvJ5F/I9hxeagFC793PZ/+or1QiOv+FNg1nPcwHMNTfLHcH6A=,iv:uRJGU2LvY9DhWqnDt2Pz3ZVG4HPDT0cgHFDSsyZqiKY=,tag:QrK46XSCpwdXgm4c7dWeGg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
