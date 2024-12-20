@@ -21,8 +21,8 @@ sops:
             Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
             /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T11:07:21Z"
-    mac: ENC[AES256_GCM,data:OHeil+olEebHpejx50ncagx7GQS0ZQvoup/4zyBDuPW0I6t3jTpykgnolU7uA/2i6BASOdVSn7PX6e3jF2GgNxUHGms/UkLB/deGyN5gxLz63oGDNeaN9c9DTiQ+RLLNGzK6t/M+pRbTBOMKuqGW2J0t91+NY+WHveKba2i+wpA=,iv:EELl1GIRkgFzLTruFxpM/ng/9ui6zWOSWxdiemhC0SU=,tag:F3i5VX8N9Bo5byLEl9KxyQ==,type:str]
+    lastmodified: "2024-12-20T12:27:08Z"
+    mac: ENC[AES256_GCM,data:AlMSdaKWdlzeHwxE0M1ijnzUBrWha4vaepWD+9TJf4BEw3DAOUxNl4q9mcATgf5H34LTzBzvYGVuekRxiD9DUnFwTJFqXGA+wMUpZWNqWXqHMQHew5d/6jHcUANWosXRPvGYCY/7lkHzvrF1PtSEP2mVqY//1lC1H50BwzGYnk4=,iv:e58/uCkCQKCTEFquB9CeitP5wUY+M3EyHpnKVh7ok1o=,tag:MwlmsMO+1eFWqhuCxsm7uQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
@@ -74,8 +74,8 @@ sops:
             Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
             /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T11:07:21Z"
-    mac: ENC[AES256_GCM,data:OHeil+olEebHpejx50ncagx7GQS0ZQvoup/4zyBDuPW0I6t3jTpykgnolU7uA/2i6BASOdVSn7PX6e3jF2GgNxUHGms/UkLB/deGyN5gxLz63oGDNeaN9c9DTiQ+RLLNGzK6t/M+pRbTBOMKuqGW2J0t91+NY+WHveKba2i+wpA=,iv:EELl1GIRkgFzLTruFxpM/ng/9ui6zWOSWxdiemhC0SU=,tag:F3i5VX8N9Bo5byLEl9KxyQ==,type:str]
+    lastmodified: "2024-12-20T12:27:08Z"
+    mac: ENC[AES256_GCM,data:AlMSdaKWdlzeHwxE0M1ijnzUBrWha4vaepWD+9TJf4BEw3DAOUxNl4q9mcATgf5H34LTzBzvYGVuekRxiD9DUnFwTJFqXGA+wMUpZWNqWXqHMQHew5d/6jHcUANWosXRPvGYCY/7lkHzvrF1PtSEP2mVqY//1lC1H50BwzGYnk4=,iv:e58/uCkCQKCTEFquB9CeitP5wUY+M3EyHpnKVh7ok1o=,tag:MwlmsMO+1eFWqhuCxsm7uQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
@@ -102,8 +102,8 @@ sops:
             Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
             /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T11:07:21Z"
-    mac: ENC[AES256_GCM,data:OHeil+olEebHpejx50ncagx7GQS0ZQvoup/4zyBDuPW0I6t3jTpykgnolU7uA/2i6BASOdVSn7PX6e3jF2GgNxUHGms/UkLB/deGyN5gxLz63oGDNeaN9c9DTiQ+RLLNGzK6t/M+pRbTBOMKuqGW2J0t91+NY+WHveKba2i+wpA=,iv:EELl1GIRkgFzLTruFxpM/ng/9ui6zWOSWxdiemhC0SU=,tag:F3i5VX8N9Bo5byLEl9KxyQ==,type:str]
+    lastmodified: "2024-12-20T12:27:08Z"
+    mac: ENC[AES256_GCM,data:AlMSdaKWdlzeHwxE0M1ijnzUBrWha4vaepWD+9TJf4BEw3DAOUxNl4q9mcATgf5H34LTzBzvYGVuekRxiD9DUnFwTJFqXGA+wMUpZWNqWXqHMQHew5d/6jHcUANWosXRPvGYCY/7lkHzvrF1PtSEP2mVqY//1lC1H50BwzGYnk4=,iv:e58/uCkCQKCTEFquB9CeitP5wUY+M3EyHpnKVh7ok1o=,tag:MwlmsMO+1eFWqhuCxsm7uQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
@@ -125,7 +125,7 @@ spec:
                 namespace: default
     values:
         image:
-            tag: 1.32.6-alpine
+            tag: 1.32.7-alpine
         resourceType: Deployment
         # TODO https://github.com/ttionya/vaultwarden-backup as sidedcar?
         storage:
@@ -219,8 +219,8 @@ sops:
             Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
             /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T11:07:21Z"
-    mac: ENC[AES256_GCM,data:OHeil+olEebHpejx50ncagx7GQS0ZQvoup/4zyBDuPW0I6t3jTpykgnolU7uA/2i6BASOdVSn7PX6e3jF2GgNxUHGms/UkLB/deGyN5gxLz63oGDNeaN9c9DTiQ+RLLNGzK6t/M+pRbTBOMKuqGW2J0t91+NY+WHveKba2i+wpA=,iv:EELl1GIRkgFzLTruFxpM/ng/9ui6zWOSWxdiemhC0SU=,tag:F3i5VX8N9Bo5byLEl9KxyQ==,type:str]
+    lastmodified: "2024-12-20T12:27:08Z"
+    mac: ENC[AES256_GCM,data:AlMSdaKWdlzeHwxE0M1ijnzUBrWha4vaepWD+9TJf4BEw3DAOUxNl4q9mcATgf5H34LTzBzvYGVuekRxiD9DUnFwTJFqXGA+wMUpZWNqWXqHMQHew5d/6jHcUANWosXRPvGYCY/7lkHzvrF1PtSEP2mVqY//1lC1H50BwzGYnk4=,iv:e58/uCkCQKCTEFquB9CeitP5wUY+M3EyHpnKVh7ok1o=,tag:MwlmsMO+1eFWqhuCxsm7uQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
