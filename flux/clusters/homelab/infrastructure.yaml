@@ -62,6 +62,15 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
+  patches:
+    - patch: |
+        - op: add
+          path: /spec/template/spec/tolerations
+          value:
+            - operator: Exists
+      target:
+        kind: DaemonSet
+        labelSelector: "longhorn.io/component=engine-image"
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
