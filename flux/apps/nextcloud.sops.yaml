@@ -20,8 +20,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-19T12:45:57Z"
-    mac: ENC[AES256_GCM,data:VFY2IRuj71W8tZtbZXAsx0uCaoJMBbIId+/00FAzYEXKMxbiStXkzA9FXZpiW6Xzdo3m59RkkypiwXFd63MjNbO2EguabnIZRu8jP4MdzlZCB6O4+qkIBPG7h9BSWHd3ffa0/JmYjbgpyfoD6ZDigR5kiO0fRAOmEcktyxxo2S8=,iv:WRgxWH3dpzex2IL+n9PxybgiB8J6SeXRNc1NyOUksT4=,tag:evBDbaBCnFjyKtp07nK3VQ==,type:str]
+    lastmodified: "2024-12-20T12:29:39Z"
+    mac: ENC[AES256_GCM,data:XMalZPV68+LL9AfE0++zxk28+GwuIX2WLD0fP4cvqaPphdgWW1KXWXm3LCpXWGEDvFdtOVAd7EfMBqvvNjQpI7ngN8+hPde3fLD6nh3dmoSM+/d44TQmrkZ5lshhj2YHTH4eyBx8hOBthm3G3FoIerDk/gUkmWmyaIeEw63wLIA=,iv:jdfih20g1ot+gnFoW/avvoMyFWvLnx/qg1oL+346XkE=,tag:3LDhJmikiE7qIdJIOQO/OQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
@@ -36,7 +36,7 @@ spec:
     chart:
         spec:
             chart: nextcloud
-            version: 6.5.0
+            version: 6.5.1
             sourceRef:
                 kind: HelmRepository
                 name: nextcloud
@@ -182,8 +182,8 @@ sops:
             SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
             ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-19T12:45:57Z"
-    mac: ENC[AES256_GCM,data:VFY2IRuj71W8tZtbZXAsx0uCaoJMBbIId+/00FAzYEXKMxbiStXkzA9FXZpiW6Xzdo3m59RkkypiwXFd63MjNbO2EguabnIZRu8jP4MdzlZCB6O4+qkIBPG7h9BSWHd3ffa0/JmYjbgpyfoD6ZDigR5kiO0fRAOmEcktyxxo2S8=,iv:WRgxWH3dpzex2IL+n9PxybgiB8J6SeXRNc1NyOUksT4=,tag:evBDbaBCnFjyKtp07nK3VQ==,type:str]
+    lastmodified: "2024-12-20T12:29:39Z"
+    mac: ENC[AES256_GCM,data:XMalZPV68+LL9AfE0++zxk28+GwuIX2WLD0fP4cvqaPphdgWW1KXWXm3LCpXWGEDvFdtOVAd7EfMBqvvNjQpI7ngN8+hPde3fLD6nh3dmoSM+/d44TQmrkZ5lshhj2YHTH4eyBx8hOBthm3G3FoIerDk/gUkmWmyaIeEw63wLIA=,iv:jdfih20g1ot+gnFoW/avvoMyFWvLnx/qg1oL+346XkE=,tag:3LDhJmikiE7qIdJIOQO/OQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
     version: 3.9.2
