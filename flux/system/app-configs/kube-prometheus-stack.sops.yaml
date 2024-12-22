@@ -17,8 +17,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T12:38:30Z"
-    mac: ENC[AES256_GCM,data:NNoONTBfKdmv88crR/GdsbrbZcZZUBzWTPIzPP4s02fu/LWmCDeepdz8CypYkYk2r+xymnNBoW5pd7MCfg0xEwTymWatndW8A0Mn696c+1U4oP7Le/HiRMqg2koaZJqxatpwOonB0/5cvAkKLJz7pkqIowrrm6YVTRPe0wecTN0=,iv:hPumyGB3xJ85pmxS4x8fSm85H3Y5ZKVEEDIr05JWrGM=,tag:SKu7E4uAJKhfO8LFZAg/VQ==,type:str]
+    lastmodified: "2024-12-22T17:18:45Z"
+    mac: ENC[AES256_GCM,data:+i6vfn89Gf2WV0vEKBiVYEGWeTT2HqXeUWxCAFE80RCOU0zmGR9JgcTc3mvObYCi0AeTZgxtfZcWOr3fo87kXKUbZnXfRIcv1NLZypwNLeZitBA0VduWjum8XXiOL+NQaXonNtAlwGsCTuWHFB3YDCHduHhOI+VntCuZKEQTPbw=,iv:6mWdzgWib7CKqj9/oBTinWMXX0g19d4xmzgTushogZE=,tag:qKreRNlaN2+IoN/NAmbM5Q==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
@@ -45,8 +45,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T12:38:30Z"
-    mac: ENC[AES256_GCM,data:NNoONTBfKdmv88crR/GdsbrbZcZZUBzWTPIzPP4s02fu/LWmCDeepdz8CypYkYk2r+xymnNBoW5pd7MCfg0xEwTymWatndW8A0Mn696c+1U4oP7Le/HiRMqg2koaZJqxatpwOonB0/5cvAkKLJz7pkqIowrrm6YVTRPe0wecTN0=,iv:hPumyGB3xJ85pmxS4x8fSm85H3Y5ZKVEEDIr05JWrGM=,tag:SKu7E4uAJKhfO8LFZAg/VQ==,type:str]
+    lastmodified: "2024-12-22T17:18:45Z"
+    mac: ENC[AES256_GCM,data:+i6vfn89Gf2WV0vEKBiVYEGWeTT2HqXeUWxCAFE80RCOU0zmGR9JgcTc3mvObYCi0AeTZgxtfZcWOr3fo87kXKUbZnXfRIcv1NLZypwNLeZitBA0VduWjum8XXiOL+NQaXonNtAlwGsCTuWHFB3YDCHduHhOI+VntCuZKEQTPbw=,iv:6mWdzgWib7CKqj9/oBTinWMXX0g19d4xmzgTushogZE=,tag:qKreRNlaN2+IoN/NAmbM5Q==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
@@ -85,7 +85,7 @@ spec:
                 storage:
                     volumeClaimTemplate:
                         spec:
-                            storageClassName: cluster-local
+                            storageClassName: cluster-scratch
                             resources:
                                 requests:
                                     storage: 1Gi
@@ -145,8 +145,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T12:38:30Z"
-    mac: ENC[AES256_GCM,data:NNoONTBfKdmv88crR/GdsbrbZcZZUBzWTPIzPP4s02fu/LWmCDeepdz8CypYkYk2r+xymnNBoW5pd7MCfg0xEwTymWatndW8A0Mn696c+1U4oP7Le/HiRMqg2koaZJqxatpwOonB0/5cvAkKLJz7pkqIowrrm6YVTRPe0wecTN0=,iv:hPumyGB3xJ85pmxS4x8fSm85H3Y5ZKVEEDIr05JWrGM=,tag:SKu7E4uAJKhfO8LFZAg/VQ==,type:str]
+    lastmodified: "2024-12-22T17:18:45Z"
+    mac: ENC[AES256_GCM,data:+i6vfn89Gf2WV0vEKBiVYEGWeTT2HqXeUWxCAFE80RCOU0zmGR9JgcTc3mvObYCi0AeTZgxtfZcWOr3fo87kXKUbZnXfRIcv1NLZypwNLeZitBA0VduWjum8XXiOL+NQaXonNtAlwGsCTuWHFB3YDCHduHhOI+VntCuZKEQTPbw=,iv:6mWdzgWib7CKqj9/oBTinWMXX0g19d4xmzgTushogZE=,tag:qKreRNlaN2+IoN/NAmbM5Q==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
