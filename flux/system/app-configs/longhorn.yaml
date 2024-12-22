@@ -9,33 +9,11 @@ reclaimPolicy: Delete
 parameters:
   numberOfReplicas: "1"
   migratable: "true"
+  dataLocality: best-effort
   recurringJobSelector: |
    [
       {
         "name":"monthly-trim",
-        "isGroup":false
-      }
-    ]
----
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: cluster-local
-provisioner: driver.longhorn.io
-allowVolumeExpansion: true
-reclaimPolicy: Delete
-parameters:
-  numberOfReplicas: "1"
-  # TODO blocks drainage https://github.com/longhorn/longhorn/issues/8753#issuecomment-2168446728
-  dataLocality: strict-local
-  recurringJobSelector: |
-   [
-      {
-        "name":"monthly-trim",
-        "isGroup":false
-      },
-      {
-        "name":"daily-backup",
         "isGroup":false
       }
     ]
@@ -50,7 +28,8 @@ reclaimPolicy: Retain
 parameters:
   numberOfReplicas: "3"
   migratable: "true"
-  replicaAutoBalance: least-effort
+  dataLocality: best-effort
+  replicaAutoBalance: best-effort
   recurringJobSelector: |
    [
       {
