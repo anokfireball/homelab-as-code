@@ -17,8 +17,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T11:38:17Z"
-    mac: ENC[AES256_GCM,data:Tzf+ZHutKLYX/AEDCsnGdHJammXRSrj7uXrEg93w+V19bhy3T/I3yhFlWnkq01B6e4A0kaXRW97N3WlS9wMDLpZ3avCO8y1U2hHAwVolled6iCIzmfDej/BnkFDvJ5F/I9hxeagFC793PZ/+or1QiOv+FNg1nPcwHMNTfLHcH6A=,iv:uRJGU2LvY9DhWqnDt2Pz3ZVG4HPDT0cgHFDSsyZqiKY=,tag:QrK46XSCpwdXgm4c7dWeGg==,type:str]
+    lastmodified: "2024-12-22T12:37:56Z"
+    mac: ENC[AES256_GCM,data:hMSZf3tI/WmvvvwDBG+H9h945OQP+yP3/INCXUdlTrDIOCTFixy4LgVp8Sspn2ys+erf+ceKiTT7t1N/urfXVCEq6ZYxbwBNobRngxB+OADaVAbeqTZ9c4Hht4odcAY0NZG9TbFhLnb8GLV02tF81rXberhjsRNHdYN1V0hXkGQ=,iv:r1UsK/n0fXTisrruNCJsFtPuMvDdi7P0Wx+QVgl8XOM=,tag:FAvsZCrdmvfm1JHYkp8ltg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
@@ -45,8 +45,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T11:38:17Z"
-    mac: ENC[AES256_GCM,data:Tzf+ZHutKLYX/AEDCsnGdHJammXRSrj7uXrEg93w+V19bhy3T/I3yhFlWnkq01B6e4A0kaXRW97N3WlS9wMDLpZ3avCO8y1U2hHAwVolled6iCIzmfDej/BnkFDvJ5F/I9hxeagFC793PZ/+or1QiOv+FNg1nPcwHMNTfLHcH6A=,iv:uRJGU2LvY9DhWqnDt2Pz3ZVG4HPDT0cgHFDSsyZqiKY=,tag:QrK46XSCpwdXgm4c7dWeGg==,type:str]
+    lastmodified: "2024-12-22T12:37:56Z"
+    mac: ENC[AES256_GCM,data:hMSZf3tI/WmvvvwDBG+H9h945OQP+yP3/INCXUdlTrDIOCTFixy4LgVp8Sspn2ys+erf+ceKiTT7t1N/urfXVCEq6ZYxbwBNobRngxB+OADaVAbeqTZ9c4Hht4odcAY0NZG9TbFhLnb8GLV02tF81rXberhjsRNHdYN1V0hXkGQ=,iv:r1UsK/n0fXTisrruNCJsFtPuMvDdi7P0Wx+QVgl8XOM=,tag:FAvsZCrdmvfm1JHYkp8ltg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
@@ -125,8 +125,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T11:38:17Z"
-    mac: ENC[AES256_GCM,data:Tzf+ZHutKLYX/AEDCsnGdHJammXRSrj7uXrEg93w+V19bhy3T/I3yhFlWnkq01B6e4A0kaXRW97N3WlS9wMDLpZ3avCO8y1U2hHAwVolled6iCIzmfDej/BnkFDvJ5F/I9hxeagFC793PZ/+or1QiOv+FNg1nPcwHMNTfLHcH6A=,iv:uRJGU2LvY9DhWqnDt2Pz3ZVG4HPDT0cgHFDSsyZqiKY=,tag:QrK46XSCpwdXgm4c7dWeGg==,type:str]
+    lastmodified: "2024-12-22T12:37:56Z"
+    mac: ENC[AES256_GCM,data:hMSZf3tI/WmvvvwDBG+H9h945OQP+yP3/INCXUdlTrDIOCTFixy4LgVp8Sspn2ys+erf+ceKiTT7t1N/urfXVCEq6ZYxbwBNobRngxB+OADaVAbeqTZ9c4Hht4odcAY0NZG9TbFhLnb8GLV02tF81rXberhjsRNHdYN1V0hXkGQ=,iv:r1UsK/n0fXTisrruNCJsFtPuMvDdi7P0Wx+QVgl8XOM=,tag:FAvsZCrdmvfm1JHYkp8ltg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
@@ -153,7 +153,7 @@ spec:
         storageClasses:
             - name: nas-replicated-hdd
               defaultClass: false
-              reclaimPolicy: Delete
+              reclaimPolicy: Retain
               volumeBindingMode: Immediate
               allowVolumeExpansion: true
               parameters:
@@ -205,8 +205,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T11:38:17Z"
-    mac: ENC[AES256_GCM,data:Tzf+ZHutKLYX/AEDCsnGdHJammXRSrj7uXrEg93w+V19bhy3T/I3yhFlWnkq01B6e4A0kaXRW97N3WlS9wMDLpZ3avCO8y1U2hHAwVolled6iCIzmfDej/BnkFDvJ5F/I9hxeagFC793PZ/+or1QiOv+FNg1nPcwHMNTfLHcH6A=,iv:uRJGU2LvY9DhWqnDt2Pz3ZVG4HPDT0cgHFDSsyZqiKY=,tag:QrK46XSCpwdXgm4c7dWeGg==,type:str]
+    lastmodified: "2024-12-22T12:37:56Z"
+    mac: ENC[AES256_GCM,data:hMSZf3tI/WmvvvwDBG+H9h945OQP+yP3/INCXUdlTrDIOCTFixy4LgVp8Sspn2ys+erf+ceKiTT7t1N/urfXVCEq6ZYxbwBNobRngxB+OADaVAbeqTZ9c4Hht4odcAY0NZG9TbFhLnb8GLV02tF81rXberhjsRNHdYN1V0hXkGQ=,iv:r1UsK/n0fXTisrruNCJsFtPuMvDdi7P0Wx+QVgl8XOM=,tag:FAvsZCrdmvfm1JHYkp8ltg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2

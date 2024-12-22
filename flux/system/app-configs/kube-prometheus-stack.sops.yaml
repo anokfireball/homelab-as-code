@@ -17,8 +17,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T23:22:53Z"
-    mac: ENC[AES256_GCM,data:Je990QtDwzfcOPqrt0RTjHrA8ntSr4ToRD6Bh9iBrx0fsIJNx/qfsdA5xDW2kbdx8lIUtdBfsOT4Pc+gm4YFMUIWqMx1l4v9nRgusYAmpwPT4bFwBcOQhcP2+kZ6YkHVSNv3rQY4jsrp1/rVsqGTioXHknItr6THCkoX2ShEYp0=,iv:1hj+HxZI3yhPlvitFsx0n0SFYqviOUp55+5HhO+gdHE=,tag:zzHD61NpW0qQSUyybzpESQ==,type:str]
+    lastmodified: "2024-12-22T12:38:30Z"
+    mac: ENC[AES256_GCM,data:NNoONTBfKdmv88crR/GdsbrbZcZZUBzWTPIzPP4s02fu/LWmCDeepdz8CypYkYk2r+xymnNBoW5pd7MCfg0xEwTymWatndW8A0Mn696c+1U4oP7Le/HiRMqg2koaZJqxatpwOonB0/5cvAkKLJz7pkqIowrrm6YVTRPe0wecTN0=,iv:hPumyGB3xJ85pmxS4x8fSm85H3Y5ZKVEEDIr05JWrGM=,tag:SKu7E4uAJKhfO8LFZAg/VQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
@@ -45,8 +45,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T23:22:53Z"
-    mac: ENC[AES256_GCM,data:Je990QtDwzfcOPqrt0RTjHrA8ntSr4ToRD6Bh9iBrx0fsIJNx/qfsdA5xDW2kbdx8lIUtdBfsOT4Pc+gm4YFMUIWqMx1l4v9nRgusYAmpwPT4bFwBcOQhcP2+kZ6YkHVSNv3rQY4jsrp1/rVsqGTioXHknItr6THCkoX2ShEYp0=,iv:1hj+HxZI3yhPlvitFsx0n0SFYqviOUp55+5HhO+gdHE=,tag:zzHD61NpW0qQSUyybzpESQ==,type:str]
+    lastmodified: "2024-12-22T12:38:30Z"
+    mac: ENC[AES256_GCM,data:NNoONTBfKdmv88crR/GdsbrbZcZZUBzWTPIzPP4s02fu/LWmCDeepdz8CypYkYk2r+xymnNBoW5pd7MCfg0xEwTymWatndW8A0Mn696c+1U4oP7Le/HiRMqg2koaZJqxatpwOonB0/5cvAkKLJz7pkqIowrrm6YVTRPe0wecTN0=,iv:hPumyGB3xJ85pmxS4x8fSm85H3Y5ZKVEEDIr05JWrGM=,tag:SKu7E4uAJKhfO8LFZAg/VQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
@@ -121,15 +121,15 @@ spec:
                       hosts:
                         - ENC[AES256_GCM,data:dFVOgzzHmUog2GnfebeotGTS/YjGNCs=,iv:7g9mMxLKYrTSX98dNQiqVHA0QAiWCKoD8Tc1enlL7ak=,tag:5jCcmMjuLgRoPz0z4vX62g==,type:str]
             prometheusSpec:
-                retention: 14d
-                retentionSize: 20GiB
+                retention: 90d
+                retentionSize: 250GiB
                 storageSpec:
                     volumeClaimTemplate:
                         spec:
-                            storageClassName: cluster-replicated
+                            storageClassName: nas-replicated-hdd
                             resources:
                                 requests:
-                                    storage: 20Gi
+                                    storage: 250Gi
 sops:
     kms: []
     gcp_kms: []
@@ -145,8 +145,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-20T23:22:53Z"
-    mac: ENC[AES256_GCM,data:Je990QtDwzfcOPqrt0RTjHrA8ntSr4ToRD6Bh9iBrx0fsIJNx/qfsdA5xDW2kbdx8lIUtdBfsOT4Pc+gm4YFMUIWqMx1l4v9nRgusYAmpwPT4bFwBcOQhcP2+kZ6YkHVSNv3rQY4jsrp1/rVsqGTioXHknItr6THCkoX2ShEYp0=,iv:1hj+HxZI3yhPlvitFsx0n0SFYqviOUp55+5HhO+gdHE=,tag:zzHD61NpW0qQSUyybzpESQ==,type:str]
+    lastmodified: "2024-12-22T12:38:30Z"
+    mac: ENC[AES256_GCM,data:NNoONTBfKdmv88crR/GdsbrbZcZZUBzWTPIzPP4s02fu/LWmCDeepdz8CypYkYk2r+xymnNBoW5pd7MCfg0xEwTymWatndW8A0Mn696c+1U4oP7Le/HiRMqg2koaZJqxatpwOonB0/5cvAkKLJz7pkqIowrrm6YVTRPe0wecTN0=,iv:hPumyGB3xJ85pmxS4x8fSm85H3Y5ZKVEEDIr05JWrGM=,tag:SKu7E4uAJKhfO8LFZAg/VQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
