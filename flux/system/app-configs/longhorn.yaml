@@ -13,8 +13,8 @@ parameters:
   recurringJobSelector: |
    [
       {
-        "name":"monthly-trim",
-        "isGroup":false
+        "name":"base",
+        "isGroup":true
       }
     ]
 ---
@@ -33,8 +33,8 @@ parameters:
   recurringJobSelector: |
    [
       {
-        "name":"monthly-trim",
-        "isGroup":false
+        "name":"base",
+        "isGroup":true
       },
       {
         "name":"daily-backup",
@@ -48,17 +48,31 @@ metadata:
   name: daily-backup
   namespace: longhorn-system
 spec:
+  cron: 45 23 * * *
   name: daily-backup
-  cron: "45 23 * * *"
+  retain: 7
   task: backup
-  retain: 1
 ---
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
 metadata:
-  name: monthly-trim
+  name: daily-snapshot-cleanup
   namespace: longhorn-system
 spec:
-  name: monthly-trim
-  cron: "0 0 1 * *"
+  cron: 30 23 * * *
+  groups:
+  - base
+  name: daily-snapshot-cleanup
+  task: snapshot-cleanup
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: weekly-trim
+  namespace: longhorn-system
+spec:
+  cron: 0 0 * * 0
+  groups:
+  - base
+  name: weekly-trim
   task: filesystem-trim
