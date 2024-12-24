@@ -1,56 +1,3 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-    name: democratic-csi-system
-sops:
-    kms: []
-    gcp_kms: []
-    azure_kv: []
-    hc_vault: []
-    age:
-        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiTGEycHVONHZ1VmU4OWVP
-            dkFoSWVjTVNjMFJvb2dPVXlneWJpVTlBVFFJCmU4Sy91TTVwRG5URVpIelk2ckxZ
-            Q0E1UEdjUlRoNDZxOTUvYUdrWGVqQ1kKLS0tIFRVWFdTNmxDUC9GNW5zYlVLN21y
-            WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
-            65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T12:37:56Z"
-    mac: ENC[AES256_GCM,data:hMSZf3tI/WmvvvwDBG+H9h945OQP+yP3/INCXUdlTrDIOCTFixy4LgVp8Sspn2ys+erf+ceKiTT7t1N/urfXVCEq6ZYxbwBNobRngxB+OADaVAbeqTZ9c4Hht4odcAY0NZG9TbFhLnb8GLV02tF81rXberhjsRNHdYN1V0hXkGQ=,iv:r1UsK/n0fXTisrruNCJsFtPuMvDdi7P0Wx+QVgl8XOM=,tag:FAvsZCrdmvfm1JHYkp8ltg==,type:str]
-    pgp: []
-    encrypted_regex: ^.*(config)$
-    version: 3.9.2
----
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
-metadata:
-    name: democratic-csi
-    namespace: democratic-csi-system
-spec:
-    url: https://democratic-csi.github.io/charts/
-sops:
-    kms: []
-    gcp_kms: []
-    azure_kv: []
-    hc_vault: []
-    age:
-        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBiTGEycHVONHZ1VmU4OWVP
-            dkFoSWVjTVNjMFJvb2dPVXlneWJpVTlBVFFJCmU4Sy91TTVwRG5URVpIelk2ckxZ
-            Q0E1UEdjUlRoNDZxOTUvYUdrWGVqQ1kKLS0tIFRVWFdTNmxDUC9GNW5zYlVLN21y
-            WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
-            65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T12:37:56Z"
-    mac: ENC[AES256_GCM,data:hMSZf3tI/WmvvvwDBG+H9h945OQP+yP3/INCXUdlTrDIOCTFixy4LgVp8Sspn2ys+erf+ceKiTT7t1N/urfXVCEq6ZYxbwBNobRngxB+OADaVAbeqTZ9c4Hht4odcAY0NZG9TbFhLnb8GLV02tF81rXberhjsRNHdYN1V0hXkGQ=,iv:r1UsK/n0fXTisrruNCJsFtPuMvDdi7P0Wx+QVgl8XOM=,tag:FAvsZCrdmvfm1JHYkp8ltg==,type:str]
-    pgp: []
-    encrypted_regex: ^.*(config)$
-    version: 3.9.2
----
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -125,8 +72,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T12:37:56Z"
-    mac: ENC[AES256_GCM,data:hMSZf3tI/WmvvvwDBG+H9h945OQP+yP3/INCXUdlTrDIOCTFixy4LgVp8Sspn2ys+erf+ceKiTT7t1N/urfXVCEq6ZYxbwBNobRngxB+OADaVAbeqTZ9c4Hht4odcAY0NZG9TbFhLnb8GLV02tF81rXberhjsRNHdYN1V0hXkGQ=,iv:r1UsK/n0fXTisrruNCJsFtPuMvDdi7P0Wx+QVgl8XOM=,tag:FAvsZCrdmvfm1JHYkp8ltg==,type:str]
+    lastmodified: "2024-12-24T16:10:07Z"
+    mac: ENC[AES256_GCM,data:1w4sOt5p9G7gdSjJx2N8stwTejoXiZ+IrpKdW+rX7sZiJccdEispoKI2vhEvblLcyooK7Fd8+Ip+qkkdzY3qC0uJFrbQ8Gy5uUHTv/RtqDLfeu3vpIybpvhloliU4pUHviBB9ep/JssEcZz7owijDNLMr7AkWE5G/roxP7UQOT4=,iv:3RDYTntIeWKx1eXwfzxTtH4QkX+E9VSeCo1jiG/xSK8=,tag:E13niMcWjYgzSIi955h6JA==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
@@ -205,8 +152,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T12:37:56Z"
-    mac: ENC[AES256_GCM,data:hMSZf3tI/WmvvvwDBG+H9h945OQP+yP3/INCXUdlTrDIOCTFixy4LgVp8Sspn2ys+erf+ceKiTT7t1N/urfXVCEq6ZYxbwBNobRngxB+OADaVAbeqTZ9c4Hht4odcAY0NZG9TbFhLnb8GLV02tF81rXberhjsRNHdYN1V0hXkGQ=,iv:r1UsK/n0fXTisrruNCJsFtPuMvDdi7P0Wx+QVgl8XOM=,tag:FAvsZCrdmvfm1JHYkp8ltg==,type:str]
+    lastmodified: "2024-12-24T16:10:07Z"
+    mac: ENC[AES256_GCM,data:1w4sOt5p9G7gdSjJx2N8stwTejoXiZ+IrpKdW+rX7sZiJccdEispoKI2vhEvblLcyooK7Fd8+Ip+qkkdzY3qC0uJFrbQ8Gy5uUHTv/RtqDLfeu3vpIybpvhloliU4pUHviBB9ep/JssEcZz7owijDNLMr7AkWE5G/roxP7UQOT4=,iv:3RDYTntIeWKx1eXwfzxTtH4QkX+E9VSeCo1jiG/xSK8=,tag:E13niMcWjYgzSIi955h6JA==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2

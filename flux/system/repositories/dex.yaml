@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: dexidp
+  namespace: dex-system
+spec:
+  url: https://charts.dexidp.io
