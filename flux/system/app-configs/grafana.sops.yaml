@@ -1,0 +1,94 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+    name: grafana
+    namespace: monitoring-system
+spec:
+    url: https://grafana.github.io/helm-charts
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBXZ1MzMUJPWlRiR3prZmJM
+            RlRSY0l2eEpXbEhSMkdCRFJ6ZHpEMGY2REhnClFtT01wVmdOWWpzYStmSE5BSE1t
+            SkhlenJXNEc0VUtwS1ZnRnZkYlR4UmcKLS0tIFJyZ0dycCswdXpBWENCc1lIa0xj
+            R3I2ODkzbURrUHltREF3VFd6VStUV1UKTKcKUn+Y2Az8KmNOX9uQ4Ns48h+Udkyr
+            djeUGHysvW6nbkWPvPtmRUXnQ4h0XbGGHsNZdxdnmaSMG5uBSqbf4A==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-24T15:54:26Z"
+    mac: ENC[AES256_GCM,data:iLir6xf7Fim6xBCkZf7UNxcyqL5vzzsvC+RjdoPx2KST1ldG0up3L1t01G/4sC4otrLPg/vZ9h/ngWGQxYkZ3Lzu05T7J4wiwa9GyD/iUqQYNULOePrxVSGPtpHNAyNCjC3Ya8GS5sJCfnol5QE1pFhTSYhSpa3EVyelYtDDI6M=,iv:UBrr34uuRuyQ5sZdA0yH6jXV9/pmwSDtGbQ8GhVQdQM=,tag:frudwaOCPv48z8HKYI7h4w==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(adminPassword|hosts)$
+    version: 3.9.2
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+    name: grafana
+    namespace: monitoring-system
+spec:
+    interval: 1m
+    chart:
+        spec:
+            chart: grafana
+            version: 8.8.2
+            sourceRef:
+                kind: HelmRepository
+                name: grafana
+                namespace: monitoring-system
+    values:
+        adminPassword: ENC[AES256_GCM,data:WTN0/K+L2OSNhG4YcVeNJQw6+Mqlt8HTk4lZ91DhkIQ=,iv:7KTWIZ0NwQjS4ZAQc2Tiq1hKGmHIFOKbReRGPElvcTw=,tag:fB5SUdBw09y3roxkZ6sEpQ==,type:str]
+        ingress:
+            enabled: true
+            ingressClassName: nginx
+            annotations:
+                external-dns.alpha.kubernetes.io/hostname: grafana.kthxbye.cyou
+                cert-manager.io/cluster-issuer: letsencrypt
+            hosts:
+                - ENC[AES256_GCM,data:VLbjr/VRzaJUdUjaw7gfMPdmEaA=,iv:+gR3no6F3wx9izevrwuPyBkrH1j6BUuY638zCR7kF5w=,tag:6/8TTex0NjYR69N4DpluqA==,type:str]
+            tls:
+                - secretName: grafana-tls
+                  hosts:
+                    - ENC[AES256_GCM,data:fDHTBHbhdHKyfELlzq6S7Vxi8VQ=,iv:e/J97tpPcjAe60Yg4NuKMXe02/9zH+l1tesqXbyWknM=,tag:QN9ISRamlr+NksH2P9qNwQ==,type:str]
+        sidecar:
+            dashboards:
+                enabled: true
+                searchNamespace: ALL
+                label: grafana_dashboard
+                labelValue: "1"
+                folderAnnotation: grafana_dashboard_folder
+            datasources:
+                enabled: true
+                searchNamespace: ALL
+                label: grafana_datasource
+                labelValue: "1"
+            plugins:
+                enabled: true
+                searchNamespace: ALL
+                label: grafana_plugin
+                labelValue: "1"
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBXZ1MzMUJPWlRiR3prZmJM
+            RlRSY0l2eEpXbEhSMkdCRFJ6ZHpEMGY2REhnClFtT01wVmdOWWpzYStmSE5BSE1t
+            SkhlenJXNEc0VUtwS1ZnRnZkYlR4UmcKLS0tIFJyZ0dycCswdXpBWENCc1lIa0xj
+            R3I2ODkzbURrUHltREF3VFd6VStUV1UKTKcKUn+Y2Az8KmNOX9uQ4Ns48h+Udkyr
+            djeUGHysvW6nbkWPvPtmRUXnQ4h0XbGGHsNZdxdnmaSMG5uBSqbf4A==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-24T15:54:26Z"
+    mac: ENC[AES256_GCM,data:iLir6xf7Fim6xBCkZf7UNxcyqL5vzzsvC+RjdoPx2KST1ldG0up3L1t01G/4sC4otrLPg/vZ9h/ngWGQxYkZ3Lzu05T7J4wiwa9GyD/iUqQYNULOePrxVSGPtpHNAyNCjC3Ya8GS5sJCfnol5QE1pFhTSYhSpa3EVyelYtDDI6M=,iv:UBrr34uuRuyQ5sZdA0yH6jXV9/pmwSDtGbQ8GhVQdQM=,tag:frudwaOCPv48z8HKYI7h4w==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(adminPassword|hosts)$
+    version: 3.9.2
