@@ -1,28 +1,3 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-    name: monitoring-system
-sops:
-    kms: []
-    gcp_kms: []
-    azure_kv: []
-    hc_vault: []
-    age:
-        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2WlFKQm9Od3diSGhsUVdX
-            VW9US1ZKdCsvdFN3UUNMdHNWak42akZSTkVvCmsxbktsMUIxRmFmZ2o2aHBjOUxn
-            SGo5bGdKYnFKOGxOa2lKdTNpb2RnUzAKLS0tIG1BRG1aOEduZUFPSCtjWGo5RytP
-            eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
-            GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T17:18:45Z"
-    mac: ENC[AES256_GCM,data:+i6vfn89Gf2WV0vEKBiVYEGWeTT2HqXeUWxCAFE80RCOU0zmGR9JgcTc3mvObYCi0AeTZgxtfZcWOr3fo87kXKUbZnXfRIcv1NLZypwNLeZitBA0VduWjum8XXiOL+NQaXonNtAlwGsCTuWHFB3YDCHduHhOI+VntCuZKEQTPbw=,iv:6mWdzgWib7CKqj9/oBTinWMXX0g19d4xmzgTushogZE=,tag:qKreRNlaN2+IoN/NAmbM5Q==,type:str]
-    pgp: []
-    encrypted_regex: ^.*(ingress|adminPassword)$
-    version: 3.9.2
----
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -45,8 +20,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T17:18:45Z"
-    mac: ENC[AES256_GCM,data:+i6vfn89Gf2WV0vEKBiVYEGWeTT2HqXeUWxCAFE80RCOU0zmGR9JgcTc3mvObYCi0AeTZgxtfZcWOr3fo87kXKUbZnXfRIcv1NLZypwNLeZitBA0VduWjum8XXiOL+NQaXonNtAlwGsCTuWHFB3YDCHduHhOI+VntCuZKEQTPbw=,iv:6mWdzgWib7CKqj9/oBTinWMXX0g19d4xmzgTushogZE=,tag:qKreRNlaN2+IoN/NAmbM5Q==,type:str]
+    lastmodified: "2024-12-24T15:52:58Z"
+    mac: ENC[AES256_GCM,data:rKiSm76FTa9qSkhDYgBglOFqmT9gN1T176wakLnq7jNILkdhj5aeYPQLkRjEXoFoNe9JN2hKaUpSqR8oE7n3HcAOuWEkBwabE1MaY75GgKrfFE+urchjMU7QUBojcAzAS2wuaDOuxXdyskLkxGCuNZzFp+sxdptCz+lHUBWYTGM=,iv:XSuTN317ctPdpNX+HFTO77PamozWIlXtzdZMizphiDA=,tag:vhxb7iuAh7FoneZlalVTFA==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
@@ -90,23 +65,16 @@ spec:
                                 requests:
                                     storage: 1Gi
         grafana:
-            adminPassword: ENC[AES256_GCM,data:osclrX+OTZKIEgaJsHGRAmpw8Uj76TH+qB+fygAVhhw=,iv:xv3RgzjpcJdcI0BYMqraFpbqr0k5tXQlARZ7zLBWh3Y=,tag:UTQ7sLnHxHLnFFke5Rz6Cg==,type:str]
-            ingress:
-                enabled: ENC[AES256_GCM,data:7YbTGg==,iv:aqh5CSEUuVbmG1rXbjD7+iRi3DFWMvv9aUPeO1ITT2Q=,tag:+SLT4wibdAgQJMN7kHNFzA==,type:bool]
-                ingressClassName: ENC[AES256_GCM,data:cORsi1A=,iv:UPuURvxj9LYbm/glVQ4N2mySqloy2r4Zep0PykxNfdE=,tag:Axl9fTZJsT/sDOev4Bdilw==,type:str]
-                annotations:
-                    external-dns.alpha.kubernetes.io/hostname: ENC[AES256_GCM,data:ajsmOMa1Ta2BcnUxvKMN0XNZl/U=,iv:6ZEtwN4dbc8OIscDcH1SB/e9jz+g1QibL3dFVIL2WQw=,tag:D7RoGrzdYRURUE25S62eOw==,type:str]
-                    cert-manager.io/cluster-issuer: ENC[AES256_GCM,data:5xvvN636NW7tgLs=,iv:1bGOeoPRr95P7TXq3PhCgVTPXYi9Dx7oL40lliNuDjc=,tag:Jy9IlBq9nw1pXeY6HTsOyA==,type:str]
-                hosts:
-                    - ENC[AES256_GCM,data:HDxjXvIfKVpfycKk4YiBtezYysU=,iv:Z0jlKf9XsD3Xk8KJZ08pn0gbUDGMrWUYwLlE5Pqcj5M=,tag:I8NWZ+atGupnyk6mIw6qCw==,type:str]
-                tls:
-                    - secretName: ENC[AES256_GCM,data:CoqY0uH/0bFPyO0=,iv:zMzusTAoVUI1EamjFJWMpROMWednD/DbkfRlWG53LhI=,tag:dzya65DzStVS8gzI9OArQA==,type:str]
-                      hosts:
-                        - ENC[AES256_GCM,data:3NfOufpl87R4y5PvZpeQMdCcgWw=,iv:1ITxnTynAIPFIMiTYdBGXDr+J8jNaWHBxA6HtCPBUfs=,tag:uBwR6ljZuhjPxkUFY2ZVYw==,type:str]
-            persistence:
-                enabled: true
-                storageClassName: cluster-replicated
-                size: 2Gi
+            enabled: false
+            forceDeployDatasources: true
+            forceDeployDashboards: true
+            defaultDashboardsEnabled: true
+            defaultDashboardsTimezone: Europe/Berlin
+            defaultDashboardsEditable: true
+            sidecar:
+                dashboards:
+                    annotations:
+                        grafana_dashboard_folder: kube-prometheus-stack
         prometheus:
             ingress:
                 enabled: ENC[AES256_GCM,data:EJyljg==,iv:8feMeBdrj58OWsFsLNf2mKSKXcNdEoGyx0WnZpU0ntw=,tag:nsmMdYpmu5PCGGlob9Iz3Q==,type:bool]
@@ -145,8 +113,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-22T17:18:45Z"
-    mac: ENC[AES256_GCM,data:+i6vfn89Gf2WV0vEKBiVYEGWeTT2HqXeUWxCAFE80RCOU0zmGR9JgcTc3mvObYCi0AeTZgxtfZcWOr3fo87kXKUbZnXfRIcv1NLZypwNLeZitBA0VduWjum8XXiOL+NQaXonNtAlwGsCTuWHFB3YDCHduHhOI+VntCuZKEQTPbw=,iv:6mWdzgWib7CKqj9/oBTinWMXX0g19d4xmzgTushogZE=,tag:qKreRNlaN2+IoN/NAmbM5Q==,type:str]
+    lastmodified: "2024-12-24T15:52:58Z"
+    mac: ENC[AES256_GCM,data:rKiSm76FTa9qSkhDYgBglOFqmT9gN1T176wakLnq7jNILkdhj5aeYPQLkRjEXoFoNe9JN2hKaUpSqR8oE7n3HcAOuWEkBwabE1MaY75GgKrfFE+urchjMU7QUBojcAzAS2wuaDOuxXdyskLkxGCuNZzFp+sxdptCz+lHUBWYTGM=,iv:XSuTN317ctPdpNX+HFTO77PamozWIlXtzdZMizphiDA=,tag:vhxb7iuAh7FoneZlalVTFA==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
