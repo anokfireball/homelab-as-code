@@ -2,6 +2,44 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: system-namespaces
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./flux/system/namespaces
+  prune: true
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: system-repositories
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./flux/system/repositories
+  prune: true
+  wait: true
+  dependsOn:
+    - name: system-namespaces
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: system-infrastructure-controllers
   namespace: flux-system
 spec:
@@ -14,6 +52,8 @@ spec:
   path: ./flux/system/infrastructure-controllers
   prune: true
   wait: true
+  dependsOn:
+    - name: system-repositories
   decryption:
     provider: sops
     secretRef:
