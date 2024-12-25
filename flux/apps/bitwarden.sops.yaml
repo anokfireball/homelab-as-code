@@ -21,8 +21,8 @@ sops:
             Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
             /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-21T11:33:50Z"
-    mac: ENC[AES256_GCM,data:ZOOkh1hQcpvpQdbk68vZkSGV+xrjvomvZufB8ZlPgZWl2V55x7aHujtqa3SHz9vhQ/Ps3NtOBLO1chPDTDS4BiEGCg2/jqjOMpTBif9yYqalhyHE7eUFjVy0qxIqoWKh9u+EuYHmUSuTuLmlcEJjUFk7HS8H01QMzEZ1k1ydgrk=,iv:sRJkYlgyvZbhTpXNbFhb8zQkZcR7DqIWE7rn0JAjgMg=,tag:4EFY9WW+Bsp+bUWS7oDpag==,type:str]
+    lastmodified: "2024-12-25T08:48:53Z"
+    mac: ENC[AES256_GCM,data:mWHsQ0EWAwCwDFt/ix/CBKviO42rZQpD0HbmmblaDwBnLJCAq1sKsO1S4ZkFFsVQ8D+6WtKmfL7FAZ/0Ovg+kiR9RL66uNOM8DULvFPYQgD9LhxPHLi+Bf5v18pf7Tg4JB8yp3VdITvrjqLDOZ0miZO8n/meh7tTfSej0R88jew=,iv:1T+iLqGnoojdggnrhGKCtYA1fKrZPFOKZIHQ5HtsoOQ=,tag:l46AbTzY5Oua3cE9YSJnJg==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
@@ -37,7 +37,7 @@ spec:
     chart:
         spec:
             chart: postgresql
-            version: 16.3.3
+            version: 16.3.4
             sourceRef:
                 kind: HelmRepository
                 name: bitnami
@@ -74,8 +74,8 @@ sops:
             Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
             /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-21T11:33:50Z"
-    mac: ENC[AES256_GCM,data:ZOOkh1hQcpvpQdbk68vZkSGV+xrjvomvZufB8ZlPgZWl2V55x7aHujtqa3SHz9vhQ/Ps3NtOBLO1chPDTDS4BiEGCg2/jqjOMpTBif9yYqalhyHE7eUFjVy0qxIqoWKh9u+EuYHmUSuTuLmlcEJjUFk7HS8H01QMzEZ1k1ydgrk=,iv:sRJkYlgyvZbhTpXNbFhb8zQkZcR7DqIWE7rn0JAjgMg=,tag:4EFY9WW+Bsp+bUWS7oDpag==,type:str]
+    lastmodified: "2024-12-25T08:48:53Z"
+    mac: ENC[AES256_GCM,data:mWHsQ0EWAwCwDFt/ix/CBKviO42rZQpD0HbmmblaDwBnLJCAq1sKsO1S4ZkFFsVQ8D+6WtKmfL7FAZ/0Ovg+kiR9RL66uNOM8DULvFPYQgD9LhxPHLi+Bf5v18pf7Tg4JB8yp3VdITvrjqLDOZ0miZO8n/meh7tTfSej0R88jew=,iv:1T+iLqGnoojdggnrhGKCtYA1fKrZPFOKZIHQ5HtsoOQ=,tag:l46AbTzY5Oua3cE9YSJnJg==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
@@ -102,8 +102,8 @@ sops:
             Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
             /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-21T11:33:50Z"
-    mac: ENC[AES256_GCM,data:ZOOkh1hQcpvpQdbk68vZkSGV+xrjvomvZufB8ZlPgZWl2V55x7aHujtqa3SHz9vhQ/Ps3NtOBLO1chPDTDS4BiEGCg2/jqjOMpTBif9yYqalhyHE7eUFjVy0qxIqoWKh9u+EuYHmUSuTuLmlcEJjUFk7HS8H01QMzEZ1k1ydgrk=,iv:sRJkYlgyvZbhTpXNbFhb8zQkZcR7DqIWE7rn0JAjgMg=,tag:4EFY9WW+Bsp+bUWS7oDpag==,type:str]
+    lastmodified: "2024-12-25T08:48:53Z"
+    mac: ENC[AES256_GCM,data:mWHsQ0EWAwCwDFt/ix/CBKviO42rZQpD0HbmmblaDwBnLJCAq1sKsO1S4ZkFFsVQ8D+6WtKmfL7FAZ/0Ovg+kiR9RL66uNOM8DULvFPYQgD9LhxPHLi+Bf5v18pf7Tg4JB8yp3VdITvrjqLDOZ0miZO8n/meh7tTfSej0R88jew=,iv:1T+iLqGnoojdggnrhGKCtYA1fKrZPFOKZIHQ5HtsoOQ=,tag:l46AbTzY5Oua3cE9YSJnJg==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
@@ -219,8 +219,8 @@ sops:
             Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
             /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-21T11:33:50Z"
-    mac: ENC[AES256_GCM,data:ZOOkh1hQcpvpQdbk68vZkSGV+xrjvomvZufB8ZlPgZWl2V55x7aHujtqa3SHz9vhQ/Ps3NtOBLO1chPDTDS4BiEGCg2/jqjOMpTBif9yYqalhyHE7eUFjVy0qxIqoWKh9u+EuYHmUSuTuLmlcEJjUFk7HS8H01QMzEZ1k1ydgrk=,iv:sRJkYlgyvZbhTpXNbFhb8zQkZcR7DqIWE7rn0JAjgMg=,tag:4EFY9WW+Bsp+bUWS7oDpag==,type:str]
+    lastmodified: "2024-12-25T08:48:53Z"
+    mac: ENC[AES256_GCM,data:mWHsQ0EWAwCwDFt/ix/CBKviO42rZQpD0HbmmblaDwBnLJCAq1sKsO1S4ZkFFsVQ8D+6WtKmfL7FAZ/0Ovg+kiR9RL66uNOM8DULvFPYQgD9LhxPHLi+Bf5v18pf7Tg4JB8yp3VdITvrjqLDOZ0miZO8n/meh7tTfSej0R88jew=,iv:1T+iLqGnoojdggnrhGKCtYA1fKrZPFOKZIHQ5HtsoOQ=,tag:l46AbTzY5Oua3cE9YSJnJg==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
