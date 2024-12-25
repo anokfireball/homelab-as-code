@@ -8,7 +8,7 @@ spec:
     chart:
         spec:
             chart: kube-prometheus-stack
-            version: 67.4.0
+            version: 67.5.0
             sourceRef:
                 kind: HelmRepository
                 name: prometheus-community
@@ -85,8 +85,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-24T16:08:39Z"
-    mac: ENC[AES256_GCM,data:3Ajwov9xtpR3zNK8jYlGbSD60KuA2ZnMZBaAQfpU/7W+2d/ZSv37WIRSvoPGwdCKtvPQnjDgJk4uQ0tSQ996J7ncoGptBR7kxGWIOm7LZ66o/EP3xswbOSB/BR6caoUVZsP/uIgaR/CRgYkAAUtp8GX3sdXMy3+Nl8YeRIS4VDk=,iv:lVV/FqikYImMj0ilwzZ0VUf+gTDGTrEDk5Owg6kQZaQ=,tag:3votpyBl/UmAZYvkC5AyBA==,type:str]
+    lastmodified: "2024-12-25T11:48:36Z"
+    mac: ENC[AES256_GCM,data:PjnWaM57hZUP6sKXx753mqukN/CcfFMmhhoRDidYAPBy71VpSkiAiwxLYhdtQPhMhcXw3nwBp0cUbK8FzMK+lJ3yJkTgknrKEXS2fOzX5hXvgLLBiak/Cs07VI9e3k0kPgBmVG/HGzqEVnTuZsm+m1SP9YESKTfx0bh/2uBj6bk=,iv:+iNh+0o2eJxGoAseTecsKDX385VsSbt6TNvW69vak+8=,tag:LQk1fJxCNp9VpaweK1RA9Q==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
