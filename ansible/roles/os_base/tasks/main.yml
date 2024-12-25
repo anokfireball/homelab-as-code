@@ -105,3 +105,13 @@
   file:
     path: "{{ swap_file.stdout }}"
     state: absent
+
+- name: increase number of inotify handles
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  with_items:
+    - { name: fs.inotify.max_user_instances, value: 8192 }
+    - { name: fs.inotify.max_user_watches, value: 65536 }
