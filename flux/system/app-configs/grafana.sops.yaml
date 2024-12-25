@@ -34,6 +34,8 @@ spec:
                 label: grafana_dashboard
                 labelValue: "1"
                 folderAnnotation: grafana_dashboard_folder
+                provider:
+                    foldersFromFilesStructure: true
             datasources:
                 enabled: true
                 searchNamespace: ALL
@@ -59,8 +61,8 @@ sops:
             R3I2ODkzbURrUHltREF3VFd6VStUV1UKTKcKUn+Y2Az8KmNOX9uQ4Ns48h+Udkyr
             djeUGHysvW6nbkWPvPtmRUXnQ4h0XbGGHsNZdxdnmaSMG5uBSqbf4A==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-24T16:08:12Z"
-    mac: ENC[AES256_GCM,data:AHGAeG6ubmEaKERjg7HoYpEeYWBiVNQN2ArnEeRnJHmbMLFXv55R5rcXRVt3Nikx71CiTLCCW1sQQYviVyG0HsY3rKQbaEdh1U9OhUBhvn9I1b8d570Q8LawLu3+m2avekmz2/ka2MW1veEungFB/sGjMKu/1TUFyeMOVHqkMwc=,iv:o28LkoDyJendUM02sKjpD3NOlcxLj3JFQih7HMsFbEY=,tag:U9MadrV4S+r8uFWraWjStQ==,type:str]
+    lastmodified: "2024-12-25T08:42:04Z"
+    mac: ENC[AES256_GCM,data:aGuf4cuRYs+zq3nA9PlOQSZ0AVvbwSP7UM11nbHn9bWLh/evL3zZHf6tfvb72kVUNp5QJrUdbDnmGvt3qF8E5nXiyAG5l8ZLhpSlEunHW21Gcevs8wKv2vl+55a7jZBukF6K6cmT7uc50GNtc3D6ZoUh7CTggpdZ2y2rUa70gMk=,iv:OgMU9DMYefo1MxHE5DUnbAaQDbWWJkkDI02kiWV/NxQ=,tag:kOJQ3JxbzOJdtXfrcMjPOg==,type:str]
     pgp: []
     encrypted_regex: ^.*(adminPassword|hosts)$
     version: 3.9.2
