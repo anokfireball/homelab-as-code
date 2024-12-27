@@ -1,7 +1,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: dexidp
-  namespace: dex-system
+  name: jetstack
+  namespace: flux-system
 spec:
-  url: https://charts.dexidp.io
+  url: https://charts.jetstack.io

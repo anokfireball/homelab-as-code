@@ -12,7 +12,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: dexidp
-                namespace: dex-system
+                namespace: flux-system
     values:
         config:
             issuer: ENC[AES256_GCM,data:RIqyeVYjn9uqw+xVXIx17tuYFRckttKlaw==,iv:iNMVcxb52nTC+muWXfW2LAc01+vtEAGAUjSsaDiaPHc=,tag:79NfSEuLSdCUA+C8KJmVuw==,type:str]
@@ -65,8 +65,8 @@ sops:
             anUzU2loNWswYlFseEpqN2tYWnpiN3cKtjP06NDuB5cSYaMyA8df30gP03FlT91B
             Pa2EOBQz8KLIMumaIRUxYyP9mwXwkTGzzNP3eliOkd9m7tkMrZSuXQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-24T16:07:53Z"
-    mac: ENC[AES256_GCM,data:XMKc5j0O52Sk+GUIplUg506xPg8eAZ8TGaaD/Oa7MY5nJxzMZwPIL0HzQS1Gxu97OgGcDaaVm5CzGoOcNXYf8E0sWH4+32Xinqhbet594O+h5Qqy8Csa73OfqRLUcPw4VkUH0qsehtbPbhwEwswSZPJvjXs5ZvvHou7h0urxlkA=,iv:4MYVr8/wyF7XQmv5Lh4pmzCN3xJW6HmbsjOja2+a9gA=,tag:5tdPlrhop3Mrghcc3ZCGrg==,type:str]
+    lastmodified: "2024-12-27T10:08:41Z"
+    mac: ENC[AES256_GCM,data:pRuTgJVVmgbSqibucFYqW0TuCTE7as/y+/Rx+D375gEsNkvxaAUYlRetZHjN5WWryq7Ok34nWHmYLeqyudNkmeJGpa9V0Ql6C6PQL1pbzq3JUwm0vYMCJF8nfEl+cEo9kWTewXMuQrNA+FDadJ341tDmNLmURIAI9HZhXkluiL0=,iv:za8YrRJ1givLlggb+8Q7FnFDTOWJpN06mrbx6FJvzGY=,tag:NFebhBE5sBKDv2HtmyiREg==,type:str]
     pgp: []
     encrypted_regex: ^.*(values|subjects)$
     version: 3.9.2
@@ -98,8 +98,8 @@ sops:
             anUzU2loNWswYlFseEpqN2tYWnpiN3cKtjP06NDuB5cSYaMyA8df30gP03FlT91B
             Pa2EOBQz8KLIMumaIRUxYyP9mwXwkTGzzNP3eliOkd9m7tkMrZSuXQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-24T16:07:53Z"
-    mac: ENC[AES256_GCM,data:XMKc5j0O52Sk+GUIplUg506xPg8eAZ8TGaaD/Oa7MY5nJxzMZwPIL0HzQS1Gxu97OgGcDaaVm5CzGoOcNXYf8E0sWH4+32Xinqhbet594O+h5Qqy8Csa73OfqRLUcPw4VkUH0qsehtbPbhwEwswSZPJvjXs5ZvvHou7h0urxlkA=,iv:4MYVr8/wyF7XQmv5Lh4pmzCN3xJW6HmbsjOja2+a9gA=,tag:5tdPlrhop3Mrghcc3ZCGrg==,type:str]
+    lastmodified: "2024-12-27T10:08:41Z"
+    mac: ENC[AES256_GCM,data:pRuTgJVVmgbSqibucFYqW0TuCTE7as/y+/Rx+D375gEsNkvxaAUYlRetZHjN5WWryq7Ok34nWHmYLeqyudNkmeJGpa9V0Ql6C6PQL1pbzq3JUwm0vYMCJF8nfEl+cEo9kWTewXMuQrNA+FDadJ341tDmNLmURIAI9HZhXkluiL0=,iv:za8YrRJ1givLlggb+8Q7FnFDTOWJpN06mrbx6FJvzGY=,tag:NFebhBE5sBKDv2HtmyiREg==,type:str]
     pgp: []
     encrypted_regex: ^.*(values|subjects)$
     version: 3.9.2

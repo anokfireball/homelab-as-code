@@ -12,4 +12,4 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: metallb
-        namespace: metallb-system
+        namespace: flux-system

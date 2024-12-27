@@ -18,7 +18,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: system-repositories
+  name: repositories
   namespace: flux-system
 spec:
   interval: 1h
@@ -27,11 +27,9 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./flux/system/repositories
+  path: ./flux/repositories
   prune: true
   wait: true
-  dependsOn:
-    - name: system-namespaces
   decryption:
     provider: sops
     secretRef:
@@ -53,7 +51,8 @@ spec:
   prune: true
   wait: true
   dependsOn:
-    - name: system-repositories
+    - name: repositories
+    - name: system-namespaces
   decryption:
     provider: sops
     secretRef:

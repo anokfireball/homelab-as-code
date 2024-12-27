@@ -12,7 +12,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: grafana
-                namespace: monitoring-system
+                namespace: flux-system
     values:
         deploymentMode: SingleBinary
         loki:
@@ -96,8 +96,8 @@ sops:
             SWlRYWUvbHB5d1RkK2ZpSFRkTGMxZkEK7xQXBGF0rYwdB1IpBcF60XfIBRhS68ep
             xhUZJXsfNlX5rMhxYOv7jEu+koY/ccv9y+IPbMfeQKOp+MUSuK1xCQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-25T09:45:03Z"
-    mac: ENC[AES256_GCM,data:hgy/i9KmzkbVWuGyZbNWhDJGuWE79ANhu+2Wa9k83aLEaVW3oVzEkx3NPXDSFgqsJTqn0LhdFwur0mNlJMeJgKcncbEOu/zXicFTS3qfu7fhW358x9fqzqq2JT7WIfrfp0sf7xntd4894+0qquOLrQhkmk+HRFJjA+FYpXCg3E4=,iv:5e/OLVd+0BZZBsVu95RCGRhE44170MoWI3rm7wPs2xU=,tag:5a65qUyf7mwtQwxs8vfpzA==,type:str]
+    lastmodified: "2024-12-27T10:09:01Z"
+    mac: ENC[AES256_GCM,data:FWRIZ/cxGW7EzKen48Ui69DzL6MzV/4wG4KFuGdDpEW2KwgRTy3IfVFatJksZZoimzJ8ufQl3Kt/9ArdcdMkPZtGXBh1GMkOHLzz3DbjlJeP8oJi80gL2YzMVbEmtfBjN8iXPq3dx0MhofLunh16dKOV3nXO6/iKgDpZVYhSUFA=,iv:zolqZ6EV6kF87fAjFgai2OokJS1qL423nVLzJLZpEDI=,tag:dPkQ4FltAZBvTrp5XmNCfQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(hosts)$
     version: 3.9.2
@@ -136,8 +136,8 @@ sops:
             SWlRYWUvbHB5d1RkK2ZpSFRkTGMxZkEK7xQXBGF0rYwdB1IpBcF60XfIBRhS68ep
             xhUZJXsfNlX5rMhxYOv7jEu+koY/ccv9y+IPbMfeQKOp+MUSuK1xCQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-25T09:45:03Z"
-    mac: ENC[AES256_GCM,data:hgy/i9KmzkbVWuGyZbNWhDJGuWE79ANhu+2Wa9k83aLEaVW3oVzEkx3NPXDSFgqsJTqn0LhdFwur0mNlJMeJgKcncbEOu/zXicFTS3qfu7fhW358x9fqzqq2JT7WIfrfp0sf7xntd4894+0qquOLrQhkmk+HRFJjA+FYpXCg3E4=,iv:5e/OLVd+0BZZBsVu95RCGRhE44170MoWI3rm7wPs2xU=,tag:5a65qUyf7mwtQwxs8vfpzA==,type:str]
+    lastmodified: "2024-12-27T10:09:01Z"
+    mac: ENC[AES256_GCM,data:FWRIZ/cxGW7EzKen48Ui69DzL6MzV/4wG4KFuGdDpEW2KwgRTy3IfVFatJksZZoimzJ8ufQl3Kt/9ArdcdMkPZtGXBh1GMkOHLzz3DbjlJeP8oJi80gL2YzMVbEmtfBjN8iXPq3dx0MhofLunh16dKOV3nXO6/iKgDpZVYhSUFA=,iv:zolqZ6EV6kF87fAjFgai2OokJS1qL423nVLzJLZpEDI=,tag:dPkQ4FltAZBvTrp5XmNCfQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(hosts)$
     version: 3.9.2
