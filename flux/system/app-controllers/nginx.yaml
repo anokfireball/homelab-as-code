@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: nginx-stable
-        namespace: nginx-system
+        namespace: flux-system
   values:
     controller:
       service:

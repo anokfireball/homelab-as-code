@@ -12,7 +12,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: prometheus-community
-                namespace: monitoring-system
+                namespace: flux-system
     values:
         alertmanager:
             ingress:
@@ -85,8 +85,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-25T11:48:36Z"
-    mac: ENC[AES256_GCM,data:PjnWaM57hZUP6sKXx753mqukN/CcfFMmhhoRDidYAPBy71VpSkiAiwxLYhdtQPhMhcXw3nwBp0cUbK8FzMK+lJ3yJkTgknrKEXS2fOzX5hXvgLLBiak/Cs07VI9e3k0kPgBmVG/HGzqEVnTuZsm+m1SP9YESKTfx0bh/2uBj6bk=,iv:+iNh+0o2eJxGoAseTecsKDX385VsSbt6TNvW69vak+8=,tag:LQk1fJxCNp9VpaweK1RA9Q==,type:str]
+    lastmodified: "2024-12-27T10:08:56Z"
+    mac: ENC[AES256_GCM,data:hUi5i9OtXvPfhJFtUAe64a+uxEdD3uI6hyAUHA65Wmsv8j94S1C42vetp/1r1pMziTK+N131KRGS+4iJuRruvUO7zc35imcj793PMMw6VvhLlFe6bw6Iu8m8LGQBNlvcaBzTJ0+j6aNgPno5stZN0HN6PBsc+oI5UTzzEBJMvhE=,iv:XeoGZ0Tf/Q3+vAof5XPNkOHh4eGxF20XoEHtuF6o5VY=,tag:SgxBVOmqse/cn4t/fWS7Xg==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2

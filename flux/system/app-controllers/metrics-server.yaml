@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: metrics-server
-        namespace: kube-system
+        namespace: flux-system
   values:
     # TODO set up certificates properly with IP SANs
     # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/troubleshooting-kubeadm/#cannot-use-the-metrics-server-securely-in-a-kubeadm-cluster

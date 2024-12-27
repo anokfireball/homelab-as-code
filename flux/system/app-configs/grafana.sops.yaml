@@ -12,7 +12,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: grafana
-                namespace: monitoring-system
+                namespace: flux-system
     values:
         adminPassword: ENC[AES256_GCM,data:WTN0/K+L2OSNhG4YcVeNJQw6+Mqlt8HTk4lZ91DhkIQ=,iv:7KTWIZ0NwQjS4ZAQc2Tiq1hKGmHIFOKbReRGPElvcTw=,tag:fB5SUdBw09y3roxkZ6sEpQ==,type:str]
         ingress:
@@ -61,8 +61,8 @@ sops:
             R3I2ODkzbURrUHltREF3VFd6VStUV1UKTKcKUn+Y2Az8KmNOX9uQ4Ns48h+Udkyr
             djeUGHysvW6nbkWPvPtmRUXnQ4h0XbGGHsNZdxdnmaSMG5uBSqbf4A==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-25T08:42:04Z"
-    mac: ENC[AES256_GCM,data:aGuf4cuRYs+zq3nA9PlOQSZ0AVvbwSP7UM11nbHn9bWLh/evL3zZHf6tfvb72kVUNp5QJrUdbDnmGvt3qF8E5nXiyAG5l8ZLhpSlEunHW21Gcevs8wKv2vl+55a7jZBukF6K6cmT7uc50GNtc3D6ZoUh7CTggpdZ2y2rUa70gMk=,iv:OgMU9DMYefo1MxHE5DUnbAaQDbWWJkkDI02kiWV/NxQ=,tag:kOJQ3JxbzOJdtXfrcMjPOg==,type:str]
+    lastmodified: "2024-12-27T10:08:48Z"
+    mac: ENC[AES256_GCM,data:d3pSVJ/zrmQHrCs1imk7uUqdJU9L+pLTBLRhxtz/Xi7mADyRkAzoXRmCijru/Y9KJG6pOhIDo8LFjaYDrY7/DVH4W6+LWiKfn+rggimGzixJ07td9GIhMMG0rF3WUkJE5fJm3LE2fD/AkvA+cVnA1jyID4Zz4cDplyQ3S7C8iQ8=,iv:jbeBxZwxapdL87xO/lQf9rDezoNDb85yS8zp9B7S6dU=,tag:vSIJxAgL3hsG1PchN2dOZQ==,type:str]
     pgp: []
     encrypted_regex: ^.*(adminPassword|hosts)$
     version: 3.9.2

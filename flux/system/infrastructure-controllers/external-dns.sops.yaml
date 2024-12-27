@@ -12,7 +12,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: external-dns
-                namespace: external-dns-system
+                namespace: flux-system
     values:
         policy: sync
         provider:
@@ -58,8 +58,8 @@ sops:
             U2IreDFtV1NpazZOTXVQdHo0ODcrUzQKcP4cMxoP10nXR2/6gB4aWTJ3KWoaxoOC
             uawcpNbEGFoOvSpvf/NmYNp+PKUbfjnrtQAWhhH8VmzZ7kgIb0y6cA==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-24T16:11:54Z"
-    mac: ENC[AES256_GCM,data:mGkJM7boOhOUnionN9c5KThpBnp8h612dkqpfSYtCN0UfWD2LMmHc/gfGGM2do+9z8eM11LkL38i/VIrov7wI3DWQfs0ag6LXIqsqvqzg4zmndl143b5LCY/Jq6RHsmx5PmJw4Re8T4y/GrivQCpMyLWUQD4cl4E/YvQQE5x79I=,iv:8J6KuQ08BcrZ5y2R/TK1a2YqKvsV2Fa1/YRbGiOPcKg=,tag:NI3lnlBFxLG3nFhPGSZi9w==,type:str]
+    lastmodified: "2024-12-27T10:09:35Z"
+    mac: ENC[AES256_GCM,data:mWylBJ8gvpAwDzlyVnNhnCWX6p5GqB4rUJECqN0fIjr7gx9DcZR19XCIBEhdRrMQZxEInUE1xPvwM4M3IRgW2byF1ThEv5OGA3m+PpwCFNxQ0Kn/rG1rvEcfTdwmN4rAtsluHknQlJRDFYEPYntFvW1QFAKe5QGpwCSBEyZI9XM=,iv:1dUQ9i6omhTwb7/chKOhSKnDxFmr7XYMz7ndVFph4NE=,tag:TZHFxJmAZRgz3tDLNInSSA==,type:str]
     pgp: []
     encrypted_regex: ^.*(env)$
     version: 3.9.2

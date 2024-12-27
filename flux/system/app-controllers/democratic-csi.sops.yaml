@@ -12,7 +12,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: democratic-csi
-                namespace: democratic-csi-system
+                namespace: flux-system
     values:
         csiDriver:
             name: nas-ssd
@@ -72,8 +72,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-24T16:10:07Z"
-    mac: ENC[AES256_GCM,data:1w4sOt5p9G7gdSjJx2N8stwTejoXiZ+IrpKdW+rX7sZiJccdEispoKI2vhEvblLcyooK7Fd8+Ip+qkkdzY3qC0uJFrbQ8Gy5uUHTv/RtqDLfeu3vpIybpvhloliU4pUHviBB9ep/JssEcZz7owijDNLMr7AkWE5G/roxP7UQOT4=,iv:3RDYTntIeWKx1eXwfzxTtH4QkX+E9VSeCo1jiG/xSK8=,tag:E13niMcWjYgzSIi955h6JA==,type:str]
+    lastmodified: "2024-12-27T10:09:12Z"
+    mac: ENC[AES256_GCM,data:TqRbjNxhPjGyJ0jPYXb8pi8VOgzzaYjfr+zVIzRXvKj2/QL0HhRiGzcDZGceRLqM+g4nwX8yv7B6ZGVx+31hVpGmUiZuWelvZKgSP5vhPLVDSYmqL4bSfp8ZOrEaKSoV4KpHFgaMIW17/ESQbhhVXMUIbNFZd9+CBurnWOOUqcQ=,iv:aGFsokBtbgvCWVrxWTf6RYRkDM+QjPysfutTwFfz6wI=,tag:zN/e3BHkQcX7EoKWMNnpqg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2
@@ -92,7 +92,7 @@ spec:
             sourceRef:
                 kind: HelmRepository
                 name: democratic-csi
-                namespace: democratic-csi-system
+                namespace: flux-system
     values:
         csiDriver:
             name: nas-hdd
@@ -152,8 +152,8 @@ sops:
             WDdtMzhHMVh6dXNGanZCbktnN2hsNGMKg7d1rSorqJ25l/Qdnk6v5S1LhGEzAH5e
             65nRi7rB6k3iKpp3xku5cHMYunrWjwRPrRLoobd3ETOyeMpEK7LDdQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-24T16:10:07Z"
-    mac: ENC[AES256_GCM,data:1w4sOt5p9G7gdSjJx2N8stwTejoXiZ+IrpKdW+rX7sZiJccdEispoKI2vhEvblLcyooK7Fd8+Ip+qkkdzY3qC0uJFrbQ8Gy5uUHTv/RtqDLfeu3vpIybpvhloliU4pUHviBB9ep/JssEcZz7owijDNLMr7AkWE5G/roxP7UQOT4=,iv:3RDYTntIeWKx1eXwfzxTtH4QkX+E9VSeCo1jiG/xSK8=,tag:E13niMcWjYgzSIi955h6JA==,type:str]
+    lastmodified: "2024-12-27T10:09:12Z"
+    mac: ENC[AES256_GCM,data:TqRbjNxhPjGyJ0jPYXb8pi8VOgzzaYjfr+zVIzRXvKj2/QL0HhRiGzcDZGceRLqM+g4nwX8yv7B6ZGVx+31hVpGmUiZuWelvZKgSP5vhPLVDSYmqL4bSfp8ZOrEaKSoV4KpHFgaMIW17/ESQbhhVXMUIbNFZd9+CBurnWOOUqcQ=,iv:aGFsokBtbgvCWVrxWTf6RYRkDM+QjPysfutTwFfz6wI=,tag:zN/e3BHkQcX7EoKWMNnpqg==,type:str]
     pgp: []
     encrypted_regex: ^.*(config)$
     version: 3.9.2

@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: longhorn
-        namespace: longhorn-system
+        namespace: flux-system
   values:
     # all nodes are supposed to be used for storage
     # this also needs to be applied to `engine-image-ei-*` and probably `longhorn-csi-plugin`, which is not possible via chart
