@@ -8,7 +8,7 @@ spec:
     chart:
         spec:
             chart: nextcloud
-            version: 6.5.1
+            version: 6.5.2
             sourceRef:
                 kind: HelmRepository
                 name: nextcloud
@@ -162,8 +162,8 @@ sops:
             V0ovUU5xS09Mc1E4Yzgxc0JTL3VJT1kKl/TlkJv6pJRGRH5PEanMewsjRkCRsi2q
             J/J4n0OG31s/FE5qc0/C5qV7mdKdPsZ0FhqXc5W723bmy2L/x0USAw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T21:57:24Z"
-    mac: ENC[AES256_GCM,data:MBo8pWkR55k0jPGSwvVOumJRjO0eo+Xvj9t58aH4aUXae6QLN3DvvUZfAJduY8alC1pwCahtEMYmlWMDhqPlh7282MREwUrT8u+jeeUgDZfr4bRUtkbZD4RRIlEQPdMg+CSRvVtwUpt1kyvqsqFIggDWrDI55gtu4IYHSmw1qnM=,iv:KWt2MmeTsB5KLHdm5nNCTdcQKGjOj81rwtIYhp4gVCI=,tag:6C0gX1jfgyETd7hvn/nOFA==,type:str]
+    lastmodified: "2024-12-28T09:00:40Z"
+    mac: ENC[AES256_GCM,data:d3+tiZbndCLckdx+LCGKU85NOI4xjNX4QlDvDkBSfDyey7LYBFyWpGNLZWU6NriXDI5k8RIWYF6ldn0/ODZnkiyVWeo2hLDdtXlkXD+n1my+DrJ7FUnpJX/RU2tnZawQeRSOlsu6fWrynIYx3oIZudYOWN2nfE263v3BhGb6UNI=,iv:2zvN/FQpA7U73GkhdvkmrCG98s5KdPPPAjaheuJ6HW4=,tag:BdTF/+FAYf6IhNGVV3wQXg==,type:str]
     pgp: []
     encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password|mountPath)$
     version: 3.9.2
