@@ -128,7 +128,7 @@
         "flux/apps/paperless.sops.yaml"
       ],
       "matchStrings": [
-        "tag: \"(?<currentValue>15\\.\\d+\\.\\d+)\"",
+        "tag: (?<currentValue>15\\.\\d+\\.\\d+)",
         "image: docker\\.io/bitnami/postgresql:(?<currentValue>15\\.\\d+\\.\\d+)"
       ],
       "datasourceTemplate": "docker",
@@ -154,6 +154,7 @@
   "flux": {
     "fileMatch": [
       "flux/clusters/.+gotk-components\\.ya?ml$",
+      "flux/repositories/.+\\.ya?ml$",
       "flux/system/.+\\.ya?ml$",
       "flux/apps/.+\\.ya?ml$"
     ]
