@@ -3,13 +3,17 @@ network:
         eth0:
             dhcp6: false
             accept-ra: true
+            # only available starting with netplan 1.1
+            # ra-overrides:
+            #   use-dns: false
+            #   use-domains: false
             addresses:
-              - "{{ node_ula_prefix }}{{ node_suffix }}/64"
+                - "{{ node_ula_prefix }}{{ node_suffix }}/64"
             routes:
-              - to: "{{ node_ula_prefix }}/64"
-                scope: link
-                metric: 100
-              - to: "{{ node_ula_prefix }}/64"
-                via: "{{ node_ula_prefix }}1"
-                scope: global
-                metric: 200
+                - to: "{{ node_ula_prefix }}/64"
+                  scope: link
+                  metric: 100
+                - to: "{{ node_ula_prefix }}/64"
+                  via: "{{ node_ula_prefix }}1"
+                  scope: global
+                  metric: 200

@@ -27,3 +27,13 @@
   command: netplan apply
   when: netplan_config.changed
   changed_when: true
+
+- name: configure DNS search domains once
+  command: resolvectl domain eth0 home
+  changed_when: true
+
+- name: configure conjob for DNS search domain at boot time
+  cron:
+    name: "override DNS search domains"
+    special_time: reboot
+    job: "resolvectl domain eth0 home"
