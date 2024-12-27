@@ -61,14 +61,14 @@ spec:
             tls:
                 - secretName: nextcloud-tls
                   hosts:
-                    - ENC[AES256_GCM,data:dY7HlhrSHE5rNWqlskySTjTETbhM5w==,iv:trT/oVLInIUm7Oyu0Kea6iNSrUNwa3msggMVGRG/N+U=,tag:Nff0+KXJkwLFy14dXRCYvA==,type:str]
+                    - ENC[AES256_GCM,data:EcoaSnq6hfb3UMCIyHaCjxcbmQfqjg==,iv:ubOjtzT8bVjh4EBA+N3DLcso9OUGrZzRz7Ety0X8qY0=,tag:pYBsyPXhcbcSPZZeafGRWw==,type:str]
         phpClientHttpsFix:
             enabled: true
         nextcloud:
-            host: ENC[AES256_GCM,data:0525VxrK0WERg6ZTKRtkSwO53OIdpg==,iv:BrPks2/SxnB/jcqW1QLzhkLlTwYEK36/SDCyoyx+gZY=,tag:8GIBGe1z418s/AU+tpok/A==,type:str]
+            host: ENC[AES256_GCM,data:pTF2NVV5U6CTc/aD2xVHCikN1wJOzg==,iv:3iTgBpL8vhBkQI4XHt/Cw9Uv9LGEyh98rtfLKXESEmU=,tag:b0OcwjVxm7ErgkU5R20SyQ==,type:str]
             trustedDomains:
-                - ENC[AES256_GCM,data:pFbIz/b01FSf,iv:+X+a0/ULVZ3S4O/3a1Vi0Jo+nGGwqQJqf7AhwGu95NU=,tag:V1eh3E3F8PE1L4ZVQgaFEg==,type:str]
-                - ENC[AES256_GCM,data:+JygrOhV1Mp6phxC2chJHaBzA+9WFg==,iv:nCM1Ib8lWwl21tBrxxuOgRT5iGo6DwhiLnN6Te5CD5Y=,tag:ZfmJcsvS2tdByRZFcLB/Ww==,type:str]
+                - ENC[AES256_GCM,data:GlJ5rqIyk94T,iv:uqjhLO7okuRR/fQi6ZVxZN1Wzqb6RV6PV2qZlc6BN4k=,tag:ZnsM5znBfufzVuiPjx7bZQ==,type:str]
+                - ENC[AES256_GCM,data:N0MnHzXhaGxkOfwdXNcs2khPqOhemA==,iv:nOTUDiyS/rcTFTBwRax0g4aR92glk89joNS1tIDERV0=,tag:OuQoxJSS6wqIx2b/ufIDRA==,type:str]
             defaultConfigs:
                 imaginary.config.php: true
             configs:
@@ -86,15 +86,23 @@ spec:
                     );
             mail:
                 enabled: true
-                fromAddress: ENC[AES256_GCM,data:KNk85i8WfPq7,iv:PnbQ1szgVcvkqtguGfy7z/E6t6TvhhW3aH++cdXex4k=,tag:rSnrGJqBpqB9Aos231lFqQ==,type:str]
-                domain: ENC[AES256_GCM,data:Yh8VUS7H5GWRBJUe,iv:DFZud9E8TA0eKbXtkJJGdxwWytABkDXVE13eiEGK3vc=,tag:RE0Er7MD7DHJJgsYfT49HA==,type:str]
+                fromAddress: ENC[AES256_GCM,data:MZ7RaotCl/Js,iv:bL/mqSlCUcO194azD8uHxEV2sWVu+qPRmfqyuEy5//k=,tag:J1k1DeDxS8DOMn9W/lXIHQ==,type:str]
+                domain: ENC[AES256_GCM,data:QiBKnvzFv6ic1asi,iv:20Xl3VJcUygCMpnv3Z1Vs2BoYwmO3pSaS9wzFRYmbtQ=,tag:ubieB2T83kviJk4pmAhzIQ==,type:str]
                 smtp:
-                    host: ENC[AES256_GCM,data:Jc672Wk65t77KgRfBCQk6uE=,iv:CnaqkCZlFdleybdfm8+nkzFLJ3FgxxQBZF60Ssj+VdI=,tag:XSfXNHnR/byxaWUsxggUcQ==,type:str]
-                    port: ENC[AES256_GCM,data:awyp,iv:qOyEdo7ZFFzToD+WOkSkVhIc1twrBBeKDoz8MeLy27U=,tag:e6j9EDQpB/QG0oHaWcggHQ==,type:int]
-                    secure: ENC[AES256_GCM,data:Yi0w,iv:oeth2Sapl1TSSmCpG1VvRZ6xXT0DZrfQZCnPjaKwUvY=,tag:wWyXva8vh6D9EUJ85D665A==,type:str]
-                    authtype: ENC[AES256_GCM,data:vsTxG68=,iv:u4kTr0gc0igT1FppJq9wJ7BqMf+d9myCgiiFpKxX4Vc=,tag:ZsAYldFVOJG7dJCKWJDftg==,type:str]
-                    name: ENC[AES256_GCM,data:PVuFuUXX,iv:gkWo096Zcm2lIGxv1Xixjvb9S6WW1GGQ2R4MmJL96+M=,tag:6FHhL0HxWmXHB8y0iv1Jjg==,type:str]
-                    password: ENC[AES256_GCM,data:HJWtyPsXCtVCniNzPJzovRgoe4AHUe/ZKHg+odB0IOWWwEotRaCC5A7IMAk/1+41wdARwK9G9S8OxPVz5QhNXGkZ+PQ2,iv:5J7riXFJ3ZBeQoial7x/YyUGEpmoOKwgPx1Xz3CQt88=,tag:JqFJ//8xuG3Jcsfrr9m6uA==,type:str]
+                    host: ENC[AES256_GCM,data:4A5m/lJRe/UcIXPbIShkShQ=,iv:3h3ZUjamLU2Rqc21sNyP3S9xjKfahicVPYiFN51L5I0=,tag:yfvuS7jsqJUnvSNd5+8zqQ==,type:str]
+                    port: ENC[AES256_GCM,data:qW60,iv:9SD6WYzI3QYGZBSjBIQuxNz0sWHQ6em2JscHGMUsM1E=,tag:dKWPd9atI0cFewUI/m3E7g==,type:int]
+                    secure: ENC[AES256_GCM,data:W7Gv,iv:cScDbZEClW5pIOGEGJ7yHP5rhhiCd9FIA3r792J2GiM=,tag:+2TCgV6qPhDIWGSx0S0ghw==,type:str]
+                    authtype: ENC[AES256_GCM,data:AhEW9Bc=,iv:fciZZ6ZOAAaF+o6lX9scDZHnDKtQa6r7Q4wrhjrX7iI=,tag:vxb20SPTXTbGBiD879S4KQ==,type:str]
+                    name: ENC[AES256_GCM,data:W/1DtrAM,iv:0irguuPYicssuLq45tAHpCfnW6Qhl3X4XIoiohh0vDQ=,tag:OqKzda6wHyFeSb0QeTbarQ==,type:str]
+                    password: ENC[AES256_GCM,data:U51GgVgQdr5tGNjxMVGYMPM/wCaL0HOiWhhppOvcRZ1ldfyC2ORUFMMO7uEQ5/wE2kJNoyNTm78etQ5oOlSef9Slw9X6,iv:c/6EINW7fMKTkSa+ATul2lx4KbxFd07mX19eg4cHblg=,tag:iX6JsaSuc9SBsx0zx25edQ==,type:str]
+            extraVolumes:
+                - name: paperless-consume
+                  nfs:
+                    server: 192.168.1.2
+                    path: /mnt/tank/Dokumente/Paperless/consume
+            extraVolumeMounts:
+                - name: paperless-consume
+                  mountPath: ENC[AES256_GCM,data:QMB0XQAnQVgk1yp9kdLF4sykl6xoqRfLBtEMkj2l1+wz53FKX1HajVqz/Q4lKwsb+A==,iv:OHT6prlirfim5ue2ytN6GQt6oQDeQi+OK9Gw9fVGf2c=,tag:N0Daa3hwa1gogRZMsJPziQ==,type:str]
         imaginary:
             enabled: true
         nginx:
@@ -106,7 +114,7 @@ spec:
             enabled: true
             auth:
                 enabled: true
-                password: ENC[AES256_GCM,data:hS8BbQ5ne5LJTzV59t6Rb7WZYyKoxaNU+T+UM6mYEx0=,iv:6O4umMYflwQPY2ia6mrutOvAHQrH9RHVaFgUJ153RTM=,tag:W8Inqk/0Et5H91D4PlLCrw==,type:str]
+                password: ENC[AES256_GCM,data:NBIcYv29jaoEFZkzl4RBbt60QHhKbi+SpfZtIWdRtQg=,iv:hPjTNoEpvlbiJMcULgx7Y9WEOAVb8T76zz3QfQ+iTyU=,tag:IViHI4kzg5OigJdE6SFaTQ==,type:str]
             global:
                 storageClass: cluster-scratch
             master:
@@ -125,7 +133,7 @@ spec:
             global:
                 postgresql:
                     auth:
-                        password: ENC[AES256_GCM,data:wOHAqDvfuV+zFQvkhveaOh5NQI6PjSwH9LYXefHAy2o=,iv:pVYx9h4NW2KqkA8iVrFdb+6ae1psRTGkHo7byor1VDE=,tag:VcqhnXBuzrCfjiUO5GWn+Q==,type:str]
+                        password: ENC[AES256_GCM,data:xGd7boEEgjTI4fBIbWyZv1MBwAU30QH2eHpYDitsBn8=,iv:kIqf1yBkC61KXCeL8Z/zSNgZOW38VJvuaabe0EQ/PcA=,tag:9aw0hus8Yad/lQKlai082w==,type:str]
             primary:
                 persistence:
                     enabled: true
@@ -148,14 +156,14 @@ sops:
         - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBGSFpQSURnU0I3K1d0TWdG
-            eXlvd2FnQVJsbGZMSy92dXQwZTFCZlpIYkR3CkpXRHpIK2gwN2haYkRKRjBEVWhU
-            ekIzU2lhd0FDaGovNFAzMkNHU0RpN0EKLS0tIGVkV2w5azRKSStNOHlYVmR5UE4x
-            SFd2Qm10dWUvZExaQnViYWhXNC8yR3cK2E/YspelbRm0u69h6LImK2rv6ZeS3xGh
-            ViZR2HwM5GOkfNEp90OYUT0ZfB/W0o7SxYqySnfDfX9e7Vsqif65Ew==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSArcExxaDZDbTYxOUgyVDQ1
+            WDRJeDY5b3NZTWxBbXFldG1KM01kdUxIaHg0Ck15K2RwZUI5TlRlOEZQczg5YlRT
+            eVJsUzZiNU9IN1loMDkzWE9IN1NhMEkKLS0tICtkcmg0NFZWL0tWZ2RnRkJPcXR4
+            V0ovUU5xS09Mc1E4Yzgxc0JTL3VJT1kKl/TlkJv6pJRGRH5PEanMewsjRkCRsi2q
+            J/J4n0OG31s/FE5qc0/C5qV7mdKdPsZ0FhqXc5W723bmy2L/x0USAw==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T10:15:51Z"
-    mac: ENC[AES256_GCM,data:JO2kMT4MqujIWWHK88fd7QX0EVERLQP4GghGjW0WpjE3PE9ohwbm1TvboTL+BtDJgJ8PV4KhYJTGwHap4pRXRbPsOmkDgMsMybcsgZW5v4Vis8knzKlCofGPPSxIqQ8FETlN62KinxDW8zLVwUkgt+D5q/zYIKLbwy6EOk2MUEA=,iv:Q2+rSw05AxoZd1W7dtvaf4NcwpTOX6rvuwQHKL8/hHo=,tag:5gDHE4LhHcllpq+AkdCNLw==,type:str]
+    lastmodified: "2024-12-27T21:57:24Z"
+    mac: ENC[AES256_GCM,data:MBo8pWkR55k0jPGSwvVOumJRjO0eo+Xvj9t58aH4aUXae6QLN3DvvUZfAJduY8alC1pwCahtEMYmlWMDhqPlh7282MREwUrT8u+jeeUgDZfr4bRUtkbZD4RRIlEQPdMg+CSRvVtwUpt1kyvqsqFIggDWrDI55gtu4IYHSmw1qnM=,iv:KWt2MmeTsB5KLHdm5nNCTdcQKGjOj81rwtIYhp4gVCI=,tag:6C0gX1jfgyETd7hvn/nOFA==,type:str]
     pgp: []
-    encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password)$
+    encrypted_regex: ^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password|mountPath)$
     version: 3.9.2

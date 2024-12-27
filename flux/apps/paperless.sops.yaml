@@ -1,0 +1,209 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+    name: paperless-ngx-postgresql
+    namespace: default
+spec:
+    interval: 1m
+    chart:
+        spec:
+            chart: postgresql
+            version: 16.3.4
+            sourceRef:
+                kind: HelmRepository
+                name: bitnami
+                namespace: flux-system
+    values:
+        image:
+            # Current paperless-ngx is built with PG 15, also use that as long as it is supported
+            # https://github.com/paperless-ngx/paperless-ngx/blob/v2.13.5/Dockerfile#L96
+            # https://packages.debian.org/de/bookworm/postgresql-client
+            # https://www.postgresql.org/support/versioning/
+            tag: 15.10.0
+        global:
+            storageClass: cluster-replicated
+            postgresql:
+                auth:
+                    username: paperless-ngx
+                    password: ENC[AES256_GCM,data:ydr2Vl/nL6bYCdi5FU4LbzcWg/scscbLSQHNmBBjQ4I=,iv:SlKF/uJdvcDNL35UKkHmtGerXB+LNl1AjmGkyPkZD1Y=,tag:w9evmi150yvZ/odNqrs61w==,type:str]
+                    database: paperless-ngx
+        primary:
+            persistence:
+                enabled: true
+                size: 2Gi
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRQ0wvWHFnNzlIOGpzOFp1
+            S2RVaHRpMHhsT0l5Szg3VEE5VjBuWEVEWmhJCkJyZzJsVlhhdWxDWjhmSFhiNWZ0
+            Q21OR0FmanR6NW5oc291WUdXSHRvYVEKLS0tIHFPM0NSZzc2cm1VYmlzR2YrWUpH
+            YzVGUWs2dE1SQ3FncFdaMGR5dklhaEUK/J2IPq+/xlBwOaJm4tjBc9aIg0uA+k7A
+            BacHYJoYWgtcJ2whg6nbIo8x4LNUbrUXIvRf/Xzl+k2s6H3BmlvheQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-27T21:53:35Z"
+    mac: ENC[AES256_GCM,data:XnA8wYKJjr+N2f3c/1AWy4ZK1rIxPdbfqD5NTmwM0LBXRW20/YvvUPKVUsEA7EdwmzC7iaQFre0v7dBwWrO91Lp0Yjqq5m+7VKL65vh8zjXUEt/FwjXE6C3q+kvMoc71uqMCCjpu4tLPrUgo5vceiw4IuXwtxwj0rOVxWzHh5SY=,iv:EEazdiC7ZXlqfA5Nwhehu7/Zi5p0L8XO+cp/9W1j0qE=,tag:7+SxX7EgKJ9/xaamQnsdmg==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(password|PAPERLESS_URL|PAPERLESS_SECRET_KEY|PAPERLESS_DBPASS|hosts)$
+    version: 3.9.2
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+    name: paperless-ngx-redis
+    namespace: default
+spec:
+    interval: 1m
+    chart:
+        spec:
+            chart: redis
+            version: 20.6.1
+            sourceRef:
+                kind: HelmRepository
+                name: bitnami
+                namespace: flux-system
+    values:
+        auth:
+            enabled: false
+        global:
+            storageClass: cluster-scratch
+        master:
+            persistence:
+                size: 2Gi
+        architecture: standalone
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRQ0wvWHFnNzlIOGpzOFp1
+            S2RVaHRpMHhsT0l5Szg3VEE5VjBuWEVEWmhJCkJyZzJsVlhhdWxDWjhmSFhiNWZ0
+            Q21OR0FmanR6NW5oc291WUdXSHRvYVEKLS0tIHFPM0NSZzc2cm1VYmlzR2YrWUpH
+            YzVGUWs2dE1SQ3FncFdaMGR5dklhaEUK/J2IPq+/xlBwOaJm4tjBc9aIg0uA+k7A
+            BacHYJoYWgtcJ2whg6nbIo8x4LNUbrUXIvRf/Xzl+k2s6H3BmlvheQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-27T21:53:35Z"
+    mac: ENC[AES256_GCM,data:XnA8wYKJjr+N2f3c/1AWy4ZK1rIxPdbfqD5NTmwM0LBXRW20/YvvUPKVUsEA7EdwmzC7iaQFre0v7dBwWrO91Lp0Yjqq5m+7VKL65vh8zjXUEt/FwjXE6C3q+kvMoc71uqMCCjpu4tLPrUgo5vceiw4IuXwtxwj0rOVxWzHh5SY=,iv:EEazdiC7ZXlqfA5Nwhehu7/Zi5p0L8XO+cp/9W1j0qE=,tag:7+SxX7EgKJ9/xaamQnsdmg==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(password|PAPERLESS_URL|PAPERLESS_SECRET_KEY|PAPERLESS_DBPASS|hosts)$
+    version: 3.9.2
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+    name: paperless-ngx
+    namespace: default
+spec:
+    interval: 1m
+    chart:
+        spec:
+            chart: app-template
+            version: 3.6.0
+            sourceRef:
+                kind: HelmRepository
+                name: bjw-s
+                namespace: default
+    values:
+        controllers:
+            main:
+                containers:
+                    main:
+                        image:
+                            repository: paperlessngx/paperless-ngx
+                            tag: 2.13.5
+                        env:
+                            PAPERLESS_OCR_LANGUAGES: deu eng
+                            PAPERLESS_OCR_LANGUAGE: deu+eng
+                            PAPERLESS_URL: ENC[AES256_GCM,data:zu13Z1+/duRfgy+HA1bzje2ctznPml3UZiAPxFO2,iv:/e91qR+T433nqSR2GWmjAtDZtVd8rWm4xIK0ZV7BJgA=,tag:7aPkmo7XrQ/8apQ5vQlK4A==,type:str]
+                            PAPERLESS_SECRET_KEY: ENC[AES256_GCM,data:kTx7IdSJtdmXthHY4utYezZXZsFU3a0UQLHTT2BzPu0=,iv:7Z7l7OveiDMvvsNF/ow/L46A257QIjtRdcABHcofFNc=,tag:gHQpl7CUV5oQqYxnSZ+8bw==,type:str]
+                            PAPERLESS_TIME_ZONE: Europe/Berlin
+                            PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
+                            PAPERLESS_CONSUMER_RECURSIVE: true
+                            PAPERLESS_DBHOST: paperless-ngx-postgresql
+                            PAPERLESS_DBUSER: paperless-ngx
+                            PAPERLESS_DBPASS: ENC[AES256_GCM,data:sZZX884OPRlhvV97Rvq2tqNtYqgc8/H3tQ068DkB5GU=,iv:X9lYr5PgkEhAY+oaycGXJ55QxkSMMAv6wMmcDAIKQS0=,tag:HATU7B5Bp0wobtl0OH3+kw==,type:str]
+                            PAPERLESS_DBNAME: paperless-ngx
+                            PAPERLESS_REDIS: redis://paperless-ngx-redis-master:6379
+                        probes:
+                            liveness:
+                                enabled: true
+                            readiness:
+                                enabled: true
+        service:
+            main:
+                controller: main
+                ports:
+                    http:
+                        port: 8000
+        ingress:
+            main:
+                className: nginx
+                annotations:
+                    cert-manager.io/cluster-issuer: letsencrypt
+                hosts:
+                    - host: ENC[AES256_GCM,data:MWf/LCloaYoBl8sTyUUzNR/8ctU9/g==,iv:QmfKjxgeRfkW+SyqQHmDagZ+5K/znvHlgXAVlp+aWgI=,tag:krMnfHYo/bhCY1DQU1BgTg==,type:str]
+                      paths:
+                        - path: ENC[AES256_GCM,data:gA==,iv:p4J4aE91pW0LvOfrjaRO5Wml4qAW6xGMr7JfoiX7OdA=,tag:mt9JkB128Sl6i0IJwbVWpA==,type:str]
+                          service:
+                            identifier: ENC[AES256_GCM,data:9rNo6g==,iv:2vQy3FRvcJZrI6t3pG617QB8PxhO663UwIvoU6K8fxE=,tag:4XGMCUC5XalU035njhAOFw==,type:str]
+                            port: ENC[AES256_GCM,data:UBNkDw==,iv:sHYfJiDFTwM6oraZulCwX9Ny851etv7QcevmQM6bGN0=,tag:6Qr5+VqwOXXJdggkIMujOQ==,type:str]
+                tls:
+                    - secretName: paperless-tls
+                      hosts:
+                        - ENC[AES256_GCM,data:IMiuBHn88oYZwYK2/i444ziVRoyNKw==,iv:ff+N0uXrxHYau7IvRqKXJYy6zXPtPlOmX1gZFjmgGb4=,tag:2YoQnKClqMRYwffzlCdOIw==,type:str]
+        persistence:
+            data:
+                type: persistentVolumeClaim
+                storageClass: cluster-replicated
+                accessMode: ReadWriteOnce
+                size: 2Gi
+                globalMounts:
+                    - path: /usr/src/paperless/data
+            consume:
+                type: nfs
+                server: 192.168.1.2
+                path: /mnt/tank/Dokumente/Paperless/consume
+                globalMounts:
+                    - path: /usr/src/paperless/consume
+            media:
+                type: persistentVolumeClaim
+                storageClass: cluster-replicated
+                accessMode: ReadWriteOnce
+                size: 25Gi
+                globalMounts:
+                    - path: /usr/src/paperless/media
+            export:
+                type: nfs
+                server: 192.168.1.2
+                path: /mnt/tank/Dokumente/Paperless/export
+                globalMounts:
+                    - path: /usr/src/paperless/export
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age:
+        - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRQ0wvWHFnNzlIOGpzOFp1
+            S2RVaHRpMHhsT0l5Szg3VEE5VjBuWEVEWmhJCkJyZzJsVlhhdWxDWjhmSFhiNWZ0
+            Q21OR0FmanR6NW5oc291WUdXSHRvYVEKLS0tIHFPM0NSZzc2cm1VYmlzR2YrWUpH
+            YzVGUWs2dE1SQ3FncFdaMGR5dklhaEUK/J2IPq+/xlBwOaJm4tjBc9aIg0uA+k7A
+            BacHYJoYWgtcJ2whg6nbIo8x4LNUbrUXIvRf/Xzl+k2s6H3BmlvheQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2024-12-27T21:53:35Z"
+    mac: ENC[AES256_GCM,data:XnA8wYKJjr+N2f3c/1AWy4ZK1rIxPdbfqD5NTmwM0LBXRW20/YvvUPKVUsEA7EdwmzC7iaQFre0v7dBwWrO91Lp0Yjqq5m+7VKL65vh8zjXUEt/FwjXE6C3q+kvMoc71uqMCCjpu4tLPrUgo5vceiw4IuXwtxwj0rOVxWzHh5SY=,iv:EEazdiC7ZXlqfA5Nwhehu7/Zi5p0L8XO+cp/9W1j0qE=,tag:7+SxX7EgKJ9/xaamQnsdmg==,type:str]
+    pgp: []
+    encrypted_regex: ^.*(password|PAPERLESS_URL|PAPERLESS_SECRET_KEY|PAPERLESS_DBPASS|hosts)$
+    version: 3.9.2

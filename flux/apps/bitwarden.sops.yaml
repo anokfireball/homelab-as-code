@@ -24,7 +24,7 @@ spec:
             postgresql:
                 auth:
                     username: vaultwarden
-                    password: ENC[AES256_GCM,data:V3NBDuBISta21vpHyXBLSX9yGyJ7awIGIFesaFalZps=,iv:gwu3oI/hlFhj/EmmML4xYwNHHhd6IpBZ0cWGAnC+ZRc=,tag:HKiSH7BTDrT8+i2UskUCSw==,type:str]
+                    password: ENC[AES256_GCM,data:/yMCUUggk4g9Y/Dpa9ZrpYwhO+aa5FG0O7Xon+/v9eE=,iv:9xxtk868sHZvTyYxumM/67H2DpmuKqZoJzkJzzC+9wc=,tag:4b3zz675b0jAsa8IAkNEnQ==,type:str]
                     database: vaultwarden
         primary:
             persistence:
@@ -39,14 +39,14 @@ sops:
         - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSArczg5dDQ5N0NVY2ZZQkYy
-            SGhRN0lxR1VuRHZjbDBINFZRTzNRZURWZkhrCjZOUG0vd0l3eUNqZVdyeWVBU1NG
-            UjJiMzZwRm5PbFZlUW5GMjNRMGlodmsKLS0tIGxnZGJ5K0Zwbktxa21xSGNhZG82
-            Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
-            /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBBa3FrVkpONjQwTE42RUY0
+            T1c4N1R0cTBSbnlUcUJINlJ6MjBzWkhVR3o4Ckt0QlBqc0tqM0lVM2tzVy9hWGpW
+            Tjd3aVcwS0c0OGJKaEhheEN1RU9QcDgKLS0tIFFEWjl0b1dvYXZ0UEZOOERtVTZ3
+            WitKN1BIN0NLTE4wcUYxNmpkVlB1Y0kKXraUzj3LIw2D5PTUZWUzyZaIJ0IUkypv
+            Fb3C4MXczbx0woDMK1vK2F+naCLsaJJKGMj/JEWKg1JMWURasYuPdA==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T10:15:06Z"
-    mac: ENC[AES256_GCM,data:eYOFapePEbkcaMtI8eZQMxGG6dGu8W+g5YJ/oz/wYRlIWZ61ky1B8ipE7+U2QvdqLFLv6b1hBf7YLxg/c9KHyLVH7nSwrEXfxMR2xKYAlhcKCzd8eebyVFTZjLUzgK5KpnzlNrwQR7aHN+1W2zwX4ejKgeyL/Q4mKgzuTjpGr0g=,iv:7RJvF9WG5DWJdHYuW7XsspTXufuRHvBBSKz7wChZpdc=,tag:LkB0SFuCybSXQKdGqUmxfA==,type:str]
+    lastmodified: "2024-12-27T20:39:44Z"
+    mac: ENC[AES256_GCM,data:FTw7i10qxzzqZgqPNMsaZyTUbW5BV0HYRN/cufLFfEnLmskWoUxx7ZX0dwDCy49j6JldJPckMGD+yLlyfVh1bO/horNrMA8CNMYyAVCj3JKICOwYGd9Kct7Oy0vVsPBqjASDIcqXZtnlsvSzwAHlWsozxPr/9doxDhkEEXWlwXw=,iv:+tLoFYa8+sDJZIBvQwoOY96mNtZ66mwTOrVTVttXeAw=,tag:bxhbqTx2kn+equDblJbdLg==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
@@ -96,34 +96,34 @@ spec:
             host: vaultwarden-postgresql
             port: "5432"
             username: vaultwarden
-            password: ENC[AES256_GCM,data:LVVkikFz5n0SGUaJLz2ZD1k884f6kVqWByB9KOFve9k=,iv:pwQ2fcC21tU/lFpNM7Zw253+AgUMDIzv0hCqivznLZg=,tag:dHYltYyDEQbn0majIT5abQ==,type:str]
+            password: ENC[AES256_GCM,data:T2F2eXBJKZgqaPEll41sb1jbKWanLt8Piw5p+sVobSo=,iv:zXTw/Cs7BgiF6aJuBzPSLRfOsC3E0aiIy8nGD5b0wLk=,tag:8Gap37FNn1F+sWcbs+2Vgw==,type:str]
             dbName: vaultwarden
         pushNotifications:
             enabled: true
             installationId:
-                value: ENC[AES256_GCM,data:5g9iRsBAir61coA8u9TGHukO9Ho3IAqkz4g+3P5J8Oo2ISUd,iv:BhmHDTxjCiPXHCAaizsX7EzqX0NpiW6i85H5EkE+bBk=,tag:6+JTQskajgi4RAV1CTwy5w==,type:str]
+                value: ENC[AES256_GCM,data:yuWMu6ANPDhDsiD4CH9LlwedHOGmiZFCWjKBoZg7Agaap+eH,iv:p0oKuu3vzGbygLrjxl2QHgapzolsSaJOF1Ww1txDtIc=,tag:Me40YAbFk/B+UoeVVISFpA==,type:str]
             installationKey:
-                value: ENC[AES256_GCM,data:yvns4E9d4PfHx3XFJBCCdCtacDw=,iv:AD1IKzKARlVEvskVETYiZy/tgEY+3B7CUdqo6UUmci4=,tag:8+miIoFHCF2hQnm7/wNaFQ==,type:str]
+                value: ENC[AES256_GCM,data:BvsB6fcB5k8Vm21TkZ/PW/MBDQ8=,iv:TPF56pMU8KXIbkQTCYb01OqbhoM9FGRpQyB4QjgFUL0=,tag:JkBFrM1+gZ5uYfLRiwR+ew==,type:str]
             relayUri: https://api.bitwarden.eu
             identityUri: https://identity.bitwarden.eu
-        domain: ENC[AES256_GCM,data:WiMv9IrdulJcYgdCQ+eHJP78k9LhX0DAOzzgDn0Z,iv:pyHVboRsaE1n4rGD7pXjcxgZXgeOIcXSHP+Wr4yW+JA=,tag:Ze/u1sE7EIfA2YGZ+uej9A==,type:str]
+        domain: ENC[AES256_GCM,data:Mq7j5Y8Z3CzNhhe48ij/96u27ZTwzTzN8wKsH79s,iv:QYkGBr0TGJ4ThVGIZisqVhknH3KlB9vCDzp+zktrx5A=,tag:rVHGF6qpBHZvpjmeBaESTw==,type:str]
         # TODO hibp API key?
         signupsAllowed: false
         iconBlacklistNonGlobalIps: false
         adminToken:
-            value: ENC[AES256_GCM,data:B+BwxOKvGSln8chAWx0RKE7FU1odnSuJATt8laymrNmqbiWyUhCVQf7kw+ynb0I9pZOLzPbeCYyyhZoYO1STXA==,iv:d5tbgNgnHlu0UcngBylRC8pnfLa30f67h2SDq8ktOH4=,tag:0vtDTHlGcNhyf9Cwum606w==,type:str]
+            value: ENC[AES256_GCM,data:H2tWw+QtGBtqNYBg8l7D4ntI3Jw4j57zMRWoDe+cxJ9zrLZ0KRYDPL0zSPoiqDBot+cArXnvdO5NtUPwnEVtqQ==,iv:rDwbXGfpOTayzurXTEn5fCDexUR8cVbQUYS7aba3F2k=,tag:bLR4luYnd9GQuA77X2D6yA==,type:str]
         timeZone: Europe/Berlin
         smtp:
-            host: ENC[AES256_GCM,data:1EYPrZSOAY+J0LQ3fQHLaqU=,iv:CUOnhttbcUp3muszrZCIayVW32/6Fva4l8vE0d0Gn8o=,tag:1toONaZxocSuGQH/M2e3mA==,type:str]
-            port: ENC[AES256_GCM,data:qlfH,iv:FVus/c/vOcC1oRh0Je16f95sdJjZFHnK91aaFY8Ah+g=,tag:Z0Cv8/Kh5UqDO7/dG5Jybw==,type:int]
-            security: ENC[AES256_GCM,data:DFd7UtDMgrhA,iv:iVfgBxjRyj+Mtp1TjTXRUU4BkyF6NUQaoy/PUB2gGXo=,tag:5iam2HeA3z7AgFL8bDXDSQ==,type:str]
-            from: ENC[AES256_GCM,data:Q4ncn5/9ZAULiO7drot+aFOXPfsl5g==,iv:lIvETg0Ca6IvmOmmIe4zcL3fB5LKBKQPLWMDaju+SBg=,tag:gaDgA4huuRsIbzsnEIHDxw==,type:str]
-            fromName: ENC[AES256_GCM,data:KJn68kKPCp1u,iv:kTN7hXSIicywz6O6HSyawJPEtyN2TI3ikF57B16BAAE=,tag:DhwP7bkFbzJjw4qDCBr0uQ==,type:str]
+            host: ENC[AES256_GCM,data:hxUlC6IZpx/7o7dWYDmVCTU=,iv:jaNKCZx+l4jO8tP6tmXDCCln9zmDVr9INGh12rdObRc=,tag:sT1vIB749nMub7Z/8zVN1A==,type:str]
+            port: ENC[AES256_GCM,data:hEyb,iv:cjmxrjEIRo5FE/90BRC+IafOG2TtNee1YX4GvSQtAAw=,tag:ZtZQ9T8RlELcvOuqc6KqTg==,type:int]
+            security: ENC[AES256_GCM,data:DDLIGEkneBfW,iv:acPkNDvJYxguM1jAQfUCeRrwrRl7RF/tmpIM9SXtoXw=,tag:sqlJpivS/AQEIMIoP2YbRg==,type:str]
+            from: ENC[AES256_GCM,data:Q5N2O5Ljaujo7PW1yWlyEgzJCfencQ==,iv:baSl74oOmg5gHUHIynZYX1Qgk+OjnUZ4qZciWM0ZWbU=,tag:vsZ9vUQ3JUYiakVHV3PC1A==,type:str]
+            fromName: ENC[AES256_GCM,data:Pb58MDmjkOrc,iv:/wjP4V+0dz64tvUn4tL8YduUEDzITPnI41nru1Iusdo=,tag:rpqP0fpOyi1Yds+p1c0+eA==,type:str]
             username:
-                value: ENC[AES256_GCM,data:lVWsVw0D,iv:yX3mi/P0KcxYq3sSvzBK/GBrMmt2l81pyxdWU/xJvm8=,tag:kC4Q3JJDB4QbHT3LEc8u6Q==,type:str]
+                value: ENC[AES256_GCM,data:gbIJGkgJ,iv:9ZAz0jmgJ9xO6MULktPKzjliTefvVBOb6ux/PPYks0M=,tag:u6ogLRzgaTAn7m4ggMcvXw==,type:str]
             password:
-                value: ENC[AES256_GCM,data:zdk/cC0NDvZcezh0M7PesnwAdW/8uj778ZRs2p6TWWSu5C1d09Y2CueGyhsSiYM248/7tIBqSPd1CjT9oYXxfuAx/3T7,iv:6efhVqsZjFYeUGwJgNnyV5v9299VZjdNzprFTxWSI5o=,tag:d5esoQjrPp01mjM9d+7tXA==,type:str]
-            authMechanism: ENC[AES256_GCM,data:a67sEeI=,iv:ZMa3jgJVZ/4jK0N209T9NUUW4+vwyZHDlZk3Z+xrzgc=,tag:2OscD+I5IkHLdctMXLXoBQ==,type:str]
+                value: ENC[AES256_GCM,data:8RQ8FaiGFZCnxAGiaQ+9EXlQHiKiWsYAUIItdzCZ3OTPI4SEJjRLy87RkBXi7W3apI/mRLW2gghKy+rx780GHMoqnsR7,iv:9ZHvQ60U+x+13YRnuJ8JEzSwD6G7vxSYfjD//XB11vo=,tag:SZUGxLyb9NVUdQuinid4Qw==,type:str]
+            authMechanism: ENC[AES256_GCM,data:+rpYgBA=,iv:X3I1Ehx1iRbuCLoHoTFaIOi8qSAgj25fUl98wVeKPXs=,tag:HIWZ6JmAv9DNB7dqpFJXAA==,type:str]
         ingress:
             enabled: true
             class: nginx
@@ -145,7 +145,7 @@ spec:
                       proxy_pass http://vaultwarden.default.svc:80;
                     }
             tls: true
-            hostname: ENC[AES256_GCM,data:tdggc0NFNCEaJkBW2o0Lioe6EC3ibA==,iv:leNc8mm2MUUEdmtFNUWLuXRILszWguG3w9JENpJG8IA=,tag:ngPxQHEHWPv+WsRwSc6Ikw==,type:str]
+            hostname: ENC[AES256_GCM,data:P5cg13OGgpaTUK48vOCPiSmc3WhF+w==,iv:R/qA5d32yKCjc032TxQBaE4ytef+XxGF2eVyNMQ85Lo=,tag:jCqg3PjLZnvxp2jPEe4qBw==,type:str]
             tlsSecret: bitwarden-tls
 sops:
     kms: []
@@ -156,14 +156,14 @@ sops:
         - recipient: age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSArczg5dDQ5N0NVY2ZZQkYy
-            SGhRN0lxR1VuRHZjbDBINFZRTzNRZURWZkhrCjZOUG0vd0l3eUNqZVdyeWVBU1NG
-            UjJiMzZwRm5PbFZlUW5GMjNRMGlodmsKLS0tIGxnZGJ5K0Zwbktxa21xSGNhZG82
-            Uy9hT001L0N5TmNBa3lTOVRkMktnRXcK4AxE5ovIInedqoVFp9w389uWm1T6Q3sB
-            /lLL628+hp+PEKWB9QFx82h4yKyMxd6GyjOrSAX9RiRZxjbL4hYPhw==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBBa3FrVkpONjQwTE42RUY0
+            T1c4N1R0cTBSbnlUcUJINlJ6MjBzWkhVR3o4Ckt0QlBqc0tqM0lVM2tzVy9hWGpW
+            Tjd3aVcwS0c0OGJKaEhheEN1RU9QcDgKLS0tIFFEWjl0b1dvYXZ0UEZOOERtVTZ3
+            WitKN1BIN0NLTE4wcUYxNmpkVlB1Y0kKXraUzj3LIw2D5PTUZWUzyZaIJ0IUkypv
+            Fb3C4MXczbx0woDMK1vK2F+naCLsaJJKGMj/JEWKg1JMWURasYuPdA==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T10:15:06Z"
-    mac: ENC[AES256_GCM,data:eYOFapePEbkcaMtI8eZQMxGG6dGu8W+g5YJ/oz/wYRlIWZ61ky1B8ipE7+U2QvdqLFLv6b1hBf7YLxg/c9KHyLVH7nSwrEXfxMR2xKYAlhcKCzd8eebyVFTZjLUzgK5KpnzlNrwQR7aHN+1W2zwX4ejKgeyL/Q4mKgzuTjpGr0g=,iv:7RJvF9WG5DWJdHYuW7XsspTXufuRHvBBSKz7wChZpdc=,tag:LkB0SFuCybSXQKdGqUmxfA==,type:str]
+    lastmodified: "2024-12-27T20:39:44Z"
+    mac: ENC[AES256_GCM,data:FTw7i10qxzzqZgqPNMsaZyTUbW5BV0HYRN/cufLFfEnLmskWoUxx7ZX0dwDCy49j6JldJPckMGD+yLlyfVh1bO/horNrMA8CNMYyAVCj3JKICOwYGd9Kct7Oy0vVsPBqjASDIcqXZtnlsvSzwAHlWsozxPr/9doxDhkEEXWlwXw=,iv:+tLoFYa8+sDJZIBvQwoOY96mNtZ66mwTOrVTVttXeAw=,tag:bxhbqTx2kn+equDblJbdLg==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|value|domain|smtp|hostname)$
     version: 3.9.2
