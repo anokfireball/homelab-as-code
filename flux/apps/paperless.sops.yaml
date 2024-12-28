@@ -46,8 +46,8 @@ sops:
             YzVGUWs2dE1SQ3FncFdaMGR5dklhaEUK/J2IPq+/xlBwOaJm4tjBc9aIg0uA+k7A
             BacHYJoYWgtcJ2whg6nbIo8x4LNUbrUXIvRf/Xzl+k2s6H3BmlvheQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T21:53:35Z"
-    mac: ENC[AES256_GCM,data:XnA8wYKJjr+N2f3c/1AWy4ZK1rIxPdbfqD5NTmwM0LBXRW20/YvvUPKVUsEA7EdwmzC7iaQFre0v7dBwWrO91Lp0Yjqq5m+7VKL65vh8zjXUEt/FwjXE6C3q+kvMoc71uqMCCjpu4tLPrUgo5vceiw4IuXwtxwj0rOVxWzHh5SY=,iv:EEazdiC7ZXlqfA5Nwhehu7/Zi5p0L8XO+cp/9W1j0qE=,tag:7+SxX7EgKJ9/xaamQnsdmg==,type:str]
+    lastmodified: "2024-12-28T09:33:47Z"
+    mac: ENC[AES256_GCM,data:qXnB4NDzw0VxfXV6mOYr/OwRvqo3l5AjpDFRXYLTY/z8N11R1R+73wACO3qhvZzNgbg+Tdj7tC9th/fv7U+LYGrQRDgMVQ59c5iI2HI66UKnw02I53vMou9NEPapU5FxwI3qEfy1vBrOXqOssIxGOXxpQiyvGk3AeS10ghrx3vg=,iv:3sHmF2rLaWjjw/ZrfucCM4+3TUr7YRgNr6ltm5+kH0w=,tag:nQw1dvzGStdE+pdb5FG7eA==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|PAPERLESS_URL|PAPERLESS_SECRET_KEY|PAPERLESS_DBPASS|hosts)$
     version: 3.9.2
@@ -91,8 +91,8 @@ sops:
             YzVGUWs2dE1SQ3FncFdaMGR5dklhaEUK/J2IPq+/xlBwOaJm4tjBc9aIg0uA+k7A
             BacHYJoYWgtcJ2whg6nbIo8x4LNUbrUXIvRf/Xzl+k2s6H3BmlvheQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T21:53:35Z"
-    mac: ENC[AES256_GCM,data:XnA8wYKJjr+N2f3c/1AWy4ZK1rIxPdbfqD5NTmwM0LBXRW20/YvvUPKVUsEA7EdwmzC7iaQFre0v7dBwWrO91Lp0Yjqq5m+7VKL65vh8zjXUEt/FwjXE6C3q+kvMoc71uqMCCjpu4tLPrUgo5vceiw4IuXwtxwj0rOVxWzHh5SY=,iv:EEazdiC7ZXlqfA5Nwhehu7/Zi5p0L8XO+cp/9W1j0qE=,tag:7+SxX7EgKJ9/xaamQnsdmg==,type:str]
+    lastmodified: "2024-12-28T09:33:47Z"
+    mac: ENC[AES256_GCM,data:qXnB4NDzw0VxfXV6mOYr/OwRvqo3l5AjpDFRXYLTY/z8N11R1R+73wACO3qhvZzNgbg+Tdj7tC9th/fv7U+LYGrQRDgMVQ59c5iI2HI66UKnw02I53vMou9NEPapU5FxwI3qEfy1vBrOXqOssIxGOXxpQiyvGk3AeS10ghrx3vg=,iv:3sHmF2rLaWjjw/ZrfucCM4+3TUr7YRgNr6ltm5+kH0w=,tag:nQw1dvzGStdE+pdb5FG7eA==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|PAPERLESS_URL|PAPERLESS_SECRET_KEY|PAPERLESS_DBPASS|hosts)$
     version: 3.9.2
@@ -128,6 +128,7 @@ spec:
                             PAPERLESS_TIME_ZONE: Europe/Berlin
                             PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
                             PAPERLESS_CONSUMER_RECURSIVE: true
+                            PAPERLESS_CONSUMER_POLLING: 60
                             PAPERLESS_DBHOST: paperless-ngx-postgresql
                             PAPERLESS_DBUSER: paperless-ngx
                             PAPERLESS_DBPASS: ENC[AES256_GCM,data:sZZX884OPRlhvV97Rvq2tqNtYqgc8/H3tQ068DkB5GU=,iv:X9lYr5PgkEhAY+oaycGXJ55QxkSMMAv6wMmcDAIKQS0=,tag:HATU7B5Bp0wobtl0OH3+kw==,type:str]
@@ -202,8 +203,8 @@ sops:
             YzVGUWs2dE1SQ3FncFdaMGR5dklhaEUK/J2IPq+/xlBwOaJm4tjBc9aIg0uA+k7A
             BacHYJoYWgtcJ2whg6nbIo8x4LNUbrUXIvRf/Xzl+k2s6H3BmlvheQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T21:53:35Z"
-    mac: ENC[AES256_GCM,data:XnA8wYKJjr+N2f3c/1AWy4ZK1rIxPdbfqD5NTmwM0LBXRW20/YvvUPKVUsEA7EdwmzC7iaQFre0v7dBwWrO91Lp0Yjqq5m+7VKL65vh8zjXUEt/FwjXE6C3q+kvMoc71uqMCCjpu4tLPrUgo5vceiw4IuXwtxwj0rOVxWzHh5SY=,iv:EEazdiC7ZXlqfA5Nwhehu7/Zi5p0L8XO+cp/9W1j0qE=,tag:7+SxX7EgKJ9/xaamQnsdmg==,type:str]
+    lastmodified: "2024-12-28T09:33:47Z"
+    mac: ENC[AES256_GCM,data:qXnB4NDzw0VxfXV6mOYr/OwRvqo3l5AjpDFRXYLTY/z8N11R1R+73wACO3qhvZzNgbg+Tdj7tC9th/fv7U+LYGrQRDgMVQ59c5iI2HI66UKnw02I53vMou9NEPapU5FxwI3qEfy1vBrOXqOssIxGOXxpQiyvGk3AeS10ghrx3vg=,iv:3sHmF2rLaWjjw/ZrfucCM4+3TUr7YRgNr6ltm5+kH0w=,tag:nQw1dvzGStdE+pdb5FG7eA==,type:str]
     pgp: []
     encrypted_regex: ^.*(password|PAPERLESS_URL|PAPERLESS_SECRET_KEY|PAPERLESS_DBPASS|hosts)$
     version: 3.9.2
