@@ -149,6 +149,34 @@
       "packageNameTemplate": "paperlessngx/paperless-ngx",
       "versioningTemplate": "docker",
       "extractVersionTemplate": "^(?<version>\\d\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update mongodb container",
+      "fileMatch": [
+        "flux/apps/unifi.sops.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>8\\.\\d+\\.\\d+)[^-]"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "bitnami/mongodb",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>8\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update unifi container",
+      "fileMatch": [
+        "flux/apps/unifi.sops.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-ls\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "linuxserver/unifi-network-application",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-ls\\d+)$"
     }
   ],
   "flux": {
