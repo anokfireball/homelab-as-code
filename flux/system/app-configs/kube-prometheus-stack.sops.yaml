@@ -19,7 +19,6 @@ spec:
                 enabled: ENC[AES256_GCM,data:CDf0Xw==,iv:YWKHNk7fKjPBjeuQPIMcEtnn21CrZ416qEbznST184o=,tag:Tmjpks3XloKvzkuO6C1YvQ==,type:bool]
                 ingressClassName: ENC[AES256_GCM,data:xRJ7INQ=,iv:mOxOCo+3ZitEc3/PS2SWTAvKP4RGRqSNstjG5Ly5gNE=,tag:IAGYrTYIVTkpLc3iGWuZdg==,type:str]
                 annotations:
-                    external-dns.alpha.kubernetes.io/hostname: ENC[AES256_GCM,data:+jOQf1UFGpqhi0aQHwSXRYI3JOMCLY6upg==,iv:OJiKl8mtg3rMGRpClm+c7/5sXYk7rJKcJ3GYVVX1nGo=,tag:CZP2uOIhO7SvGpAVFr+2rQ==,type:str]
                     cert-manager.io/cluster-issuer: ENC[AES256_GCM,data:9df3Mz7+91mrDgk=,iv:hcvvFWXnBC3xB0zf9MADVURM5GhJ9zoo81uzXfFyKpY=,tag:ahIXj95eJGKowQcpMrjgNw==,type:str]
                 hosts:
                     - ENC[AES256_GCM,data:CAqMBDPKcrOHdpCzaeEAbbMpD3dYJkETjQ==,iv:BwzbB7f7V2HLT2T1tCzmjnUXh/zAN71LYtDxHmDNz9E=,tag:6e1j7zDCp2KTCBMMMqBhbg==,type:str]
@@ -52,7 +51,6 @@ spec:
                 enabled: ENC[AES256_GCM,data:EJyljg==,iv:8feMeBdrj58OWsFsLNf2mKSKXcNdEoGyx0WnZpU0ntw=,tag:nsmMdYpmu5PCGGlob9Iz3Q==,type:bool]
                 ingressClassName: ENC[AES256_GCM,data:/HqT66Q=,iv:9D13LMXinewl3CRP87ldvbN//sRH3Fc5jkuBN28P6ns=,tag:w2dcgBf1l9Xk8LHEDd5hKw==,type:str]
                 annotations:
-                    external-dns.alpha.kubernetes.io/hostname: ENC[AES256_GCM,data:0f5GrOpBAD2i10i+6pJtVnnf1sOXL7s=,iv:gvOAF9UOUWMj3LlXUzMewLoySGCm+zEkgJ+l68uuFNA=,tag:nVtpAepFc9+wkdOMU9yWJA==,type:str]
                     cert-manager.io/cluster-issuer: ENC[AES256_GCM,data:5gMm/zqdOv6HoZo=,iv:4QQhJ2lVpB9oxZ5X5QF9NT50sIev6PaYvVrI9a8AwH0=,tag:6ZALLm851+Yh04IUn1vfOQ==,type:str]
                 hosts:
                     - ENC[AES256_GCM,data:h/pTCqoUl39/Sn+zvGoO0b1jMREYS14=,iv:NWdvhdLqpfnM1k82WbBU1x967axZlTu0GcS1iSxT8Ro=,tag:Vnz61lru8ohwRhwwwwCuKg==,type:str]
@@ -85,8 +83,8 @@ sops:
             eUw2dmJ3ZEFHQ1hZdlJJaTZsZ3V6NHcK2nAd+pD0RUIn6XUNfcI4Du/tbVGJSAQT
             GECySg7LkeWTCfnR1qyru8vUkHaSBdC43lc9VWGuyTK0hZPfe38G4g==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T10:08:56Z"
-    mac: ENC[AES256_GCM,data:hUi5i9OtXvPfhJFtUAe64a+uxEdD3uI6hyAUHA65Wmsv8j94S1C42vetp/1r1pMziTK+N131KRGS+4iJuRruvUO7zc35imcj793PMMw6VvhLlFe6bw6Iu8m8LGQBNlvcaBzTJ0+j6aNgPno5stZN0HN6PBsc+oI5UTzzEBJMvhE=,iv:XeoGZ0Tf/Q3+vAof5XPNkOHh4eGxF20XoEHtuF6o5VY=,tag:SgxBVOmqse/cn4t/fWS7Xg==,type:str]
+    lastmodified: "2024-12-27T13:56:04Z"
+    mac: ENC[AES256_GCM,data:GyL3go2NW/TJEpNBGc5S7KkJXgIV9Po3BgvoH7HOMnEhom6zMb12GO730G7qZjdxxTqp4deEu3rDSMdZg0wc3DR99FNfxWzf46SHec09x58U7nEX3ZZsrePCTf896Kx46wUlzj5rVVbNVS/nl30wyQFUYXUUE2WQk1FDqNj8CwQ=,iv:DNhQmiD1TqQ7iVXZy9/XVF5s3Q6szgIN9CRnKqchkEs=,tag:Qyl6Ecya/BHhC94AMF968Q==,type:str]
     pgp: []
     encrypted_regex: ^.*(ingress|adminPassword)$
     version: 3.9.2
