@@ -39,7 +39,6 @@ spec:
             enabled: ENC[AES256_GCM,data:eCHfpQ==,iv:NO8j4w7UNkZypPra+b0O7MKaZF3SLYf7Y23D28EN3LU=,tag:IGNDIP7MIlwGj5Fb1/fsMg==,type:bool]
             className: ENC[AES256_GCM,data:NKDJ7NA=,iv:AUfinJSaETIQ4YLMg5W+9usPKnugAQBNcg6CJqiP4sg=,tag:vCxinE0B+FZHjHci8mG+BQ==,type:str]
             annotations:
-                external-dns.alpha.kubernetes.io/hostname: ENC[AES256_GCM,data:JfFo1onOZKmRzCxcsl/QOjk=,iv:OCQ3rBCt9v3m6wpwX6o6azuNEvRQIWaJ2Akp/FU2Rpw=,tag:jNb6x/dTuNew7JcrwjnEVw==,type:str]
                 cert-manager.io/cluster-issuer: ENC[AES256_GCM,data:u5KZj56IDV3noHg=,iv:GN7udad3c/xRVwdDOjw4TPaXiW0iG2v0wisvhzHXRHM=,tag:LwUj9wDaLpDkgr0SKhqzNw==,type:str]
             hosts:
                 - host: ENC[AES256_GCM,data:Xvju8REKrfRIi7SESDgGkyk=,iv:S4Wnv+RHfEc7PTPkxw5wVdTbXMuGd3uXp8PMFC3V1+k=,tag:AvWSUe9icvVGHpARgkMKKA==,type:str]
@@ -65,8 +64,8 @@ sops:
             anUzU2loNWswYlFseEpqN2tYWnpiN3cKtjP06NDuB5cSYaMyA8df30gP03FlT91B
             Pa2EOBQz8KLIMumaIRUxYyP9mwXwkTGzzNP3eliOkd9m7tkMrZSuXQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T10:08:41Z"
-    mac: ENC[AES256_GCM,data:pRuTgJVVmgbSqibucFYqW0TuCTE7as/y+/Rx+D375gEsNkvxaAUYlRetZHjN5WWryq7Ok34nWHmYLeqyudNkmeJGpa9V0Ql6C6PQL1pbzq3JUwm0vYMCJF8nfEl+cEo9kWTewXMuQrNA+FDadJ341tDmNLmURIAI9HZhXkluiL0=,iv:za8YrRJ1givLlggb+8Q7FnFDTOWJpN06mrbx6FJvzGY=,tag:NFebhBE5sBKDv2HtmyiREg==,type:str]
+    lastmodified: "2024-12-27T13:55:35Z"
+    mac: ENC[AES256_GCM,data:5LAY6rtLjipr4CT6/hlP0cm4MtBdBQUFu3CfitxydW4phHko0Of6CpFsi5Dsx7ACE3d29ANaRHfLjhZzcNF91VTHWgUPHB9G7eyBxF6Gp47C9JeRnxPgnuOl8pkEKJvhIxDwXnrvQM9cagpHnloLZkcPpHgav6oLvKEXAdXpP+k=,iv:YCZNkUhp1PhoxCFO2VH3S2NIoTAY3cYL+Q9LgmC39iM=,tag:xLODMbMp0c75kLLmHZQ58w==,type:str]
     pgp: []
     encrypted_regex: ^.*(values|subjects)$
     version: 3.9.2
@@ -98,8 +97,8 @@ sops:
             anUzU2loNWswYlFseEpqN2tYWnpiN3cKtjP06NDuB5cSYaMyA8df30gP03FlT91B
             Pa2EOBQz8KLIMumaIRUxYyP9mwXwkTGzzNP3eliOkd9m7tkMrZSuXQ==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T10:08:41Z"
-    mac: ENC[AES256_GCM,data:pRuTgJVVmgbSqibucFYqW0TuCTE7as/y+/Rx+D375gEsNkvxaAUYlRetZHjN5WWryq7Ok34nWHmYLeqyudNkmeJGpa9V0Ql6C6PQL1pbzq3JUwm0vYMCJF8nfEl+cEo9kWTewXMuQrNA+FDadJ341tDmNLmURIAI9HZhXkluiL0=,iv:za8YrRJ1givLlggb+8Q7FnFDTOWJpN06mrbx6FJvzGY=,tag:NFebhBE5sBKDv2HtmyiREg==,type:str]
+    lastmodified: "2024-12-27T13:55:35Z"
+    mac: ENC[AES256_GCM,data:5LAY6rtLjipr4CT6/hlP0cm4MtBdBQUFu3CfitxydW4phHko0Of6CpFsi5Dsx7ACE3d29ANaRHfLjhZzcNF91VTHWgUPHB9G7eyBxF6Gp47C9JeRnxPgnuOl8pkEKJvhIxDwXnrvQM9cagpHnloLZkcPpHgav6oLvKEXAdXpP+k=,iv:YCZNkUhp1PhoxCFO2VH3S2NIoTAY3cYL+Q9LgmC39iM=,tag:xLODMbMp0c75kLLmHZQ58w==,type:str]
     pgp: []
     encrypted_regex: ^.*(values|subjects)$
     version: 3.9.2

@@ -19,7 +19,6 @@ spec:
             enabled: true
             ingressClassName: nginx
             annotations:
-                external-dns.alpha.kubernetes.io/hostname: grafana.kthxbye.cyou
                 cert-manager.io/cluster-issuer: letsencrypt
             hosts:
                 - ENC[AES256_GCM,data:VLbjr/VRzaJUdUjaw7gfMPdmEaA=,iv:+gR3no6F3wx9izevrwuPyBkrH1j6BUuY638zCR7kF5w=,tag:6/8TTex0NjYR69N4DpluqA==,type:str]
@@ -61,8 +60,8 @@ sops:
             R3I2ODkzbURrUHltREF3VFd6VStUV1UKTKcKUn+Y2Az8KmNOX9uQ4Ns48h+Udkyr
             djeUGHysvW6nbkWPvPtmRUXnQ4h0XbGGHsNZdxdnmaSMG5uBSqbf4A==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-12-27T10:08:48Z"
-    mac: ENC[AES256_GCM,data:d3pSVJ/zrmQHrCs1imk7uUqdJU9L+pLTBLRhxtz/Xi7mADyRkAzoXRmCijru/Y9KJG6pOhIDo8LFjaYDrY7/DVH4W6+LWiKfn+rggimGzixJ07td9GIhMMG0rF3WUkJE5fJm3LE2fD/AkvA+cVnA1jyID4Zz4cDplyQ3S7C8iQ8=,iv:jbeBxZwxapdL87xO/lQf9rDezoNDb85yS8zp9B7S6dU=,tag:vSIJxAgL3hsG1PchN2dOZQ==,type:str]
+    lastmodified: "2024-12-27T13:55:39Z"
+    mac: ENC[AES256_GCM,data:U4Hh6ATpiCLfjbdQLNV8Hnh257OC6qfPhNM1CiWnlZWiGgISLyOkEufUESMw/ns8LT8fNRxDZdpHU4l3HYX+L99zggBYjmCwb8ifBwp/TVtzlBs0StOsxQzv/PVPqUjihc3LIq7kUgEiuJsVUOnaIo6hppeCoTfWze+6T24J6eg=,iv:Jg92sIPng+ZWEr0FDibRNr7I6e3pH7DaJsEqeas72Wk=,tag:oDga+quUipgKG8jEpgJmSg==,type:str]
     pgp: []
     encrypted_regex: ^.*(adminPassword|hosts)$
     version: 3.9.2
