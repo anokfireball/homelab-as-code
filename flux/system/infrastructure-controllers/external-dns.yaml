@@ -1,0 +1,49 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: external-dns-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: external-dns
+      version: v1.15.0
+      sourceRef:
+        kind: HelmRepository
+        name: external-dns
+        namespace: flux-system
+  values:
+    policy: sync
+    provider:
+      name: webhook
+      webhook:
+        image:
+          repository: ghcr.io/jobs62/opnsense_unbound_external-dns_webhook
+          tag: v0.4.5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+        env:
+          - name: OPNSENSE_BASE
+            value: http://192.168.1.1/
+          - name: OPNSENSE_BIND
+            value: 0.0.0.0:8080
+          - name: OPNSENSE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: opnsense-key
+          - name: OPNSENSE_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: opnsense-secret
+    registry: noop
+    extraArgs:
+      - --webhook-provider-url=http://localhost:8080
+    managedRecordTypes:
+      - A
+      - AAAA

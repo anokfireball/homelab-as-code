@@ -1,9 +1,7 @@
-.DS_Store
-Thumbs.db
-
 .vscode
 cloud-init/data/
 
-.decrypted~*
 flux/secrets/*
 !flux/secrets/*.sops.yaml
+
+.decrypted~*

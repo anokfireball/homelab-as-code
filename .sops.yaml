@@ -3,28 +3,12 @@ creation_rules:
   - path_regex: ansible/.*\.sops\.ya?ml
     age: >-
       age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-  - path_regex: flux/system/infrastructure-controllers/external-dns\.sops\.ya?ml
-    encrypted_regex: "^.*(env)$"
-    age: >-
-      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
   - path_regex: flux/secrets/.+\.sops\.ya?ml
     unencrypted_regex: "^(apiVersion|kind|metadata|type)$"
     age: >-
       age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-  - path_regex: flux/system/app-configs/dex\.sops\.ya?ml
-    encrypted_regex: "^.*(values|subjects)$"
-    age: >-
-      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-  - path_regex: flux/system/app-configs/longhorn\.sops\.ya?ml
-    encrypted_regex: "^.*(host|hosts)$"
-    age: >-
-      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-  - path_regex: flux/system/app-controllers/democratic-csi\.sops\.ya?ml
-    encrypted_regex: "^.*(config)$"
-    age: >-
-      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
   - path_regex: flux/apps/nextcloud\.sops\.ya?ml
-    encrypted_regex: "^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password|mountPath)$"
+    encrypted_regex: "^.*(host|hosts|trustedDomains|fromAddress|domain|smtp|password|path|mountPath)$"
     age: >-
       age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
   - path_regex: flux/apps/pihole\.sops\.ya?ml
@@ -35,18 +19,6 @@ creation_rules:
     encrypted_regex: "^.*(password|value|domain|smtp|hostname)$"
     age: >-
       age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-  - path_regex: flux/system/app-configs/kube-prometheus-stack\.sops\.ya?ml
-    encrypted_regex: "^.*(ingress)$"
-    age: >-
-      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-  - path_regex: flux/system/app-configs/loki\.sops\.ya?ml
-    encrypted_regex: "^.*(hosts)$"
-    age: >-
-      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-  - path_regex: flux/system/app-configs/grafana\.sops\.ya?ml
-    encrypted_regex: "^.*(adminPassword|hosts)$"
-    age: >-
-      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
   - path_regex: flux/apps/paperless\.sops\.ya?ml
     encrypted_regex: "^.*(password|PAPERLESS_URL|PAPERLESS_SECRET_KEY|PAPERLESS_DBPASS|hosts)$"
     age: >-
@@ -55,6 +27,3 @@ creation_rules:
     encrypted_regex: "^.*(auth|extraEnvVars|env|hosts)$"
     age: >-
       age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
-
-
-

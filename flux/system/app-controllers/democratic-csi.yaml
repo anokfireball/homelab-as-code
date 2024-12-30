@@ -1,0 +1,119 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: democratic-csi-ssd
+  namespace: democratic-csi-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: democratic-csi
+      version: 0.14.7
+      sourceRef:
+        kind: HelmRepository
+        name: democratic-csi
+        namespace: flux-system
+  values:
+    csiDriver:
+      name: nas-ssd
+      fsGroupPolicy: File
+    storageClasses:
+      - name: nas-scratch-ssd
+        defaultClass: false
+        reclaimPolicy: Delete
+        volumeBindingMode: Immediate
+        allowVolumeExpansion: true
+        parameters:
+          fsType: nfs
+        mountOptions:
+          - noatime
+          - nfsvers=3
+    driver:
+      config:
+        driver: freenas-nfs
+        instance_id: null
+        httpConnection:
+          protocol: http
+          host: 192.168.1.2
+          port: 80
+          username: ${FREENAS_USERNAME}
+          password: ${FREENAS_PASSWORD}
+          allowInsecure: true
+        sshConnection:
+          host: 192.168.1.2
+          port: 22
+          username: ${FREENAS_USERNAME}
+          password: ${FREENAS_PASSWORD}
+        zfs:
+          datasetParentName: scratch/k8s
+          detachedSnapshotsDatasetParentName: scratch/snaps
+          datasetEnableQuotas: true
+          datasetEnableReservation: false
+          datasetPermissionsMode: "0777"
+          datasetPermissionsUser: 0
+          datasetPermissionsGroup: 0
+        nfs:
+          shareHost: 192.168.1.2
+          shareAlldirs: false
+          shareMaprootUser: root
+          shareMaprootGroup: wheel
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: democratic-csi-hdd
+  namespace: democratic-csi-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: democratic-csi
+      version: 0.14.7
+      sourceRef:
+        kind: HelmRepository
+        name: democratic-csi
+        namespace: flux-system
+  values:
+    csiDriver:
+      name: nas-hdd
+      fsGroupPolicy: File
+    storageClasses:
+      - name: nas-replicated-hdd
+        defaultClass: false
+        reclaimPolicy: Retain
+        volumeBindingMode: Immediate
+        allowVolumeExpansion: true
+        parameters:
+          fsType: nfs
+        mountOptions:
+          - noatime
+          - nfsvers=3
+    driver:
+      config:
+        driver: freenas-nfs
+        instance_id: null
+        httpConnection:
+          protocol: http
+          host: 192.168.1.2
+          port: 80
+          username: ${FREENAS_USERNAME}
+          password: ${FREENAS_PASSWORD}
+          allowInsecure: true
+        sshConnection:
+          host: 192.168.1.2
+          port: 22
+          username: ${FREENAS_USERNAME}
+          password: ${FREENAS_PASSWORD}
+        zfs:
+          datasetParentName: tank/Scratch/k8s
+          detachedSnapshotsDatasetParentName: tank/Scratch/snaps
+          datasetEnableQuotas: true
+          datasetEnableReservation: false
+          datasetPermissionsMode: "0777"
+          datasetPermissionsUser: 0
+          datasetPermissionsGroup: 0
+        nfs:
+          shareHost: 192.168.1.2
+          shareAlldirs: false
+          shareMaprootUser: root
+          shareMaprootGroup: wheel
