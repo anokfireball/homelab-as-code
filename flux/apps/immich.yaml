@@ -1,0 +1,143 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich-postgresql
+  namespace: default
+spec:
+  # https://github.com/immich-app/immich-charts/issues/149
+  # https://github.com/immich-app/immich/discussions/14280
+  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:16.5-v0.3.0
+  instances: 1
+  postgresql:
+    shared_preload_libraries:
+      - "vectors.so"
+  managed:
+    services:
+      disabledDefaultServices: ["ro", "r"]
+    roles:
+      - name: immich
+        superuser: true
+        login: true
+        passwordSecret:
+          name: immich-postgres-secrets
+  bootstrap:
+    initdb:
+      database: immich
+      owner: immich
+      secret:
+        name: immich-postgres-secrets
+      postInitSQL:
+        - CREATE EXTENSION IF NOT EXISTS "vectors";
+        - CREATE EXTENSION IF NOT EXISTS "cube" CASCADE;
+        - CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE;
+  storage:
+    size: 4Gi
+    storageClass: cluster-replicated
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nas-photos
+spec:
+  capacity:
+    storage: 1Mi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 192.168.1.2
+    path: /mnt/tank/Bilder
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nas-photos
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 1Mi
+  volumeName: nas-photos
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-library
+  namespace: default
+spec:
+  resources:
+    requests:
+      storage: 25Gi
+  storageClassName: cluster-replicated
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: immich
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: immich
+      version: 0.9.0
+      sourceRef:
+        kind: HelmRepository
+        name: immich-app
+        namespace: flux-system
+  values:
+    env:
+      DB_HOSTNAME: immich-postgresql-rw
+      DB_USERNAME: immich
+      DB_DATABASE_NAME: immich
+      DB_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: immich-postgres-secrets
+            key: password
+    image:
+      tag: v1.123.0
+    immich:
+      persistence:
+        library:
+          existingClaim: immich-library
+    redis:
+      enabled: true
+      global:
+        storageClass: cluster-scratch
+      master:
+        persistence:
+          size: 2Gi
+    server:
+      ingress:
+        main:
+          enabled: true
+          ingressClassName: nginx
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt
+          hosts:
+            - host: immich.${SERVICE_DOMAIN}
+              paths:
+                - path: /
+          tls:
+            - secretName: immich-tls
+              hosts:
+                - immich.${SERVICE_DOMAIN}
+      persistence:
+        external:
+          enabled: true
+          mountPath: /mnt/tank/Bilder
+          existingClaim: nas-photos
+    machine-learning:
+      persistence:
+        cache:
+          enabled: true
+          type: pvc
+          storageClass: cluster-scratch
+          accessMode: ReadWriteMany
+          size: 10Gi
