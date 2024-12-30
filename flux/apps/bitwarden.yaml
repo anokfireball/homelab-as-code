@@ -1,0 +1,131 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden-postgresql
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: postgresql
+      version: 16.3.4
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  values:
+    image:
+      # Current Vaultwarden is built with PG 15, also use that as long as it is supported
+      # https://github.com/dani-garcia/vaultwarden/blob/1.32.6/docker/Dockerfile.alpine#L56-L57
+      # https://www.postgresql.org/support/versioning/
+      tag: 15.10.0
+    global:
+      storageClass: cluster-replicated
+      postgresql:
+        auth:
+          username: vaultwarden
+          existingSecret: bitwarden-secrets
+          secretKeys:
+            userPasswordKey: postgres-password
+          database: vaultwarden
+    primary:
+      persistence:
+        enabled: true
+        size: 2Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: vaultwarden
+      version: 0.31.1
+      sourceRef:
+        kind: HelmRepository
+        name: guerzon
+        namespace: flux-system
+  values:
+    image:
+      tag: 1.32.7-alpine
+    resourceType: Deployment
+    # TODO https://github.com/ttionya/vaultwarden-backup as sidedcar?
+    storage:
+      data:
+        name: vaultwarden-data
+        class: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+    initContainers:
+      - name: wait-for-postgresql
+        # Current Vaultwarden is built with PG 15, also use that as long as it is supported
+        # https://github.com/dani-garcia/vaultwarden/blob/1.32.6/docker/Dockerfile.alpine#L56-L57
+        # https://www.postgresql.org/support/versioning/
+        image: docker.io/bitnami/postgresql:15.10.0
+        command:
+          - /bin/sh
+          - -ec
+          - |
+            until pg_isready -h vaultwarden-postgresql -U vaultwarden; do
+              echo "Waiting for PostgreSQL to be ready..."
+              sleep 2
+            done
+    database:
+      type: postgresql
+      existingSecret: bitwarden-secrets
+      existingSecretKey: database-uri
+    pushNotifications:
+      enabled: true
+      existingSecret: bitwarden-secrets
+      installationId:
+        existingSecretKey: installation-id
+      installationKey:
+        existingSecretKey: installation-key
+      relayUri: https://api.bitwarden.eu
+      identityUri: https://identity.bitwarden.eu
+    domain: https://bitwarden.${SERVICE_DOMAIN}
+    # TODO hibp API key?
+    signupsAllowed: false
+    iconBlacklistNonGlobalIps: false
+    adminToken:
+      existingSecret: bitwarden-secrets
+      existingSecretKey: admin-token
+    timeZone: Europe/Berlin
+    smtp:
+      existingSecret: bitwarden-secrets
+      host: ${SMTP_HOST}
+      port: 465
+      security: force_tls
+      from: bitwarden@${SERVICE_DOMAIN}
+      fromName: Bitwarden
+      username:
+        existingSecretKey: smtp-username
+      password:
+        existingSecretKey: smtp-password
+      authMechanism: Login
+    ingress:
+      enabled: true
+      class: nginx
+      nginxIngressAnnotations: true
+      additionalAnnotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+        # https://github.com/guerzon/vaultwarden/issues/117
+        nginx.ingress.kubernetes.io/server-snippet: |
+          location /notifications {
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $http_connection;
+
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            proxy_pass http://vaultwarden.default.svc:80;
+          }
+      tls: true
+      hostname: bitwarden.${SERVICE_DOMAIN}
+      tlsSecret: bitwarden-tls

@@ -1,0 +1,158 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nextcloud
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: nextcloud
+      version: 6.5.2
+      sourceRef:
+        kind: HelmRepository
+        name: nextcloud
+        namespace: flux-system
+  values:
+    image:
+      flavor: fpm-alpine
+    # https://github.com/nextcloud/helm/issues/10
+    # https://github.com/nextcloud/helm/issues/399
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 120
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 50
+      successThreshold: 1
+    ingress:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+        nginx.ingress.kubernetes.io/affinity: cookie
+        nginx.ingress.kubernetes.io/cors-allow-headers: X-Forwarded-For
+        nginx.ingress.kubernetes.io/enable-cors: "true"
+        nginx.ingress.kubernetes.io/proxy-body-size: 4G
+        nginx.ingress.kubernetes.io/server-snippet: |-
+          server_tokens off;
+          proxy_hide_header X-Powered-By;
+          rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
+          rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
+          rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
+          rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
+          location = /.well-known/carddav {
+              return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /.well-known/caldav {
+              return 301 $scheme://$host/remote.php/dav;
+          }
+          location = /robots.txt {
+              allow all;
+              log_not_found off;
+              access_log off;
+          }
+          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+              deny all;
+          }
+          location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
+              deny all;
+          }
+      tls:
+        - secretName: nextcloud-tls
+          hosts:
+            - nextcloud.${SERVICE_DOMAIN}
+    phpClientHttpsFix:
+      enabled: true
+    nextcloud:
+      host: nextcloud.${SERVICE_DOMAIN}
+      existingSecret:
+        enabled: true
+        secretName: nextcloud-secrets
+      trustedDomains:
+        - localhost
+        - nextcloud.${SERVICE_DOMAIN}
+      defaultConfigs:
+        imaginary.config.php: true
+      configs:
+        proxy.config.php: |-
+          <?php
+          $CONFIG = array (
+            'trusted_proxies' => array(
+              0 => '127.0.0.1',
+              1 => '172.16.0.0/24',
+              2 => '172.32.0.0/16',
+              3 => 'fd08:172:16::/112',
+              4 => 'fd08:172:32::/56',
+            ),
+            'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
+          );
+      mail:
+        enabled: true
+        fromAddress: nextcloud
+        domain: ${SERVICE_DOMAIN}
+        smtp:
+          port: 465
+          secure: tls
+          authtype: LOGIN
+      extraVolumes:
+        - name: paperless-consume
+          nfs:
+            server: 192.168.1.2
+            path: /mnt/tank/Dokumente/Paperless/consume
+        - name: photo-auto-upload
+          nfs:
+            server: 192.168.1.2
+            path: /mnt/tank/Bilder/Fabi/Handy
+      extraVolumeMounts:
+        - name: paperless-consume
+          mountPath: /var/www/html/data/ntauthority/files/consumption/
+        - name: photo-auto-upload
+          mountPath: /var/www/html/data/ntauthority/files/auto-upload/
+    imaginary:
+      enabled: true
+    nginx:
+      enabled: true
+      ipFamilies:
+        - IPv4
+        - IPv6
+    redis:
+      enabled: true
+      auth:
+        enabled: true
+        existingSecret: nextcloud-secrets
+        existingSecretPasswordKey: redis-password
+      global:
+        storageClass: cluster-scratch
+      master:
+        persistence:
+          size: 2Gi
+      architecture: standalone
+    cronjob:
+      enabled: true
+    internalDatabase:
+      enabled: false
+    externalDatabase:
+      enabled: true
+      type: postgresql
+    postgresql:
+      enabled: true
+      global:
+        postgresql:
+          auth:
+            existingSecret: nextcloud-secrets
+            secretKeys:
+              userPasswordKey: postgres-password
+      primary:
+        persistence:
+          enabled: true
+          storageClass: cluster-replicated
+          size: 2Gi
+    persistence:
+      enabled: true
+      storageClass: cluster-replicated
+      size: 2Gi
+      nextcloudData:
+        enabled: true
+        storageClass: cluster-replicated
+        size: 100Gi
