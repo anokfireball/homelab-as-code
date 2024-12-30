@@ -1,0 +1,70 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: monitoring-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: 67.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: flux-system
+  values:
+    alertmanager:
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - alertmanager.${SERVICE_DOMAIN}
+        tls:
+          - secretName: alertmanager-tls
+            hosts:
+              - alertmanager.${SERVICE_DOMAIN}
+      alertmanagerSpec:
+        retention: 168h
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: cluster-scratch
+              resources:
+                requests:
+                  storage: 1Gi
+    grafana:
+      enabled: false
+      forceDeployDatasources: true
+      forceDeployDashboards: true
+      defaultDashboardsEnabled: true
+      defaultDashboardsTimezone: Europe/Berlin
+      defaultDashboardsEditable: true
+      sidecar:
+        dashboards:
+          annotations:
+            grafana_dashboard_folder: kube-prometheus-stack
+    prometheus:
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - prometheus.${SERVICE_DOMAIN}
+        tls:
+          - secretName: prometheus-tls
+            hosts:
+              - prometheus.${SERVICE_DOMAIN}
+      prometheusSpec:
+        retention: 90d
+        retentionSize: 250GiB
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: nas-replicated-hdd
+              resources:
+                requests:
+                  storage: 250Gi

@@ -1,0 +1,33 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: dex
+  namespace: dex-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: dex
+      version: 0.19.1
+      sourceRef:
+        kind: HelmRepository
+        name: dexidp
+        namespace: flux-system
+  values:
+    configSecret:
+      create: false
+      name: dex-config
+    ingress:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: auth.${SERVICE_DOMAIN}
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: dex-tls
+          hosts:
+            - auth.${SERVICE_DOMAIN}

@@ -1,3 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: longhorn-ingress
+  namespace: longhorn-system
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - longhorn.${SERVICE_DOMAIN}
+      secretName: longhorn-tls
+  rules:
+    - host: longhorn.${SERVICE_DOMAIN}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: longhorn-frontend
+                port:
+                  number: 80
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -11,12 +35,12 @@ parameters:
   migratable: "true"
   dataLocality: best-effort
   recurringJobSelector: |
-   [
-      {
-        "name":"base",
-        "isGroup":true
-      }
-    ]
+    [
+       {
+         "name":"base",
+         "isGroup":true
+       }
+     ]
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
@@ -31,16 +55,16 @@ parameters:
   dataLocality: best-effort
   replicaAutoBalance: best-effort
   recurringJobSelector: |
-   [
-      {
-        "name":"base",
-        "isGroup":true
-      },
-      {
-        "name":"daily-backup",
-        "isGroup":false
-      }
-    ]
+    [
+       {
+         "name":"base",
+         "isGroup":true
+       },
+       {
+         "name":"daily-backup",
+         "isGroup":false
+       }
+     ]
 ---
 apiVersion: longhorn.io/v1beta2
 kind: RecurringJob
@@ -61,7 +85,7 @@ metadata:
 spec:
   cron: 30 23 * * *
   groups:
-  - base
+    - base
   name: daily-snapshot-cleanup
   task: snapshot-cleanup
 ---
@@ -73,6 +97,6 @@ metadata:
 spec:
   cron: 0 0 * * 0
   groups:
-  - base
+    - base
   name: weekly-trim
   task: filesystem-trim

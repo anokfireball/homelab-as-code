@@ -57,6 +57,10 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: cluster-secrets
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -105,6 +109,10 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: cluster-secrets
   patches:
     - patch: |
         - op: add
@@ -136,3 +144,7 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
+  postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: cluster-secrets
