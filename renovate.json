@@ -110,7 +110,7 @@
       "customType": "regex",
       "description": "Update vaultwarden container",
       "fileMatch": [
-        "flux/apps/bitwarden.sops.yaml"
+        "flux/apps/bitwarden.yaml"
       ],
       "matchStrings": [
         "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-alpine)"
@@ -124,8 +124,8 @@
       "customType": "regex",
       "description": "Update postgres container",
       "fileMatch": [
-        "flux/apps/bitwarden.sops.yaml",
-        "flux/apps/paperless.sops.yaml"
+        "flux/apps/bitwarden.yaml",
+        "flux/apps/paperless.yaml"
       ],
       "matchStrings": [
         "tag: (?<currentValue>15\\.\\d+\\.\\d+)",
@@ -140,7 +140,7 @@
       "customType": "regex",
       "description": "Update paperless container",
       "fileMatch": [
-        "flux/apps/paperless.sops.yaml"
+        "flux/apps/paperless.yaml"
       ],
       "matchStrings": [
         "tag: (?<currentValue>\\d\\.\\d+\\.\\d+)"
@@ -154,7 +154,7 @@
       "customType": "regex",
       "description": "Update mongodb container",
       "fileMatch": [
-        "flux/apps/unifi.sops.yaml"
+        "flux/apps/unifi.yaml"
       ],
       "matchStrings": [
         "tag: (?<currentValue>8\\.\\d+\\.\\d+)[^-]"
@@ -168,7 +168,7 @@
       "customType": "regex",
       "description": "Update unifi container",
       "fileMatch": [
-        "flux/apps/unifi.sops.yaml"
+        "flux/apps/unifi.yaml"
       ],
       "matchStrings": [
         "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-ls\\d+)"

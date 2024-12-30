@@ -1,0 +1,176 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: unifi-controller-mongodb
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: mongodb
+      version: 16.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  values:
+    global:
+      defaultStorageClass: cluster-replicated
+    image:
+      tag: 8.0.4
+    architecture: standalone
+    useStatefulSet: true
+    auth:
+      rootUser: root
+      existingSecret: unifi-secrets
+    extraEnvVars:
+      - name: MONGO_INITDB_ROOT_USERNAME
+        value: root
+      - name: MONGO_INITDB_ROOT_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: unifi-secrets
+            key: mongodb-root-password
+      - name: MONGO_USER
+        value: unifi
+      - name: MONGO_PASS
+        valueFrom:
+          secretKeyRef:
+            name: unifi-secrets
+            key: mongodb-password
+      - name: MONGO_DBNAME
+        value: unifi
+      - name: MONGO_AUTHSOURCE
+        value: admin
+    initdbScripts:
+      # https://github.com/linuxserver/docker-unifi-network-application?tab=readme-ov-file#setting-up-your-external-database
+      init-unifi-user.sh: |
+        #!/bin/bash
+        if which mongosh > /dev/null 2>&1; then
+          mongo_init_bin='mongosh'
+        else
+          mongo_init_bin='mongo'
+        fi
+        "${mongo_init_bin}" <<EOF
+        use ${MONGO_AUTHSOURCE}
+        db.auth("${MONGO_INITDB_ROOT_USERNAME}", "${MONGO_INITDB_ROOT_PASSWORD}")
+        db.createUser({
+          user: "${MONGO_USER}",
+          pwd: "${MONGO_PASS}",
+          roles: [
+            { db: "${MONGO_DBNAME}", role: "dbOwner" },
+            { db: "${MONGO_DBNAME}_stat", role: "dbOwner" }
+          ]
+        })
+        EOF
+    persistence:
+      enabled: true
+      size: 2Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: unifi-controller
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: default
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: linuxserver/unifi-network-application
+              tag: 8.6.9-ls73
+            env:
+              TZ: Europe/Berlin
+              MONGO_HOST: unifi-controller-mongodb
+              MONGO_PORT: 27017
+              MONGO_USER: unifi
+              MONGO_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: unifi-secrets
+                    key: mongodb-password
+              MONGO_DBNAME: unifi
+              MONGO_AUTHSOURCE: admin
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /setup/
+                    port: 8080
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /setup/
+                    port: 8080
+    service:
+      external:
+        controller: main
+        type: LoadBalancer
+        annotations:
+          metallb.io/allow-shared-ip: default
+        ports:
+          controller:
+            port: 8080
+            protocol: HTTP
+          speedtest:
+            port: 6789
+            protocol: TCP
+          stun:
+            port: 3478
+            protocol: UDP
+          syslog:
+            port: 5514
+            protocol: UDP
+          discovery:
+            port: 10001
+            protocol: UDP
+          l2discovery:
+            port: 1900
+            protocol: UDP
+      internal:
+        controller: main
+        ports:
+          https:
+            port: 8443
+            protocol: HTTPS
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
+          nginx.ingress.kubernetes.io/proxy-ssl-verify: "off"
+        hosts:
+          - host: unifi.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: internal
+                  port: https
+        tls:
+          - secretName: unifi-tls
+            hosts:
+              - unifi.${SERVICE_DOMAIN}
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        globalMounts:
+          - path: /config

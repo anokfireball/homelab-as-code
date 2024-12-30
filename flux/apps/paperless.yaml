@@ -1,0 +1,160 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: paperless-ngx-postgresql
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: postgresql
+      version: 16.3.4
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  values:
+    image:
+      # Current paperless-ngx is built with PG 15, also use that as long as it is supported
+      # https://github.com/paperless-ngx/paperless-ngx/blob/v2.13.5/Dockerfile#L96
+      # https://packages.debian.org/de/bookworm/postgresql-client
+      # https://www.postgresql.org/support/versioning/
+      tag: 15.10.0
+    global:
+      storageClass: cluster-replicated
+      postgresql:
+        auth:
+          username: paperless-ngx
+          existingSecret: paperless-secrets
+          secretKeys:
+            userPasswordKey: postgres-password
+          database: paperless-ngx
+    primary:
+      persistence:
+        enabled: true
+        size: 2Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: paperless-ngx-redis
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: redis
+      version: 20.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  values:
+    auth:
+      enabled: false
+    global:
+      storageClass: cluster-scratch
+    master:
+      persistence:
+        size: 2Gi
+    architecture: standalone
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: paperless-ngx
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: default
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: paperlessngx/paperless-ngx
+              tag: 2.13.5
+            env:
+              PAPERLESS_OCR_LANGUAGES: deu eng
+              PAPERLESS_OCR_LANGUAGE: deu+eng
+              PAPERLESS_URL: https://paperless.${SERVICE_DOMAIN}
+              PAPERLESS_SECRET_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-secrets
+                    key: paperless-secret-key
+              PAPERLESS_TIME_ZONE: Europe/Berlin
+              PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
+              PAPERLESS_CONSUMER_RECURSIVE: true
+              PAPERLESS_CONSUMER_POLLING: 60
+              PAPERLESS_DBHOST: paperless-ngx-postgresql
+              PAPERLESS_DBUSER: paperless-ngx
+              PAPERLESS_DBPASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-secrets
+                    key: postgres-password
+              PAPERLESS_DBNAME: paperless-ngx
+              PAPERLESS_REDIS: redis://paperless-ngx-redis-master:6379
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 8000
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: paperless.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: paperless-tls
+            hosts:
+              - paperless.${SERVICE_DOMAIN}
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        globalMounts:
+          - path: /usr/src/paperless/data
+      consume:
+        type: nfs
+        server: 192.168.1.2
+        path: /mnt/tank/Dokumente/Paperless/consume
+        globalMounts:
+          - path: /usr/src/paperless/consume
+      media:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 25Gi
+        globalMounts:
+          - path: /usr/src/paperless/media
+      export:
+        type: nfs
+        server: 192.168.1.2
+        path: /mnt/tank/Dokumente/Paperless/export
+        globalMounts:
+          - path: /usr/src/paperless/export
