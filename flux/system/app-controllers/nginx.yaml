@@ -23,3 +23,7 @@ spec:
         annotations:
          metallb.io/allow-shared-ip: default
       allowSnippetAnnotations: true
+      # TODO https://github.com/kubernetes/ingress-nginx/issues/12618
+      # allowSnippetAnnotations: true is basically ignored in the default 4.12.0 config
+      config:
+        annotations-risk-level: Critical
