@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: firefly-iii
+  namespace: flux-system
+spec:
+  url: https://firefly-iii.github.io/kubernetes

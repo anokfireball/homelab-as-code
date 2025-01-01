@@ -190,7 +190,36 @@
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "immich-app/immich",
       "versioningTemplate": "semver",
-      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+-ls\\d+)$"
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update firefly postgres container",
+      "fileMatch": [
+        "flux/apps/firefly.yaml"
+      ],
+      "matchStrings": [
+        "imageName: ghcr.io/cloudnative-pg/postgresql:(?<currentValue>\\d+\\.\\d+-\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "cloudnative-pg/postgresql",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+-\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update firefly container",
+      "fileMatch": [
+        "flux/apps/firefly.yaml"
+      ],
+      "matchStrings": [
+        "tag: version-(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "firefly-iii/firefly-iii",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
