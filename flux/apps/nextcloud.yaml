@@ -100,15 +100,21 @@ spec:
           nfs:
             server: 192.168.1.2
             path: /mnt/tank/Dokumente/Paperless/consume
-        - name: photo-auto-upload
+        - name: photo-auto-upload-fabi
           nfs:
             server: 192.168.1.2
             path: /mnt/tank/Bilder/Fabi/Handy
+        - name: photo-auto-upload-dani
+          nfs:
+            server: 192.168.1.2
+            path: /mnt/tank/Bilder/Dani/Handy
       extraVolumeMounts:
         - name: paperless-consume
           mountPath: /var/www/html/data/ntauthority/files/consumption/
-        - name: photo-auto-upload
+        - name: photo-auto-upload-fabi
           mountPath: /var/www/html/data/ntauthority/files/auto-upload/
+        - name: photo-auto-upload-dani
+          mountPath: /var/www/html/data/RedRaven/files/auto-upload/
     imaginary:
       enabled: true
     nginx:
