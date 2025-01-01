@@ -1,0 +1,54 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: firefly-postgresql
+  namespace: default
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.2-27
+  instances: 1
+  bootstrap:
+    initdb:
+      database: firefly
+      owner: firefly
+      secret:
+        name: firefly-postgres-user
+  storage:
+    size: 2Gi
+    storageClass: cluster-replicated
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: firefly
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: firefly-iii
+      version: 1.8.2
+      sourceRef:
+        kind: HelmRepository
+        name: firefly-iii
+        namespace: flux-system
+  values:
+    image:
+      tag: version-6.1.25
+    persistence:
+      enabled: false
+    config:
+      existingSecret: firefly-config
+    cronjob:
+      auth:
+        existingSecret: firefly-cron
+    ingress:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - firefly.${SERVICE_DOMAIN}
+      tls:
+        - secretName: firefly-tls
+          hosts:
+            - firefly.${SERVICE_DOMAIN}
