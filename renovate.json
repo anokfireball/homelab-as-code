@@ -220,6 +220,20 @@
       "packageNameTemplate": "firefly-iii/firefly-iii",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update freshrss container",
+      "fileMatch": [
+        "flux/apps/fresh-rss.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+)-alpine"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "FreshRSS/FreshRSS",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
