@@ -6,3 +6,4 @@ creation_rules:
   - path_regex: flux/secrets/.+\.sops\.ya?ml
     unencrypted_regex: "^(apiVersion|kind|metadata|type)$"
     age: >-
+      age168avplsha0pc878zkkgnx2n7zku0grgmwal2grmxjxnx579j9ffq0a0yfp
