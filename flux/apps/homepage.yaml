@@ -1,0 +1,36 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: homepage
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: homepage
+      version: 2.0.1
+      sourceRef:
+        kind: HelmRepository
+        name: jameswynn
+        namespace: default
+  values:
+    image:
+      tag: v0.10.7
+    enableRbac: true
+    serviceAccount:
+      create: true
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: nginx
+        hosts:
+          - host: homepage.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - secretName: homepage-tls
+            hosts:
+              - homepage.${SERVICE_DOMAIN}
+    config:
+      useExistingConfigMap: homepage-config

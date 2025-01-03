@@ -248,6 +248,20 @@
       "packageNameTemplate": "Stirling-Tools/Stirling-PDF",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update homepage container",
+      "fileMatch": [
+        "flux/apps/stirling-pdf.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "gethomepage/homepage",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
