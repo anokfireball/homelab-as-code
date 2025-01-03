@@ -21,4 +21,5 @@ spec:
         sidecarLabel: ""
         labels:
           grafana_dashboard: "1"
+        annotations:
           grafana_dashboard_folder: cloudnative-pg
