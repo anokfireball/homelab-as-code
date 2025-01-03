@@ -16,6 +16,9 @@ spec:
   values:
     image:
       tag: v0.10.7
+    controller:
+      annotations:
+        reloader.stakater.com/auto: "true"
     enableRbac: true
     serviceAccount:
       create: true
