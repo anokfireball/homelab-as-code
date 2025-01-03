@@ -68,3 +68,5 @@ spec:
               resources:
                 requests:
                   storage: 250Gi
+        podMonitorSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
