@@ -11,7 +11,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./flux/system/namespaces
+  path: ./flux/namespaces
   prune: true
   wait: true
 ---
