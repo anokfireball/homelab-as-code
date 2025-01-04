@@ -262,11 +262,26 @@
       "packageNameTemplate": "gethomepage/homepage",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update sabnzbd container",
+      "fileMatch": [
+        "flux/apps/sabnzbd.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-ls\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "linuxserver/sabnzbd",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-ls\\d+)$"
     }
   ],
   "flux": {
     "fileMatch": [
       "flux/clusters/.+gotk-components\\.ya?ml$",
+      "flux/namespaces/.+\\.ya?ml$",
       "flux/repositories/.+\\.ya?ml$",
       "flux/system/.+\\.ya?ml$",
       "flux/apps/.+\\.ya?ml$"
