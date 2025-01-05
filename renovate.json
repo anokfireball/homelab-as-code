@@ -276,6 +276,49 @@
       "packageNameTemplate": "linuxserver/sabnzbd",
       "versioningTemplate": "docker",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-ls\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update qbittorrent container",
+      "fileMatch": [
+        "flux/apps/qbittorrent.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-r\\d+-ls\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "linuxserver/qbittorrent",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-r\\d+-ls\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update gluetun container",
+      "fileMatch": [
+        "flux/apps/qbittorrent.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "qdm12/gluetun",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update gluetun-qbittorrent-port-manager container",
+      "fileMatch": [
+        "flux/apps/qbittorrent.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>\\d+\\.\\d+)[^\\.]"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "snoringdragon/gluetun-qbittorrent-port-manager",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+)$"
     }
   ],
   "flux": {
