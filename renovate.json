@@ -319,6 +319,20 @@
       "packageNameTemplate": "snoringdragon/gluetun-qbittorrent-port-manager",
       "versioningTemplate": "docker",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update vpa container",
+      "fileMatch": [
+        "flux/system/app-controllers/vertical-pod-autoscaler.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "kubernetes/autoscaler",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^vertical-pod-autoscaler-(?<version>\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
