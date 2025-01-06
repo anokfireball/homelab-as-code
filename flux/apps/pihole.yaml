@@ -108,6 +108,7 @@ spec:
     whitelist:
       - ${SMTP_HOST}
       - jnn-pa.googleapis.com
+      - idealo.de
     podDnsConfig:
       enabled: true
       policy: None
