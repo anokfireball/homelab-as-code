@@ -333,6 +333,20 @@
       "packageNameTemplate": "kubernetes/autoscaler",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^vertical-pod-autoscaler-(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update goldilocks container",
+      "fileMatch": [
+        "flux/system/app-configs/goldilocks.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "FairwindsOps/goldilocks",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
