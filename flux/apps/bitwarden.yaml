@@ -73,6 +73,10 @@ spec:
               echo "Waiting for PostgreSQL to be ready..."
               sleep 2
             done
+    resources:
+      requests:
+        cpu: 10m
+        memory: 100Mi
     database:
       type: postgresql
       existingSecret: bitwarden-secrets

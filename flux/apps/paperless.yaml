@@ -109,6 +109,10 @@ spec:
                 enabled: true
               readiness:
                 enabled: true
+            resources:
+              requests:
+                cpu: 10m
+                memory: 1Gi
     service:
       main:
         controller: main

@@ -26,6 +26,10 @@ spec:
                 enabled: true
               readiness:
                 enabled: true
+            resources:
+              requests:
+                cpu: 400m
+                memory: 500Mi
     service:
       main:
         controller: main
@@ -37,6 +41,7 @@ spec:
         className: nginx
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt
+          nginx.ingress.kubernetes.io/proxy-body-size: 25Mi
         hosts:
           - host: sabnzbd.kthxbye.cyou
             paths:
