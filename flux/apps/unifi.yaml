@@ -117,6 +117,10 @@ spec:
                   httpGet:
                     path: /setup/
                     port: 8080
+            resources:
+              requests:
+                cpu: 20m
+                memory: 800Mi
     service:
       external:
         controller: main

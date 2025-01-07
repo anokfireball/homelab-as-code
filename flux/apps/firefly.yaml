@@ -52,3 +52,7 @@ spec:
         - secretName: firefly-tls
           hosts:
             - firefly.${SERVICE_DOMAIN}
+    resources:
+      requests:
+        cpu: 20m
+        memory: 200Mi

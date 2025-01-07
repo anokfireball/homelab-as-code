@@ -133,6 +133,10 @@ spec:
           enabled: true
           mountPath: /mnt/tank/Bilder
           existingClaim: nas-photos
+      resources:
+        requests:
+          cpu: 50m
+          memory: 350Mi
     machine-learning:
       persistence:
         cache:
@@ -141,3 +145,7 @@ spec:
           storageClass: cluster-scratch
           accessMode: ReadWriteMany
           size: 10Gi
+      resources:
+        requests:
+          cpu: 50m
+          memory: 300Mi
