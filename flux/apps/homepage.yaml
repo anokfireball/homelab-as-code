@@ -39,3 +39,7 @@ spec:
               - homepage.${SERVICE_DOMAIN}
     config:
       useExistingConfigMap: homepage-config
+    resources:
+      requests:
+        cpu: 50m
+        memory: 100Mi

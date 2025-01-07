@@ -30,7 +30,14 @@ spec:
                 spec:
                   httpGet:
                     port: 8080
+                  periodSeconds: 60
+                  timeoutSeconds: 5
+                  failureThreshold: 5
               readiness: *qb-probe
+            resources:
+              requests:
+                cpu: 400m
+                memory: 400Mi
           gluetun:
             dependsOn: main
             image:
@@ -57,6 +64,10 @@ spec:
                   timeoutSeconds: 5
                   failureThreshold: 5
               readiness: *gluetun-probe
+            resources:
+              requests:
+                cpu: 10m
+                memory: 100Mi
           port-forward:
             dependsOn: gluetun
             image:
@@ -68,6 +79,10 @@ spec:
               PORT_FORWARDED: "/tmp/gluetun/forwarded_port"
             envFrom:
               - secret: gluetun-secrets
+            resources:
+              requests:
+                cpu: 10m
+                memory: 35Mi
     service:
       main:
         controller: main

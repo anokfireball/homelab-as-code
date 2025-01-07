@@ -18,6 +18,10 @@ spec:
       flavor: fpm-alpine
     # https://github.com/nextcloud/helm/issues/10
     # https://github.com/nextcloud/helm/issues/399
+    resources:
+      requests:
+        cpu: 50m
+        memory: 150Mi
     startupProbe:
       enabled: true
       initialDelaySeconds: 120
@@ -120,6 +124,10 @@ spec:
           mountPath: /var/www/html/data/RedRaven/files/auto-upload/
     imaginary:
       enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 1Gi
     metrics:
       enabled: true
       server: https://nextcloud.${SERVICE_DOMAIN}
@@ -128,6 +136,10 @@ spec:
         enabled: true
         labels:
           release: kube-prometheus-stack
+      resources:
+        requests:
+          cpu: 10m
+          memory: 20Mi
     nginx:
       enabled: true
       ipFamilies:

@@ -31,3 +31,12 @@ spec:
         path: /
         tls: true
         tlsSecret: stirling-pdf-tls
+    resources:
+      requests:
+        cpu: 10m
+        memory: 600Mi
+    probes:
+      liveness:
+        initialDelaySeconds: 30
+      readiness:
+        initialDelaySeconds: 30
