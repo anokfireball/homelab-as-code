@@ -154,7 +154,8 @@
       "customType": "regex",
       "description": "Update mongodb container",
       "fileMatch": [
-        "flux/apps/unifi.yaml"
+        "flux/apps/unifi.yaml",
+        "flux/apps/overleaf.yaml"
       ],
       "matchStrings": [
         "tag: (?<currentValue>8\\.\\d+\\.\\d+)[^-]"
@@ -347,6 +348,20 @@
       "packageNameTemplate": "FairwindsOps/goldilocks",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update sharelatex container",
+      "fileMatch": [
+        "flux/apps/overleaf.yaml"
+      ],
+      "matchStrings": [
+        "tag: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "tuetenk0pp/sharelatex-full",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
