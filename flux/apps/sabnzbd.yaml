@@ -41,7 +41,7 @@ spec:
         className: nginx
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt
-          nginx.ingress.kubernetes.io/proxy-body-size: 25Mi
+          nginx.ingress.kubernetes.io/proxy-body-size: 25M
         hosts:
           - host: sabnzbd.${SERVICE_DOMAIN}
             paths:
