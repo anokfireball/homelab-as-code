@@ -113,12 +113,12 @@
         "flux/apps/bitwarden.yaml"
       ],
       "matchStrings": [
-        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-alpine)"
+        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+)-alpine"
       ],
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "vaultwarden/server",
-      "versioningTemplate": "docker",
-      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-alpine)$"
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "dani-garcia/vaultwarden",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)$"
     },
     {
       "customType": "regex",
@@ -145,10 +145,10 @@
       "matchStrings": [
         "tag: (?<currentValue>\\d\\.\\d+\\.\\d+)"
       ],
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "paperlessngx/paperless-ngx",
-      "versioningTemplate": "docker",
-      "extractVersionTemplate": "^(?<version>\\d\\.\\d+\\.\\d+)$"
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "paperless-ngx/paperless-ngx",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d\\.\\d+\\.\\d+)$"
     },
     {
       "customType": "regex",
@@ -301,10 +301,9 @@
       "matchStrings": [
         "tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
       ],
-      "datasourceTemplate": "docker",
+      "datasourceTemplate": "github-releases",
       "packageNameTemplate": "qdm12/gluetun",
-      "registryUrlTemplate": "https://ghcr.io",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
     },
     {
@@ -314,11 +313,11 @@
         "flux/apps/qbittorrent.yaml"
       ],
       "matchStrings": [
-        "tag: (?<currentValue>\\d+\\.\\d+)[^\\.]"
+        "tag: \"(?<currentValue>\\d+\\.\\d+)\""
       ],
-      "datasourceTemplate": "docker",
+      "datasourceTemplate": "github-releases",
       "packageNameTemplate": "snoringdragon/gluetun-qbittorrent-port-manager",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+)$"
     },
     {
