@@ -175,7 +175,7 @@
         "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-ls\\d+)"
       ],
       "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "linuxserver/unifi-network-application",
+      "packageNameTemplate": "linuxserver/docker-unifi-network-application",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-ls\\d+)$"
     },
@@ -273,9 +273,9 @@
       "matchStrings": [
         "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-ls\\d+)"
       ],
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "linuxserver/sabnzbd",
-      "versioningTemplate": "docker",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "linuxserver/docker-sabnzbd",
+      "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-ls\\d+)$"
     },
     {
@@ -287,9 +287,9 @@
       "matchStrings": [
         "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-r\\d+-ls\\d+)"
       ],
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "linuxserver/qbittorrent",
-      "versioningTemplate": "docker",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "linuxserver/docker-qbittorrent",
+      "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-r\\d+-ls\\d+)$"
     },
     {
