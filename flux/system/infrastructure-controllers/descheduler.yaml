@@ -1,0 +1,50 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: descheduler
+  namespace: kube-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: descheduler
+      version: 0.32.0
+      sourceRef:
+        kind: HelmRepository
+        name: descheduler
+        namespace: flux-system
+  values:
+    deschedulerPolicy:
+      nodeSelector: "node-role.kubernetes.io/worker="
+      profiles:
+        - name: default
+          pluginConfig:
+            - name: "RemoveDuplicates"
+            - name: "LowNodeUtilization"
+              args:
+                thresholds:
+                  "memory": 35
+                targetThresholds:
+                  "memory": 65
+                evictableNamespaces:
+                  exclude:
+                    - "kube-system"
+                    - "longhorn-system"
+          plugins:
+            balance:
+              enabled:
+                - "RemoveDuplicates"
+                - "LowNodeUtilization"
+  # https://github.com/kubernetes-sigs/descheduler/issues/1595
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: ClusterRole
+            patch: |
+              - op: add
+                path: /rules/-
+                value:
+                  verbs: ["get", "watch", "list"]
+                  apiGroups: ["policy"]
+                  resources: ["poddisruptionbudgets"]
