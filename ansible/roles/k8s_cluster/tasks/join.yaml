@@ -88,3 +88,10 @@
       command: "{{ hostvars['controlplane1'].kubeadm_join_command_worker }}"
       when: k8s_join
       changed_when: true
+
+- name: add worker node-role labels
+  command: "kubectl label node {{ inventory_hostname }} node-role.kubernetes.io/worker= --overwrite"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  delegate_to: controlplane1
+  when: "'worker' in group_names"
