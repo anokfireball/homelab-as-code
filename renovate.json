@@ -174,9 +174,9 @@
       "matchStrings": [
         "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+-ls\\d+)"
       ],
-      "datasourceTemplate": "docker",
+      "datasourceTemplate": "github-releases",
       "packageNameTemplate": "linuxserver/unifi-network-application",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+-ls\\d+)$"
     },
     {
