@@ -22,7 +22,7 @@ spec:
           main:
             image:
               repository: linuxserver/qbittorrent
-              tag: 5.0.3-r0-ls372
+              tag: 5.0.3-r0-ls373
             probes:
               liveness: &qb-probe
                 enabled: true
