@@ -32,7 +32,6 @@ allowVolumeExpansion: true
 reclaimPolicy: Delete
 parameters:
   numberOfReplicas: "1"
-  migratable: "true"
   dataLocality: best-effort
   recurringJobSelector: |
     [
@@ -51,7 +50,6 @@ allowVolumeExpansion: true
 reclaimPolicy: Retain
 parameters:
   numberOfReplicas: "3"
-  migratable: "true"
   dataLocality: best-effort
   replicaAutoBalance: best-effort
   recurringJobSelector: |
