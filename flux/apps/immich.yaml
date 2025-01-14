@@ -52,6 +52,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: nas-photos
   namespace: default
+  annotations:
+    k8up.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteMany

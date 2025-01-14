@@ -151,6 +151,8 @@ spec:
           - path: /usr/src/paperless/consume
       media:
         type: persistentVolumeClaim
+        annotations:
+          k8up.io/backup: "true"
         storageClass: cluster-replicated
         accessMode: ReadWriteOnce
         size: 25Gi

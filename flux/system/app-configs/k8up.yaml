@@ -32,3 +32,25 @@ spec:
               name: k8up-secrets
               key: s3-endpoint
       skipWithoutAnnotation: true
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: default
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: backup-prorate7533
+  backup:
+    schedule: "49 * * * *"
+  prune:
+    schedule: "34 * * * *"
+    retention:
+      keepHourly: 24
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
