@@ -10,6 +10,7 @@
     pkg:
       - "containerd.io={{ containerd_version }}-*"
     state: present
+  notify: restart containerd
 
 - name: mark containerd as held
   dpkg_selections:
