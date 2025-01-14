@@ -28,12 +28,12 @@ spec:
         enabled: true
         ingressClassName: nginx
         annotations:
-          cert-manager.io/cluster-issuer: "letsencrypt"
+          cert-manager.io/cluster-issuer: letsencrypt
         hosts:
           - host: goldilocks.${SERVICE_DOMAIN}
             paths:
               - path: /
-                type: ImplementationSpecific
+                type: Prefix
         tls:
           - secretName: goldilocks-tls
             hosts:
