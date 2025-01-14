@@ -248,7 +248,7 @@
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "Stirling-Tools/Stirling-PDF",
       "versioningTemplate": "semver",
-      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)$"
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
     },
     {
       "customType": "regex",
@@ -361,6 +361,20 @@
       "packageNameTemplate": "tuetenk0pp/sharelatex-full",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update jellyfin container",
+      "fileMatch": [
+        "flux/apps/jellyfin.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "jellyfin/jellyfin",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {

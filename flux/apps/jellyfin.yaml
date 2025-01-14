@@ -1,0 +1,51 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jellyfin
+  namespace: arrchive
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: jellyfin
+      version: 2.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: jellyfin
+        namespace: flux-system
+  values:
+    image:
+      tag: 10.10.3
+    ingress:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: jellyfin.${SERVICE_DOMAIN}
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: jellyfin-tls
+          hosts:
+            - jellyfin.${SERVICE_DOMAIN}
+    volumes:
+      - name: nas-filme
+        nfs:
+          server: 192.168.1.2
+          path: /mnt/tank/Filme
+      - name: nas-serien
+        nfs:
+          server: 192.168.1.2
+          path: /mnt/tank/Serien
+    volumeMounts:
+      - name: nas-filme
+        mountPath: /mnt/tank/Filme
+      - name: nas-serien
+        mountPath: /mnt/tank/Serien
+    persistence:
+      config:
+        storageClass: cluster-replicated
+      media:
+        enabled: false
