@@ -183,6 +183,8 @@ spec:
       size: 2Gi
       nextcloudData:
         enabled: true
+        annotations:
+          k8up.io/backup: "true"
         storageClass: cluster-replicated
         size: 100Gi
 ---
