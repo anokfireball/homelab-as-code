@@ -47,8 +47,10 @@ spec:
       bucket: backup-prorate7533
   backup:
     schedule: "49 * * * *"
+    concurrentRunsAllowed: false
   prune:
     schedule: "34 * * * *"
+    concurrentRunsAllowed: false
     retention:
       keepHourly: 24
       keepDaily: 14
