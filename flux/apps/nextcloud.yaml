@@ -183,8 +183,6 @@ spec:
       size: 2Gi
       nextcloudData:
         enabled: true
-        annotations:
-          k8up.io/backup: "true"
         storageClass: cluster-replicated
         size: 100Gi
 ---
@@ -1380,3 +1378,39 @@ data:
       "version": 4,
       "weekStart": ""
     }
+---
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: nextcloud
+  namespace: default
+spec:
+  repository:
+    name: b2-nextcloud-repo
+    namespace: stash-system
+  timeOut: 12h
+  schedule: "14 * * * *"
+  target:
+    ref:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: nextcloud
+    volumeMounts:
+      - name: nextcloud-data
+        mountPath: /var/www/html/data
+    paths:
+      - /var/www/html/data
+    exclude:
+      - /var/www/html/data/nextcloud.log
+      - /var/www/html/data/nextcloud.log.*
+      - /var/www/html/data/appdata_*/preview
+      - /var/www/html/data/*/files_external
+      - /var/www/html/data/*/files/auto-upload
+  retentionPolicy:
+    name: "staggered"
+    keepHourly: 24
+    keepDaily: 14
+    keepWeekly: 12
+    keepMonthly: 6
+    keepYearly: 2
+    prune: true

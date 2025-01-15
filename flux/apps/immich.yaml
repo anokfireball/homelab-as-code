@@ -52,8 +52,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: nas-photos
   namespace: default
-  annotations:
-    k8up.io/backup: "true"
 spec:
   accessModes:
     - ReadWriteMany
@@ -203,3 +201,33 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: immich-machine-learning
+---
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: fotos
+  namespace: default
+spec:
+  repository:
+    name: b2-fotos-repo
+    namespace: stash-system
+  timeOut: 24h
+  schedule: "49 * * * *"
+  target:
+    ref:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: immich-server
+    volumeMounts:
+      - name: external
+        mountPath: /mnt/tank/Bilder
+    paths:
+      - /mnt/tank/Bilder
+  retentionPolicy:
+    name: "staggered"
+    keepHourly: 24
+    keepDaily: 14
+    keepWeekly: 12
+    keepMonthly: 6
+    keepYearly: 2
+    prune: true
