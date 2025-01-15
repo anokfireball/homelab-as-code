@@ -151,8 +151,6 @@ spec:
           - path: /usr/src/paperless/consume
       media:
         type: persistentVolumeClaim
-        annotations:
-          k8up.io/backup: "true"
         storageClass: cluster-replicated
         accessMode: ReadWriteOnce
         size: 25Gi
@@ -164,3 +162,40 @@ spec:
         path: /mnt/tank/Dokumente/Paperless/export
         globalMounts:
           - path: /usr/src/paperless/export
+---
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: dokumente
+  namespace: default
+spec:
+  repository:
+    name: b2-dokumente-repo
+    namespace: stash-system
+  timeOut: 2h
+  schedule: "32 * * * *"
+  target:
+    ref:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: paperless-ngx
+    volumeMounts:
+      - name: export
+        mountPath: /usr/src/paperless/export
+    paths:
+      - /usr/src/paperless/export
+  hooks:
+    preBackup:
+      exec:
+        command:
+          - document_exporter
+          - /usr/src/paperless/export
+      containerName: main
+  retentionPolicy:
+    name: "staggered"
+    keepHourly: 24
+    keepDaily: 14
+    keepWeekly: 12
+    keepMonthly: 6
+    keepYearly: 2
+    prune: true
