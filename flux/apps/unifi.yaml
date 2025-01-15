@@ -89,7 +89,7 @@ spec:
           main:
             image:
               repository: linuxserver/unifi-network-application
-              tag: 9.0.108-ls74
+              tag: 9.0.108-ls75
             env:
               TZ: Europe/Berlin
               MONGO_HOST: unifi-controller-mongodb
