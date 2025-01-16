@@ -20,7 +20,7 @@ spec:
           main:
             image:
               repository: linuxserver/sabnzbd
-              tag: 4.4.1-ls197
+              tag: 4.4.1-ls198
             probes:
               liveness:
                 enabled: true
