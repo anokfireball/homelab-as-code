@@ -21,7 +21,7 @@ spec:
     recommender:
       enabled: true
       image:
-        tag: 1.2.1
+        tag: 1.2.2
     updater:
       enabled: false
     admissionController:
