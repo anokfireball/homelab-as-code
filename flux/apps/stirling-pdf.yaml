@@ -15,7 +15,7 @@ spec:
         namespace: default
   values:
     image:
-      tag: 0.37.0-fat
+      tag: 0.37.1-fat
     envs:
       - name: SYSTEM_DEFAULTLOCALE
         value: de-DE
