@@ -6,6 +6,17 @@ metadata:
 spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:17.2-27
   instances: 1
+  managed:
+    services:
+      disabledDefaultServices: ["ro", "r"]
+    roles:
+      - name: stashbackup
+        passwordSecret:
+          name: stash-postgres-backup-secrets
+        login: true
+        superuser: false
+        inRoles:
+          - pg_read_all_data
   bootstrap:
     initdb:
       database: firefly
@@ -56,3 +67,44 @@ spec:
       requests:
         cpu: 20m
         memory: 200Mi
+---
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: firefly-postgresql
+  namespace: default
+spec:
+  clientConfig:
+    service:
+      name: firefly-postgresql-rw
+      port: 5432
+      scheme: postgresql
+  secret:
+    name: stash-postgres-backup-secrets
+  type: postgres
+---
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: firefly-postgresql
+  namespace: default
+spec:
+  schedule: "11 * * * *"
+  task:
+    name: postgres-backup-17.2
+  repository:
+    name: b2-database-repo
+    namespace: stash-system
+  target:
+    ref:
+      apiVersion: appcatalog.appscode.com/v1alpha1
+      kind: AppBinding
+      name: firefly-postgresql
+  retentionPolicy:
+    name: "staggered"
+    keepHourly: 24
+    keepDaily: 14
+    keepWeekly: 12
+    keepMonthly: 6
+    keepYearly: 2
+    prune: true
