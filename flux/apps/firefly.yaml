@@ -12,7 +12,7 @@ spec:
     roles:
       - name: stashbackup
         passwordSecret:
-          name: stash-postgres-backup-secrets
+          name: stash-postgres-backup-user
         login: true
         superuser: false
         inRoles:
@@ -80,7 +80,7 @@ spec:
       port: 5432
       scheme: postgresql
   secret:
-    name: stash-postgres-backup-secrets
+    name: stash-postgres-backup-user
   type: postgres
 ---
 apiVersion: stash.appscode.com/v1beta1
