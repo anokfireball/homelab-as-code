@@ -4,7 +4,7 @@ metadata:
   name: nextcloud-postgresql
   namespace: default
 spec:
-  imageName: ghcr.io/cloudnative-pg/postgresql:15.10-29
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.6-29
   instances: 1
   managed:
     services:
@@ -19,12 +19,6 @@ spec:
           - pg_read_all_data
   bootstrap:
     initdb:
-      import:
-        type: microservice
-        databases:
-          - nextcloud
-        source:
-          externalCluster: cluster-pg96
       database: nextcloud
       owner: nextcloud
       secret:
@@ -32,15 +26,6 @@ spec:
   storage:
     size: 4Gi
     storageClass: cluster-replicated
-  externalClusters:
-    - name: cluster-pg96
-      connectionParameters:
-        host: nextcloud-postgresql
-        user: nextcloud
-        dbname: nextcloud
-      password:
-        name: nextcloud-postgres-user
-        key: password
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -208,19 +193,15 @@ spec:
     externalDatabase:
       enabled: true
       type: postgresql
+      host: nextcloud-postgresql-rw
+      database: nextcloud
+      existingSecret:
+        enabled: false
+        secretName: nextcloud-postgres-user
+        usernameKey: username
+        passwordKey: password
     postgresql:
-      enabled: true
-      global:
-        postgresql:
-          auth:
-            existingSecret: nextcloud-secrets
-            secretKeys:
-              userPasswordKey: postgres-password
-      primary:
-        persistence:
-          enabled: true
-          storageClass: cluster-replicated
-          size: 2Gi
+      enabled: false
     persistence:
       enabled: true
       storageClass: cluster-replicated
@@ -1450,6 +1431,47 @@ spec:
       - /var/www/html/data/appdata_*/preview
       - /var/www/html/data/*/files_external
       - /var/www/html/data/*/files/auto-upload
+  retentionPolicy:
+    name: "staggered"
+    keepHourly: 24
+    keepDaily: 14
+    keepWeekly: 12
+    keepMonthly: 6
+    keepYearly: 2
+    prune: true
+---
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: nextcloud-postgresql
+  namespace: default
+spec:
+  clientConfig:
+    service:
+      name: nextcloud-postgresql-rw
+      port: 5432
+      scheme: postgresql
+  secret:
+    name: stash-postgres-backup-user
+  type: postgres
+---
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: nextcloud-postgresql
+  namespace: default
+spec:
+  schedule: "33 * * * *"
+  task:
+    name: postgres-backup-16.1
+  repository:
+    name: b2-database-repo
+    namespace: stash-system
+  target:
+    ref:
+      apiVersion: appcatalog.appscode.com/v1alpha1
+      kind: AppBinding
+      name: nextcloud-postgresql
   retentionPolicy:
     name: "staggered"
     keepHourly: 24
