@@ -377,20 +377,6 @@
       "packageNameTemplate": "jellyfin/jellyfin",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Update k8up crds",
-      "fileMatch": [
-        "flux/repositories/k8up-io.yaml"
-      ],
-      "matchStrings": [
-        "tag: k8up-(?<currentValue>\\d+\\.\\d+\\.\\d+)"
-      ],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "k8up-io/k8up",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^k8up-(?<version>\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {

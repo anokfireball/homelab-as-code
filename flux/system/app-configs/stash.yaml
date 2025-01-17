@@ -54,3 +54,22 @@ spec:
         - key: kubernetes.io/metadata.name
           operator: In
           values: ["default"]
+---
+apiVersion: stash.appscode.com/v1alpha1
+kind: Repository
+metadata:
+  name: b2-database-repo
+  namespace: stash-system
+spec:
+  backend:
+    b2:
+      bucket: backup-database-manhunt4669
+    storageSecretName: b2-secret
+  usagePolicy:
+    allowedNamespaces:
+      from: Selector
+      selector:
+        matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values: ["default"]
