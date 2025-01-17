@@ -4,6 +4,7 @@ metadata:
   name: nextcloud-postgresql
   namespace: default
 spec:
+  # TODO renovate
   imageName: ghcr.io/cloudnative-pg/postgresql:16.6-29
   instances: 1
   managed:
@@ -1468,6 +1469,7 @@ spec:
     name: b2-database-repo
     namespace: stash-system
   target:
+    alias: nextcloud
     ref:
       apiVersion: appcatalog.appscode.com/v1alpha1
       kind: AppBinding

@@ -267,6 +267,7 @@ spec:
     name: b2-database-repo
     namespace: stash-system
   target:
+    alias: immich
     ref:
       apiVersion: appcatalog.appscode.com/v1alpha1
       kind: AppBinding
