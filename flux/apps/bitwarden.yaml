@@ -1,37 +1,34 @@
-apiVersion: helm.toolkit.fluxcd.io/v2
-kind: HelmRelease
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
 metadata:
   name: vaultwarden-postgresql
   namespace: default
 spec:
-  interval: 1m
-  chart:
-    spec:
-      chart: postgresql
-      version: 16.4.3
-      sourceRef:
-        kind: HelmRepository
-        name: bitnami
-        namespace: flux-system
-  values:
-    image:
-      # Current Vaultwarden is built with PG 15, also use that as long as it is supported
-      # https://github.com/dani-garcia/vaultwarden/blob/1.32.6/docker/Dockerfile.alpine#L56-L57
-      # https://www.postgresql.org/support/versioning/
-      tag: 15.10.0
-    global:
-      storageClass: cluster-replicated
-      postgresql:
-        auth:
-          username: vaultwarden
-          existingSecret: bitwarden-secrets
-          secretKeys:
-            userPasswordKey: postgres-password
-          database: vaultwarden
-    primary:
-      persistence:
-        enabled: true
-        size: 2Gi
+  # Current Vaultwarden is built with PG 15, also use that as long as it is supported
+  # https://github.com/dani-garcia/vaultwarden/blob/1.32.6/docker/Dockerfile.alpine#L56-L57
+  # https://www.postgresql.org/support/versioning/
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.10-29
+  instances: 1
+  managed:
+    services:
+      disabledDefaultServices: ["ro", "r"]
+    roles:
+      - name: stashbackup
+        passwordSecret:
+          name: stash-postgres-backup-secrets
+        login: true
+        superuser: false
+        inRoles:
+          - pg_read_all_data
+  bootstrap:
+    initdb:
+      database: vaultwarden
+      owner: vaultwarden
+      secret:
+        name: bitwarden-postgres-secrets
+  storage:
+    size: 2Gi
+    storageClass: cluster-replicated
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -69,7 +66,7 @@ spec:
           - /bin/sh
           - -ec
           - |
-            until pg_isready -h vaultwarden-postgresql -U vaultwarden; do
+            until pg_isready -h vaultwarden-postgresql-rw -U vaultwarden; do
               echo "Waiting for PostgreSQL to be ready..."
               sleep 2
             done
@@ -133,3 +130,44 @@ spec:
       tls: true
       hostname: bitwarden.${SERVICE_DOMAIN}
       tlsSecret: bitwarden-tls
+---
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: bitwarden-postgresql
+  namespace: default
+spec:
+  clientConfig:
+    service:
+      name: vaultwarden-postgresql-rw
+      port: 5432
+      scheme: postgresql
+  secret:
+    name: stash-postgres-backup-secrets
+  type: postgres
+---
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: bitwarden-postgresql
+  namespace: default
+spec:
+  schedule: "23 * * * *"
+  task:
+    name: postgres-backup-15.1
+  repository:
+    name: b2-database-repo
+    namespace: stash-system
+  target:
+    ref:
+      apiVersion: appcatalog.appscode.com/v1alpha1
+      kind: AppBinding
+      name: bitwarden-postgresql
+  retentionPolicy:
+    name: "staggered"
+    keepHourly: 24
+    keepDaily: 14
+    keepWeekly: 12
+    keepMonthly: 6
+    keepYearly: 2
+    prune: true
