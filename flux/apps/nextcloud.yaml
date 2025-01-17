@@ -1,3 +1,47 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: nextcloud-postgresql
+  namespace: default
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.10-29
+  instances: 1
+  managed:
+    services:
+      disabledDefaultServices: ["ro", "r"]
+    roles:
+      - name: stashbackup
+        passwordSecret:
+          name: stash-postgres-backup-user
+        login: true
+        superuser: false
+        inRoles:
+          - pg_read_all_data
+  bootstrap:
+    initdb:
+      import:
+        type: microservice
+        databases:
+          - nextcloud
+        source:
+          externalCluster: cluster-pg96
+      database: nextcloud
+      owner: nextcloud
+      secret:
+        name: nextcloud-postgres-user
+  storage:
+    size: 4Gi
+    storageClass: cluster-replicated
+  externalClusters:
+    - name: cluster-pg96
+      connectionParameters:
+        host: nextcloud-postgresql
+        user: nextcloud
+        dbname: nextcloud
+      password:
+        name: nextcloud-postgres-user
+        key: password
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -16,12 +60,12 @@ spec:
   values:
     image:
       flavor: fpm-alpine
-    # https://github.com/nextcloud/helm/issues/10
-    # https://github.com/nextcloud/helm/issues/399
     resources:
       requests:
         cpu: 50m
         memory: 150Mi
+    # https://github.com/nextcloud/helm/issues/10
+    # https://github.com/nextcloud/helm/issues/399
     startupProbe:
       enabled: true
       initialDelaySeconds: 120

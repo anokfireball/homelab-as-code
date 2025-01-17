@@ -17,7 +17,7 @@ spec:
     roles:
       - name: stashbackup
         passwordSecret:
-          name: stash-postgres-backup-secrets
+          name: stash-postgres-backup-user
         login: true
         superuser: false
         inRoles:
@@ -26,13 +26,13 @@ spec:
         superuser: true
         login: true
         passwordSecret:
-          name: immich-postgres-secrets
+          name: immich-postgres-user
   bootstrap:
     initdb:
       database: immich
       owner: immich
       secret:
-        name: immich-postgres-secrets
+        name: immich-postgres-user
       postInitSQL:
         - CREATE EXTENSION IF NOT EXISTS "vectors";
         - CREATE EXTENSION IF NOT EXISTS "cube" CASCADE;
@@ -105,7 +105,7 @@ spec:
       DB_PASSWORD:
         valueFrom:
           secretKeyRef:
-            name: immich-postgres-secrets
+            name: immich-postgres-user
             key: password
     image:
       tag: v1.124.2
@@ -251,7 +251,7 @@ spec:
       port: 5432
       scheme: postgresql
   secret:
-    name: stash-postgres-backup-secrets
+    name: stash-postgres-backup-user
   type: postgres
 ---
 apiVersion: stash.appscode.com/v1beta1
