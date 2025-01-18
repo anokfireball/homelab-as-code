@@ -4,7 +4,6 @@ metadata:
   name: paperless-ngx-postgresql
   namespace: default
 spec:
-  # TODO renovate
   # Current paperless-ngx is built with PG 15, also use that as long as it is supported
   # https://github.com/paperless-ngx/paperless-ngx/blob/v2.13.5/Dockerfile#L96
   # https://packages.debian.org/de/bookworm/postgresql-client
@@ -219,7 +218,7 @@ metadata:
   name: paperless-ngx-postgresql
   namespace: default
 spec:
-  schedule: "23 * * * *"
+  schedule: "39 * * * *"
   task:
     name: postgres-backup-15.1
   repository:
