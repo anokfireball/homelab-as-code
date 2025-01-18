@@ -1,38 +1,36 @@
-apiVersion: helm.toolkit.fluxcd.io/v2
-kind: HelmRelease
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
 metadata:
   name: paperless-ngx-postgresql
   namespace: default
 spec:
-  interval: 1m
-  chart:
-    spec:
-      chart: postgresql
-      version: 16.4.3
-      sourceRef:
-        kind: HelmRepository
-        name: bitnami
-        namespace: flux-system
-  values:
-    image:
-      # Current paperless-ngx is built with PG 15, also use that as long as it is supported
-      # https://github.com/paperless-ngx/paperless-ngx/blob/v2.13.5/Dockerfile#L96
-      # https://packages.debian.org/de/bookworm/postgresql-client
-      # https://www.postgresql.org/support/versioning/
-      tag: 15.10.0
-    global:
-      storageClass: cluster-replicated
-      postgresql:
-        auth:
-          username: paperless-ngx
-          existingSecret: paperless-secrets
-          secretKeys:
-            userPasswordKey: postgres-password
-          database: paperless-ngx
-    primary:
-      persistence:
-        enabled: true
-        size: 2Gi
+  # TODO renovate
+  # Current paperless-ngx is built with PG 15, also use that as long as it is supported
+  # https://github.com/paperless-ngx/paperless-ngx/blob/v2.13.5/Dockerfile#L96
+  # https://packages.debian.org/de/bookworm/postgresql-client
+  # https://www.postgresql.org/support/versioning/
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.10-29
+  instances: 1
+  managed:
+    services:
+      disabledDefaultServices: ["ro", "r"]
+    roles:
+      - name: stashbackup
+        passwordSecret:
+          name: stash-postgres-backup-user
+        login: true
+        superuser: false
+        inRoles:
+          - pg_read_all_data
+  bootstrap:
+    initdb:
+      database: paperless-ngx
+      owner: paperless-ngx
+      secret:
+        name: paperless-postgres-user
+  storage:
+    size: 2Gi
+    storageClass: cluster-replicated
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -95,13 +93,13 @@ spec:
               PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
               PAPERLESS_CONSUMER_RECURSIVE: true
               PAPERLESS_CONSUMER_POLLING: 60
-              PAPERLESS_DBHOST: paperless-ngx-postgresql
+              PAPERLESS_DBHOST: paperless-ngx-postgresql-rw
               PAPERLESS_DBUSER: paperless-ngx
               PAPERLESS_DBPASS:
                 valueFrom:
                   secretKeyRef:
-                    name: paperless-secrets
-                    key: postgres-password
+                    name: paperless-postgres-user
+                    key: password
               PAPERLESS_DBNAME: paperless-ngx
               PAPERLESS_REDIS: redis://paperless-ngx-redis-master:6379
             probes:
@@ -191,6 +189,48 @@ spec:
           - document_exporter
           - /usr/src/paperless/export
       containerName: main
+  retentionPolicy:
+    name: "staggered"
+    keepHourly: 24
+    keepDaily: 14
+    keepWeekly: 12
+    keepMonthly: 6
+    keepYearly: 2
+    prune: true
+---
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: paperless-ngx-postgresql
+  namespace: default
+spec:
+  clientConfig:
+    service:
+      name: paperless-ngx-postgresql-rw
+      port: 5432
+      scheme: postgresql
+  secret:
+    name: stash-postgres-backup-user
+  type: postgres
+---
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: paperless-ngx-postgresql
+  namespace: default
+spec:
+  schedule: "23 * * * *"
+  task:
+    name: postgres-backup-15.1
+  repository:
+    name: b2-database-repo
+    namespace: stash-system
+  target:
+    alias: paperless-ngx
+    ref:
+      apiVersion: appcatalog.appscode.com/v1alpha1
+      kind: AppBinding
+      name: paperless-ngx-postgresql
   retentionPolicy:
     name: "staggered"
     keepHourly: 24
