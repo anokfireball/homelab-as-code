@@ -412,6 +412,20 @@
       "datasourceTemplate": "docker",
       "packageNameTemplate": "rss-bridge/rss-bridge",
       "registryUrlTemplate": "https://ghcr.io"
+    },
+    {
+      "customType": "regex",
+      "description": "Update opnsense-ipv6-prefix-update container",
+      "fileMatch": [
+        "flux/apps/opnsense-ipv6-prefix-update.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "c0nsultant/opnsense-ipv6-prefix-update",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
