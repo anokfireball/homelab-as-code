@@ -1,0 +1,63 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: rss-bridge
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: default
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: ghcr.io/rss-bridge/rss-bridge
+              tag: latest@sha256:6b18e6d0760571accded516a2599f0f00412a480f10e8a8a23d9bcfae591e645
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+    configMaps:
+      config:
+        data:
+          config.ini.php: |
+            ; <?php exit; ?> DO NOT REMOVE THIS LINE
+            [system]
+            timezone = "Europe/Berlin"
+            [error]
+            output = "http"
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 80
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: rssbridge.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: rss-bridge-tls
+            hosts:
+              - rssbridge.${SERVICE_DOMAIN}
+    persistence:
+      config:
+        type: configMap
+        name: rss-bridge-config
