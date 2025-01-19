@@ -5,14 +5,6 @@
   ],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
-  "packageRules": [
-    {
-      "matchDatasources": [
-        "docker"
-      ],
-      "pinDigests": false
-    }
-  ],
   "ansible": {
     "fileMatch": [
       "ansible/.+\\.ya?ml$"
@@ -407,6 +399,19 @@
       "packageNameTemplate": "jellyfin/jellyfin",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update rss-bridge container",
+      "fileMatch": [
+        "flux/apps/rss-bridge.yaml"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>latest)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "rss-bridge/rss-bridge",
+      "registryUrlTemplate": "https://ghcr.io"
     }
   ],
   "flux": {
