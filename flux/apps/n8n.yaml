@@ -1,0 +1,171 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: n8n-postgresql
+  namespace: default
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.2-27
+  instances: 1
+  managed:
+    services:
+      disabledDefaultServices: ["ro", "r"]
+    roles:
+      - name: stashbackup
+        passwordSecret:
+          name: stash-postgres-backup-user
+        login: true
+        superuser: false
+        inRoles:
+          - pg_read_all_data
+  bootstrap:
+    initdb:
+      database: n8n
+      owner: n8n
+      secret:
+        name: n8n-postgres-user
+  storage:
+    size: 2Gi
+    storageClass: cluster-replicated
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: n8n
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: n8n
+      version: 15.33.1
+      sourceRef:
+        kind: HelmRepository
+        name: truecharts
+        namespace: flux-system
+  values:
+    service:
+      main:
+        ports:
+          main:
+            port: 5678
+            targetPort: 5678
+    persistence:
+      data:
+        enabled: true
+        mountPath: "/data"
+        storageClass: cluster-scratch
+        size: 5Gi
+    redis:
+      enabled: false
+    cnpg:
+      main:
+        enabled: false
+    portal:
+      open:
+        enabled: true
+    securityContext:
+      container:
+        readOnlyRootFilesystem: false
+        runAsNonRoot: false
+        runAsUser: 0
+        fsGroup: 1000
+    workload:
+      main:
+        podSpec:
+          containers:
+            main:
+              probes:
+                liveness:
+                  path: "/healthz"
+                readiness:
+                  path: "/healthz"
+                startup:
+                  path: "/healthz"
+              envFrom:
+                - secretRef:
+                    name: n8n-config
+                    expandObjectName: false
+              env:
+                DB_TYPE: postgresdb
+                DB_POSTGRESDB_HOST: n8n-postgresql-rw
+                DB_POSTGRESDB_PORT: 5432
+                DB_POSTGRESDB_USER:
+                  secretKeyRef:
+                    name: n8n-postgres-user
+                    expandObjectName: false
+                    key: username
+                DB_POSTGRESDB_PASSWORD:
+                  secretKeyRef:
+                    name: n8n-postgres-user
+                    expandObjectName: false
+                    key: password
+                DB_POSTGRESDB_DATABASE: n8n
+                QUEUE_BULL_REDIS_HOST: ""
+                QUEUE_BULL_REDIS_PORT: 6379
+                QUEUE_BULL_REDIS_PASSWORD: ""
+                GENERIC_TIMEZONE: "Europe/Berlin"
+                N8N_DEFAULT_LOCALE: "de-DE"
+                N8N_USER_FOLDER: /data
+                N8N_EDITOR_BASE_URL: https://n8n.${SERVICE_DOMAIN}/
+                WEBHOOK_URL: https://n8n.${SERVICE_DOMAIN}/
+    ingress:
+      main:
+        enabled: true
+        namespace: default
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        ingressClassName: nginx
+        hosts:
+          - host: n8n.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - secretName: n8n-tls
+            hosts:
+              - n8n.${SERVICE_DOMAIN}
+        integrations:
+          traefik:
+            enabled: false
+---
+apiVersion: appcatalog.appscode.com/v1alpha1
+kind: AppBinding
+metadata:
+  name: n8n-postgresql
+  namespace: default
+spec:
+  clientConfig:
+    service:
+      name: n8n-postgresql-rw
+      port: 5432
+      scheme: postgresql
+  secret:
+    name: stash-postgres-backup-user
+  type: postgres
+---
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: n8n-postgresql
+  namespace: default
+spec:
+  schedule: "53 * * * *"
+  task:
+    name: postgres-backup-17.2
+  repository:
+    name: b2-database-repo
+    namespace: stash-system
+  target:
+    alias: n8n
+    ref:
+      apiVersion: appcatalog.appscode.com/v1alpha1
+      kind: AppBinding
+      name: n8n-postgresql
+  retentionPolicy:
+    name: "staggered"
+    keepHourly: 24
+    keepDaily: 14
+    keepWeekly: 12
+    keepMonthly: 6
+    keepYearly: 2
+    prune: true
