@@ -24,16 +24,27 @@ spec:
               repository: linuxserver/qbittorrent
               tag: 5.0.3-r0-ls374
             probes:
-              liveness: &qb-probe
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - /bin/bash
+                      - -c
+                      - 'status=$(qbt global info) && if [[ $status =~ DHT[[:space:]]nodes:[[:space:]]+([0-9]+) ]]; then if [ $BASH_REMATCH[1] -gt 0 ]; then exit 0; else exit 1; fi; else exit 2; fi'
+                  periodSeconds: 60
+                  timeoutSeconds: 2
+                  failureThreshold: 5
+              readiness:
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
                     port: 8080
-                  periodSeconds: 60
+                  periodSeconds: 5
                   timeoutSeconds: 5
-                  failureThreshold: 5
-              readiness: *qb-probe
+                  failureThreshold: 60
             resources:
               requests:
                 cpu: 400m
