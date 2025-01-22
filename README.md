@@ -54,104 +54,104 @@ At the highest possible level, this repo and HaC workflow consists of three part
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/metallb/metallb/refs/heads/main/website/static/images/logo/metallb-blue.svg"></td>
         <td><a href="https://metallb.io/">metallb</a></td>
-        <td></td>
+        <td>Cloud-Native Service LoadBalancer</td>
         <td>used in L2/ARP mode, so only VIP rather than true LB</td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/heads/master/docs/img/external-dns.png"></td>
         <td><a href="https://kubernetes-sigs.github.io/external-dns/">external-dns</a></td>
-        <td></td>
+        <td>DNS Management Automation</td>
         <td>split-horizon realized using <a href="https://github.com/jobs62/opnsense_unbound_external-dns_webhook">opnsense webhook</a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/cert-manager/cert-manager/refs/heads/master/logo/logo.svg"></td>
         <td><a href="https://cert-manager.io/">cert-manager</a></td>
-        <td></td>
-        <td></td>
+        <td>Automated Certificate Management</td>
+        <td>Let's Encrypt via ACME DNS</td>
     </tr>
       <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/nginx/nginx.org/refs/heads/main/img/ingress_logo.svg"></td>
         <td><a href="https://kubernetes.github.io/ingress-nginx/">ingress-nginx</a></td>
-        <td></td>
+        <td>Ingress Controller</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/longhorn/website/refs/heads/master/static/img/logos/longhorn-icon-color.png"></td>
         <td><a href="https://longhorn.io/">longhorn</a></td>
-        <td></td>
+        <td>Cloud-Native Distributed Block Storage CSI</td>
         <td></td>
     </tr>
     <tr>
         <td></td>
         <td><a href="https://github.com/democratic-csi/democratic-csi">democratic-csi</a></td>
-        <td></td>
-        <td>freenas-nfs implementation</td>
+        <td>CSI for Common External Storage Systems</td>
+        <td>using the freenas-nfs implementation</td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/stashed/website/refs/heads/master/static/assets/images/products/kubestash/kubestash-icon.svg"></td>
         <td><a href="https://stash.run/">stash</a></td>
-        <td></td>
+        <td>Cloud-Native Backup/Restore</td>
         <td>freemium/open core, but really good</td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg.github.io/refs/heads/main/assets/images/hero_image.svg"></td>
         <td><a href="https://cloudnative-pg.io/">CloudNativePG</a></td>
-        <td></td>
+        <td>Cloud-Native PostgreSQL Operator</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/grafana/grafana/refs/heads/main/public/img/grafana_icon.svg"></td>
         <td><a href="https://grafana.com/grafana/">Grafana</a></td>
-        <td></td>
+        <td>Montoring and Observability</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/prometheus/prometheus/refs/heads/main/documentation/images/prometheus-logo.svg"></td>
         <td><a href="https://prometheus.io/">Prometheus</a></td>
-        <td></td>
+        <td>Metrics Aggregation and Storage</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/grafana/loki/refs/heads/main/docs/sources/logo.png"></td>
         <td><a href="https://grafana.com/loki/">Loki</a></td>
-        <td></td>
+        <td>Log Aggregation and Storage</td>
         <td></td>
     </tr>
     <tr>
         <td><img height="32" width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/descheduler/refs/heads/master/assets/logo/descheduler-stacked-color.png"></td>
         <td><a href="https://sigs.k8s.io/descheduler">descheduler</a></td>
-        <td></td>
+        <td>Pod Eviction for Node Balancing</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/stakater/Reloader/refs/heads/master/assets/web/reloader-round-100px.png"></td>
         <td><a href="https://docs.stakater.com/reloader/">reloader</a></td>
-        <td></td>
+        <td>Hot-Reload for ALL Workloads</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/dexidp/website/refs/heads/main/static/img/logos/dex-glyph-color.svg"></td>
         <td><a href="https://dexidp.io/">Dex</a></td>
-        <td></td>
-        <td></td>
+        <td>OIDC Provider</td>
+        <td>used for api-server authentication</td>
     </tr>
     <tr>
         <td></td>
         <td><a href="https://kubernetes-sigs.github.io/metrics-server/">metrics-server</a></td>
-        <td></td>
+        <td>Metrics API</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/FairwindsOps/goldilocks/refs/heads/master/pkg/dashboard/assets/images/favicon.ico"></td>
         <td><a href="https://goldilocks.docs.fairwinds.com/">Goldilocks</a></td>
-        <td></td>
+        <td>Resource Recommendation Engine</td>
         <td></td>
     </tr>
     <tr>
         <td></td>
         <td><a href="https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler">Vertical Pod Autoscaler</a></td>
-        <td></td>
-        <td></td>
+        <td>Workload Resource Scaler</td>
+        <td>used exclusively for Goldilocks recommendations</td>
     </tr>
 </table>
 
@@ -167,103 +167,103 @@ At the highest possible level, this repo and HaC workflow consists of three part
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/pi-hole/docs/refs/heads/master/docs/images/logo.svg"></td>
         <td><a href="https://pi-hole.net/">Pi-hole</a></td>
-        <td></td>
+        <td>Filtering DNS Proxy</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/nextcloud/server/refs/heads/master/core/img/favicon.png"></td>
         <td><a href="https://nextcloud.com/">Nextcloud</a></td>
-        <td></td>
+        <td>File Storage and Management</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/dani-garcia/vaultwarden/refs/heads/main/resources/vaultwarden-icon.svg"></td>
         <td><a href="https://github.com/dani-garcia/vaultwarden">Vaultwarden</a></td>
-        <td></td>
+        <td>API-compatible Password Manager</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/immich-app/immich/refs/heads/main/web/static/favicon.ico"></td>
         <td><a href="https://immich.app/">Immich</a></td>
-        <td></td>
+        <td>Photo/Video Storage and Management</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/refs/heads/dev/docs/assets/favicon.png"></td>
         <td><a href="https://docs.paperless-ngx.com/">Paperless-ngx</a></td>
-        <td></td>
+        <td>Document Management System</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/firefly-iii/firefly-iii/refs/heads/main/public/favicon.ico"></td>
         <td><a href="https://www.firefly-iii.org/">Firefly III</a></td>
-        <td></td>
+        <td>Personal Finance Manager</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/gethomepage/homepage/refs/heads/dev/public/homepage.ico"></td>
         <td><a href="https://gethomepage.dev/">Homepage</a></td>
-        <td></td>
+        <td>Application Dashboard</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/FreshRSS/freshrss.org/refs/heads/main/static/favicon.ico"></td>
         <td><a href="https://freshrss.org/index.html">Fresh-RSS</a></td>
-        <td></td>
+        <td>RSS Aggregator</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/RSS-Bridge/rss-bridge/refs/heads/master/static/favicon.svg"></td>
         <td><a href="https://rss-bridge.org/">RSS-Bridge</a></td>
-        <td></td>
-        <td></td>
+        <td>Unofficial RSS Feeds of ANY Source</td>
+        <td><i>any</i> as long as you know some PHP</td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/jellyfin/jellyfin-web/refs/heads/master/src/assets/img/icon-transparent.png"></td>
         <td><a href="https://jellyfin.org/">Jellyfin</a></td>
-        <td></td>
+        <td>Media Streaming and Management</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/qdm12/gluetun/refs/heads/master/doc/logo.svg"></td>
         <td><a href="https://github.com/qdm12/gluetun/">Gluetun</a></td>
-        <td></td>
+        <td>VPN Gateway</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/qbittorrent/qBittorrent-website/refs/heads/master/src/favicon.svg"></td>
         <td><a href="https://www.qbittorrent.org/">qBittorrent</a></td>
-        <td></td>
+        <td>Torrent Client</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/sabnzbd/sabnzbd/refs/heads/develop/interfaces/Config/templates/staticcfg/images/logo-small.svg"></td>
         <td><a href="https://sabnzbd.org/">SABnzbd</a></td>
-        <td></td>
+        <td>Usenet Client</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/refs/heads/main/docs/stirling-transparent.svg"></td>
         <td><a href="https://www.stirlingpdf.com/">Stirling PDF</a></td>
-        <td></td>
+        <td>Swiss-Army Knife for PDFs</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/overleaf/overleaf/refs/heads/main/services/web/public/favicon.svg"></td>
         <td><a href="https://overleaf.com/">Overleaf</a></td>
-        <td></td>
+        <td>LaTeX Editor</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/ubiquiti-unifi.svg"></td>
         <td><a href="https://ui.com/consoles">UniFi Network Application</a></td>
-        <td></td>
+        <td>AP Administration and Management</td>
         <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/favicon.ico"></td>
         <td><a href="https://n8n.io/">n8n</a></td>
-        <td></td>
+        <td>Workflow Automation</td>
         <td>freemium/open core</td>
     </tr>
 </table>
