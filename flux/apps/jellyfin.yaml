@@ -15,7 +15,7 @@ spec:
         namespace: flux-system
   values:
     image:
-      tag: 10.10.3
+      tag: 10.10.4
     ingress:
       enabled: true
       className: nginx
