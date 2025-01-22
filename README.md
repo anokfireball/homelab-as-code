@@ -6,7 +6,22 @@ Bootstrap and GitOps sources to get my baremetal homelab set up consistently.
 
 </div>
 
-# 🏡 Homelab-as-Code
+# 🏡 Homelab-as-Code (HaC™)
+
+This repository was born out of the need to better manage an ever-growing homelab environment.
+After starting with a simple single-node Docker Compose setup, the increasing number of services began to make maintenance and updates more challenging.
+
+As the complexity grew, it became clear that a more structured, Infrastructure-as-Code approach was needed to:
+- keep configurations versioned and thus better documented
+- make deployments more consistently repeatable and reliable
+- simplify the process of adding new services without
+- enable easier backup and disaster recovery
+- provide better scalability and resilience beyond a single node
+
+I decided to take this opportunity to properly learn Kubernetes hands-on, embracing the complexity and "feeling the pain" that comes with it rather than _just_ having the theoretical knowledge.
+This repo serves as both documentation of my setup as well as a real-world learning experience in managing infrastructure that I rely upon as code.
+
+PS: This setup is mature enough to be girlfriend-approved. 😉
 
 ## 🔰 Overview
 
@@ -28,17 +43,17 @@ At the highest possible level, this repo and HaC workflow consists of three part
 
 ## 📐 Tech Stack
 
-| Component                                                            | Purpose                                | Notes                                                               |
-| -------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------- |
-| [Ubuntu Server 24.04](https://ubuntu.com/server)                     | Base Operating System                  |                                                                     |
-| [cloud-init](https://cloud-init.io/)                                 | Headless OS Installation               | see [cloud-init/README.md](cloud-init/README.md)                    |
-| [Ansible](https://ansible.com/)                                      | OS Configuration                       |                                                                     |
-| [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) | k8s _Distribution_ / Install Mechanism | stacked HA controlplanes                                            |
-| [containerd](https://containerd.io/)                                 | OCI Runtime                            |                                                                     |
-| [Calico](https://www.tigera.io/tigera-products/calico/)              | CNI                                    | dual-stack nodes and services                                       |
-| [kube-vip](https://kube-vip.io/)                                     | Virtual IP for controlplane Nodes      | used in L2/ARP mode                                                 |
-| [Flux2](https://fluxcd.io)                                           | GitOps Automation inside the Cluster   |                                                                     |
-| [SOPS](https://getsops.io/)                                          | Secrets Management                     | [age](https://age-encryption.org/) rather than pgp, but just as bad |
+| Component                                                            | Purpose                                | Notes                                                                              |
+| -------------------------------------------------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------- |
+| [Ubuntu Server 24.04](https://ubuntu.com/server)                     | Base Operating System                  |                                                                                    |
+| [cloud-init](https://cloud-init.io/)                                 | Headless OS Installation               | see [cloud-init/README.md](cloud-init/README.md)                                   |
+| [Ansible](https://ansible.com/)                                      | OS Configuration                       |                                                                                    |
+| [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) | k8s _Distribution_ / Install Mechanism | stacked HA controlplanes                                                           |
+| [containerd](https://containerd.io/)                                 | OCI Runtime                            |                                                                                    |
+| [Calico](https://www.tigera.io/tigera-products/calico/)              | CNI                                    | dual-stack nodes and services                                                      |
+| [kube-vip](https://kube-vip.io/)                                     | Virtual IP for controlplane Nodes      | used in L2/ARP mode                                                                |
+| [Flux2](https://fluxcd.io)                                           | GitOps Automation inside the Cluster   |                                                                                    |
+| [SOPS](https://getsops.io/)                                          | Secrets Management                     | [age](https://age-encryption.org/) rather than pgp, but not any more user-friendly |
 
 ## 📱 Applications
 
@@ -267,3 +282,18 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td>freemium/open core</td>
     </tr>
 </table>
+
+## ☁️ Cloud Dependencies
+
+While the ultimate goal is to have as self-sufficient of a setup as possible, some external services are still required for proper operation.
+
+| Service                                                  | Purpose                                    | Notes                                                                    |
+| -------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------ |
+| [GitHub](https://github.com/)                            | Git Repository Hosting, GitOps Source      |                                                                          |
+| [Renovate](https://www.mend.io/mend-renovate-community/) | Dependency Update Automation               | no hard cloud dependency, will probably be done on-cluster at some point |
+| [INWX](https://www.inwx.de/)                             | Domain Registrar                           |                                                                          |
+| [Cloudflare](https://www.cloudflare.com/)                | Public DNS Auth Hosting                    |                                                                          |
+| [netcup](https://www.netcup.de/)                         | Public Reverse-Proxy for Relevant Services | not _yet_ managed here since the number of public services is tiny       |
+| [BackBlaze](https://www.backblaze.com/)                  | Cloud Storage for Backups                  | the "3" in 3-2-1 for the really important data                           |
+| [TailScale](https://tailscale.com/)                      | Overlay VPN                                | used for split-horizon and a direct connection back home                 |
+| VPN Provider                                             | VPN Gateway                                | different external IP for all the Linux ISOs                             |
