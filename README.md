@@ -42,7 +42,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
 
 ## 📱 Applications
 
-### System-Level
+### 🤖 System-Level
 
 <table>
     <tr>
@@ -155,7 +155,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
     </tr>
 </table>
 
-### User-Level
+### 👨‍💻 User-Level
 
 <table>
     <tr>
