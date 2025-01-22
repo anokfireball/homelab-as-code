@@ -30,9 +30,8 @@ spec:
                 spec:
                   exec:
                     command:
-                      - /bin/bash
-                      - -c
-                      - 'status=$(qbt global info) && if [[ $status =~ DHT[[:space:]]nodes:[[:space:]]+([0-9]+) ]]; then if [ $BASH_REMATCH[1] -gt 0 ]; then exit 0; else exit 1; fi; else exit 2; fi'
+                      - bash
+                      - /healthcheck/check-dht.sh
                   periodSeconds: 60
                   timeoutSeconds: 2
                   failureThreshold: 5
@@ -116,7 +115,21 @@ spec:
           - secretName: qbittorrent-tls
             hosts:
               - qbittorrent.${SERVICE_DOMAIN}
+    configMaps:
+      healthcheck:
+        data:
+          check-dht.sh: |
+            #!/bin/bash
+            status="$(qbt global info)"
+            nodes=$(echo "$status" | sed -n 's/.*DHT nodes:\s*\([0-9]\+\).*/\1/p')
+            if [ -n "$nodes" ] && [ "$nodes" -gt 0 ]; then
+              exit 0
+            fi
+            exit 1
     persistence:
+      healthcheck:
+        type: configMap
+        name: qbittorrent-healthcheck
       gluetun-data:
         type: emptyDir
         advancedMounts:
