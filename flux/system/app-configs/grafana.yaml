@@ -14,7 +14,10 @@ spec:
         name: grafana
         namespace: flux-system
   values:
-    adminPassword:
+    persistence:
+      enabled: true
+      storageClassName: cluster-scratch
+      size: 1Gi
     admin:
       existingSecret: grafana-secrets
       userKey: admin-user
