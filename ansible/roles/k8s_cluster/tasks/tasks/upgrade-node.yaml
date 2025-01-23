@@ -1,0 +1,17 @@
+- name: upgrade a single node
+  block:
+    - name: drain the node
+      command: "kubectl drain {{ node_name }} --ignore-daemonsets --delete-emptydir-data"
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      delegate_to: controlplane1
+
+    - include_tasks: kubelet.yaml
+
+    - meta: flush_handlers
+
+    - name: uncordon the node
+      command: "kubectl uncordon {{ node_name }}"
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      delegate_to: controlplane1
