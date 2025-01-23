@@ -61,7 +61,7 @@ spec:
         # Current Vaultwarden is built with PG 15, also use that as long as it is supported
         # https://github.com/dani-garcia/vaultwarden/blob/1.32.6/docker/Dockerfile.alpine#L56-L57
         # https://www.postgresql.org/support/versioning/
-        image: docker.io/bitnami/postgresql:15.10.0
+        image: docker.io/bitnami/postgresql:17.2.0@sha256:60a3b28d042bb5205faa8364fb3dbb3a487fd0b458ded4b2a3cb863c4d78a23f
         command:
           - /bin/sh
           - -ec
