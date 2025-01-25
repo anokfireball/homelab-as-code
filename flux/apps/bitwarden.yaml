@@ -47,7 +47,7 @@ spec:
         namespace: flux-system
   values:
     image:
-      tag: 1.32.7-alpine
+      tag: 1.33.0-alpine
     resourceType: Deployment
     # TODO https://github.com/ttionya/vaultwarden-backup as sidedcar?
     storage:
