@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: renovate
+  namespace: flux-system
+spec:
+  url: https://docs.renovatebot.com/helm-charts
