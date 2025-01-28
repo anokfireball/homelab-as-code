@@ -240,6 +240,30 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><i>any</i> as long as you know some PHP</td>
     </tr>
     <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/refs/heads/main/docs/stirling-transparent.svg"></td>
+        <td><a href="https://www.stirlingpdf.com/">Stirling PDF</a></td>
+        <td>Swiss-Army Knife for PDFs</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/overleaf/overleaf/refs/heads/main/services/web/public/favicon.svg"></td>
+        <td><a href="https://overleaf.com/">Overleaf</a></td>
+        <td>LaTeX Editor</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/ubiquiti-unifi.svg"></td>
+        <td><a href="https://ui.com/consoles">UniFi Network Application</a></td>
+        <td>AP Administration and Management</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/favicon.ico"></td>
+        <td><a href="https://n8n.io/">n8n</a></td>
+        <td>Workflow Automation</td>
+        <td>freemium/open core</td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/jellyfin/jellyfin-web/refs/heads/master/src/assets/img/icon-transparent.png"></td>
         <td><a href="https://jellyfin.org/">Jellyfin</a></td>
         <td>Media Streaming and Management</td>
@@ -264,28 +288,34 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/refs/heads/main/docs/stirling-transparent.svg"></td>
-        <td><a href="https://www.stirlingpdf.com/">Stirling PDF</a></td>
-        <td>Swiss-Army Knife for PDFs</td>
+        <td><img width="32" src="https://raw.githubusercontent.com/Prowlarr/Prowlarr/refs/heads/develop/Logo/Prowlarr.svg"></td>
+        <td><a href="https://prowlarr.com/">Prowlarr</a></td>
+        <td>Torrent & Usenet Indexer Engine</td>
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/overleaf/overleaf/refs/heads/main/services/web/public/favicon.svg"></td>
-        <td><a href="https://overleaf.com/">Overleaf</a></td>
-        <td>LaTeX Editor</td>
+        <td><img width="32" src="https://raw.githubusercontent.com/Radarr/Radarr/refs/heads/develop/Logo/Radarr.svg"></td>
+        <td><a href="https://radarr.video/">Radarr</a></td>
+        <td>Movie Management</td>
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/ubiquiti-unifi.svg"></td>
-        <td><a href="https://ui.com/consoles">UniFi Network Application</a></td>
-        <td>AP Administration and Management</td>
+        <td><img width="32" src="https://raw.githubusercontent.com/Sonarr/Sonarr/refs/heads/develop/Logo/Sonarr.svg"></td>
+        <td><a href="https://sonarr.tv/">Sonarr</a></td>
+        <td>TV Show Management</td>
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/favicon.ico"></td>
-        <td><a href="https://n8n.io/">n8n</a></td>
-        <td>Workflow Automation</td>
-        <td>freemium/open core</td>
+        <td><img width="32" src="https://raw.githubusercontent.com/Lidarr/Lidarr/refs/heads/develop/Logo/Lidarr.svg"></td>
+        <td><a href="https://lidarr.audio/">Lidarr</a></td>
+        <td>Music Management</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/FlareSolverr/FlareSolverr/refs/heads/master/resources/flaresolverr_logo.svg"></td>
+        <td><a href="https://github.com/FlareSolverr/FlareSolverr">FlareSolverr</a></td>
+        <td>Cloudflare Protection Bypass</td>
+        <td></td>
     </tr>
 </table>
 
