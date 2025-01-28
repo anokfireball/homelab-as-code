@@ -78,7 +78,7 @@ spec:
           main:
             image:
               repository: paperlessngx/paperless-ngx
-              tag: 2.14.5
+              tag: 2.14.6@sha256:471a276d09a13b6933f4435fa7e57d9236eb255246d9cdd8e81da0d5a873a18a
             env:
               PAPERLESS_OCR_LANGUAGES: deu eng
               PAPERLESS_OCR_LANGUAGE: deu+eng
