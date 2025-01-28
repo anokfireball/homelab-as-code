@@ -88,7 +88,7 @@ spec:
         containers:
           main:
             image:
-              repository: linuxserver/unifi-network-application
+              repository: ghcr.io/linuxserver/unifi-network-application
               tag: 9.0.108-ls76@sha256:d819f56eb5af806d4182271d9576b6abe6d6fbb73585548cc49dbf7719287d9d
             env:
               TZ: Europe/Berlin

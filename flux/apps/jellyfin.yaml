@@ -15,7 +15,7 @@ spec:
         namespace: flux-system
   values:
     image:
-      repository: jellyfin/jellyfin
+      repository: ghcr.io/jellyfin/jellyfin
       tag: 10.10.5@sha256:89d020f73334642943eca3269d2a652ad897481bdf0bd9827e108c939af49f24
     ingress:
       enabled: true
