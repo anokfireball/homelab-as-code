@@ -16,7 +16,7 @@ spec:
   values:
     image:
       repository: ghcr.io/jellyfin/jellyfin
-      tag: 10.10.5@sha256:89d020f73334642943eca3269d2a652ad897481bdf0bd9827e108c939af49f24
+      tag: 10.10.5@sha256:54340f53459858156896d5758a6eaa2cea9c95ff95c3c966f2fff1307e31660c
     ingress:
       enabled: true
       className: nginx
