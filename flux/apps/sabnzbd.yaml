@@ -19,7 +19,7 @@ spec:
         containers:
           main:
             image:
-              repository: linuxserver/sabnzbd
+              repository: ghcr.io/linuxserver/sabnzbd
               tag: 4.4.1-ls200@sha256:9f68851d8fbb4feb09b0cd8aa840c7f140fb3279edfd957f92d78c60591af39f
             probes:
               liveness:
