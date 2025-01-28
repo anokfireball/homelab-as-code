@@ -49,7 +49,7 @@ spec:
           main:
             image:
               repository: freshrss/freshrss
-              tag: 1.25.0-alpine
+              tag: 1.25.0-alpine@sha256:e9f1b39e7e6ef940b2f7f5564d03a33a30f26d7d134c980fbdebadc9cb434cfc
             env:
               TZ: Europe/Berlin
               BASE_URL: https://freshrss.${SERVICE_DOMAIN}
