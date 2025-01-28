@@ -84,11 +84,17 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td>Automated Certificate Management</td>
         <td>Let's Encrypt via ACME DNS</td>
     </tr>
-      <tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/nginx/nginx.org/refs/heads/main/img/ingress_logo.svg"></td>
         <td><a href="https://kubernetes.github.io/ingress-nginx/">ingress-nginx</a></td>
         <td>Ingress Controller</td>
         <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/renovatebot/renovate/refs/heads/main/docs/usage/assets/images/logo.png"></td>
+        <td><a href="https://www.mend.io/renovate/">Renovate Bot</a></td>
+        <td>Dependency Update Automation</td>
+        <td>used for multiple repos, not just this one</td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/longhorn/website/refs/heads/master/static/img/logos/longhorn-icon-color.png"></td>
@@ -290,7 +296,6 @@ While the ultimate goal is to have as self-sufficient of a setup as possible, so
 | Service                                                  | Purpose                                    | Notes                                                                    |
 | -------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------ |
 | [GitHub](https://github.com/)                            | Git Repository Hosting, GitOps Source      |                                                                          |
-| [Renovate](https://www.mend.io/mend-renovate-community/) | Dependency Update Automation               | no hard cloud dependency, will probably be done on-cluster at some point |
 | [INWX](https://www.inwx.de/)                             | Domain Registrar                           |                                                                          |
 | [Cloudflare](https://www.cloudflare.com/)                | Public DNS Auth Hosting                    |                                                                          |
 | [netcup](https://www.netcup.de/)                         | Public Reverse-Proxy for Relevant Services | not _yet_ managed here since the number of public services is tiny       |
