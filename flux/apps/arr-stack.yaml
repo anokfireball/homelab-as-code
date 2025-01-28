@@ -1,0 +1,293 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: prowlarr
+  namespace: arrchive
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: default
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: ghcr.io/hotio/prowlarr
+              tag: release@sha256:1648bcfae7e4ea067f6b1ae0de7bc2a2ee08b4f00d4b5704885b34b3a4734859
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 9696
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: prowlarr.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: prowlarr-tls
+            hosts:
+              - prowlarr.${SERVICE_DOMAIN}
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: radarr
+  namespace: arrchive
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: default
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: ghcr.io/hotio/radarr
+              tag: release@sha256:6c6268bfc233c59c4726c79f40141a177b2927fb20eee0ab400d92e0f42fd448
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 7878
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: radarr.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: radarr-tls
+            hosts:
+              - radarr.${SERVICE_DOMAIN}
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+      data:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: sonarr
+  namespace: arrchive
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: default
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: ghcr.io/hotio/sonarr
+              tag: release@sha256:6e716fed0abe124fc2c31a1361da8a4c6d829dea70c9f110203894d0bde40b02
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 8989
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: sonarr.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: sonarr-tls
+            hosts:
+              - sonarr.${SERVICE_DOMAIN}
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+      data:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: lidarr
+  namespace: arrchive
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: default
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: ghcr.io/hotio/lidarr
+              tag: release@sha256:6e3b4efeecd130e94dcbbab2649854f88546f23811ffd009cdf8f0632fdbdcb7
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 8686
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: lidarr.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: lidarr-tls
+            hosts:
+              - lidarr.${SERVICE_DOMAIN}
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+      data:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: flaresolverr
+  namespace: arrchive
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: default
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: ghcr.io/flaresolverr/flaresolverr
+              tag: v3.3.21@sha256:f104ee51e5124d83cf3be9b37480649355d223f7d8f9e453d0d5ef06c6e3b31b
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 8191
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: flaresolverr.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: flaresolverr-tls
+            hosts:
+              - flaresolverr.${SERVICE_DOMAIN}
