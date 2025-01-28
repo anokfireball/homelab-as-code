@@ -23,7 +23,7 @@ spec:
           main:
             image:
               repository: ghcr.io/c0nsultant/opnsense-ipv6-prefix-update
-              tag: v1.0.3
+              tag: v1.0.3@sha256:5371e931a8e186f914e2261ec4832b220f95e478986bb1365157026490fba00a
             env:
               OPNSENSE_HOST: 192.168.1.1
               OPNSENSE_PORT: 80
