@@ -44,7 +44,8 @@ spec:
         namespace: flux-system
   values:
     image:
-      tag: version-6.1.25
+      repository: fireflyiii/core
+      tag: version-6.1.25@sha256:8391c11f3260354a1feb48d1cf2cb822ad00db311efe2b21eccd7d5ee6bfe60a
     persistence:
       enabled: false
     config:
