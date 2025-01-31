@@ -5,6 +5,22 @@
   ],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
+  "packageRules": [
+    {
+      "matchFileNames": ["flux/**"],
+      "matchUpdateTypes": ["patch", "digest"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    },
+    {
+      "matchFileNames": ["flux/**"],
+      "matchPackageNames": ["renovate", "kube-prometheus-stack"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    }
+  ],
+  "ignoreTests": true,
+  "platformAutomerge": true,
   "ansible": {
     "fileMatch": [
       "ansible/.+\\.ya?ml$"
