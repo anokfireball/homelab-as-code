@@ -40,11 +40,22 @@ spec:
         nfs:
           server: 192.168.1.2
           path: /mnt/tank/Serien
+      # - name: gpu
+      #   hostPath:
+      #     path: /dev/dri/renderD128
     volumeMounts:
       - name: nas-filme
         mountPath: /mnt/tank/Filme
       - name: nas-serien
         mountPath: /mnt/tank/Serien
+      # - name: gpu
+      #   mountPath: /dev/dri/renderD128
+    # podSecurityContext:
+    #   # 'render' on the hosts
+    #   fsGroup: 993
+    # securityContext:
+    #   # need access to the GPU
+    #   privileged: true
     persistence:
       config:
         storageClass: cluster-replicated
