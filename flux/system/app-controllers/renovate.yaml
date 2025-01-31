@@ -15,7 +15,7 @@ spec:
         namespace: flux-system
   values:
     cronjob:
-      schedule: '0/30 * * * *'
+      schedule: '51 0/6 * * *'
     renovate:
       existingConfigFile: /config/config.json
     extraVolumes:
