@@ -79,8 +79,8 @@ spec:
             image:
               # preferably, bootstrap the full latex distribution /w init container and persistent storage
               # ... but the base image does not offer a straight-forward way to PV /usr/local/texlive
-              repository: tuetenk0pp/sharelatex-full
-              tag: 5.3.1@sha256:d8572c30325a34fdbdef49468fa045905bcd272558873231815c30f1132f0830
+              repository: ghcr.io/tuetenk0pp/sharelatex-full
+              tag: 5.3.1@sha256:5b22c4f3ea7a20d92b0625a24b91276cb22e134ca54faedf377f9e9187b7273b
             envFrom:
               - secret: overleaf-secrets
             env:

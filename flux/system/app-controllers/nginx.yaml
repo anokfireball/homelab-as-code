@@ -21,7 +21,7 @@ spec:
           - IPv4
           - IPv6
         annotations:
-         metallb.io/allow-shared-ip: default
+          metallb.io/allow-shared-ip: default
       metrics:
         enabled: true
         serviceMonitor:

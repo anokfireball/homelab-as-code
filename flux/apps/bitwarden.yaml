@@ -47,7 +47,8 @@ spec:
         namespace: flux-system
   values:
     image:
-      repository: vaultwarden/server
+      registry: ghcr.io
+      repository: dani-garcia/vaultwarden
       tag: 1.33.0-alpine@sha256:aae674bfa22cd21bb714a18d5d832984b34275272512984fc0dc62ea6cca6133
     resourceType: Deployment
     # TODO https://github.com/ttionya/vaultwarden-backup as sidedcar?
