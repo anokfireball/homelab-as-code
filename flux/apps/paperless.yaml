@@ -195,7 +195,7 @@ spec:
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: true
+    prune: false
 ---
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
@@ -237,4 +237,4 @@ spec:
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: true
+    prune: false
