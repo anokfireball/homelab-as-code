@@ -1440,6 +1440,50 @@ spec:
     keepYearly: 2
     prune: false
 ---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nextcloud-prune
+  namespace: stash-system
+spec:
+  schedule: "44 0 1 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: restic
+              image: restic/restic:0.17.3@sha256:8f5a62b422a2cb1277ea0dd6e826fe1acf649e5b9f02d60e5268d5fd1976255a
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  restic forget --prune \
+                    --keep-hourly 24 \
+                    --keep-daily 14 \
+                    --keep-weekly 12 \
+                    --keep-monthly 6 \
+                    --keep-yearly 2
+              env:
+                - name: B2_ACCOUNT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: b2-secret
+                      key: B2_ACCOUNT_ID
+                - name: B2_ACCOUNT_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: b2-secret
+                      key: B2_ACCOUNT_KEY
+                - name: RESTIC_REPOSITORY
+                  value: b2:backup-nextcloud-entitle0294:/
+                - name: RESTIC_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: b2-secret
+                      key: RESTIC_PASSWORD
+---
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
 metadata:
@@ -1481,3 +1525,49 @@ spec:
     keepMonthly: 6
     keepYearly: 2
     prune: false
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nextcloud-postgresql-prune
+  namespace: stash-system
+spec:
+  schedule: "3 0 1 * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: restic
+              image: restic/restic:0.17.3@sha256:8f5a62b422a2cb1277ea0dd6e826fe1acf649e5b9f02d60e5268d5fd1976255a
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  restic forget --prune \
+                    --keep-hourly 24 \
+                    --keep-daily 14 \
+                    --keep-weekly 12 \
+                    --keep-monthly 6 \
+                    --keep-yearly 2
+              env:
+                - name: B2_ACCOUNT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: b2-secret
+                      key: B2_ACCOUNT_ID
+                - name: B2_ACCOUNT_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: b2-secret
+                      key: B2_ACCOUNT_KEY
+                - name: RESTIC_REPOSITORY
+                  value: b2:backup-database-manhunt4669:/
+                - name: RESTIC_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: b2-secret
+                      key: RESTIC_PASSWORD
+                - name: RESTIC_HOST
+                  value: nextcloud
