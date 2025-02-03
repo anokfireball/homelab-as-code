@@ -219,7 +219,7 @@ spec:
     name: b2-fotos-repo
     namespace: stash-system
   timeOut: 24h
-  schedule: "49 * * * *"
+  schedule: "49 2/6 * * *"
   target:
     ref:
       apiVersion: apps/v1
@@ -232,12 +232,12 @@ spec:
       - /mnt/tank/Bilder
   retentionPolicy:
     name: "staggered"
-    keepHourly: 24
+    keepHourly: 6
     keepDaily: 14
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: false
+    prune: true
 ---
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
@@ -260,7 +260,7 @@ metadata:
   name: immich-postgresql
   namespace: default
 spec:
-  schedule: "19 * * * *"
+  schedule: "19 4/6 * * *"
   task:
     name: postgres-backup-16.1
   repository:
@@ -274,9 +274,9 @@ spec:
       name: immich-postgresql
   retentionPolicy:
     name: "staggered"
-    keepHourly: 24
+    keepHourly: 6
     keepDaily: 14
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: false
+    prune: true

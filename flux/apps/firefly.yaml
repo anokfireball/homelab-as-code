@@ -90,7 +90,7 @@ metadata:
   name: firefly-postgresql
   namespace: default
 spec:
-  schedule: "11 * * * *"
+  schedule: "11 4/6 * * *"
   task:
     name: postgres-backup-17.2
   repository:
@@ -104,9 +104,9 @@ spec:
       name: firefly-postgresql
   retentionPolicy:
     name: "staggered"
-    keepHourly: 24
+    keepHourly: 6
     keepDaily: 14
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: false
+    prune: true

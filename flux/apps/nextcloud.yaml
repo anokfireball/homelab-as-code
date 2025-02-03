@@ -1414,7 +1414,7 @@ spec:
     name: b2-nextcloud-repo
     namespace: stash-system
   timeOut: 12h
-  schedule: "14 * * * *"
+  schedule: "14 1/6 * * *"
   target:
     ref:
       apiVersion: apps/v1
@@ -1433,12 +1433,12 @@ spec:
       - /var/www/html/data/*/files/auto-upload
   retentionPolicy:
     name: "staggered"
-    keepHourly: 24
+    keepHourly: 6
     keepDaily: 14
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: false
+    prune: true
 ---
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
@@ -1461,7 +1461,7 @@ metadata:
   name: nextcloud-postgresql
   namespace: default
 spec:
-  schedule: "33 * * * *"
+  schedule: "33 4/6 * * *"
   task:
     name: postgres-backup-16.1
   repository:
@@ -1475,9 +1475,9 @@ spec:
       name: nextcloud-postgresql
   retentionPolicy:
     name: "staggered"
-    keepHourly: 24
+    keepHourly: 6
     keepDaily: 14
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: false
+    prune: true

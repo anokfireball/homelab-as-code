@@ -170,7 +170,7 @@ spec:
     name: b2-dokumente-repo
     namespace: stash-system
   timeOut: 2h
-  schedule: "32 * * * *"
+  schedule: "32 0/6 * * *"
   target:
     ref:
       apiVersion: apps/v1
@@ -190,12 +190,12 @@ spec:
       containerName: main
   retentionPolicy:
     name: "staggered"
-    keepHourly: 24
+    keepHourly: 6
     keepDaily: 14
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: false
+    prune: true
 ---
 apiVersion: appcatalog.appscode.com/v1alpha1
 kind: AppBinding
@@ -218,7 +218,7 @@ metadata:
   name: paperless-ngx-postgresql
   namespace: default
 spec:
-  schedule: "39 * * * *"
+  schedule: "39 4/6 * * *"
   task:
     name: postgres-backup-15.1
   repository:
@@ -232,9 +232,9 @@ spec:
       name: paperless-ngx-postgresql
   retentionPolicy:
     name: "staggered"
-    keepHourly: 24
+    keepHourly: 6
     keepDaily: 14
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: false
+    prune: true

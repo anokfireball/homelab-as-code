@@ -154,7 +154,7 @@ metadata:
   name: bitwarden-postgresql
   namespace: default
 spec:
-  schedule: "23 * * * *"
+  schedule: "23 4/6 * * *"
   task:
     name: postgres-backup-15.1
   repository:
@@ -168,9 +168,9 @@ spec:
       name: bitwarden-postgresql
   retentionPolicy:
     name: "staggered"
-    keepHourly: 24
+    keepHourly: 6
     keepDaily: 14
     keepWeekly: 12
     keepMonthly: 6
     keepYearly: 2
-    prune: false
+    prune: true
