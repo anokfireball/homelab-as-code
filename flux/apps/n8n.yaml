@@ -24,7 +24,7 @@ spec:
       secret:
         name: n8n-postgres-user
   storage:
-    size: 2Gi
+    size: 5Gi
     storageClass: cluster-replicated
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
