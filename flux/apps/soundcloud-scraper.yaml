@@ -24,7 +24,7 @@ spec:
           main:
             image:
               repository: ghcr.io/c0nsultant/soundcloud-scraper
-              tag: v1.1.0@sha256:bfd1a0ff63a2a1ff554a2cfb12e3478e6aedd48b311bb0456381e21f9994ab2f
+              tag: v1.1.1@sha256:dde620080cd90161929560f5741072aaf40cc26cbc72c8daf838d6c52716146b
             env:
               DATA_DIR: /data
               SOUNDCLOUD_USERNAME: psykko0
