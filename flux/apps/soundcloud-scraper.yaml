@@ -19,6 +19,7 @@ spec:
         type: cronjob
         cronjob:
           schedule: "*/15 * * * *"
+          concurrencyPolicy: Replace
         containers:
           main:
             image:
