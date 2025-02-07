@@ -53,10 +53,9 @@ spec:
     # https://github.com/nextcloud/helm/issues/399
     startupProbe:
       enabled: true
-      initialDelaySeconds: 120
-      periodSeconds: 10
+      periodSeconds: 5
       timeoutSeconds: 5
-      failureThreshold: 50
+      failureThreshold: 60
       successThreshold: 1
     ingress:
       enabled: true
