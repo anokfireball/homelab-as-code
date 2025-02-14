@@ -4,7 +4,7 @@
       command: "kubectl drain {{ node_name }} --ignore-daemonsets --delete-emptydir-data"
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
-      delegate_to: controlplane1
+      delegate_to: "{{ delegate }}"
 
     - include_tasks: kubelet.yaml
 
@@ -14,4 +14,4 @@
       command: "kubectl uncordon {{ node_name }}"
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
-      delegate_to: controlplane1
+      delegate_to: "{{ delegate }}"
