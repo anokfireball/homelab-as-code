@@ -240,7 +240,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><i>any</i> as long as you know some PHP</td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/refs/heads/main/docs/stirling-transparent.svg"></td>
+        <td><img width="32" src="https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/refs/heads/main/docs/stirling.svg"></td>
         <td><a href="https://www.stirlingpdf.com/">Stirling PDF</a></td>
         <td>Swiss-Army Knife for PDFs</td>
         <td></td>
