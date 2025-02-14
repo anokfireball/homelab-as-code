@@ -4,7 +4,7 @@
   block:
     - include_tasks: kubeadm.yaml
 
-    - name: kubeadm upgrade
+    - name: kubeadm upgrade (primary controlplane node)
       command: "kubeadm upgrade apply v{{ k8s_version }} --yes"
       changed_when: true
 
@@ -13,19 +13,21 @@
   block:
     - include_tasks: kubeadm.yaml
 
-    - name: kubeadm upgrade
+    - name: kubeadm upgrade (other nodes)
       command: "kubeadm upgrade node"
       changed_when: true
 
 - name: upgrade kubelet on primary control plane node
-  include_tasks: tasks/upgrade-node.yml
+  include_tasks: tasks/upgrade-node.yaml
+  when: inventory_hostname == "controlplane1"
   vars:
     node_name: controlplane1
     delegate: controlplane2
 
 - name: upgrade kubelet on all other nodes
-  include_tasks: tasks/upgrade-node.yml
+  include_tasks: tasks/upgrade-node.yaml
+  when: inventory_hostname != "controlplane1"
   vars:
     node_name: "{{ item }}"
     delegate: controlplane1
-  with_items: "{{ groups['all'] | difference(['controlplane1']) }}"
+  with_items: "{{ groups['cluster'] | difference(['controlplane1']) }}"
