@@ -23,19 +23,38 @@
     state: directory
     mode: "0755"
 
-- name: generate default containerd config
-  command: containerd config default
-  register: containerd_config
-  changed_when: false
+- name: check if containerd config exists
+  stat:
+    path: /etc/containerd/config.toml
+  register: containerd_config_stat
+
+- name: Store the file checksum if it exists
+  set_fact:
+    initial_checksum: "{{ containerd_config_stat.stat.checksum }}"
+  when: containerd_config_stat.stat.exists
 
 - name: modify containerd config
-  set_fact:
-    modified_containerd_config: "{{ containerd_config.stdout | regex_replace('SystemdCgroup = false', 'SystemdCgroup = true ') }}"
+  shell: >
+      set -o pipefail &&
+      containerd config default
+      | tomlq '.plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options.SystemdCgroup  = true' -t
+      | tomlq '.plugins."io.containerd.grpc.v1.cri".registry.config_path = "/etc/containerd/certs.d"' -t
+      | tomlq '.plugins."io.containerd.grpc.v1.cri".containerd.discard_unpacked_layers = false' -t
+      > /etc/containerd/config.toml
+  args:
+    executable: /bin/bash
+  changed_when: false
 
-- name: write modified containerd config to file
-  copy:
-    content: "{{ modified_containerd_config }}"
-    dest: /etc/containerd/config.toml
+- name: check if containerd config changed
+  stat:
+    path: /etc/containerd/config.toml
+  register: containerd_config_new_stat
+
+- name: Trigger restart if the file was created or modified
+  debug:
+    msg: "Containerd config has changed, restarting containerd"
   notify: restart containerd
+  changed_when:
+    - not containerd_config_stat.stat.exists or initial_checksum != containerd_config_new_stat.stat.checksum
 
 - meta: flush_handlers

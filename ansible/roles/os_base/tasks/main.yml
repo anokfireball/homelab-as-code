@@ -20,6 +20,7 @@
       - inxi
       - unattended-upgrades
       - update-notifier-common
+      - yq  # https://github.com/kislyuk/yq since there are multiple with the same name...
     state: present
 
 - name: remove default vim installations
