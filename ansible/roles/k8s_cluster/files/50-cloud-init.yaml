@@ -1,0 +1,17 @@
+network:
+    ethernets:
+        eth0:
+            dhcp4: true
+            dhcp4-overrides:
+                use-dns: false
+                use-domains: false
+            nameservers:
+                addresses: [192.168.1.1]
+                search: [home]
+            match:
+                driver:
+                    - e1000e
+                    - r816*
+            set-name: eth0
+            wakeonlan: true
+    version: 2

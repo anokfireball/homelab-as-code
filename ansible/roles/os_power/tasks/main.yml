@@ -26,7 +26,7 @@
 - name: force ASPM states for nodes with Realtek NICs
   when: product_name.stdout == "ESPRIMO Q556/2"
   # https://wireless.wiki.kernel.org/en/users/documentation/aspm
-  # L1 seems to be bugged for the Realtek NIC, do only L0s (i.e. 0x41) for now
+  # L1 seems to be bugged for this Realtek NIC, do only L0s (i.e. 0x41) for now
   block:
     - cron:
         name: force ASPM state of PCI bridge
@@ -36,6 +36,20 @@
         name: force ASPM state of Ethernet controller
         special_time: reboot
         job: setpci -s 01:00.0 0x80.B=0x41
+
+- name: force ASPM states for nodes with Realtek NICs
+  when: product_name.stdout == "HP ProDesk 400 G2 MINI"
+  # https://wireless.wiki.kernel.org/en/users/documentation/aspm
+  # L1 seems does not seem bugged for this Realtek NIC, do proper L0s/L1 (i.e. 0x43)
+  block:
+    - cron:
+        name: force ASPM state of PCI bridge
+        special_time: reboot
+        job: setpci -s 00:1d.0 0x50.B=0x43
+    - cron:
+        name: force ASPM state of Ethernet controller
+        special_time: reboot
+        job: setpci -s 02:00.0 0x80.B=0x43
 
 - name: obtain all valid ASPM policies
   slurp:
