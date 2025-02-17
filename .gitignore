@@ -1,6 +1,8 @@
 .vscode
 cloud-init/data/
 
+.ansible/
+
 flux/secrets/*
 !flux/secrets/*.sops.yaml
 

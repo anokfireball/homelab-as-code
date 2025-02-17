@@ -8,5 +8,5 @@
     - { role: os_base }
     - { role: os_power }
     - { role: k8s_cluster }
-    #- { role: k8s_flux }
+    - { role: k8s_flux }
     - { role: k8s_longhorn }

@@ -97,6 +97,12 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td>used for multiple repos, not just this one</td>
     </tr>
     <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/spegel-org/website/refs/heads/main/static/favicon.svg"></td>
+        <td><a href="https://spegel.dev/">Spegel</a></td>
+        <td>Cluster-internal P2P Container Image Distribution</td>
+        <td><a href="https://spegel.dev/docs/guides/updating-latest-tag/">basically mandates</a> the use of digests or good pinning</td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/longhorn/website/refs/heads/master/static/img/logos/longhorn-icon-color.png"></td>
         <td><a href="https://longhorn.io/">longhorn</a></td>
         <td>Cloud-Native Distributed Block Storage CSI</td>
