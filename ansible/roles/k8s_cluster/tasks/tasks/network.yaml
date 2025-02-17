@@ -16,6 +16,19 @@
   set_fact:
     node_suffix: "{{ ansible_default_ipv4.address.split('.')[-1] }}"
 
+# not all of the cloud-init configs get written to disk (possibly due to old netplan in the netinstall image?)
+- name: configure k8s IPv4
+  copy:
+    src: 50-cloud-init.yaml
+    dest: /etc/netplan/50-cloud-init.yaml
+    mode: "0640"
+  register: netplan_config
+
+- name: apply netplan configuration
+  command: netplan apply
+  when: netplan_config.changed
+  changed_when: true
+
 - name: configure k8s IPv6 ULA subnet
   template:
     src: 60-k8s-ipv6.yaml.j2
