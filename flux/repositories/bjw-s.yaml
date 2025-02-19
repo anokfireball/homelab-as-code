@@ -2,6 +2,6 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: bjw-s
-  namespace: default
+  namespace: flux-system
 spec:
   url: https://bjw-s.github.io/helm-charts

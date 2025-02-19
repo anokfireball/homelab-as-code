@@ -2,6 +2,6 @@ apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: jameswynn
-  namespace: default
+  namespace: flux-system
 spec:
   url: http://jameswynn.github.io/helm-charts
