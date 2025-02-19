@@ -1,0 +1,37 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kyverno
+  namespace: kyverno-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: kyverno
+      version: 3.3.7
+      sourceRef:
+        kind: HelmRepository
+        name: kyverno
+        namespace: flux-system
+  values:
+    grafana:
+      enabled: true
+      annotations:
+        grafana_dashboard_folder: kyverno
+    # TODO once a third worker is available again
+    # https://kyverno.io/docs/installation/methods/#high-availability-installation
+    admissionController:
+      # replicas: 3
+      serviceMonitor: &service-monitor-config
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
+    backgroundController:
+      # replicas: 2
+      serviceMonitor: *service-monitor-config
+    cleanupController:
+      # replicas: 2
+      serviceMonitor: *service-monitor-config
+    reportsController:
+      # replicas: 2
+      serviceMonitor: *service-monitor-config

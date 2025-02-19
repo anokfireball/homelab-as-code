@@ -91,15 +91,15 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/renovatebot/renovate/refs/heads/main/docs/usage/assets/images/logo.png"></td>
-        <td><a href="https://www.mend.io/renovate/">Renovate Bot</a></td>
-        <td>Dependency Update Automation</td>
-        <td>used for multiple repos, not just this one</td>
+        <td><img width="32" src="https://raw.githubusercontent.com/kyverno/kyverno/refs/heads/main/img/logo.png"></td>
+        <td><a href="https://kubernetes.github.io/ingress-nginx/">Kyverno</a></td>
+        <td>Policy Engine</td>
+        <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/spegel-org/website/refs/heads/main/static/favicon.svg"></td>
         <td><a href="https://spegel.dev/">Spegel</a></td>
-        <td>Cluster-internal P2P Container Image Distribution</td>
+        <td>Cluster-Internal P2P Container Image Distribution</td>
         <td><a href="https://spegel.dev/docs/guides/updating-latest-tag/">basically mandates</a> the use of digests or good pinning</td>
     </tr>
     <tr>
@@ -113,6 +113,12 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><a href="https://github.com/democratic-csi/democratic-csi">democratic-csi</a></td>
         <td>CSI for Common External Storage Systems</td>
         <td>using the freenas-nfs implementation</td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/renovatebot/renovate/refs/heads/main/docs/usage/assets/images/logo.png"></td>
+        <td><a href="https://www.mend.io/renovate/">Renovate Bot</a></td>
+        <td>Dependency Update Automation</td>
+        <td>used for multiple repos, not just this one</td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/stashed/website/refs/heads/master/static/assets/images/products/kubestash/kubestash-icon.svg"></td>
