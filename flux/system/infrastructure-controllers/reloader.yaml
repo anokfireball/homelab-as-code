@@ -12,7 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: stakater
-        namespace: kube-system
+        namespace: flux-system
   values:
     reloader:
       reloadOnCreate: true

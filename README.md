@@ -109,7 +109,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td></td>
     </tr>
     <tr>
-        <td></td>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/truenas-core.svg"></td>
         <td><a href="https://github.com/democratic-csi/democratic-csi">democratic-csi</a></td>
         <td>CSI for Common External Storage Systems</td>
         <td>using the freenas-nfs implementation</td>
