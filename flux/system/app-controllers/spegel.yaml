@@ -21,4 +21,4 @@ spec:
     grafanaDashboard:
       enabled: true
       annotations:
-        grafana_dashboard_folder: nextcloud
+        grafana_dashboard_folder: spegel
