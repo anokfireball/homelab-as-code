@@ -34,6 +34,27 @@ spec:
       config:
         annotations-risk-level: Critical
 ---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: mutate-tls-certificate-size
+spec:
+  failurePolicy: Fail
+  rules:
+    - name: set-privateKey-details
+      match:
+        any:
+          - resources:
+              kinds:
+                - cert-manager.io/v1/Certificate
+      mutate:
+        patchStrategicMerge:
+          spec:
+            privateKey:
+              +(algorithm): RSA
+              +(size): 4096
+              +(rotationPolicy): Always
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
