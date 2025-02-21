@@ -258,12 +258,6 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/overleaf/overleaf/refs/heads/main/services/web/public/favicon.svg"></td>
-        <td><a href="https://overleaf.com/">Overleaf</a></td>
-        <td>LaTeX Editor</td>
-        <td></td>
-    </tr>
-    <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/ubiquiti-unifi.svg"></td>
         <td><a href="https://ui.com/consoles">UniFi Network Application</a></td>
         <td>AP Administration and Management</td>
