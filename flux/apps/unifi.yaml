@@ -17,7 +17,7 @@ spec:
     global:
       defaultStorageClass: cluster-replicated
     image:
-      tag: 8.0.4
+      tag: 8.0.5
     architecture: standalone
     useStatefulSet: true
     auth:
