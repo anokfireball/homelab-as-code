@@ -152,12 +152,12 @@
         "flux/apps/firefly.yaml"
       ],
       "matchStrings": [
-        "tag: (?<currentValue>version-\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
+        "tag: version-(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "fireflyiii/core",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "firefly-iii/firefly-iii",
       "versioningTemplate": "semver",
-      "extractVersionTemplate": "^(?<version>version-\\.\\d+\\.\\d+)$"
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
     },
     {
       "customType": "regex",
