@@ -10,9 +10,9 @@ spec:
     services:
       disabledDefaultServices: ["ro", "r"]
     roles:
-      - name: stashbackup
+      - name: backup
         passwordSecret:
-          name: stash-postgres-backup-user
+          name: postgres-backup-user
         login: true
         superuser: false
         inRoles:
@@ -68,45 +68,45 @@ spec:
       requests:
         cpu: 20m
         memory: 200Mi
----
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: firefly-postgresql
-  namespace: default
-spec:
-  clientConfig:
-    service:
-      name: firefly-postgresql-rw
-      port: 5432
-      scheme: postgresql
-  secret:
-    name: stash-postgres-backup-user
-  type: postgres
----
-apiVersion: stash.appscode.com/v1beta1
-kind: BackupConfiguration
-metadata:
-  name: firefly-postgresql
-  namespace: default
-spec:
-  schedule: "11 4/6 * * *"
-  task:
-    name: postgres-backup-17.2
-  repository:
-    name: b2-database-repo
-    namespace: stash-system
-  target:
-    alias: firefly
-    ref:
-      apiVersion: appcatalog.appscode.com/v1alpha1
-      kind: AppBinding
-      name: firefly-postgresql
-  retentionPolicy:
-    name: "staggered"
-    keepHourly: 6
-    keepDaily: 14
-    keepWeekly: 12
-    keepMonthly: 6
-    keepYearly: 2
-    prune: true
+# ---
+# apiVersion: appcatalog.appscode.com/v1alpha1
+# kind: AppBinding
+# metadata:
+#   name: firefly-postgresql
+#   namespace: default
+# spec:
+#   clientConfig:
+#     service:
+#       name: firefly-postgresql-rw
+#       port: 5432
+#       scheme: postgresql
+#   secret:
+#     name: postgres-backup-user
+#   type: postgres
+# ---
+# apiVersion: stash.appscode.com/v1beta1
+# kind: BackupConfiguration
+# metadata:
+#   name: firefly-postgresql
+#   namespace: default
+# spec:
+#   schedule: "11 4/6 * * *"
+#   task:
+#     name: postgres-backup-17.2
+#   repository:
+#     name: b2-database-repo
+#     namespace: stash-system
+#   target:
+#     alias: firefly
+#     ref:
+#       apiVersion: appcatalog.appscode.com/v1alpha1
+#       kind: AppBinding
+#       name: firefly-postgresql
+#   retentionPolicy:
+#     name: "staggered"
+#     keepHourly: 6
+#     keepDaily: 14
+#     keepWeekly: 12
+#     keepMonthly: 6
+#     keepYearly: 2
+#     prune: true

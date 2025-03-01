@@ -10,9 +10,9 @@ spec:
     services:
       disabledDefaultServices: ["ro", "r"]
     roles:
-      - name: stashbackup
+      - name: backup
         passwordSecret:
-          name: stash-postgres-backup-user
+          name: postgres-backup-user
         login: true
         superuser: false
         inRoles:
@@ -127,45 +127,45 @@ spec:
         integrations:
           traefik:
             enabled: false
----
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: n8n-postgresql
-  namespace: default
-spec:
-  clientConfig:
-    service:
-      name: n8n-postgresql-rw
-      port: 5432
-      scheme: postgresql
-  secret:
-    name: stash-postgres-backup-user
-  type: postgres
----
-apiVersion: stash.appscode.com/v1beta1
-kind: BackupConfiguration
-metadata:
-  name: n8n-postgresql
-  namespace: default
-spec:
-  schedule: "53 4/6 * * *"
-  task:
-    name: postgres-backup-17.2
-  repository:
-    name: b2-database-repo
-    namespace: stash-system
-  target:
-    alias: n8n
-    ref:
-      apiVersion: appcatalog.appscode.com/v1alpha1
-      kind: AppBinding
-      name: n8n-postgresql
-  retentionPolicy:
-    name: "staggered"
-    keepHourly: 6
-    keepDaily: 14
-    keepWeekly: 12
-    keepMonthly: 6
-    keepYearly: 2
-    prune: true
+# ---
+# apiVersion: appcatalog.appscode.com/v1alpha1
+# kind: AppBinding
+# metadata:
+#   name: n8n-postgresql
+#   namespace: default
+# spec:
+#   clientConfig:
+#     service:
+#       name: n8n-postgresql-rw
+#       port: 5432
+#       scheme: postgresql
+#   secret:
+#     name: postgres-backup-user
+#   type: postgres
+# ---
+# apiVersion: stash.appscode.com/v1beta1
+# kind: BackupConfiguration
+# metadata:
+#   name: n8n-postgresql
+#   namespace: default
+# spec:
+#   schedule: "53 4/6 * * *"
+#   task:
+#     name: postgres-backup-17.2
+#   repository:
+#     name: b2-database-repo
+#     namespace: stash-system
+#   target:
+#     alias: n8n
+#     ref:
+#       apiVersion: appcatalog.appscode.com/v1alpha1
+#       kind: AppBinding
+#       name: n8n-postgresql
+#   retentionPolicy:
+#     name: "staggered"
+#     keepHourly: 6
+#     keepDaily: 14
+#     keepWeekly: 12
+#     keepMonthly: 6
+#     keepYearly: 2
+#     prune: true

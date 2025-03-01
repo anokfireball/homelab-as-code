@@ -10,9 +10,9 @@ spec:
     services:
       disabledDefaultServices: ["ro", "r"]
     roles:
-      - name: stashbackup
+      - name: backup
         passwordSecret:
-          name: stash-postgres-backup-user
+          name: postgres-backup-user
         login: true
         superuser: false
         inRoles:
@@ -26,6 +26,64 @@ spec:
   storage:
     size: 4Gi
     storageClass: cluster-replicated
+---
+apiVersion: k8up.io/v1
+kind: PreBackupPod
+metadata:
+  name: nextcloud-database-backup
+  namespace: default
+  labels:
+    backup: nextcloud-database
+  annotations:
+    k8up.io/backup: "true"
+spec:
+  backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
+  pod:
+    spec:
+      containers:
+        - name: nextcloud-database-backup
+          image: postgres:16.8-alpine@sha256:114d10708f03b728b5844fa6ff04383c43e6d409967a9cf652d5e5d6fbf5111a
+          env:
+            - name: POSTGRES_HOST
+              value: nextcloud-postgresql-rw
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: password
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: nextcloud-database
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Habitat-Giggle9-Composer/nextcloud
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: nextcloud-database
+    schedule: "33 4/6 * * *"
+    concurrentRunsAllowed: false
+  prune:
+    schedule: "3 0 0 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -207,6 +265,16 @@ spec:
       size: 2Gi
       nextcloudData:
         enabled: true
+        annotations:
+          k8up.io/backup: "true"
+          k8up.io/backup-restic-args: |
+            --exclude /var/www/html/data/nextcloud.log
+            --exclude /var/www/html/data/nextcloud.log.*
+            --exclude /var/www/html/data/appdata_*/preview
+            --exclude /var/www/html/data/*/files_external
+            --exclude /var/www/html/data/*/files/auto-upload
+        labels:
+          backup: nextcloud-data
         storageClass: cluster-replicated
         size: 100Gi
 ---
@@ -1403,80 +1471,30 @@ data:
       "weekStart": ""
     }
 ---
-apiVersion: stash.appscode.com/v1beta1
-kind: BackupConfiguration
+apiVersion: k8up.io/v1
+kind: Schedule
 metadata:
-  name: nextcloud
+  name: nextcloud-data
   namespace: default
 spec:
-  repository:
-    name: b2-nextcloud-repo
-    namespace: stash-system
-  timeOut: 12h
-  schedule: "14 1/6 * * *"
-  target:
-    ref:
-      apiVersion: apps/v1
-      kind: Deployment
-      name: nextcloud
-    volumeMounts:
-      - name: nextcloud-data
-        mountPath: /var/www/html/data
-    paths:
-      - /var/www/html/data
-    exclude:
-      - /var/www/html/data/nextcloud.log
-      - /var/www/html/data/nextcloud.log.*
-      - /var/www/html/data/appdata_*/preview
-      - /var/www/html/data/*/files_external
-      - /var/www/html/data/*/files/auto-upload
-  retentionPolicy:
-    name: "staggered"
-    keepHourly: 6
-    keepDaily: 14
-    keepWeekly: 12
-    keepMonthly: 6
-    keepYearly: 2
-    prune: true
----
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: nextcloud-postgresql
-  namespace: default
-spec:
-  clientConfig:
-    service:
-      name: nextcloud-postgresql-rw
-      port: 5432
-      scheme: postgresql
-  secret:
-    name: stash-postgres-backup-user
-  type: postgres
----
-apiVersion: stash.appscode.com/v1beta1
-kind: BackupConfiguration
-metadata:
-  name: nextcloud-postgresql
-  namespace: default
-spec:
-  schedule: "33 4/6 * * *"
-  task:
-    name: postgres-backup-16.1
-  repository:
-    name: b2-database-repo
-    namespace: stash-system
-  target:
-    alias: nextcloud
-    ref:
-      apiVersion: appcatalog.appscode.com/v1alpha1
-      kind: AppBinding
-      name: nextcloud-postgresql
-  retentionPolicy:
-    name: "staggered"
-    keepHourly: 6
-    keepDaily: 14
-    keepWeekly: 12
-    keepMonthly: 6
-    keepYearly: 2
-    prune: true
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Overshoot-Deviant-Stopwatch1
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: nextcloud-data
+    schedule: "14 1/6 * * *"
+    concurrentRunsAllowed: false
+  prune:
+    schedule: "44 0 0 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
