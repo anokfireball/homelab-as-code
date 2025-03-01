@@ -4,7 +4,7 @@ metadata:
   name: firefly-postgresql
   namespace: default
 spec:
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.2-27
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.2-27@sha256:9308dcd778be66f56bdce8503916ab820d12420e7d1bc74fff0d663c95e126c3
   instances: 1
   managed:
     services:
@@ -45,7 +45,7 @@ spec:
   values:
     image:
       repository: fireflyiii/core
-      tag: version-6.2.9
+      tag: version-6.2.9@sha256:b368f3ba77a34314da1e4925a1450f2f9cfaa5a173ef12683af2940223d7a428
     persistence:
       enabled: false
     config:

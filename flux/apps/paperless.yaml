@@ -8,7 +8,7 @@ spec:
   # https://github.com/paperless-ngx/paperless-ngx/blob/v2.13.5/Dockerfile#L96
   # https://packages.debian.org/de/bookworm/postgresql-client
   # https://www.postgresql.org/support/versioning/
-  imageName: ghcr.io/cloudnative-pg/postgresql:15.10-29
+  imageName: ghcr.io/cloudnative-pg/postgresql:15.10-29@sha256:802bf1479ef7b0e0655749203cded4ecbc9a114841273de71cb205f3a03254cd
   instances: 1
   managed:
     services:
