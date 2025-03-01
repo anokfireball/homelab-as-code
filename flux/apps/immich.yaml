@@ -15,9 +15,9 @@ spec:
     services:
       disabledDefaultServices: ["ro", "r"]
     roles:
-      - name: stashbackup
+      - name: backup
         passwordSecret:
-          name: stash-postgres-backup-user
+          name: postgres-backup-user
         login: true
         superuser: false
         inRoles:
@@ -208,75 +208,75 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: immich-machine-learning
----
-apiVersion: stash.appscode.com/v1beta1
-kind: BackupConfiguration
-metadata:
-  name: fotos
-  namespace: default
-spec:
-  repository:
-    name: b2-fotos-repo
-    namespace: stash-system
-  timeOut: 24h
-  schedule: "49 2/6 * * *"
-  target:
-    ref:
-      apiVersion: apps/v1
-      kind: Deployment
-      name: immich-server
-    volumeMounts:
-      - name: external
-        mountPath: /mnt/tank/Bilder
-    paths:
-      - /mnt/tank/Bilder
-  retentionPolicy:
-    name: "staggered"
-    keepHourly: 6
-    keepDaily: 14
-    keepWeekly: 12
-    keepMonthly: 6
-    keepYearly: 2
-    prune: true
----
-apiVersion: appcatalog.appscode.com/v1alpha1
-kind: AppBinding
-metadata:
-  name: immich-postgresql
-  namespace: default
-spec:
-  clientConfig:
-    service:
-      name: immich-postgresql-rw
-      port: 5432
-      scheme: postgresql
-  secret:
-    name: stash-postgres-backup-user
-  type: postgres
----
-apiVersion: stash.appscode.com/v1beta1
-kind: BackupConfiguration
-metadata:
-  name: immich-postgresql
-  namespace: default
-spec:
-  schedule: "19 4/6 * * *"
-  task:
-    name: postgres-backup-16.1
-  repository:
-    name: b2-database-repo
-    namespace: stash-system
-  target:
-    alias: immich
-    ref:
-      apiVersion: appcatalog.appscode.com/v1alpha1
-      kind: AppBinding
-      name: immich-postgresql
-  retentionPolicy:
-    name: "staggered"
-    keepHourly: 6
-    keepDaily: 14
-    keepWeekly: 12
-    keepMonthly: 6
-    keepYearly: 2
-    prune: true
+# ---
+# apiVersion: stash.appscode.com/v1beta1
+# kind: BackupConfiguration
+# metadata:
+#   name: fotos
+#   namespace: default
+# spec:
+#   repository:
+#     name: b2-fotos-repo
+#     namespace: stash-system
+#   timeOut: 24h
+#   schedule: "49 2/6 * * *"
+#   target:
+#     ref:
+#       apiVersion: apps/v1
+#       kind: Deployment
+#       name: immich-server
+#     volumeMounts:
+#       - name: external
+#         mountPath: /mnt/tank/Bilder
+#     paths:
+#       - /mnt/tank/Bilder
+#   retentionPolicy:
+#     name: "staggered"
+#     keepHourly: 6
+#     keepDaily: 14
+#     keepWeekly: 12
+#     keepMonthly: 6
+#     keepYearly: 2
+#     prune: true
+# ---
+# apiVersion: appcatalog.appscode.com/v1alpha1
+# kind: AppBinding
+# metadata:
+#   name: immich-postgresql
+#   namespace: default
+# spec:
+#   clientConfig:
+#     service:
+#       name: immich-postgresql-rw
+#       port: 5432
+#       scheme: postgresql
+#   secret:
+#     name: postgres-backup-user
+#   type: postgres
+# ---
+# apiVersion: stash.appscode.com/v1beta1
+# kind: BackupConfiguration
+# metadata:
+#   name: immich-postgresql
+#   namespace: default
+# spec:
+#   schedule: "19 4/6 * * *"
+#   task:
+#     name: postgres-backup-16.1
+#   repository:
+#     name: b2-database-repo
+#     namespace: stash-system
+#   target:
+#     alias: immich
+#     ref:
+#       apiVersion: appcatalog.appscode.com/v1alpha1
+#       kind: AppBinding
+#       name: immich-postgresql
+#   retentionPolicy:
+#     name: "staggered"
+#     keepHourly: 6
+#     keepDaily: 14
+#     keepWeekly: 12
+#     keepMonthly: 6
+#     keepYearly: 2
+#     prune: true

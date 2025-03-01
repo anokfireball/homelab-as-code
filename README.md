@@ -121,10 +121,10 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td>used for multiple repos, not just this one</td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/stashed/website/refs/heads/master/static/assets/images/products/kubestash/kubestash-icon.svg"></td>
-        <td><a href="https://stash.run/">stash</a></td>
+        <td><img width="32" src="https://raw.githubusercontent.com/k8up-io/k8up/refs/heads/master/docs/modules/ROOT/assets/images/k8up-logo-square.svg"></td>
+        <td><a href="https://k8up.io/">k8up</a></td>
         <td>Cloud-Native Backup/Restore</td>
-        <td>freemium/open core, but really good</td>
+        <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg.github.io/refs/heads/main/assets/images/hero_image.svg"></td>

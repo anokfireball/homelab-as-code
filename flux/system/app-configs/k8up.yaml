@@ -1,0 +1,34 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: k8up
+  namespace: k8up-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: k8up
+      version: 4.8.3
+      sourceRef:
+        kind: HelmRepository
+        name: k8up-io
+        namespace: flux-system
+  values:
+    k8up:
+      envVars:
+        - name: BACKUP_GLOBALACCESSKEYID
+          valueFrom:
+            secretKeyRef:
+              name: k8up-secrets
+              key: access-key-id
+        - name: BACKUP_GLOBALSECRETACCESSKEY
+          valueFrom:
+            secretKeyRef:
+              name: k8up-secrets
+              key: secret-access-key
+        - name: BACKUP_GLOBALS3ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: k8up-secrets
+              key: s3-endpoint
+      skipWithoutAnnotation: true
