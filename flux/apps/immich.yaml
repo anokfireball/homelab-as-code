@@ -108,7 +108,7 @@ spec:
             name: immich-postgres-user
             key: password
     image:
-      tag: v1.127.0
+      tag: v1.128.0
     immich:
       persistence:
         library:
