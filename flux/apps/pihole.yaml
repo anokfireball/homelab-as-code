@@ -113,6 +113,8 @@ spec:
       - ${SMTP_HOST}
       - jnn-pa.googleapis.com
       - idealo.de
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
     podDnsConfig:
       enabled: true
       policy: None
