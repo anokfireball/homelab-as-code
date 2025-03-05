@@ -41,6 +41,67 @@ spec:
     size: 4Gi
     storageClass: cluster-replicated
 ---
+apiVersion: k8up.io/v1
+kind: PreBackupPod
+metadata:
+  name: immich-database-backup
+  namespace: default
+  labels:
+    backup: immich-database
+  annotations:
+    k8up.io/backup: "true"
+spec:
+  backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
+  pod:
+    spec:
+      containers:
+        - name: immich-database-backup
+          image: postgres:16.8-alpine@sha256:114d10708f03b728b5844fa6ff04383c43e6d409967a9cf652d5e5d6fbf5111a
+          command:
+            - "sleep"
+            - "infinity"
+          env:
+            - name: POSTGRES_HOST
+              value: immich-postgresql-rw
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: password
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: immich-database
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Habitat-Giggle9-Composer/immich
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: immich-database
+    schedule: "19 4/6 * * *"
+    concurrentRunsAllowed: false
+  prune:
+    schedule: "49 0 1 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -59,6 +120,10 @@ kind: PersistentVolumeClaim
 metadata:
   name: nas-photos
   namespace: default
+  annotations:
+    k8up.io/backup: "true"
+  labels:
+    backup: immich-data
 spec:
   accessModes:
     - ReadWriteMany
@@ -208,75 +273,33 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: immich-machine-learning
-# ---
-# apiVersion: stash.appscode.com/v1beta1
-# kind: BackupConfiguration
-# metadata:
-#   name: fotos
-#   namespace: default
-# spec:
-#   repository:
-#     name: b2-fotos-repo
-#     namespace: stash-system
-#   timeOut: 24h
-#   schedule: "49 2/6 * * *"
-#   target:
-#     ref:
-#       apiVersion: apps/v1
-#       kind: Deployment
-#       name: immich-server
-#     volumeMounts:
-#       - name: external
-#         mountPath: /mnt/tank/Bilder
-#     paths:
-#       - /mnt/tank/Bilder
-#   retentionPolicy:
-#     name: "staggered"
-#     keepHourly: 6
-#     keepDaily: 14
-#     keepWeekly: 12
-#     keepMonthly: 6
-#     keepYearly: 2
-#     prune: true
-# ---
-# apiVersion: appcatalog.appscode.com/v1alpha1
-# kind: AppBinding
-# metadata:
-#   name: immich-postgresql
-#   namespace: default
-# spec:
-#   clientConfig:
-#     service:
-#       name: immich-postgresql-rw
-#       port: 5432
-#       scheme: postgresql
-#   secret:
-#     name: postgres-backup-user
-#   type: postgres
-# ---
-# apiVersion: stash.appscode.com/v1beta1
-# kind: BackupConfiguration
-# metadata:
-#   name: immich-postgresql
-#   namespace: default
-# spec:
-#   schedule: "19 4/6 * * *"
-#   task:
-#     name: postgres-backup-16.1
-#   repository:
-#     name: b2-database-repo
-#     namespace: stash-system
-#   target:
-#     alias: immich
-#     ref:
-#       apiVersion: appcatalog.appscode.com/v1alpha1
-#       kind: AppBinding
-#       name: immich-postgresql
-#   retentionPolicy:
-#     name: "staggered"
-#     keepHourly: 6
-#     keepDaily: 14
-#     keepWeekly: 12
-#     keepMonthly: 6
-#     keepYearly: 2
-#     prune: true
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: immich-data
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Privatize8-Secret-Starry
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: immich-data
+    schedule: "49 2/6 * * *"
+    concurrentRunsAllowed: false
+  podSecurityContext:
+    runAsUser: 82
+  prune:
+    schedule: "19 0 1 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
