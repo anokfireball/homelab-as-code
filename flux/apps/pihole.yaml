@@ -44,6 +44,10 @@ spec:
       enabled: false
     DNS1: 192.168.1.1
     DNS2: fe80::1
+    dnsmasq:
+      customSettings:
+        # https://docs.pi-hole.net/ftldns/interfaces/#all
+        useAllInterfaces: except-interface=nonexisting
     adlists:
       # everything but the kitchen sink
       - https://big.oisd.nl
