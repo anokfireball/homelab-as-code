@@ -127,45 +127,64 @@ spec:
         integrations:
           traefik:
             enabled: false
-# ---
-# apiVersion: appcatalog.appscode.com/v1alpha1
-# kind: AppBinding
-# metadata:
-#   name: n8n-postgresql
-#   namespace: default
-# spec:
-#   clientConfig:
-#     service:
-#       name: n8n-postgresql-rw
-#       port: 5432
-#       scheme: postgresql
-#   secret:
-#     name: postgres-backup-user
-#   type: postgres
-# ---
-# apiVersion: stash.appscode.com/v1beta1
-# kind: BackupConfiguration
-# metadata:
-#   name: n8n-postgresql
-#   namespace: default
-# spec:
-#   schedule: "53 4/6 * * *"
-#   task:
-#     name: postgres-backup-17.2
-#   repository:
-#     name: b2-database-repo
-#     namespace: stash-system
-#   target:
-#     alias: n8n
-#     ref:
-#       apiVersion: appcatalog.appscode.com/v1alpha1
-#       kind: AppBinding
-#       name: n8n-postgresql
-#   retentionPolicy:
-#     name: "staggered"
-#     keepHourly: 6
-#     keepDaily: 14
-#     keepWeekly: 12
-#     keepMonthly: 6
-#     keepYearly: 2
-#     prune: true
+---
+apiVersion: k8up.io/v1
+kind: PreBackupPod
+metadata:
+  name: n8n-database-backup
+  namespace: default
+  labels:
+    backup: n8n-database
+  annotations:
+    k8up.io/backup: "true"
+spec:
+  backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
+  pod:
+    spec:
+      containers:
+        - name: n8n-database-backup
+          image: postgres:17.4-alpine@sha256:6c717ca5788964057727e357b9bb634df43197ccbee573994b438921f97a3583
+          command:
+            - "sleep"
+            - "infinity"
+          env:
+            - name: POSTGRES_HOST
+              value: n8n-postgresql-rw
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: password
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: n8n-database
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Habitat-Giggle9-Composer/n8n
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: n8n-database
+    schedule: "53 4/6 * * *"
+    concurrentRunsAllowed: false
+  prune:
+    schedule: "23 0 1 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
