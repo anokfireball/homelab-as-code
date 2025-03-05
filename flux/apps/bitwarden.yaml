@@ -177,7 +177,7 @@ spec:
       name: k8up-restic-secrets
       key: restic-password
     s3:
-      bucket: Habitat-Giggle9-Composer/Bitwarden
+      bucket: Habitat-Giggle9-Composer/bitwarden
   backup:
     labelSelectors:
       - matchLabels:
