@@ -132,45 +132,64 @@ spec:
       tls: true
       hostname: bitwarden.${SERVICE_DOMAIN}
       tlsSecret: bitwarden-tls
-# ---
-# apiVersion: appcatalog.appscode.com/v1alpha1
-# kind: AppBinding
-# metadata:
-#   name: bitwarden-postgresql
-#   namespace: default
-# spec:
-#   clientConfig:
-#     service:
-#       name: vaultwarden-postgresql-rw
-#       port: 5432
-#       scheme: postgresql
-#   secret:
-#     name: postgres-backup-user
-#   type: postgres
-# ---
-# apiVersion: stash.appscode.com/v1beta1
-# kind: BackupConfiguration
-# metadata:
-#   name: bitwarden-postgresql
-#   namespace: default
-# spec:
-#   schedule: "23 4/6 * * *"
-#   task:
-#     name: postgres-backup-15.1
-#   repository:
-#     name: b2-database-repo
-#     namespace: stash-system
-#   target:
-#     alias: bitwarden
-#     ref:
-#       apiVersion: appcatalog.appscode.com/v1alpha1
-#       kind: AppBinding
-#       name: bitwarden-postgresql
-#   retentionPolicy:
-#     name: "staggered"
-#     keepHourly: 6
-#     keepDaily: 14
-#     keepWeekly: 12
-#     keepMonthly: 6
-#     keepYearly: 2
-#     prune: true
+---
+apiVersion: k8up.io/v1
+kind: PreBackupPod
+metadata:
+  name: bitwarden-database-backup
+  namespace: default
+  labels:
+    backup: bitwarden-database
+  annotations:
+    k8up.io/backup: "true"
+spec:
+  backupCommand: sh -c 'PGHOST="${POSTGRES_HOST}" PGUSER="${POSTGRES_USER}" PGPASSWORD="${POSTGRES_PASSWORD}" pg_dumpall --clean'
+  pod:
+    spec:
+      containers:
+        - name: bitwarden-database-backup
+          image: postgres:15.12-alpine@sha256:ef4879231c4a490f8365bef5dfa2c137d95b7d7703d0b53605693091be48d5b4
+          command:
+            - "sleep"
+            - "infinity"
+          env:
+            - name: POSTGRES_HOST
+              value: vaultwarden-postgresql-rw
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: password
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: bitwarden-database
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Habitat-Giggle9-Composer/Bitwarden
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: bitwarden-database
+    schedule: "23 4/6 * * *"
+    concurrentRunsAllowed: false
+  prune:
+    schedule: "53 0 1 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
