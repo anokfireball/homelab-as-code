@@ -16,6 +16,7 @@ spec:
   values:
     cronjob:
       schedule: '51 0/6 * * *'
+      postCommand: 'curl -fs $(HEALTHCHECK)'
     renovate:
       existingConfigFile: /config/config.json
     extraVolumes:
@@ -28,3 +29,9 @@ spec:
     envList:
       - name: LOG_LEVEL
         value: debug
+      - name: HEALTHCHECK
+        valueFrom:
+          secretKeyRef:
+            name: renovate-config
+            key: HEALTHCHECK
+
