@@ -16,7 +16,7 @@ spec:
   values:
     cronjob:
       schedule: '51 0/6 * * *'
-      postCommand: 'curl -fs $(HEALTHCHECK)'
+      postCommand: 'curl -fs "$HEALTHCHECK"'
     renovate:
       existingConfigFile: /config/config.json
     extraVolumes:
@@ -34,4 +34,3 @@ spec:
           secretKeyRef:
             name: renovate-config
             key: HEALTHCHECK
-
