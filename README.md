@@ -151,6 +151,12 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td></td>
     </tr>
     <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/AnalogJ/scrutiny/refs/heads/master/webapp/frontend/src/assets/images/logo/scrutiny-logo-dark.svg"></td>
+        <td><a href="https://github.com/AnalogJ/scrutiny">Scrutiny</a></td>
+        <td>Drive Health Monitoring</td>
+        <td>via SMART</td>
+    </tr>
+    <tr>
         <td><img height="32" width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/descheduler/refs/heads/master/assets/logo/descheduler-stacked-color.png"></td>
         <td><a href="https://sigs.k8s.io/descheduler">descheduler</a></td>
         <td>Pod Eviction for Node Balancing</td>

@@ -1,0 +1,151 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: scrutiny-influxdb
+  namespace: monitoring-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: influxdb2
+      version: 2.1.2
+      sourceRef:
+        kind: HelmRepository
+        name: influxdata
+        namespace: flux-system
+  values:
+    service:
+      port: 8086
+    adminUser:
+      organization: scrutiny
+      bucket: metrics
+      user: admin
+      existingSecret: scrutiny-influxdb-admin
+    persistence:
+      enabled: true
+      storageClass: nas-replicated-hdd
+      size: 50Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: scrutiny-web
+  namespace: monitoring-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.2
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      hub:
+        containers:
+          web:
+            image:
+              repository: ghcr.io/analogj/scrutiny
+              tag: master-web@sha256:2eec62a138a4fa9c7d29f45ac1a65f282fe0a4a73e4a21fc635d0d09eda9fea2
+            env:
+              - name: SCRUTINY_WEB_INFLUXDB_HOST
+                value: scrutiny-influxdb-influxdb2
+              - name: SCRUTINY_WEB_INFLUXDB_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: scrutiny-influxdb-admin
+                    key: admin-token
+    service:
+      main:
+        controller: hub
+        ports:
+          http:
+            port: 8080
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: scrutiny.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: scrutiny-tls
+            hosts:
+              - scrutiny.${SERVICE_DOMAIN}
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        globalMounts:
+          - path: /opt/scrutiny/config
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: scrutiny-collector
+  namespace: monitoring-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.2
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    defaultPodOptions:
+      tolerations:
+        - operator: Exists
+    controllers:
+      spoke:
+        type: daemonset
+        containers:
+          collector:
+            image:
+              repository: ghcr.io/analogj/scrutiny
+              tag: master-collector@sha256:957b3f18037bcce08723c147ad1b80f0320f376ce3d2c8b43639f17478d7586c
+            env:
+              - name: COLLECTOR_API_ENDPOINT
+                value: http://scrutiny-web:8080
+              - name: COLLECTOR_CRON_SCHEDULE
+                value: "*/15 * * * *"
+              - name: COLLECTOR_HOST_ID
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+            securityContext:
+              privileged: true
+              capabilities:
+                add:
+                  - SYS_RAWIO # SATA
+                  - SYS_ADMIN # NVMe
+    configMaps:
+      config:
+        data:
+          collector.yaml: |
+            allow_listed_devices:
+            - /dev/sda
+            - /dev/nvme0
+    persistence:
+      config:
+        type: configMap
+        name: scrutiny-collector-config
+        globalMounts:
+          - path: /opt/scrutiny/config/collector.yaml
+            subPath: collector.yaml
+      udev:
+        type: hostPath
+        hostPath: /run/udev
+        globalMounts:
+          - path: /run/udev
