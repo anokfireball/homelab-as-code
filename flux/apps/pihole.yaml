@@ -36,6 +36,13 @@ spec:
         - secretName: pihole-tls
           hosts:
             - pihole.${SERVICE_DOMAIN}
+    probes:
+      liveness:
+        port: http
+        scheme: HTTP
+      readiness:
+        port: http
+        scheme: HTTP
     resources:
       requests:
         cpu: 10m
