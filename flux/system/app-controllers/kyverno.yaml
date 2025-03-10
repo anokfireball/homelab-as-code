@@ -35,3 +35,22 @@ spec:
     reportsController:
       # replicas: 2
       serviceMonitor: *service-monitor-config
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kyverno:deployment-mutation
+  namespace: kyverno-system
+  labels:
+    rbac.kyverno.io/aggregate-to-background-controller: "true"
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - update

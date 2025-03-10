@@ -180,6 +180,38 @@ spec:
       keepMonthly: 6
       keepYearly: 2
 ---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: set-paperless-script-permissions
+spec:
+  mutateExistingOnPolicyUpdate: true
+  rules:
+    - name: add-execute-permissions-to-script
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+              names:
+                - paperless-ngx
+              namespaces:
+                - default
+      mutate:
+        targets:
+          - apiVersion: apps/v1
+            kind: Deployment
+        patchStrategicMerge:
+          spec:
+            template:
+              spec:
+                volumes:
+                  - name: postconsumptionscript
+                    configMap:
+                      name: paperless-ngx-postconsumptionscript
+                      defaultMode: 0755
+                      optional: false
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
