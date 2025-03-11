@@ -18,11 +18,23 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          permissions:
+            image:
+              repository: busybox
+              tag: stable@sha256:a4dbb12065ab7bbee5f0f1016ed9c1556a6ba7545929a5593494963a14cfc17c
+            command: ["chown"]
+            args: ["1000:1000", "/incomplete-downloads"]
         containers:
           main:
             image:
               repository: ghcr.io/linuxserver/qbittorrent
               tag: 5.0.4-r0-ls382@sha256:f8d719940b59472f9a29f1de799a3fa180e051ad5d29c50052ae9129b09bfd9c
+            env:
+              - name: PUID
+                value: 1000
+              - name: PGID
+                value: 1000
             probes:
               liveness:
                 enabled: true
@@ -93,6 +105,12 @@ spec:
               requests:
                 cpu: 10m
                 memory: 35Mi
+          logs:
+            image:
+              repository: busybox
+              tag: stable@sha256:a4dbb12065ab7bbee5f0f1016ed9c1556a6ba7545929a5593494963a14cfc17c
+            command: ["tail"]
+            args: ["-F", "/config/qBittorrent/logs/qbittorrent.log"]
     service:
       main:
         controller: main
@@ -144,6 +162,11 @@ spec:
         storageClass: cluster-replicated
         accessMode: ReadWriteOnce
         size: 500Mi
+      logs:
+        type: emptyDir
+        sizeLimit: 500Mi
+        globalMounts:
+          - path: /config/qBittorrent/logs/
       incomplete-downloads:
         type: persistentVolumeClaim
         storageClass: cluster-scratch
