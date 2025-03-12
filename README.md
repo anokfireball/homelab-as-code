@@ -2,7 +2,11 @@
 
 ![alt text](logo.png "Title")
 
-Bootstrap and GitOps sources to get my baremetal homelab set up consistently.
+<img src="https://uptime-kuma.kthxbye.cyou/api/badge/43/uptime?labelPrefix=Node+" alt="Node Uptime">
+<img src="https://uptime-kuma.kthxbye.cyou/api/badge/90/uptime?labelPrefix=Cluster+" alt="Cluster Uptime">
+<img src="https://uptime-kuma.kthxbye.cyou/api/badge/63/uptime?labelPrefix=Service+" alt="Service Uptime">
+
+<h3>Bootstrap and GitOps sources to get my baremetal homelab set up consistently.</h3>
 
 </div>
 
@@ -14,8 +18,8 @@ After starting with a simple single-node Docker Compose setup, the increasing nu
 As the complexity grew, it became clear that a more structured, Infrastructure-as-Code approach was needed to:
 - keep configurations versioned and thus better documented
 - make deployments more consistently repeatable and reliable
-- simplify the process of adding new services without
-- enable easier backup and disaster recovery
+- simplify the process of adding new services without losing track of the overall state
+- enable easier backup and disaster recovery that is centrally managed
 - provide better scalability and resilience beyond a single node
 
 I decided to take this opportunity to properly learn Kubernetes hands-on, embracing the complexity and "feeling the pain" that comes with it rather than _just_ having the theoretical knowledge.
@@ -264,6 +268,12 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><i>any</i> as long as you know some PHP</td>
     </tr>
     <tr>
+        <td><img width="32" src="https://d21buns5ku92am.cloudfront.net/26628/documents/54546-1717072325-sc-logo-cloud-black-7412d7.svg"></td>
+        <td><a href="https://github.com/C0nsultant/soundcloud-scraper">Soundcloud Scraper</a></td>
+        <td>Parser + Webhook for my Soundcloud Feed</td>
+        <td></td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/refs/heads/main/docs/stirling.svg"></td>
         <td><a href="https://www.stirlingpdf.com/">Stirling PDF</a></td>
         <td>Swiss-Army Knife for PDFs</td>
@@ -273,6 +283,12 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/ubiquiti-unifi.svg"></td>
         <td><a href="https://ui.com/consoles">UniFi Network Application</a></td>
         <td>AP Administration and Management</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opnsense-v1.svg"></td>
+        <td><a href="https://github.com/C0nsultant/opnsense-ipv6-prefix-update">OPNsense Prefix Updater</a></td>
+        <td>Update Network Configs with Newest Non-Static IPv6</td>
         <td></td>
     </tr>
     <tr>
