@@ -1,4 +1,8 @@
 ---
+- name: update apt cache
+  apt:
+    update_cache: true
+
 - name: kubeadm upgrade primary control plane node
   when: inventory_hostname == "controlplane1"
   block:
