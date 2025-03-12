@@ -15,9 +15,10 @@
 - name: install common packages
   apt:
     pkg:
-      - neovim
-      - tmux
       - inxi
+      - neovim
+      - smartmontools
+      - tmux
       - unattended-upgrades
       - update-notifier-common
       - yq  # https://github.com/kislyuk/yq since there are multiple with the same name...
@@ -116,3 +117,29 @@
   with_items:
     - { name: fs.inotify.max_user_instances, value: 8192 }
     - { name: fs.inotify.max_user_watches, value: 65536 }
+
+- name: schedule daily short smart drive test for all drives
+  copy:
+    dest: /etc/cron.daily/smart-test
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      if [ -b /dev/sda ]; then
+        smartctl --test=short /dev/sda
+      fi
+      if [ -b /dev/nvme0n1 ]; then
+        smartctl --test=short /dev/nvme0n1
+      fi
+
+- name: schedule weekly extended smart drive test for all drives
+  copy:
+    dest: /etc/cron.weekly/smart-test
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      if [ -b /dev/sda ]; then
+        smartctl --test=long /dev/sda
+      fi
+      if [ -b /dev/nvme0n1 ]; then
+        smartctl --test=long /dev/nvme0n1
+      fi
