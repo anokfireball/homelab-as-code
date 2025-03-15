@@ -40,7 +40,7 @@ spec:
   chart:
     spec:
       chart: vaultwarden
-      version: 0.31.6
+      version: 0.31.8
       sourceRef:
         kind: HelmRepository
         name: guerzon
