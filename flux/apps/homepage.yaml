@@ -40,6 +40,9 @@ spec:
               - homepage.${SERVICE_DOMAIN}
     config:
       useExistingConfigMap: homepage-config
+    env:
+      - name: HOMEPAGE_ALLOWED_HOSTS
+        value: "homepage.${SERVICE_DOMAIN}"
     resources:
       requests:
         cpu: 50m
