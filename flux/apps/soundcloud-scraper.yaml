@@ -20,7 +20,9 @@ spec:
         cronjob:
           schedule: "*/15 * * * *"
           concurrencyPolicy: Replace
-        initContainers:
+        annotations:
+          healthcheckUrlSecret: soundcloud-scraper-secrets
+        containers:
           main:
             image:
               repository: ghcr.io/c0nsultant/soundcloud-scraper
@@ -30,19 +32,6 @@ spec:
               SOUNDCLOUD_USERNAME: psykko0
             envFrom:
               - secret: soundcloud-scraper-secrets
-        containers:
-          healthcheck:
-            image:
-              repository: curlimages/curl
-              tag: latest@sha256:e7f227b4e2adafe7bd743bda37f4f6d6f803ea965e9e827061ff07de9d67d433
-            command: ["curl"]
-            args: ["-fs", "$(HEALTHCHECK)"]
-            env:
-              - name: HEALTHCHECK
-                valueFrom:
-                  secretKeyRef:
-                    name: soundcloud-scraper-secrets
-                    key: HEALTHCHECK
     persistence:
       data:
         type: persistentVolumeClaim
