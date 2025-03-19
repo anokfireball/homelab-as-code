@@ -247,7 +247,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><img width="32" src="https://raw.githubusercontent.com/firefly-iii/firefly-iii/refs/heads/main/public/favicon.ico"></td>
         <td><a href="https://www.firefly-iii.org/">Firefly III</a></td>
         <td>Personal Finance Manager</td>
-        <td></td>
+        <td>including <a href="https://github.com/firefly-iii/data-importer">importer</a> and <a href="https://github.com/cioraneanu/firefly-pico">pico</a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/gethomepage/homepage/refs/heads/dev/public/homepage.ico"></td>
