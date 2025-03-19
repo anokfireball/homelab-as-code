@@ -52,6 +52,8 @@ spec:
       existingSecret: firefly-config
     cronjob:
       enabled: true
+      annotations:
+        healthcheckUrlSecret: firefly-cron
       auth:
         existingSecret: firefly-cron
       image:

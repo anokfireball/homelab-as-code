@@ -247,6 +247,7 @@ spec:
           size: 2Gi
       architecture: standalone
     cronjob:
+      # TODO kubectl exec pod/nextcloud-6c75497d59-fsmrq -- su -s /bin/sh www-data -c "php occ files:scan --all"
       enabled: true
     internalDatabase:
       enabled: false
