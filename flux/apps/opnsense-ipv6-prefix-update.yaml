@@ -19,7 +19,9 @@ spec:
         type: cronjob
         cronjob:
           schedule: "*/1 * * * *"
-        initContainers:
+        annotations:
+          healthcheckUrlSecret: opnsense-ipv6-prefix-update-secrets
+        containers:
           main:
             image:
               repository: ghcr.io/c0nsultant/opnsense-ipv6-prefix-update
@@ -32,16 +34,3 @@ spec:
               IPV6_PREFIX_LENGTH: 57
             envFrom:
               - secret: opnsense-ipv6-prefix-update-secrets
-        containers:
-          healthcheck:
-            image:
-              repository: curlimages/curl
-              tag: latest@sha256:e7f227b4e2adafe7bd743bda37f4f6d6f803ea965e9e827061ff07de9d67d433
-            command: ["curl"]
-            args: ["-fs", "$(HEALTHCHECK)"]
-            env:
-              - name: HEALTHCHECK
-                valueFrom:
-                  secretKeyRef:
-                    name: opnsense-ipv6-prefix-update-secrets
-                    key: HEALTHCHECK
