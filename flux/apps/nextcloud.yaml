@@ -88,6 +88,14 @@ spec:
       keepMonthly: 6
       keepYearly: 2
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-cron-script
+  namespace: default
+data:
+  www-data: "*/5 * * * * php -f /var/www/html/cron.php && php /var/www/html/occ files:scan --all && curl -fs $(cat /healthcheckUrl)"
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -204,6 +212,12 @@ spec:
           nfs:
             server: 192.168.1.2
             path: /mnt/tank/Bilder/Dani/Handy
+        - name: cron
+          configMap:
+            name: nextcloud-cron-script
+        - name: healthcheck
+          secret:
+            secretName: nextcloud-secrets
       extraVolumeMounts:
         - name: paperless-consume
           mountPath: /var/www/html/data/ntauthority/files/consumption/
@@ -211,6 +225,11 @@ spec:
           mountPath: /var/www/html/data/ntauthority/files/auto-upload/
         - name: photo-auto-upload-dani
           mountPath: /var/www/html/data/RedRaven/files/auto-upload/
+        - name: cron
+          mountPath: /var/spool/cron/crontabs/
+        - name: healthcheck
+          mountPath: /healthcheckUrl
+          subPath: healthcheckUrl
     imaginary:
       enabled: true
       resources:
@@ -247,8 +266,9 @@ spec:
           size: 2Gi
       architecture: standalone
     cronjob:
-      # TODO kubectl exec pod/nextcloud-6c75497d59-fsmrq -- su -s /bin/sh www-data -c "php occ files:scan --all"
       enabled: true
+      command:
+        - /cron.sh
     internalDatabase:
       enabled: false
     externalDatabase:
