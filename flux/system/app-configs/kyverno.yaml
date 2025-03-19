@@ -1,0 +1,58 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-healthcheck-to-cronjobs
+spec:
+  failurePolicy: Fail
+  rules:
+    - name: make-containers-into-init-containers
+      match:
+        resources:
+          kinds:
+            - batch/v1/CronJob
+      preconditions:
+        all:
+          - key: "{{ request.object.metadata.annotations.healthcheckUrlSecret || '' }}"
+            operator: NotEquals
+            value: ""
+      mutate:
+        foreach:
+          - list: request.object.spec.jobTemplate.spec.template.spec.containers
+            patchStrategicMerge:
+              spec:
+                jobTemplate:
+                  spec:
+                    template:
+                      spec:
+                        initContainers:
+                          - "{{ element }}"
+    - name: replace-containers-with-healthcheck
+      match:
+        resources:
+          kinds:
+            - batch/v1/CronJob
+      preconditions:
+        all:
+          - key: "{{ request.object.metadata.annotations.healthcheckUrlSecret || '' }}"
+            operator: NotEquals
+            value: ""
+      mutate:
+        # have to rely on ASCII escape (\x24) for the shell evaluation
+        # - $(HEALTHCHECK) would cause substitution/failure by kyverno
+        # - ${HEALTHCHECK} would cause substitution/failure by flux
+        # - \$(HEALTHCHECK) would cause parsing failure ("found unknown escape character")
+        # - $HEALTHCHECK does not actually evaluate in this case
+        patchesJson6902: |-
+          - path: "/spec/jobTemplate/spec/template/spec/containers"
+            op: replace
+            value:
+              - name: healthcheck
+                image: curlimages/curl:latest@sha256:e7f227b4e2adafe7bd743bda37f4f6d6f803ea965e9e827061ff07de9d67d433
+                command: ["curl"]
+                args: ["-fs", "\x24(HEALTHCHECK)"]
+                env:
+                  - name: HEALTHCHECK
+                    valueFrom:
+                      secretKeyRef:
+                        name: "{{ request.object.metadata.annotations.healthcheckUrlSecret }}"
+                        key: healthcheckUrl
