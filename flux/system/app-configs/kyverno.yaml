@@ -18,6 +18,11 @@ spec:
       mutate:
         foreach:
           - list: request.object.spec.jobTemplate.spec.template.spec.containers
+            preconditions:
+              all:
+                - key: "{{ element.name }}"
+                  operator: NotEquals
+                  value: "healthcheck"
             patchStrategicMerge:
               spec:
                 jobTemplate:
