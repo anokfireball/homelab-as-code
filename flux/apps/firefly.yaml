@@ -157,7 +157,7 @@ spec:
       tag: version-1.6.1@sha256:40e10f996a7bf72285dd6475c49424a02255fb02437904fe2ee6c44bc07e1bfc
     fireflyiii:
       url: http://firefly-firefly-iii
-      vanityUrl: https://firefly-importer.${SERVICE_DOMAIN}/
+      vanityUrl: https://firefly.${SERVICE_DOMAIN}
       auth:
         existingSecret: firefly-importer
     config:
