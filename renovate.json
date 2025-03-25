@@ -29,6 +29,10 @@
     {
       "matchPackageNames": ["ghcr.io/analogj/scrutiny"],
       "automerge": false
+    },
+    {
+      "matchPackageNames": ["external-dns"],
+      "automerge": false
     }
   ],
   "ignoreTests": true,
