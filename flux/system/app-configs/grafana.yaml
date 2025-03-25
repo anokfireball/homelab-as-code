@@ -34,6 +34,10 @@ spec:
           hosts:
             - grafana.${SERVICE_DOMAIN}
     sidecar:
+      alerts:
+        enabled: true
+        label: grafana_alert
+        labelValue: "1"
       dashboards:
         enabled: true
         searchNamespace: ALL
@@ -49,6 +53,9 @@ spec:
         labelValue: "1"
       plugins:
         enabled: true
-        searchNamespace: ALL
         label: grafana_plugin
+        labelValue: "1"
+      notifiers:
+        enabled: true
+        label: grafana_notifier
         labelValue: "1"
