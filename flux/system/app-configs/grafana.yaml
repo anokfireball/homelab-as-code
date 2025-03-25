@@ -14,14 +14,6 @@ spec:
         name: grafana
         namespace: flux-system
   values:
-    persistence:
-      enabled: true
-      storageClassName: cluster-scratch
-      size: 1Gi
-    admin:
-      existingSecret: grafana-secrets
-      userKey: admin-user
-      passwordKey: admin-password
     ingress:
       enabled: true
       ingressClassName: nginx
@@ -33,6 +25,18 @@ spec:
         - secretName: grafana-tls
           hosts:
             - grafana.${SERVICE_DOMAIN}
+    persistence:
+      enabled: true
+      storageClassName: cluster-scratch
+      size: 1Gi
+    admin:
+      existingSecret: grafana-secrets
+      userKey: admin-user
+      passwordKey: admin-password
+    grafana.ini:
+      server:
+        domain: grafana.${SERVICE_DOMAIN}
+        root_url: https://grafana.${SERVICE_DOMAIN}
     sidecar:
       alerts:
         enabled: true
