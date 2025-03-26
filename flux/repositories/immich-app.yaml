@@ -4,4 +4,5 @@ metadata:
   name: immich-app
   namespace: flux-system
 spec:
-  url: https://immich-app.github.io/immich-charts
+  type: oci
+  url: oci://ghcr.io/immich-app/immich-charts
