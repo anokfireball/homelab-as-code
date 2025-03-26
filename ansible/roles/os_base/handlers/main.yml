@@ -4,5 +4,9 @@
     state: restarted
     name: unattended-upgrades
 
+- name: update grub
+  command: update-grub
+  changed_when: true
+
 - name: reboot
   reboot:

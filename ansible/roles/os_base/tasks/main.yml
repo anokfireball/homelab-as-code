@@ -143,3 +143,32 @@
       if [ -b /dev/nvme0n1 ]; then
         smartctl --test=long /dev/nvme0n1
       fi
+
+# https://lore.kernel.org/all/20241019-xtables-typos-v2-1-6b8b1735dc8e@0upti.me/
+# https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2104282
+- name: blacklist kernel 6.8.0-56
+  copy:
+    dest: /etc/apt/preferences.d/block-kernel
+    content: |
+      Package: linux-image-6.8.0-56-generic
+      Pin: version *
+      Pin-Priority: -1
+
+- name: update apt cache to make sure kernel is blacklisted
+  apt:
+    update_cache: true
+
+- name: install latest non-blacklisted kernel
+  apt:
+    pkg: linux-image-6.8.0-55-generic
+    state: present
+
+- name: uninstall blacklisted kernel
+  apt:
+    pkg: linux-image-6.8.0-56-generic
+    state: absent
+  notify:
+    - update grub
+    - reboot
+
+- meta: flush_handlers
