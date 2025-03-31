@@ -29,7 +29,7 @@ spec:
           main:
             image:
               repository: ghcr.io/linuxserver/qbittorrent
-              tag: 5.0.4@sha256:f8d719940b59472f9a29f1de799a3fa180e051ad5d29c50052ae9129b09bfd9c
+              tag: 5.0.4@sha256:dc9e13d2edab18cc7c42367526182b2798f9f0f4c590559337f954fb4e3bdc35
             env:
               - name: PUID
                 value: 1000
