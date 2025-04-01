@@ -20,7 +20,7 @@ spec:
           main:
             image:
               repository: ghcr.io/hotio/prowlarr
-              tag: release@sha256:7f6f2e7f48f3180322db6cbf676a859bc08795774812f9a693bb62e30d480eb9
+              tag: release@sha256:290f3c4b6621bfd7c9e5a99b5a9371cf3d304fbaec5b92026a6c2e62b307e3fa
             probes:
               liveness:
                 enabled: true
