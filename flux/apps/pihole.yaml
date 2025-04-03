@@ -14,7 +14,6 @@ spec:
         name: mojo2600
         namespace: flux-system
   values:
-    # TODO set cache size to 0 to avoid double-caching
     dualStack:
       enabled: true
     serviceDns:
@@ -42,6 +41,8 @@ spec:
         memory: 100Mi
     admin:
       enabled: false
+    extraEnvVars:
+      FTLCONF_dns_cache_size: 0
     DNS1: 192.168.1.1
     DNS2: fe80::1
     dnsmasq:
