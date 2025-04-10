@@ -145,12 +145,16 @@
       fi
 
 # https://lore.kernel.org/all/20241019-xtables-typos-v2-1-6b8b1735dc8e@0upti.me/
-# https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2104282
-- name: blacklist kernel 6.8.0-56
+# https://bugs.launchpad.net/kernel-sru-workflow/+bug/2102529
+- name: blacklist incompatible kernels
   copy:
     dest: /etc/apt/preferences.d/block-kernel
     content: |
       Package: linux-image-6.8.0-56-generic
+      Pin: version *
+      Pin-Priority: -1
+
+      Package: linux-image-6.8.0-57-generic
       Pin: version *
       Pin-Priority: -1
 
@@ -165,7 +169,9 @@
 
 - name: uninstall blacklisted kernel
   apt:
-    pkg: linux-image-6.8.0-56-generic
+    pkg:
+      - linux-image-6.8.0-56-generic
+      - linux-image-6.8.0-57-generic
     state: absent
   notify:
     - update grub
