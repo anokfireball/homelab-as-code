@@ -17,7 +17,7 @@ spec:
     image:
       registry: ghcr.io
       repository: stirling-tools/stirling-pdf
-      tag: 0.45.2-fat@sha256:ea8c8ee1459c551a196f6402f2b9c9263fc603037fcd9b017a6adb65dc3c988c
+      tag: 0.45.3-fat@sha256:80509ded67825f8f5498bf8c112edd60a51d4e98ac276d04aeb22f09eb33e116
     envs:
       - name: SYSTEM_DEFAULTLOCALE
         value: de-DE
