@@ -250,6 +250,12 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td>including <a href="https://github.com/firefly-iii/data-importer">importer</a> and <a href="https://github.com/cioraneanu/firefly-pico">pico</a></td>
     </tr>
     <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/TomBursch/kitchenowl/refs/heads/main/kitchenowl/web/favicon.ico"></td>
+        <td><a href="https://kitchenowl.org/">KitchenOwl</a></td>
+        <td>Recipe and Grocery Manager</td>
+        <td></td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/gethomepage/homepage/refs/heads/dev/public/homepage.ico"></td>
         <td><a href="https://gethomepage.dev/">Homepage</a></td>
         <td>Application Dashboard</td>

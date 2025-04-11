@@ -1,0 +1,139 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: kitchenowl-postgresql
+  namespace: default
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.2-27@sha256:9308dcd778be66f56bdce8503916ab820d12420e7d1bc74fff0d663c95e126c3
+  instances: 1
+  managed:
+    services:
+      disabledDefaultServices: ["ro", "r"]
+    roles:
+      - name: backup
+        passwordSecret:
+          name: postgres-backup-user
+        login: true
+        superuser: false
+        inRoles:
+          - pg_read_all_data
+  bootstrap:
+    initdb:
+      database: kitchenowl
+      owner: kitchenowl
+      secret:
+        name: kitchenowl-postgres-user
+  storage:
+    size: 2Gi
+    storageClass: cluster-replicated
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kitchenowl
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      main:
+        containers:
+          frontend:
+            image:
+              repository: tombursch/kitchenowl-web
+              tag: v0.6.11@sha256:e42c263ff362d73e190903b1500086022b1bbdc82bf63a560c6295e3b7ba2a5b
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            env:
+              - name: BACK_URL
+                value: localhost:5000
+          backend:
+            image:
+              repository: tombursch/kitchenowl-backend
+              tag: v0.6.11@sha256:2acae21ee0b032421b7e6e639903f0ee873f2f8e973fa998a3c3664ea4c3d87b
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+            env:
+              - name: JWT_SECRET_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: kitchenowl-secrets
+                    key: JWT_SECRET_KEY
+              - name: DB_DRIVER
+                value: postgresql
+              - name: DB_HOST
+                value: kitchenowl-postgresql-rw
+              - name: DB_NAME
+                value: kitchenowl
+              - name: DB_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: kitchenowl-postgres-user
+                    key: username
+              - name: DB_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: kitchenowl-postgres-user
+                    key: password
+              - name: FRONT_URL
+                value: https://kitchenowl.${SERVICE_DOMAIN}
+              - name: EMAIL_MANDATORY
+                value: "true"
+              - name: SMTP_HOST
+                value: ${SMTP_HOST}
+              - name: SMTP_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: kitchenowl-secrets
+                    key: SMTP_USER
+              - name: SMTP_PASS
+                valueFrom:
+                  secretKeyRef:
+                    name: kitchenowl-secrets
+                    key: SMTP_PASS
+              - name: SMTP_FROM
+                value: kitchenowl@${SERVICE_DOMAIN}
+              - name: SMTP_REPLY_TO
+                value: kitchenowl@${SERVICE_DOMAIN}
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 80
+    ingress:
+      main:
+        className: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        hosts:
+          - host: kitchenowl.${SERVICE_DOMAIN}
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - secretName: kitchenowl-tls
+            hosts:
+              - kitchenowl.${SERVICE_DOMAIN}
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 5Gi
