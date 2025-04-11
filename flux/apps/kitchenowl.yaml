@@ -49,7 +49,7 @@ spec:
           frontend:
             image:
               repository: tombursch/kitchenowl-web
-              tag: v0.6.11@sha256:e42c263ff362d73e190903b1500086022b1bbdc82bf63a560c6295e3b7ba2a5b
+              tag: v0.6.11@sha256:75e41715d79b6dfade1d2e5fa71f2b8eca3d2e8b23ecd90c35fdbd94dcf50a7f
             probes:
               liveness:
                 enabled: true
