@@ -275,7 +275,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
     </tr>
     <tr>
         <td><img width="32" src="https://d21buns5ku92am.cloudfront.net/26628/documents/54546-1717072325-sc-logo-cloud-black-7412d7.svg"></td>
-        <td><a href="https://github.com/C0nsultant/soundcloud-scraper">Soundcloud Scraper</a></td>
+        <td><a href="https://github.com/anokfireball/soundcloud-scraper">Soundcloud Scraper</a></td>
         <td>Parser + Webhook for my Soundcloud Feed</td>
         <td></td>
     </tr>
@@ -293,7 +293,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opnsense-v1.svg"></td>
-        <td><a href="https://github.com/C0nsultant/opnsense-ipv6-prefix-update">OPNsense Prefix Updater</a></td>
+        <td><a href="https://github.com/anokfireball/opnsense-ipv6-prefix-update">OPNsense Prefix Updater</a></td>
         <td>Update Network Configs with Newest Non-Static IPv6</td>
         <td></td>
     </tr>

@@ -25,7 +25,7 @@ spec:
         containers:
           main:
             image:
-              repository: ghcr.io/c0nsultant/soundcloud-scraper
+              repository: ghcr.io/anokfireball/soundcloud-scraper
               tag: v1.1.1@sha256:dde620080cd90161929560f5741072aaf40cc26cbc72c8daf838d6c52716146b
             env:
               DATA_DIR: /data
