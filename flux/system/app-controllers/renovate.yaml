@@ -30,3 +30,136 @@ spec:
     envList:
       - name: LOG_LEVEL
         value: debug
+      - name: RENOVATE_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: renovate-github-token
+            key: RENOVATE_TOKEN
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: renovate-github-token-refresher
+  namespace: renovate-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      main:
+        type: cronjob
+        cronjob:
+          schedule: "*/45 * * * *"
+          concurrencyPolicy: Replace
+        annotations:
+          healthcheckUrlSecret: renovate-github-token-secrets
+        containers:
+          main:
+            image:
+              repository: ghcr.io/anokfireball/base-image
+              tag: 3.21.3@sha256:0e6a0cae53fd35678d16e8faf18336871396c6e74dde13fa8896a76e1a8c6d83
+            envFrom:
+              - secret: renovate-github-token-secrets
+            command: ["/bin/bash", "/scripts/token.sh"]
+            args: ["$(CLIENT_ID)", "/key/private-key.pem", "$(INSTALLATION_ID)"]
+            securityContext:
+              runAsUser: 65534
+              runAsGroup: 65534
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+    serviceAccount:
+      create: true
+      name: renovate-github-token-refresher
+    rbac:
+      roles:
+        config-patcher:
+          enabled: true
+          type: Role
+          rules:
+            - apiGroups: [""]
+              resources: ["secrets"]
+              resourceNames: ["renovate-github-token"]
+              verbs: ["get", "patch"]
+      bindings:
+        renovate-github-token-refresher:
+          enabled: true
+          type: RoleBinding
+          roleRef:
+            name: renovate-github-token-refresher-config-patcher
+            kind: Role
+          subjects:
+            - kind: ServiceAccount
+              name: renovate-github-token-refresher
+              namespace: renovate-system
+    configMaps:
+      scripts:
+        data:
+          # https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app
+          token.sh: |
+            #!/usr/bin/env bash
+            set -o pipefail
+
+            CLIENT_ID=$1 # Client ID as first argument
+
+            PEM=$( cat $2 ) # file path of the private key as second argument
+
+            NOW=$(date +%s)
+            IAT=$(($NOW - 60)) # Issues 60 seconds in the past
+            EXP=$(($NOW + 300)) # Expires 5 minutes in the future
+
+            b64enc() { openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'; }
+
+            HEADER_JSON='{
+                "typ":"JWT",
+                "alg":"RS256"
+            }'
+            # Header encode
+            HEADER=$( echo -n "$HEADER_JSON" | b64enc )
+
+            PAYLOAD_JSON="{
+                \"iat\":$IAT,
+                \"exp\":$EXP,
+                \"iss\":\"$CLIENT_ID\"
+            }"
+            # Payload encode
+            PAYLOAD=$( echo -n "$PAYLOAD_JSON" | b64enc )
+
+            # Signature
+            HEADER_PAYLOAD="$HEADER"."$PAYLOAD"
+            SIGNATURE=$(
+                openssl dgst -sha256 -sign <(echo -n "$PEM") \
+                <(echo -n "$HEADER_PAYLOAD") | b64enc
+            )
+
+            # Create JWT
+            JWT="$HEADER_PAYLOAD"."$SIGNATURE"
+
+            TOKEN=$(curl --request POST \
+              --url "https://api.github.com/app/installations/$3/access_tokens" \
+              --header "Accept: application/vnd.github+json" \
+              --header "Authorization: Bearer $JWT" \
+              --header "X-GitHub-Api-Version: 2022-11-28" \
+              | jq -r '.token')
+
+            kubectl patch secret renovate-github-token -n renovate-system --type='json' \
+              -p='[{"op": "replace", "path": "/data/RENOVATE_TOKEN", "value":"'$(echo -n "$TOKEN" | base64)'"}]'
+    persistence:
+      token:
+        type: emptyDir
+      scripts:
+        type: configMap
+        name: renovate-github-token-refresher-scripts
+      key:
+        type: secret
+        name: renovate-github-token-key
