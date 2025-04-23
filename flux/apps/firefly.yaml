@@ -53,7 +53,7 @@ spec:
     cronjob:
       enabled: true
       annotations:
-        healthcheckUrlSecret: firefly-cron
+        healthcheckSecret: firefly-cron
       auth:
         existingSecret: firefly-cron
       image:

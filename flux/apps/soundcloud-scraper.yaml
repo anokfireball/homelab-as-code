@@ -21,7 +21,7 @@ spec:
           schedule: "*/15 * * * *"
           concurrencyPolicy: Replace
         annotations:
-          healthcheckUrlSecret: soundcloud-scraper-secrets
+          healthcheckSecret: soundcloud-scraper-secrets
         containers:
           main:
             image:

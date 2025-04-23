@@ -17,7 +17,7 @@ spec:
     cronjob:
       schedule: '51 0/6 * * *'
       annotations:
-        healthcheckUrlSecret: renovate-config
+        healthcheckSecret: renovate-config
     renovate:
       existingConfigFile: /config/config.json
     extraVolumes:
@@ -59,7 +59,7 @@ spec:
           schedule: "*/45 * * * *"
           concurrencyPolicy: Replace
         annotations:
-          healthcheckUrlSecret: renovate-github-token-secrets
+          healthcheckSecret: renovate-github-token-secrets
         containers:
           main:
             image:
