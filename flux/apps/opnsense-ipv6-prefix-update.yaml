@@ -20,7 +20,7 @@ spec:
         cronjob:
           schedule: "*/1 * * * *"
         annotations:
-          healthcheckUrlSecret: opnsense-ipv6-prefix-update-secrets
+          healthcheckSecret: opnsense-ipv6-prefix-update-secrets
         containers:
           main:
             image:

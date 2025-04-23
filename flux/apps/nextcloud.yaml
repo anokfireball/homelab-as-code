@@ -94,7 +94,7 @@ metadata:
   name: nextcloud-cron-script
   namespace: default
 data:
-  www-data: "*/5 * * * * php -f /var/www/html/cron.php && php /var/www/html/occ files:scan --all && curl -fs $(cat /healthcheckUrl)"
+  www-data: "*/5 * * * * php -f /var/www/html/cron.php && php /var/www/html/occ files:scan --all && curl -fs --globoff -X POST $(cat /healthcheckUrl) -H Authorization: Bearer $(cat /healthcheckToken)"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -230,6 +230,9 @@ spec:
         - name: healthcheck
           mountPath: /healthcheckUrl
           subPath: healthcheckUrl
+        - name: healthcheck
+          mountPath: /healthcheckToken
+          subPath: healthcheckToken
     imaginary:
       enabled: true
       resources:
