@@ -58,7 +58,7 @@ spec:
         existingSecret: firefly-cron
       image:
         repository: curlimages/curl
-        tag: latest@sha256:451cd2eb57b9f5ef7f084eb22b158bdba0b91afb1c748895080bf30ffd19d00e
+        tag: latest@sha256:d43bdb28bae0be0998f3be83199bfb2b81e0a30b034b6d7586ce7e05de34c3fd
     ingress:
       enabled: true
       className: nginx
