@@ -7,48 +7,69 @@
   "prConcurrentLimit": 0,
   "packageRules": [
     {
-      "matchFileNames": ["flux/**"],
-      "matchUpdateTypes": ["patch", "digest"],
+      "matchFileNames": [
+        "flux/**"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "digest"
+      ],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
     },
     {
-      "matchFileNames": ["flux/**"],
-      "matchPackageNames": ["renovate", "kube-prometheus-stack"],
-      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "matchFileNames": [
+        "flux/**"
+      ],
+      "matchPackageNames": [
+        "renovate",
+        "kube-prometheus-stack"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "digest"
+      ],
       "automerge": true
     },
     {
-      "matchPackageNames": ["fireflyiii/core", "fireflyiii/data-importer"],
+      "matchPackageNames": [
+        "fireflyiii/core",
+        "fireflyiii/data-importer"
+      ],
       "versioning": "regex:^version-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
     {
-      "matchPackageNames": ["ghcr.io/analogj/scrutiny"],
+      "matchPackageNames": [
+        "ghcr.io/analogj/scrutiny"
+      ],
       "automerge": false
     },
     {
-      "matchPackageNames": ["external-dns"],
+      "matchPackageNames": [
+        "external-dns"
+      ],
       "automerge": false
     }
   ],
   "ignoreTests": true,
   "platformAutomerge": true,
   "ansible": {
-    "fileMatch": [
-      "ansible/.+\\.ya?ml$"
+    "managerFilePatterns": [
+      "/ansible/.+\\.ya?ml$/"
     ]
   },
   "ansible-galaxy": {
-    "fileMatch": [
-      "ansible/requirements\\.ya?ml$"
+    "managerFilePatterns": [
+      "/ansible/requirements\\.ya?ml$/"
     ]
   },
   "customManagers": [
     {
       "customType": "regex",
       "description": "Update cluster k8s version",
-      "fileMatch": [
-        "ansible/roles/k8s_cluster/vars/main.yaml"
+      "managerFilePatterns": [
+        "/ansible/roles/k8s_cluster/vars/main.yaml/"
       ],
       "matchStrings": [
         "k8s_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
@@ -61,8 +82,8 @@
     {
       "customType": "regex",
       "description": "Update cluster containerd version",
-      "fileMatch": [
-        "ansible/roles/k8s_cluster/vars/main.yaml"
+      "managerFilePatterns": [
+        "/ansible/roles/k8s_cluster/vars/main.yaml/"
       ],
       "matchStrings": [
         "containerd_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
@@ -75,8 +96,8 @@
     {
       "customType": "regex",
       "description": "Update cluster calico version",
-      "fileMatch": [
-        "ansible/roles/k8s_cluster/vars/main.yaml"
+      "managerFilePatterns": [
+        "/ansible/roles/k8s_cluster/vars/main.yaml/"
       ],
       "matchStrings": [
         "calico_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
@@ -89,8 +110,8 @@
     {
       "customType": "regex",
       "description": "Update cluster kube-vip version",
-      "fileMatch": [
-        "ansible/roles/k8s_cluster/vars/main.yaml"
+      "managerFilePatterns": [
+        "/ansible/roles/k8s_cluster/vars/main.yaml/"
       ],
       "matchStrings": [
         "kube_vip_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
@@ -103,8 +124,8 @@
     {
       "customType": "regex",
       "description": "Update cluster flux version",
-      "fileMatch": [
-        "ansible/roles/k8s_flux/vars/main.yaml"
+      "managerFilePatterns": [
+        "/ansible/roles/k8s_flux/vars/main.yaml/"
       ],
       "matchStrings": [
         "flux_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
@@ -117,9 +138,9 @@
     {
       "customType": "regex",
       "description": "Update mongodb container",
-      "fileMatch": [
-        "flux/apps/unifi.yaml",
-        "flux/apps/overleaf.yaml"
+      "managerFilePatterns": [
+        "/flux/apps/unifi.yaml/",
+        "/flux/apps/overleaf.yaml/"
       ],
       "matchStrings": [
         "tag: (?<currentValue>8\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
@@ -132,9 +153,9 @@
     {
       "customType": "regex",
       "description": "Update postgres 15 containers",
-      "fileMatch": [
-        "flux/apps/bitwarden.yaml",
-        "flux/apps/paperless.yaml"
+      "managerFilePatterns": [
+        "/flux/apps/bitwarden.yaml/",
+        "/flux/apps/paperless.yaml/"
       ],
       "matchStrings": [
         "imageName: ghcr.io/cloudnative-pg/postgresql:(?<currentValue>15\\.\\d+-\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
@@ -148,8 +169,8 @@
     {
       "customType": "regex",
       "description": "Update postgres 16 containers",
-      "fileMatch": [
-        "flux/apps/nextcloud.yaml"
+      "managerFilePatterns": [
+        "/flux/apps/nextcloud.yaml/"
       ],
       "matchStrings": [
         "imageName: ghcr.io/cloudnative-pg/postgresql:(?<currentValue>16\\.\\d+-\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
@@ -163,9 +184,9 @@
     {
       "customType": "regex",
       "description": "Update postgres 17 containers",
-      "fileMatch": [
-        "flux/apps/firefly.yaml",
-        "flux/apps/fresh-rss.yaml"
+      "managerFilePatterns": [
+        "/flux/apps/firefly.yaml/",
+        "/flux/apps/fresh-rss.yaml/"
       ],
       "matchStrings": [
         "imageName: ghcr.io/cloudnative-pg/postgresql:(?<currentValue>17\\.\\d+-\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
@@ -179,8 +200,8 @@
     {
       "customType": "regex",
       "description": "Update immich container",
-      "fileMatch": [
-        "flux/apps/immich.yaml"
+      "managerFilePatterns": [
+        "/flux/apps/immich.yaml/"
       ],
       "matchStrings": [
         "tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
@@ -193,8 +214,8 @@
     {
       "customType": "regex",
       "description": "Update k8up CRDs",
-      "fileMatch": [
-        "flux/repositories/k8up-io.yaml"
+      "managerFilePatterns": [
+        "/flux/repositories/k8up-io.yaml/"
       ],
       "matchStrings": [
         "tag: k8up-(?<currentValue>\\d+\\.\\d+\\.\\d+)"
@@ -206,17 +227,17 @@
     }
   ],
   "flux": {
-    "fileMatch": [
-      "flux/clusters/.+gotk-components\\.ya?ml$",
-      "flux/namespaces/.+\\.ya?ml$",
-      "flux/repositories/.+\\.ya?ml$",
-      "flux/system/.+\\.ya?ml$",
-      "flux/apps/.+\\.ya?ml$"
+    "managerFilePatterns": [
+      "/flux/clusters/.+gotk-components\\.ya?ml$/",
+      "/flux/namespaces/.+\\.ya?ml$/",
+      "/flux/repositories/.+\\.ya?ml$/",
+      "/flux/system/.+\\.ya?ml$/",
+      "/flux/apps/.+\\.ya?ml$/"
     ]
   },
   "kustomize": {
-    "fileMatch": [
-      "flux/.+kustomization\\.ya?ml$"
+    "managerFilePatterns": [
+      "/flux/.+kustomization\\.ya?ml$/"
     ]
   }
 }
