@@ -201,6 +201,7 @@ spec:
         targets:
           - apiVersion: apps/v1
             kind: Deployment
+            name: paperless-ngx
         patchStrategicMerge:
           spec:
             template:
