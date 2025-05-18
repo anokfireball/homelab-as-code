@@ -60,4 +60,4 @@ spec:
     persistence:
       config:
         type: configMap
-        name: rss-bridge-config
+        name: rss-bridge

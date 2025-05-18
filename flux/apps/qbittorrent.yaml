@@ -147,7 +147,7 @@ spec:
     persistence:
       healthcheck:
         type: configMap
-        name: qbittorrent-healthcheck
+        name: qbittorrent
       gluetun-data:
         type: emptyDir
         advancedMounts:

@@ -140,7 +140,7 @@ spec:
     persistence:
       config:
         type: configMap
-        name: scrutiny-collector-config
+        name: scrutiny-collector
         globalMounts:
           - path: /opt/scrutiny/config/collector.yaml
             subPath: collector.yaml

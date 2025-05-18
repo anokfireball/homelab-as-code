@@ -159,7 +159,7 @@ spec:
         type: emptyDir
       scripts:
         type: configMap
-        name: renovate-github-token-refresher-scripts
+        name: renovate-github-token-refresher
       key:
         type: secret
         name: renovate-github-token-key

@@ -208,7 +208,7 @@ spec:
                 volumes:
                   - name: postconsumptionscript
                     configMap:
-                      name: paperless-ngx-postconsumptionscript
+                      name: paperless-ngx
                       defaultMode: 0755
                       optional: false
 ---
@@ -298,7 +298,7 @@ spec:
     persistence:
       postconsumptionscript:
         type: configMap
-        name: paperless-ngx-postconsumptionscript
+        name: paperless-ngx
       data:
         type: persistentVolumeClaim
         storageClass: cluster-replicated
