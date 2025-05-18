@@ -21,8 +21,6 @@ spec:
       annotations:
         reloader.stakater.com/auto: "true"
     enableRbac: true
-    serviceAccount:
-      create: true
     ingress:
       main:
         enabled: true

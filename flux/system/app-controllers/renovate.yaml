@@ -79,8 +79,8 @@ spec:
                 drop:
                   - ALL
     serviceAccount:
-      create: true
-      name: renovate-github-token-refresher
+      renovate-github-token-refresher:
+        enabled: true
     rbac:
       roles:
         config-patcher:
