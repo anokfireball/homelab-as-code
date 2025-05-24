@@ -58,6 +58,8 @@ spec:
         cronjob:
           schedule: "*/45 * * * *"
           concurrencyPolicy: Replace
+        serviceAccount:
+          identifier: renovate-github-token-refresher
         annotations:
           healthcheckSecret: renovate-github-token-secrets
         containers:
@@ -96,7 +98,7 @@ spec:
           enabled: true
           type: RoleBinding
           roleRef:
-            name: renovate-github-token-refresher-config-patcher
+            name: renovate-github-token-refresher
             kind: Role
           subjects:
             - kind: ServiceAccount
