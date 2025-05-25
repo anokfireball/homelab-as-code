@@ -6,11 +6,11 @@ metadata:
 spec:
   # https://github.com/immich-app/immich-charts/issues/149
   # https://github.com/immich-app/immich/discussions/14280
-  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:16.5-v0.3.0
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16-0.3.0
   instances: 1
   postgresql:
     shared_preload_libraries:
-      - "vectors.so"
+      - "vchord.so"
   managed:
     services:
       disabledDefaultServices: ["ro", "r"]
@@ -34,7 +34,8 @@ spec:
       secret:
         name: immich-postgres-user
       postInitSQL:
-        - CREATE EXTENSION IF NOT EXISTS "vectors";
+        - CREATE EXTENSION IF NOT EXISTS "vector";
+        - CREATE EXTENSION IF NOT EXISTS "vchord";
         - CREATE EXTENSION IF NOT EXISTS "cube" CASCADE;
         - CREATE EXTENSION IF NOT EXISTS "earthdistance" CASCADE;
   storage:
@@ -203,7 +204,7 @@ spec:
             name: immich-postgres-user
             key: password
     image:
-      tag: v1.132.3
+      tag: v1.133.1
     immich:
       persistence:
         library:
