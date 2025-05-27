@@ -1,10 +1,10 @@
 <div align="center">
 
-![alt text](logo.png "Title")
+![Homelab-as-Code logo](logo.png "Homelab-as-Code logo")
 
-<img src="https://uptime-kuma.kthxbye.cyou/api/badge/43/uptime?labelPrefix=Node+" alt="Node Uptime">
-<img src="https://uptime-kuma.kthxbye.cyou/api/badge/90/uptime?labelPrefix=Cluster+" alt="Cluster Uptime">
-<img src="https://uptime-kuma.kthxbye.cyou/api/badge/63/uptime?labelPrefix=Service+" alt="Service Uptime">
+<img src="" alt="Node Uptime">
+<img src="" alt="Cluster Uptime">
+<img src="" alt="Service Uptime">
 
 <h3>Bootstrap and GitOps sources to get my baremetal homelab set up consistently.</h3>
 
@@ -173,7 +173,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/stakater/Reloader/refs/heads/master/assets/web/reloader-round-100px.png"></td>
+        <td><img width="32" src="https://raw.githubusercontent.com/stakater/Reloader/refs/heads/master/theme_override/resources/assets/images/favicon.svg"></td>
         <td><a href="https://docs.stakater.com/reloader/">reloader</a></td>
         <td>Hot-Reload for ALL Workloads</td>
         <td></td>
@@ -304,7 +304,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td>freemium/open core</td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/jellyfin/jellyfin-web/refs/heads/master/src/assets/img/icon-transparent.png"></td>
+        <td><img width="32" src="https://raw.githubusercontent.com/jellyfin/jellyfin.org/refs/heads/master/static/images/icon-transparent.svg"></td>
         <td><a href="https://jellyfin.org/">Jellyfin</a></td>
         <td>Media Streaming and Management</td>
         <td></td>
