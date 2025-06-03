@@ -35,7 +35,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
   The contained shell script creates all files required to install the OS via [network boot](https://ubuntu.com/server/docs/how-to-netboot-the-server-installer-on-amd64) and without user interaction.
   _Triggering_ the network-boot installation is out-of-scope for the moment.
   After completion of the cloud-init [autoinstall](https://canonical-subiquity.readthedocs-hosted.com/en/latest/intro-to-autoinstall.html), all nodes reboot and are ready to accept SSH connections.
-- [ansible](ansible) contains the stage 2 system configuration for the cluster nodes.
+- [ansible/cluster](ansible/cluster) contains the stage 2 system configuration for the cluster nodes.
   This includes a range of tasks including power management, networking setup, and most importantly bootstrapping the kubernetes cluster using [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/).
   The contained ansible playbook and roles perform the required tasks on the nodes via an SSH and a dedicated ansible user created in the previous step.
   After completion of this stage, the kubernetes cluster is set up with [HA](https://kube-vip.io/) control planes, joined worker nodes, dual-stack [CNI](https://www.tigera.io/tigera-products/calico/), almost working [OIDC authn](https://dexidp.io/), and last but not least a bootstrapped [GitOps](https://fluxcd.io/) setup that is ready to start reconciling.

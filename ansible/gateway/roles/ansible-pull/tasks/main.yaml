@@ -1,0 +1,11 @@
+- name: install ansible
+  apt:
+    name: ansible
+    state: present
+
+- name: set up ansible pull cronjob
+  cron:
+    name: "ansible pull"
+    user: ansible
+    minute: "*/5"
+    job: "ansible-pull -U https://github.com/anokfireball/homelab-as-code.git --inventory \"$(hostname --short),\" ansible/gateway/gateway.yaml"

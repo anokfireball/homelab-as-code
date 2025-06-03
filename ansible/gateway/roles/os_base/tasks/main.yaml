@@ -1,0 +1,50 @@
+- name: set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  notify: reboot
+
+- name: update APT packages
+  apt:
+    update_cache: true
+    cache_valid_time: 86400
+    autoremove: true
+    autoclean: true
+
+- name: install common packages
+  apt:
+    pkg:
+      - neovim
+      - tmux
+      - unattended-upgrades
+      - update-notifier-common
+    state: present
+
+- name: remove default vim installations
+  apt:
+    pkg:
+      - vim*
+    state: absent
+
+- name: create aliases for nvim
+  file:
+    src: /usr/bin/nvim
+    dest: "/usr/local/bin/{{ item }}"
+    state: link
+  with_items:
+    - vi
+    - vim
+
+- name: enable and configure unattended-upgrades
+  lineinfile:
+    path: "{{ item.path }}"
+    create: true
+    regexp: "^.*{{ item.key }} \".+\";$"
+    line: "{{ item.key }} \"{{ item.value }}\";"
+  with_items:
+    - { path: "/etc/apt/apt.conf.d/10periodic", key: APT::Periodic::Download-Upgradeable-Packages, value: "1" }
+    - { path: "/etc/apt/apt.conf.d/10periodic", key: "APT::Periodic::Update-Package-Lists", value: "1" }
+    - { path: "/etc/apt/apt.conf.d/10periodic", key: "APT::Periodic::AutocleanInterval", value: "7" }
+    - { path: "/etc/apt/apt.conf.d/20auto-upgrades", key: "APT::Periodic::Unattended-Upgrade", value: "1" }
+    - { path: "/etc/apt/apt.conf.d/50unattended-upgrades", key: "Unattended-Upgrade::MinimalSteps", value: "true" }
+    - { path: "/etc/apt/apt.conf.d/50unattended-upgrades", key: "Unattended-Upgrade::Automatic-Reboot", value: "true" }
+  notify: restart unattended-upgrades
