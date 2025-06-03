@@ -7,3 +7,4 @@
   roles:
   - { role: os_base }
   - { role: ansible-pull }
+  - { role: chisel }

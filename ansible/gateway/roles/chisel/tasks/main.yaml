@@ -1,0 +1,45 @@
+- name: check installed chisel version
+  command: chisel version
+  register: chisel_version_installed
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+
+- name: download chisel
+  get_url:
+    url: |
+      https://github.com/jpillora/chisel/releases/download/v{{ chisel_version }}/chisel_{{ chisel_version }}_linux_arm64.deb
+    dest: /opt/chisel.deb
+  register: chisel_deb
+
+- name: install chisel
+  apt:
+    deb: /opt/chisel.deb
+  when: chisel_deb.changed or chisel_version not in chisel_version_installed.stdout
+  register: chisel_install
+
+- name: create chisel systemd service
+  template:
+    src: chisel.service.j2
+    dest: /etc/systemd/system/chisel.service
+    owner: root
+    group: root
+    mode: "0644"
+  register: chisel_service
+
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: true
+  when: chisel_service.changed
+
+- name: start and enable chisel systemd service
+  systemd:
+    name: chisel
+    state: started
+    enabled: true
+
+- name: restart chisel service
+  systemd:
+    name: chisel
+    state: restarted
+  when: chisel_install.changed or chisel_service.changed
