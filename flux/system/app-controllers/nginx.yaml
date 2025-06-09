@@ -16,12 +16,13 @@ spec:
   values:
     controller:
       service:
-        ipFamilyPolicy: RequireDualStack
+        ipFamilyPolicy: SingleStack
         ipFamilies:
           - IPv4
-          - IPv6
+        externalTrafficPolicy: Local
         annotations:
           metallb.io/allow-shared-ip: default
+      kind: DaemonSet
       metrics:
         enabled: true
         serviceMonitor:

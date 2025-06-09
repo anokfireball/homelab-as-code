@@ -78,7 +78,6 @@
 - when: "'controlplane' in group_names"
   block:
     - import_tasks: tasks/kube-vip.yaml
-    - import_tasks: tasks/oidc.yaml
 
 - when: not k8s_upgrade
   block:
@@ -86,6 +85,10 @@
     - import_tasks: tasks/kubelet.yaml
 
 - import_tasks: join.yaml
+
+- when: "'controlplane' in group_names"
+  block:
+    - import_tasks: tasks/oidc.yaml
 
 - when: k8s_upgrade
   import_tasks: upgrade.yaml

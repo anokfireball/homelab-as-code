@@ -54,7 +54,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
 | [Ansible](https://ansible.com/)                                      | OS Configuration                       |                                                                                    |
 | [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) | k8s _Distribution_ / Install Mechanism | stacked HA controlplanes                                                           |
 | [containerd](https://containerd.io/)                                 | OCI Runtime                            |                                                                                    |
-| [Calico](https://www.tigera.io/tigera-products/calico/)              | CNI                                    | dual-stack nodes and services                                                      |
+| [Calico](https://www.tigera.io/tigera-products/calico/)              | CNI                                    | used in BGP mode                                                                   |
 | [kube-vip](https://kube-vip.io/)                                     | Virtual IP for controlplane Nodes      | used in L2/ARP mode                                                                |
 | [Flux2](https://fluxcd.io)                                           | GitOps Automation inside the Cluster   |                                                                                    |
 | [SOPS](https://getsops.io/)                                          | Secrets Management                     | [age](https://age-encryption.org/) rather than pgp, but not any more user-friendly |
@@ -74,7 +74,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><img width="32" src="https://raw.githubusercontent.com/metallb/metallb/refs/heads/main/website/static/images/logo/metallb-blue.svg"></td>
         <td><a href="https://metallb.io/">metallb</a></td>
         <td>Cloud-Native Service LoadBalancer</td>
-        <td>used in L2/ARP mode, so only VIP rather than true LB</td>
+        <td>used in BGP mode</td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/heads/master/docs/img/external-dns.png"></td>
@@ -363,12 +363,12 @@ At the highest possible level, this repo and HaC workflow consists of three part
 
 While the ultimate goal is to have as self-sufficient of a setup as possible, some external services are still required for proper operation.
 
-| Service                                                  | Purpose                                    | Notes                                                                    |
-| -------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------ |
-| [GitHub](https://github.com/)                            | Git Repository Hosting, GitOps Source      |                                                                          |
-| [INWX](https://www.inwx.de/)                             | Domain Registrar                           |                                                                          |
-| [Cloudflare](https://www.cloudflare.com/)                | Public DNS Auth Hosting                    |                                                                          |
-| [netcup](https://www.netcup.de/)                         | Public Reverse-Proxy for Relevant Services | not _yet_ managed here since the number of public services is tiny       |
-| [BackBlaze](https://www.backblaze.com/)                  | Cloud Storage for Backups                  | the "3" in 3-2-1 for the really important data                           |
-| [TailScale](https://tailscale.com/)                      | Overlay VPN                                | used for split-horizon and a direct connection back home                 |
-| VPN Provider                                             | VPN Gateway                                | different external IP for all the Linux ISOs                             |
+| Service                                   | Purpose                                    | Notes                                                              |
+| ----------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+| [GitHub](https://github.com/)             | Git Repository Hosting, GitOps Source      |                                                                    |
+| [INWX](https://www.inwx.de/)              | Domain Registrar                           |                                                                    |
+| [Cloudflare](https://www.cloudflare.com/) | Public DNS Auth Hosting                    |                                                                    |
+| [netcup](https://www.netcup.de/)          | Public Reverse-Proxy for Relevant Services | not _yet_ managed here since the number of public services is tiny |
+| [BackBlaze](https://www.backblaze.com/)   | Cloud Storage for Backups                  | the "3" in 3-2-1 for the really important data                     |
+| [TailScale](https://tailscale.com/)       | Overlay VPN                                | used for split-horizon and a direct connection back home           |
+| VPN Provider                              | VPN Gateway                                | different external IP for all the Linux ISOs                       |

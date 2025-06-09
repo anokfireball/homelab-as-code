@@ -35,12 +35,12 @@
 
 - name: modify containerd config
   shell: >
-      set -o pipefail &&
-      containerd config default
-      | tomlq '.plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options.SystemdCgroup  = true' -t
-      | tomlq '.plugins."io.containerd.grpc.v1.cri".registry.config_path = "/etc/containerd/certs.d"' -t
-      | tomlq '.plugins."io.containerd.grpc.v1.cri".containerd.discard_unpacked_layers = false' -t
-      > /etc/containerd/config.toml
+    set -o pipefail &&
+    containerd config default
+    | tomlq '.plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options.SystemdCgroup  = true' -t
+    | tomlq '.plugins."io.containerd.grpc.v1.cri".registry.config_path = "/etc/containerd/certs.d"' -t
+    | tomlq '.plugins."io.containerd.grpc.v1.cri".containerd.discard_unpacked_layers = false' -t
+    > /etc/containerd/config.toml
   args:
     executable: /bin/bash
   changed_when: false

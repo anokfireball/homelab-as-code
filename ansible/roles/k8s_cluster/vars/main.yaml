@@ -11,6 +11,7 @@ pod_network_cidr_v4: 172.32.0.0/16
 pod_network_cidr_v6: fd08:172:32::/56
 service_cidr_v4: 172.16.0.0/24
 service_cidr_v6: fd08:172:16::/112
+loadbalancer_cidr_v4: 192.168.2.0/24
 
 kube_vip_version: v0.9.1
 vip: 192.168.1.210
@@ -21,6 +22,10 @@ calico_version: v3.30.1
 calico_node_subnet_prefix_length_v4: 24
 # range: [116:128]
 calico_node_subnet_prefix_length_v6: 120
+
+bgp_router_ip: 192.168.1.1
+bgp_router_as: 64512
+bgp_cluster_as: 64513
 
 reset_cluster: false
 reset_confirmation: ""

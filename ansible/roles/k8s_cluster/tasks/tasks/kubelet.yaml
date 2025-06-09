@@ -23,7 +23,6 @@
   apt:
     pkg:
       - "cri-tools={{ k8s_version_stripped }}.*"
-    allow_downgrade: true
     allow_change_held_packages: true
     state: present
   notify:

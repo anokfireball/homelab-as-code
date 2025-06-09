@@ -1,8 +1,36 @@
 ---
+# CRD bundles too large to use kubectl apply
 - name: create calico config directory
   file:
     path: /etc/calico
     state: directory
+
+- name: download calico operator CRDs
+  get_url:
+    url: |
+      https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/operator-crds.yaml
+    dest: /etc/calico/operator-crds.yaml
+  register: calico_crds_manifest
+
+- name: check if calico operator CRDs already exist
+  shell: |
+    set -o pipefail
+    # figure out if a CRD with name "apiservers.operator.tigera.io" exists
+    kubectl get crds -o json | jq '.items[] | select(.metadata.name == "apiservers.operator.tigera.io")' | wc -l
+  args:
+    executable: /bin/bash
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: calico_crds_exists
+  ignore_errors: true
+  changed_when: calico_crds_exists.stdout == '0'
+
+- name: apply calico operator CRDs
+  command: |
+    kubectl {{ 'create' if calico_crds_exists.stdout == '0' else 'replace' }} -f /etc/calico/operator-crds.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  changed_when: calico_crds_exists.stdout == '0' or calico_crds_manifest.changed
 
 - name: download calico operator manifest
   get_url:
@@ -24,7 +52,6 @@
   changed_when: calico_operator_exists.stdout == '0'
 
 - name: apply calico operator manifest
-  # CRD bundle too large to use kubectl apply
   command: |
     kubectl {{ 'create' if calico_operator_exists.stdout == '0' else 'replace' }} -f /etc/calico/tigera-operator.yaml
   environment:
@@ -55,3 +82,16 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   changed_when: calico_custom_resource_exists.stdout == '0' or calico_custom_resource_manifest.changed
+
+- name: copy BGP configuration
+  template:
+    src: bgp-config.yaml.j2
+    dest: /etc/calico/bgp-config.yaml
+  register: calico_bgp_config_manifest
+
+- name: apply calico BGP config manifest
+  command: |
+    kubectl apply -f /etc/calico/bgp-config.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  changed_when: calico_bgp_config_manifest.changed
