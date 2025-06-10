@@ -176,7 +176,7 @@ spec:
   storageClassName: cluster-replicated
   volumeMode: Filesystem
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
