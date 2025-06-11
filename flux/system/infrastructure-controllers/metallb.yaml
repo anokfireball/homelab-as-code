@@ -13,3 +13,6 @@ spec:
         kind: HelmRepository
         name: metallb
         namespace: flux-system
+  values:
+    speaker:
+      enabled: false
