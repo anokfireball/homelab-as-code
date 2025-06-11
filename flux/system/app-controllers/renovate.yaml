@@ -15,7 +15,7 @@ spec:
         namespace: flux-system
   values:
     cronjob:
-      schedule: '51 0/6 * * *'
+      schedule: "51 0/6 * * *"
       annotations:
         healthcheckSecret: renovate-config
     renovate:
@@ -92,7 +92,7 @@ spec:
             - apiGroups: [""]
               resources: ["secrets"]
               resourceNames: ["renovate-github-token"]
-              verbs: ["get", "patch"]
+              verbs: ["get", "create", "patch"]
       bindings:
         renovate-github-token-refresher:
           enabled: true
@@ -154,11 +154,14 @@ spec:
               --header "X-GitHub-Api-Version: 2022-11-28" \
               | jq -r '.token')
 
-            kubectl patch secret renovate-github-token -n renovate-system --type='json' \
-              -p='[{"op": "replace", "path": "/data/RENOVATE_TOKEN", "value":"'$(echo -n "$TOKEN" | base64)'"}]'
+            if kubectl get secret renovate-github-token -n renovate-system >/dev/null 2>&1; then
+              kubectl patch secret renovate-github-token -n renovate-system --type='json' \
+                -p='[{"op": "replace", "path": "/data/RENOVATE_TOKEN", "value":"'$(echo -n "$TOKEN" | base64)'"}]'
+            else
+              kubectl create secret generic renovate-github-token -n renovate-system \
+                --from-literal=RENOVATE_TOKEN=$(echo -n "$TOKEN" | base64)
+            fi
     persistence:
-      token:
-        type: emptyDir
       scripts:
         type: configMap
         name: renovate-github-token-refresher
