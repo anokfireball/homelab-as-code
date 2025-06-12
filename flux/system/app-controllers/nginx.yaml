@@ -21,7 +21,7 @@ spec:
           - IPv4
         externalTrafficPolicy: Local
         annotations:
-          metallb.io/allow-shared-ip: default
+          metallb.io/loadBalancerIPs: 192.168.2.2
       kind: DaemonSet
       metrics:
         enabled: true

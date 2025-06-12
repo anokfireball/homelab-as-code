@@ -21,7 +21,7 @@ spec:
       type: LoadBalancer
       externalTrafficPolicy: Cluster
       annotations:
-        metallb.io/allow-shared-ip: default
+        metallb.io/loadBalancerIPs: 192.168.2.1
     serviceDhcp:
       enabled: false
     ingress:

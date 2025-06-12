@@ -11,7 +11,7 @@ pod_network_cidr_v4: 172.32.0.0/16
 pod_network_cidr_v6: fd08:172:32::/56
 service_cidr_v4: 172.16.0.0/24
 service_cidr_v6: fd08:172:16::/112
-loadbalancer_cidr_v4: 192.168.2.1/32
+loadbalancer_cidr_v4: 192.168.2.0/24
 
 kube_vip_version: v0.9.1
 vip: 192.168.1.210
