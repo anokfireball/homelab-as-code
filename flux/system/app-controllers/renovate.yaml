@@ -112,12 +112,13 @@ spec:
             #!/usr/bin/env bash
             set -o pipefail
 
-            CLIENT_ID=$1 # Client ID as first argument
+            CLIENT_ID=$1
+            PEM_PATH=$2
+            INSTALLATION_ID=$3
 
-            PEM=$( cat $2 ) # file path of the private key as second argument
 
             NOW=$(date +%s)
-            IAT=$(($NOW - 60)) # Issues 60 seconds in the past
+            IAT=$(($NOW - 60))  # Issues 60 seconds in the past
             EXP=$(($NOW + 300)) # Expires 5 minutes in the future
 
             b64enc() { openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'; }
@@ -127,7 +128,7 @@ spec:
                 "alg":"RS256"
             }'
             # Header encode
-            HEADER=$( echo -n "$HEADER_JSON" | b64enc )
+            HEADER=$(echo -n "$HEADER_JSON" | b64enc)
 
             PAYLOAD_JSON="{
                 \"iat\":$IAT,
@@ -135,9 +136,10 @@ spec:
                 \"iss\":\"$CLIENT_ID\"
             }"
             # Payload encode
-            PAYLOAD=$( echo -n "$PAYLOAD_JSON" | b64enc )
+            PAYLOAD=$(echo -n "$PAYLOAD_JSON" | b64enc)
 
             # Signature
+            PEM=$(cat "$PEM_PATH")
             HEADER_PAYLOAD="$HEADER"."$PAYLOAD"
             SIGNATURE=$(
                 openssl dgst -sha256 -sign <(echo -n "$PEM") \
@@ -147,21 +149,26 @@ spec:
             # Create JWT
             JWT="$HEADER_PAYLOAD"."$SIGNATURE"
 
-            TOKEN=$(curl --request POST \
-              --url "https://api.github.com/app/installations/$3/access_tokens" \
+            TOKEN_JSON=$(curl --request POST \
+              --url "https://api.github.com/app/installations/$INSTALLATION_ID/access_tokens" \
               --header "Accept: application/vnd.github+json" \
               --header "Authorization: Bearer $JWT" \
-              --header "X-GitHub-Api-Version: 2022-11-28" \
-              | jq -r '.token')
+              --header "X-GitHub-Api-Version: 2022-11-28")
+            TOKEN=$(echo "$TOKEN_JSON" | jq -r '.token')
+            if [ -z "$TOKEN" ]; then
+              echo "ERROR: Failed to retrieve token from GitHub API."
+              exit 1
+            fi
 
             TOKEN_ENCODED=$(echo -n "$TOKEN" | base64)
 
             if kubectl get secret renovate-github-token -n renovate-system >/dev/null 2>&1; then
-              PATCH='[{"op": "replace", "path": "/data/RENOVATE_TOKEN", "value":"'"${TOKEN_ENCODED}"'"}]'
-              kubectl patch secret renovate-github-token -n renovate-system --type='json' -p="$PATCH"
+              echo "Secret exists, patching..."
+              PATCH=$(printf '[{"op": "replace", "path": "/data/RENOVATE_TOKEN", "value":"%s"}]' "$TOKEN_ENCODED")
+              kubectl patch secret renovate-github-token -n renovate-system --type='json' -p="$PATCH" || { echo "Patch failed!"; exit 1; }
             else
-              kubectl create secret generic renovate-github-token -n renovate-system \
-                --from-literal=RENOVATE_TOKEN="$TOKEN_ENCODED"
+              echo "Secret does not exist, creating..."
+              kubectl create secret generic renovate-github-token -n renovate-system --from-literal=RENOVATE_TOKEN="$TOKEN_ENCODED" || { echo "Create failed!"; exit 1; }
             fi
     persistence:
       scripts:
