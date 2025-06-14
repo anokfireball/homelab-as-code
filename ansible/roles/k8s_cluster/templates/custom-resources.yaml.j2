@@ -6,6 +6,7 @@ metadata:
   name: default
 spec:
   calicoNetwork:
+    bgp: DisableJ
     ipPools:
     - name: default-ipv4-ippool
       blockSize: {{ calico_node_subnet_prefix_length_v4 }}

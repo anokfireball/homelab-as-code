@@ -82,16 +82,3 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   changed_when: calico_custom_resource_exists.stdout == '0' or calico_custom_resource_manifest.changed
-
-- name: copy BGP configuration
-  template:
-    src: bgp-config.yaml.j2
-    dest: /etc/calico/bgp-config.yaml
-  register: calico_bgp_config_manifest
-
-- name: apply calico BGP config manifest
-  command: |
-    kubectl apply -f /etc/calico/bgp-config.yaml
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-  changed_when: calico_bgp_config_manifest.changed

@@ -54,7 +54,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
 | [Ansible](https://ansible.com/)                                      | OS Configuration                       |                                                                                    |
 | [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) | k8s _Distribution_ / Install Mechanism | stacked HA controlplanes                                                           |
 | [containerd](https://containerd.io/)                                 | OCI Runtime                            |                                                                                    |
-| [Calico](https://www.tigera.io/tigera-products/calico/)              | CNI                                    | used in BGP mode                                                                   |
+| [Calico](https://www.tigera.io/tigera-products/calico/)              | CNI                                    | dual-stack nodes and services                                                      |
 | [kube-vip](https://kube-vip.io/)                                     | Virtual IP for controlplane Nodes      | used in L2/ARP mode                                                                |
 | [Flux2](https://fluxcd.io)                                           | GitOps Automation inside the Cluster   |                                                                                    |
 | [SOPS](https://getsops.io/)                                          | Secrets Management                     | [age](https://age-encryption.org/) rather than pgp, but not any more user-friendly |
@@ -74,7 +74,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><img width="32" src="https://raw.githubusercontent.com/metallb/metallb/refs/heads/main/website/static/images/logo/metallb-blue.svg"></td>
         <td><a href="https://metallb.io/">metallb</a></td>
         <td>Cloud-Native Service LoadBalancer</td>
-        <td>used in BGP mode</td>
+        <td>used in L2/ARP mode, so only VIP rather than true LB</td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/heads/master/docs/img/external-dns.png"></td>

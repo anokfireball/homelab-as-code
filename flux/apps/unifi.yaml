@@ -130,7 +130,7 @@ spec:
         controller: main
         type: LoadBalancer
         annotations:
-          metallb.io/loadBalancerIPs: 192.168.2.3
+          metallb.io/allow-shared-ip: default
         ports:
           controller:
             port: 8080
