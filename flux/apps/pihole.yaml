@@ -19,9 +19,9 @@ spec:
     serviceDns:
       mixedService: true
       type: LoadBalancer
-      externalTrafficPolicy: Cluster
+      externalTrafficPolicy: Local
       annotations:
-        metallb.io/allow-shared-ip: default
+        metallb.io/address-pool: dns-vip
     serviceDhcp:
       enabled: false
     ingress:

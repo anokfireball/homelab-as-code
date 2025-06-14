@@ -2,12 +2,32 @@
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: service-vip
+  name: dns-vip
   namespace: metallb-system
 spec:
   addresses:
-    - 192.168.1.220/32
-    - fd08:192:168:1::220/128
+    - 192.168.1.3/32
+    - fd08:192:168:1::3/128
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: http-vip
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.1.4/32
+    - fd08:192:168:1::4/128
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: default-vip
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.1.5/32
+    - fd08:192:168:1::5/128
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
@@ -16,6 +36,8 @@ metadata:
   namespace: metallb-system
 spec:
   ipAddressPools:
-    - service-vip
+    - dns-vip
+    - http-vip
+    - default-vip
   interfaces:
     - eth0

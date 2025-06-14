@@ -22,7 +22,7 @@ spec:
           - IPv6
         externalTrafficPolicy: Local
         annotations:
-          metallb.io/allow-shared-ip: default
+          metallb.io/address-pool: http-vip
       kind: Deployment
       metrics:
         enabled: true

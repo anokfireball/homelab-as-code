@@ -30,6 +30,7 @@ spec:
         type: LoadBalancer
         annotations:
           metallb.io/allow-shared-ip: default
+          metallb.io/address-pool: default-vip
         ports:
           socks5:
             port: 1080
