@@ -1,0 +1,43 @@
+- name: Add Tailscale GPG key
+  apt_key:
+    url: https://pkgs.tailscale.com/stable/ubuntu/noble.noarmor.gpg
+    keyring: /usr/share/keyrings/tailscale-archive-keyring.gpg
+    state: present
+
+- name: Add Tailscale repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/ubuntu noble main"
+    filename: tailscale
+    state: present
+  register: tailscale_repo
+
+- name: Update apt cache
+  apt:
+    update_cache: true
+  when: tailscale_repo.changed
+
+- name: Install Tailscale
+  apt:
+    name: tailscale
+    state: present
+
+- name: Enable and start Tailscale service
+  service:
+    name: tailscaled
+    enabled: true
+    state: started
+
+- name: Check if Tailscale is already connected
+  command: tailscale status --json
+  register: tailscale_status
+  failed_when: false
+  changed_when: false
+
+- name: Authenticate Tailscale if not already connected
+  command: tailscale login --advertise-tags="tag:wan" --authkey={{ tailscale_authkey }}
+  when: "'NeedsLogin' in tailscale_status.stdout"
+  register: tailscale_login
+
+- name: Ensure Tailscale is started
+  command: tailscale up
+  when: "'\"BackendState\": \"Running\"' not in tailscale_status.stdout"
