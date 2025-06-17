@@ -1,0 +1,126 @@
+- name: Add Caddy xcaddy GPG key
+  apt_key:
+    url: https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key
+    keyring: /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg
+    state: present
+
+- name: Add Caddy xcaddy repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/xcaddy/deb/debian any-version main"
+    filename: caddy-xcaddy
+    state: present
+  register: caddy_repo
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  when: caddy_repo.changed
+
+- name: Install xcaddy and golang
+  apt:
+    name:
+      - xcaddy
+      - golang
+    state: present
+
+- name: create build directory
+  file:
+    path: /opt/caddy
+    state: directory
+
+- name: check if caddy has been built
+  stat:
+    path: /opt/caddy/caddy
+  register: caddy_binary
+
+- name: get caddy version
+  shell: |
+    set -o pipefail
+    /opt/caddy/caddy version | awk '{print $1}'
+  args:
+    executable: /bin/bash
+  register: built_caddy_version
+  when: caddy_binary.stat.exists
+  changed_when: false
+
+- name: get cloudflare plugin version
+  shell: |
+    set -o pipefail
+    /opt/caddy/caddy list-modules --versions | grep dns.providers.cloudflare | awk '{print $2}'
+  args:
+    executable: /bin/bash
+  register: built_cloudflare_version
+  when: caddy_binary.stat.exists
+  changed_when: false
+
+- name: build caddy
+  command: xcaddy build {{ caddy_version }} --with github.com/caddy-dns/cloudflare@{{ cloudflare_version }}
+  args:
+    chdir: /opt/caddy
+  register: caddy_build
+  when: not caddy_binary.stat.exists or built_caddy_version.stdout != caddy_version or built_cloudflare_version.stdout != cloudflare_version
+
+- name: copy caddy binary
+  copy:
+    remote_src: true
+    src: /opt/caddy/caddy
+    dest: /usr/bin/caddy
+    mode: '0755'
+  register: caddy_copy
+
+- name: make sure caddy group exists
+  group:
+    name: caddy
+    state: present
+
+- name: make sure caddy user exists
+  user:
+    name: caddy
+    group: caddy
+    shell: /usr/sbin/nologin
+    home: /var/lib/caddy
+    system: true
+    create_home: true
+    state: present
+
+- name: download caddy systemd service file
+  get_url:
+    url: https://raw.githubusercontent.com/caddyserver/dist/refs/tags/{{ caddy_version }}/init/caddy.service
+    dest: /etc/systemd/system/caddy.service
+    mode: '0644'
+  register: caddy_service
+
+- name: make sure caddy folder exists
+  file:
+    path: /etc/caddy
+    state: directory
+    mode: '0755'
+
+- name: create dummy caddyfile
+  copy:
+    content: |
+      {
+        debug
+      }
+      :80 {
+        respond "Caddy is running"
+      }
+    dest: /etc/caddy/Caddyfile
+    mode: '0644'
+
+- name: reload systemd
+  systemd:
+    daemon_reload: true
+  when: caddy_service.changed
+
+- name: ensure caddy service is enabled and started
+  systemd:
+    name: caddy
+    enabled: true
+    state: started
+
+- name: restart caddy service if required
+  systemd:
+    name: caddy
+    state: restarted
+  when: caddy_service.changed or caddy_copy.changed
