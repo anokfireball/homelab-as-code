@@ -1,4 +1,13 @@
 caddy_version: v2.10.0
 caddy_cloudflare_version: v0.2.1
 
-caddy_revserse_proxies: []
+caddy_revserse_proxies:
+  - subdomain: bitwarden
+    tailnet_node: homelab-bitwarden
+    port: 80
+  - subdomain: freshrss
+    tailnet_node: homelab-freshrss
+    port: 80
+  - subdomain: nextcloud
+    tailnet_node: homelab-nextcloud
+    port: 8080

@@ -53,7 +53,7 @@ spec:
             env:
               TZ: Europe/Berlin
               BASE_URL: https://freshrss.${SERVICE_DOMAIN}
-              CRON_MIN: '*/12'
+              CRON_MIN: "*/12"
               FRESHRSS_INSTALL:
                 valueFrom:
                   secretKeyRef:
@@ -76,6 +76,9 @@ spec:
     service:
       main:
         controller: main
+        annotations:
+          tailscale.com/expose: "true"
+          tailscale.com/hostname: homelab-freshrss
         ports:
           http:
             port: 80

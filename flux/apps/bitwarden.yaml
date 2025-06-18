@@ -109,6 +109,10 @@ spec:
       password:
         existingSecretKey: smtp-password
       authMechanism: Login
+    service:
+      annotations:
+        tailscale.com/expose: "true"
+        tailscale.com/hostname: homelab-bitwarden
     ingress:
       enabled: true
       class: nginx
