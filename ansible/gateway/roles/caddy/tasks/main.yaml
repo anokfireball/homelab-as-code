@@ -19,8 +19,8 @@
 - name: Install xcaddy and golang
   apt:
     name:
-      - xcaddy
-      - golang
+    - xcaddy
+    - golang
     state: present
 
 - name: create build directory
@@ -53,12 +53,13 @@
   when: caddy_binary.stat.exists
   changed_when: false
 
+# TODO build with https://github.com/mholt/caddy-dynamicdns?
 - name: build caddy
-  command: xcaddy build {{ caddy_version }} --with github.com/caddy-dns/cloudflare@{{ cloudflare_version }}
+  command: xcaddy build {{ caddy_version }} --with github.com/caddy-dns/cloudflare@{{ caddy_cloudflare_version }}
   args:
     chdir: /opt/caddy
   register: caddy_build
-  when: not caddy_binary.stat.exists or built_caddy_version.stdout != caddy_version or built_cloudflare_version.stdout != cloudflare_version
+  when: not caddy_binary.stat.exists or built_caddy_version.stdout != caddy_version or built_cloudflare_version.stdout != caddy_cloudflare_version
 
 - name: copy caddy binary
   copy:
@@ -96,17 +97,16 @@
     state: directory
     mode: '0755'
 
-- name: create dummy caddyfile
-  copy:
-    content: |
-      {
-        debug
-      }
-      :80 {
-        respond "Caddy is running"
-      }
+- name: obtain secrets
+  community.sops.load_vars:
+    file: secrets.sops.yaml
+
+- name: template Caddyfile
+  template:
+    src: Caddyfile.j2
     dest: /etc/caddy/Caddyfile
     mode: '0644'
+  register: caddy_template
 
 - name: reload systemd
   systemd:
@@ -123,4 +123,4 @@
   systemd:
     name: caddy
     state: restarted
-  when: caddy_service.changed or caddy_copy.changed
+  when: caddy_copy.changed or caddy_service.changed or caddy_template.changed

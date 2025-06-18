@@ -1,7 +1,38 @@
-- name: install ansible
+- name: install ansible and required dependencies
   apt:
-    name: ansible
+    name:
+    - ansible
+    - age
     state: present
+
+- name: install sops
+  block:
+    - name: check if sops is installed
+      stat:
+        path: /usr/bin/sops
+      register: sops_installed
+      changed_when: not sops_installed.stat.exists
+
+    - name: get sops version
+      shell: |
+        set -o pipefail
+        sops --version | awk '{print $2}'
+      args:
+        executable: /bin/bash
+      register: sops_installed_version
+      when: sops_installed.stat.exists
+      changed_when: sops_version not in sops_installed_version.stdout
+
+    - name: download sops deb
+      get_url:
+        url: "https://github.com/getsops/sops/releases/download/v{{ sops_version }}/sops_{{ sops_version }}_amd64.deb"
+        dest: /tmp/sops.deb
+      when: not sops_installed.stat.exists or sops_version not in sops_installed_version.stdout
+
+    - name: install deb
+      apt:
+        deb: /tmp/sops.deb
+      when: not sops_installed.stat.exists or sops_version not in sops_installed_version.stdout
 
 - name: set up ansible pull cronjob
   cron:
@@ -9,3 +40,18 @@
     user: ansible
     minute: "*/5"
     job: "ansible-pull -U https://github.com/anokfireball/homelab-as-code.git --inventory \"$(hostname --short),\" ansible/gateway/gateway.yaml"
+
+- name: create sops age directory
+  file:
+    path: ~/.config/sops/age
+    state: directory
+
+- name: obtain secrets
+  community.sops.load_vars:
+    file: secrets.sops.yaml
+
+- name: store age key for sops decyption
+  copy:
+    content: "{{ sops_age_key }}"
+    dest: ~/.config/sops/age/keys.txt
+    mode: '0600'

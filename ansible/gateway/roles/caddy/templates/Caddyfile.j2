@@ -1,0 +1,18 @@
+(https) {
+    tls {
+        dns cloudflare {{ cloudflare_api_token }}
+        resolvers 1.1.1.1
+    }
+}
+
+{% for proxy in caddy_revserse_proxies %}
+{{ proxy.subdomain }}.{{ service_domain }} {
+    reverse_proxy {{ proxy.tailnet_node }}.{{ tailnet_domain }}:{{ proxy.port }}
+    import https
+}
+{% endfor %}
+
+:80, :443 {
+    abort
+}
+
