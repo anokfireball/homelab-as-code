@@ -6,7 +6,7 @@ metadata:
 spec:
   # https://github.com/immich-app/immich-charts/issues/149
   # https://github.com/immich-app/immich/discussions/14280
-  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16-0.3.0
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16-0.4.2
   instances: 1
   postgresql:
     shared_preload_libraries:
