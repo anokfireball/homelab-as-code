@@ -31,19 +31,25 @@ PS: This setup is mature enough to be girlfriend-approved. 😉
 
 At the highest possible level, this repo and HaC workflow consists of three parts:
 - [cloud-init](cloud-init) contains the stage 1 bootstrapping for the cluster nodes.
-  This includes only the very basic OS-level configuration required for the others stages of this workflow.
+  This includes only the very basic OS-level configuration required for the other stages of this workflow.
   The contained shell script creates all files required to install the OS via [network boot](https://ubuntu.com/server/docs/how-to-netboot-the-server-installer-on-amd64) and without user interaction.
   _Triggering_ the network-boot installation is out-of-scope for the moment.
   After completion of the cloud-init [autoinstall](https://canonical-subiquity.readthedocs-hosted.com/en/latest/intro-to-autoinstall.html), all nodes reboot and are ready to accept SSH connections.
 - [ansible/cluster](ansible/cluster) contains the stage 2 system configuration for the cluster nodes.
   This includes a range of tasks including power management, networking setup, and most importantly bootstrapping the kubernetes cluster using [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/).
-  The contained ansible playbook and roles perform the required tasks on the nodes via an SSH and a dedicated ansible user created in the previous step.
-  After completion of this stage, the kubernetes cluster is set up with [HA](https://kube-vip.io/) control planes, joined worker nodes, dual-stack [CNI](https://www.tigera.io/tigera-products/calico/), almost working [OIDC authn](https://dexidp.io/), and last but not least a bootstrapped [GitOps](https://fluxcd.io/) setup that is ready to start reconciling.
+  The included Ansible playbook performs the required tasks on the nodes via SSH and a dedicated Ansible user created in the previous step.
+  After completion of this stage, the Kubernetes cluster is set up with [HA](https://kube-vip.io/) control planes, joined worker nodes, dual-stack [CNI](https://www.tigera.io/tigera-products/calico/), almost working [OIDC authn](https://dexidp.io/), and last but not least a bootstrapped [GitOps](https://fluxcd.io/) setup that is ready to start reconciling.
 - [flux](flux) contains the final stage 3 GitOps cluster configuration.
   This includes everything running _inside_ kubernetes in the cluster and ranges from basic system infrastructure like [load balancer](https://metallb.io/), [ingress](https://kubernetes.github.io/ingress-nginx/), and [CSI](https://longhorn.io/) to more user-style applications such as [password manager](https://bitwarden.com/) and [file management](https://nextcloud.com/) apps.
-  The contained flux kustomizations are automatically installed and/or reconciled on the cluster without* user interaction.
+  The included Flux kustomizations are automatically installed and/or reconciled on the cluster without* user interaction.
   This process is staggered since there is an inherent dependency between some of the components.
   After completion of this stage, the cluster is fully set up and ready for use.
+
+In addition to the core homelab IaC, there is one more loosely related stage:
+- [ansible/gateway](ansible/gateway) contains system configuration for a remotely hosted ingress gateway used to expose select services publicly.
+  This includes setup of [GitOps](https://docs.ansible.com/ansible/latest/cli/ansible-pull.html) outside of Kubernetes, [mesh networking](https://tailscale.com/) outside of Kubernetes, and a [reverse proxy](https://caddyserver.com/) with ACME support.
+  The included Ansible playbook performs the required tasks on a manually provisioned gateway via SSH and a dedicated Ansible user also created manually.
+  After completion of this stage, the public gateway is set up and ready to reverse proxy connections to the cluster.
 
 ## 📐 Tech Stack
 
@@ -57,7 +63,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
 | [Calico](https://www.tigera.io/tigera-products/calico/)              | CNI                                    | dual-stack nodes and services                                                      |
 | [kube-vip](https://kube-vip.io/)                                     | Virtual IP for controlplane Nodes      | used in L2/ARP mode                                                                |
 | [Flux2](https://fluxcd.io)                                           | GitOps Automation inside the Cluster   |                                                                                    |
-| [SOPS](https://getsops.io/)                                          | Secrets Management                     | [age](https://age-encryption.org/) rather than pgp, but not any more user-friendly |
+| [SOPS](https://getsops.io/)                                          | Secrets Management                     | [age](https://age-encryption.org/) rather than PGP, but not any more user-friendly |
 
 ## 📱 Applications
 
@@ -139,7 +145,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/grafana/grafana/refs/heads/main/public/img/grafana_icon.svg"></td>
         <td><a href="https://grafana.com/grafana/">Grafana</a></td>
-        <td>Montoring and Observability</td>
+        <td>Monitoring and Observability</td>
         <td></td>
     </tr>
     <tr>
@@ -164,7 +170,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><img width="32" src="https://openmoji.org/data/color/svg/1F9E6.svg"></td>
         <td><a href="https://github.com/httptoolkit/docker-socks-tunnel/">microsocks</a></td>
         <td>Lightweight SOCKS5 Server</td>
-        <td>poor man's monitoring gateway, alternatives: OpenSSH, Isito</td>
+        <td>poor man's monitoring gateway, alternatives: OpenSSH, Istio</td>
     </tr>
     <tr>
         <td><img height="32" width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/descheduler/refs/heads/master/assets/logo/descheduler-stacked-color.png"></td>
@@ -182,7 +188,13 @@ At the highest possible level, this repo and HaC workflow consists of three part
         <td><img width="32" src="https://raw.githubusercontent.com/dexidp/website/refs/heads/main/static/img/logos/dex-glyph-color.svg"></td>
         <td><a href="https://dexidp.io/">Dex</a></td>
         <td>OIDC Provider</td>
-        <td>used for api-server authentication</td>
+        <td>used for API server authentication</td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/tailscale/tailscale/refs/heads/main/client/web/src/assets/icons/tailscale-icon.svg"></td>
+        <td><a href="https://github.com/tailscale/tailscale/tree/main/cmd/k8s-operator">Tailscale</a></td>
+        <td>Overlay Mesh VPN Operator</td>
+        <td></td>
     </tr>
     <tr>
         <td></td>
@@ -294,7 +306,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opnsense-v1.svg"></td>
         <td><a href="https://github.com/anokfireball/opnsense-ipv6-prefix-update">OPNsense Prefix Updater</a></td>
-        <td>Update Network Configs with Newest Non-Static IPv6</td>
+        <td>Update Network Configs with Latest Non-Static IPv6</td>
         <td></td>
     </tr>
     <tr>
@@ -363,12 +375,13 @@ At the highest possible level, this repo and HaC workflow consists of three part
 
 While the ultimate goal is to have as self-sufficient of a setup as possible, some external services are still required for proper operation.
 
-| Service                                   | Purpose                                    | Notes                                                              |
-| ----------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
-| [GitHub](https://github.com/)             | Git Repository Hosting, GitOps Source      |                                                                    |
-| [INWX](https://www.inwx.de/)              | Domain Registrar                           |                                                                    |
-| [Cloudflare](https://www.cloudflare.com/) | Public DNS Auth Hosting                    |                                                                    |
-| [netcup](https://www.netcup.de/)          | Public Reverse-Proxy for Relevant Services | not _yet_ managed here since the number of public services is tiny |
-| [BackBlaze](https://www.backblaze.com/)   | Cloud Storage for Backups                  | the "3" in 3-2-1 for the really important data                     |
-| [TailScale](https://tailscale.com/)       | Overlay VPN                                | used for split-horizon and a direct connection back home           |
-| VPN Provider                              | VPN Gateway                                | different external IP for all the Linux ISOs                       |
+| Service                                   | Purpose                                  | Notes                                               |
+| ----------------------------------------- | ---------------------------------------- | --------------------------------------------------- |
+| [GitHub](https://github.com/)             | Git Repository Hosting, GitOps Source    |                                                     |
+| [INWX](https://www.inwx.de/)              | Domain Registrar                         |                                                     |
+| [Cloudflare](https://www.cloudflare.com/) | Public DNS Auth Hosting                  |                                                     |
+| [Let's Encrypt](https://letsencrypt.org/) | SSL Certificates                         |                                                     |
+| [netcup](https://www.netcup.de/)          | Public Reverse-Proxy for Select Services |                                                     |
+| [BackBlaze](https://www.backblaze.com/)   | Cloud Storage for Backups                | the "3" in 3-2-1 for the really important data      |
+| [TailScale](https://tailscale.com/)       | Overlay Mesh VPN                         | used for split-horizon and a direct route back home |
+| VPN Provider                              | VPN Gateway                              | unassociated external IP for all the Linux ISOs     |
