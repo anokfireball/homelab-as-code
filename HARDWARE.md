@@ -6,7 +6,7 @@
 - **BIOS**: [R1.32.0](https://support.ts.fujitsu.com/IndexDownload.asp?SoftwareGuid=6236E45F-F03E-474A-8791-F4F94F89C1CC)
 
 # Worker
-## 2x [Fujitsu Esprimo Q956](https://support.ts.fujitsu.com/indexdownload.asp?Softwareguid=09105f90-92ff-4658-b3c0-f4adf5c3f023)
+## 1x [Fujitsu Esprimo Q956](https://support.ts.fujitsu.com/indexdownload.asp?Softwareguid=09105f90-92ff-4658-b3c0-f4adf5c3f023)
 - **CPU**: Intel Core i5-6500T x86 @2.5GHz
 - **RAM**: 2x8GB DDR4 @2133MHz
 - **SSD**: 250GB Western Digital WD Blue (SATA)
