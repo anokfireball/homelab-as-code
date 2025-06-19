@@ -43,7 +43,7 @@
 
 - name: create sops age directory
   file:
-    path: ~/.config/sops/age
+    path: /home/ansible/.config/sops/age
     state: directory
 
 - name: obtain secrets
@@ -53,5 +53,5 @@
 - name: store age key for sops decyption
   copy:
     content: "{{ sops_age_key }}"
-    dest: ~/.config/sops/age/keys.txt
+    dest: /home/ansible/.config/sops/age/keys.txt
     mode: '0600'
