@@ -65,11 +65,11 @@ spec:
             image:
               repository: ghcr.io/qdm12/gluetun
               tag: v3.40.0@sha256:2b42bfa046757145a5155acece417b65b4443c8033fb88661a8e9dcf7fda5a00
+            env:
+              HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH: /config-auth
             envFrom:
               - secret: gluetun-secrets
             securityContext:
-              # https://github.com/tailscale/tailscale/issues/10814
-              privileged: true
               capabilities:
                 add:
                   - NET_ADMIN
@@ -117,6 +117,11 @@ spec:
         ports:
           http:
             port: 8080
+      gluetun:
+        controller: gluetun
+        ports:
+          http:
+            port: 8000
     ingress:
       main:
         className: nginx
@@ -148,6 +153,13 @@ spec:
       healthcheck:
         type: configMap
         name: qbittorrent
+      gluetun-auth:
+        type: secret
+        name: gluetun-auth
+        advancedMounts:
+          main:
+            gluetun:
+              - path: /gluetun/auth
       gluetun-data:
         type: emptyDir
         advancedMounts:
