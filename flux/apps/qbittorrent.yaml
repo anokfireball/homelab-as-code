@@ -118,7 +118,7 @@ spec:
           http:
             port: 8080
       gluetun:
-        controller: gluetun
+        controller: main
         ports:
           http:
             port: 8000
