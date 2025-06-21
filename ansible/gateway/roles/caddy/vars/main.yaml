@@ -11,3 +11,12 @@ caddy_revserse_proxies:
   - subdomain: nextcloud
     tailnet_node: homelab-nextcloud
     port: 8080
+  - subdomain: immich
+    tailnet_node: homelab-immich
+    port: 2283
+  - subdomain: n8n
+    tailnet_node: homelab-n8n
+    port: 5678
+  - subdomain: paperless
+    tailnet_node: homelab-paperless
+    port: 8000

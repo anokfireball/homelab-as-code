@@ -45,6 +45,9 @@ spec:
   values:
     service:
       main:
+        annotations:
+          tailscale.com/expose: "true"
+          tailscale.com/hostname: homelab-n8n
         ports:
           main:
             port: 5678

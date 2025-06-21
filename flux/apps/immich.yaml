@@ -217,6 +217,11 @@ spec:
         persistence:
           size: 2Gi
     server:
+      service:
+        main:
+          annotations:
+            tailscale.com/expose: "true"
+            tailscale.com/hostname: homelab-immich
       ingress:
         main:
           enabled: true

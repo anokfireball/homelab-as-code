@@ -277,6 +277,9 @@ spec:
     service:
       main:
         controller: main
+        annotations:
+          tailscale.com/expose: "true"
+          tailscale.com/hostname: homelab-paperless
         ports:
           http:
             port: 8000
