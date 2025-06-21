@@ -93,6 +93,7 @@ spec:
     # TODO hibp API key?
     signupsAllowed: false
     iconBlacklistNonGlobalIps: false
+    ipHeader: "X-Forwarded-For"
     adminToken:
       existingSecret: bitwarden-secrets
       existingSecretKey: admin-token
