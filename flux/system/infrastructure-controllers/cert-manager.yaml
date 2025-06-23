@@ -14,5 +14,8 @@ spec:
         name: jetstack
         namespace: flux-system
   values:
+    global:
+      rbac:
+        disableHTTPChallengesRole: true
     crds:
       enabled: true
