@@ -23,8 +23,8 @@ spec:
         initContainers:
           permissions:
             image:
-              repository: busybox
-              tag: stable@sha256:7edf5efe6b86dbf01ccc3c76b32a37a8e23b84e6bad81ce8ae8c221fa456fda8
+              repository: ghcr.io/anokfireball/base-image
+              tag: 3.22.0@sha256:e5610547dc8ebf4943573bf4e045c9ad4dcbced3e2f9611e3630b056c65a4aa5
             command: ["chown"]
             args: ["1000:1000", "/incomplete-downloads"]
         containers:
@@ -109,7 +109,7 @@ spec:
                 memory: 35Mi
           logs:
             image:
-              repository: busybox
+              repository: ghcr.io/anokfireball/base-image
               tag: stable@sha256:7edf5efe6b86dbf01ccc3c76b32a37a8e23b84e6bad81ce8ae8c221fa456fda8
             command: ["tail"]
             args: ["-F", "/config/qBittorrent/logs/qbittorrent.log"]

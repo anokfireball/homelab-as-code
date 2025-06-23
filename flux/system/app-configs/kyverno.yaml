@@ -52,7 +52,7 @@ spec:
             op: replace
             value:
               - name: healthcheck
-                image: curlimages/curl:latest@sha256:e7f227b4e2adafe7bd743bda37f4f6d6f803ea965e9e827061ff07de9d67d433
+                image: ghcr.io/anokfireball/base-image:3.22.0@sha256:e5610547dc8ebf4943573bf4e045c9ad4dcbced3e2f9611e3630b056c65a4aa5
                 command: ["curl"]
                 args: [
                   "-fs",
