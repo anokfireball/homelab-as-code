@@ -14,6 +14,8 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    global:
+      alwaysAppendIdentifierToResourceName: true
     controllers:
       main:
         annotations:
@@ -152,7 +154,7 @@ spec:
     persistence:
       healthcheck:
         type: configMap
-        name: qbittorrent
+        name: qbittorrent-healthcheck
       gluetun-auth:
         type: secret
         name: gluetun-auth

@@ -14,6 +14,8 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    global:
+      alwaysAppendIdentifierToResourceName: true
     controllers:
       main:
         containers:
@@ -60,4 +62,4 @@ spec:
     persistence:
       config:
         type: configMap
-        name: rss-bridge
+        name: rss-bridge-config
