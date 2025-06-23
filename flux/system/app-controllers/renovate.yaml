@@ -100,7 +100,7 @@ spec:
           enabled: true
           type: RoleBinding
           roleRef:
-            name: renovate-github-token-refresher
+            name: renovate-github-token-refresher-config-patcher
             kind: Role
           subjects:
             - kind: ServiceAccount
