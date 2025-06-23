@@ -104,6 +104,8 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    global:
+      alwaysAppendIdentifierToResourceName: true
     defaultPodOptions:
       tolerations:
         - operator: Exists
@@ -140,7 +142,7 @@ spec:
     persistence:
       config:
         type: configMap
-        name: scrutiny-collector
+        name: scrutiny-collector-config
         globalMounts:
           - path: /opt/scrutiny/config/collector.yaml
             subPath: collector.yaml

@@ -52,6 +52,8 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    global:
+      alwaysAppendIdentifierToResourceName: true
     controllers:
       main:
         type: cronjob
@@ -173,7 +175,7 @@ spec:
     persistence:
       scripts:
         type: configMap
-        name: renovate-github-token-refresher
+        name: renovate-github-token-refresher-scripts
       key:
         type: secret
         name: renovate-github-token-key

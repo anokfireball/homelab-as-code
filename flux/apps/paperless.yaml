@@ -229,6 +229,8 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    global:
+      alwaysAppendIdentifierToResourceName: true
     controllers:
       main:
         containers:
@@ -303,7 +305,7 @@ spec:
     persistence:
       postconsumptionscript:
         type: configMap
-        name: paperless-ngx
+        name: paperless-ngx-postconsumptionscript
       data:
         type: persistentVolumeClaim
         storageClass: cluster-replicated
