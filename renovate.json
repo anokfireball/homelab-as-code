@@ -41,7 +41,9 @@
     },
     {
       "matchPackageNames": [
-        "ghcr.io/analogj/scrutiny"
+        "ghcr.io/analogj/scrutiny",
+        "longhorn",
+        "longhorn/csi-snapshotter"
       ],
       "automerge": false
     },
@@ -224,6 +226,20 @@
       "packageNameTemplate": "k8up-io/k8up",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^k8up-(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+        {
+      "customType": "regex",
+      "description": "Update csi-snapshotter CRDs",
+      "managerFilePatterns": [
+        "/flux/repositories/csi-snapshotter.yaml/"
+      ],
+      "matchStrings": [
+        "tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "longhorn/csi-snapshotter",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
     },
     {
       "customType": "regex",
