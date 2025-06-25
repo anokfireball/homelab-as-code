@@ -194,14 +194,14 @@ spec:
               kinds:
                 - Deployment
               names:
-                - paperless-ngx
+                - paperless-ngx-main
               namespaces:
                 - default
       mutate:
         targets:
           - apiVersion: apps/v1
             kind: Deployment
-            name: paperless-ngx
+            name: paperless-ngx-main
         patchStrategicMerge:
           spec:
             template:
@@ -209,7 +209,7 @@ spec:
                 volumes:
                   - name: postconsumptionscript
                     configMap:
-                      name: paperless-ngx
+                      name: paperless-ngx-postconsumptionscript
                       defaultMode: 0755
                       optional: false
 ---
