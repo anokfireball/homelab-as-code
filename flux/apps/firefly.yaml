@@ -154,7 +154,7 @@ spec:
   values:
     image:
       repository: fireflyiii/data-importer
-      tag: version-1.7.1@sha256:ff90d82b15aa76ca8a51514ea29038d6502133cd2317aec78b0ffd4bd17dcde8
+      tag: version-1.7.2@sha256:601022b1284ad27b1d3cfe3965d7f6bd7ac3652de9fc43ca61449c5598eeabec
     fireflyiii:
       url: http://firefly-firefly-iii
       vanityUrl: https://firefly.${SERVICE_DOMAIN}
