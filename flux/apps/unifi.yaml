@@ -17,7 +17,7 @@ spec:
     global:
       defaultStorageClass: cluster-replicated
     image:
-      tag: 8.0.11@sha256:b0652af9c8d07b4b0bec60cf352a7c04d5e769d0d6e30e93566792affa3c0f20
+      tag: 8.0.12@sha256:e79b79aa3df7e0af5387f0f8d77f86cb3be21d7e7a1f47f60c55b36f8bd29eea
     architecture: standalone
     useStatefulSet: true
     auth:
