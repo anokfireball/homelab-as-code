@@ -37,7 +37,7 @@ spec:
   chart:
     spec:
       chart: n8n
-      version: 17.6.1
+      version: 17.7.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
