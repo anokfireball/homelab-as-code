@@ -4,7 +4,7 @@ metadata:
   name: nextcloud-postgresql
   namespace: default
 spec:
-  imageName: ghcr.io/cloudnative-pg/postgresql:16.6-29@sha256:5815f70ae438221b358b31f0231dc9e269e58dc651be2ecba1bd0c6cb29f9acd
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.5-20@sha256:9de626b82bf15bea05ed1172bfc0e45a3687662ec76ac8cbda8f95d02198db39
   instances: 1
   managed:
     services:
