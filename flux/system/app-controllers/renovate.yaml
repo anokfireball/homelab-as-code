@@ -68,7 +68,7 @@ spec:
           main:
             image:
               repository: ghcr.io/anokfireball/base-image
-              tag: 3.22.1@sha256:8f60f2d42f58cf85650a931627f4fd50faa9905ea8e904cfbb7acdc5c8f99056
+              tag: 3.22.1@sha256:e9c3c410f085d780f92683e3af507cedb64f19a607354532a9b80253bc26375f
             envFrom:
               - secret: renovate-github-token-secrets
             command: ["/bin/bash", "/scripts/token.sh"]
