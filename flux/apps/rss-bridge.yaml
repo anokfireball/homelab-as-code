@@ -22,7 +22,7 @@ spec:
           main:
             image:
               repository: ghcr.io/rss-bridge/rss-bridge
-              tag: latest@sha256:9c73f03d15741de4a46d89ec2b8aa65197ca44144660b039a9d7ebbc04b03f38
+              tag: latest@sha256:0bc2aafa6f59f9b66cbabc6927e704a1ad6ea76fc9119a4665da90e0662736bf
             probes:
               liveness:
                 enabled: true
