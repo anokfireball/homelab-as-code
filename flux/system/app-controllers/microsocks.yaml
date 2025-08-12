@@ -20,7 +20,7 @@ spec:
           main:
             image:
               repository: ghcr.io/httptoolkit/docker-socks-tunnel
-              tag: v1.2.0@sha256:4cdb450ac3ad3abadd5393d762ac9ca45192f15c53dbaa0ab10f789478a015e4
+              tag: v1.2.1@sha256:5ccd90fb41103cffcda301666028c8d85a7bf5c49657aa934235c4b383267626
             args: ["-u", "$(SOCKS_USERNAME)", "-P", "$(SOCKS_PASSWORD)"]
             envFrom:
               - secret: microsocks-secrets
