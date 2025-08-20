@@ -58,7 +58,7 @@ spec:
         existingSecret: firefly-cron
       image:
         repository: ghcr.io/anokfireball/base-image
-        tag: 3.22.1@sha256:631279502be82825f6b30a93bbd54ed47f06974469c3f432cacc9481a3b79b25
+        tag: 3.22.1@sha256:4223fa6b1cd55b1cc0672378df9dfa0415e84e56f0fb31b331f7c3717d65b75c
     ingress:
       enabled: true
       className: nginx
