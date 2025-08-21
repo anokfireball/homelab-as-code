@@ -25,7 +25,7 @@ spec:
           main:
             image:
               repository: ghcr.io/anokfireball/opnsense-ipv6-prefix-update
-              tag: v1.0.3@sha256:347f11bcab5f9faa5737b0de7d98e6a7da9c373c14e6c44989b71bed7d1b4dbf
+              tag: v1.0.4@sha256:98c1ad971828119ee4556cf3d85a0fe146ee7fc4326413b24d18b6120fcb36d7
             env:
               OPNSENSE_HOST: 192.168.1.1
               OPNSENSE_PORT: 80
