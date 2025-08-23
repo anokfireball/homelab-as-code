@@ -1,4 +1,4 @@
-caddy_version: v2.10.0
+caddy_version: v2.10.2
 caddy_cloudflare_version: v0.2.1
 
 caddy_revserse_proxies:
