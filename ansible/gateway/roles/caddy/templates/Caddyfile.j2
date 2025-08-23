@@ -5,11 +5,7 @@
     }
 }
 
-# TODO LetsEncryt IP Cert once certmagic is bumped in caddy
-# https://github.com/caddyserver/caddy/blob/v2.10.0/go.mod#L11
-# https://github.com/caddyserver/certmagic/pull/345
-# {{ public_ip }} {
-neti.{{ service_domain }} {
+{{ public_ip }} {
     respond /health "ok"
     import https
 }
