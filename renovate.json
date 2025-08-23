@@ -257,6 +257,20 @@
     },
     {
       "customType": "regex",
+      "description": "Update go version",
+      "managerFilePatterns": [
+        "/ansible/gateway/roles/caddy/vars/main.yaml/"
+      ],
+      "matchStrings": [
+        "go_version: (?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "golang/go",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^go(?<version>\\d+\\.\\d+\\.\\d+)(rc\\d+)?$"
+    },
+    {
+      "customType": "regex",
       "description": "Update caddy version",
       "managerFilePatterns": [
         "/ansible/gateway/roles/caddy/vars/main.yaml/"

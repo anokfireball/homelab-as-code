@@ -16,11 +16,43 @@
     update_cache: yes
   when: caddy_repo.changed
 
-- name: Install xcaddy and golang
+- name: check if go is installed
+  stat:
+    path: /usr/local/go/bin/go
+  register: go_binary
+
+- name: get installed go version
+  shell: |
+    set -o pipefail
+    /usr/local/go/bin/go version | awk '{print $3}' | sed 's/go//'
+  args:
+    executable: /bin/bash
+  register: installed_go_version
+  when: go_binary.stat.exists
+  changed_when: false
+
+- name: remove existing go installation
+  file:
+    path: /usr/local/go
+    state: absent
+  when: go_binary.stat.exists and installed_go_version.stdout != go_version
+
+- name: download and extract go
+  unarchive:
+    src: "https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+  when: not go_binary.stat.exists or (go_binary.stat.exists and installed_go_version.stdout != go_version)
+
+- name: add go to PATH
+  lineinfile:
+    path: /etc/profile
+    line: 'export PATH=/usr/local/go/bin:$PATH'
+    create: yes
+
+- name: Install xcaddy
   apt:
-    name:
-    - xcaddy
-    - golang
+    name: xcaddy
     state: present
 
 - name: create build directory
@@ -58,6 +90,8 @@
   command: xcaddy build {{ caddy_version }} --with github.com/caddy-dns/cloudflare@{{ caddy_cloudflare_version }}
   args:
     chdir: /opt/caddy
+  environment:
+    PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
   register: caddy_build
   when: not caddy_binary.stat.exists or built_caddy_version.stdout != caddy_version or built_cloudflare_version.stdout != caddy_cloudflare_version
 
