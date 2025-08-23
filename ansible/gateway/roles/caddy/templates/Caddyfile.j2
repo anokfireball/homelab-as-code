@@ -1,19 +1,33 @@
-(https) {
+(https_dns) {
     tls {
         dns cloudflare {{ cloudflare_api_token }}
         resolvers 1.1.1.1
     }
 }
 
+(https_ip) {
+    tls {
+        issuer acme {
+            # has not yet reached GA/production
+            # https://letsencrypt.org/2025/07/01/issuing-our-first-ip-address-certificate#how-to-get-an-ip-address-cert
+            dir https://acme-staging-v02.api.letsencrypt.org/directory
+            profile shortlived
+            disable_tlsalpn_challenge
+            alt_http_port 80
+            timeout 30s
+        }
+    }
+}
+
 {{ public_ip }} {
     respond /health "ok"
-    import https
+    import https_ip
 }
 
 {% for proxy in caddy_revserse_proxies %}
 {{ proxy.subdomain }}.{{ service_domain }} {
     reverse_proxy {{ proxy.tailnet_node }}.{{ tailnet_domain }}:{{ proxy.port }}
-    import https
+    import https_dns
 }
 {% endfor %}
 
