@@ -9,7 +9,7 @@ spec:
     spec:
       chart: external-dns
       # TODO https://github.com/kubernetes-sigs/external-dns/pull/5207
-      version: 1.18.0
+      version: 1.19.0
       sourceRef:
         kind: HelmRepository
         name: external-dns
