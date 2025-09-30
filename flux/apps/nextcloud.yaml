@@ -88,14 +88,6 @@ spec:
       keepMonthly: 6
       keepYearly: 2
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nextcloud-cron-script
-  namespace: default
-data:
-  www-data: '*/5 * * * * php -f /var/www/html/cron.php && php /var/www/html/occ files:scan --all && curl -fs --globoff -X POST $(cat /healthcheckUrl) -H "Authorization: Bearer $(cat /healthcheckToken)"'
----
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -212,12 +204,6 @@ spec:
           nfs:
             server: 192.168.1.2
             path: /mnt/tank/Bilder/Dani/Handy
-        - name: cron
-          configMap:
-            name: nextcloud-cron-script
-        - name: healthcheck
-          secret:
-            secretName: nextcloud-secrets
       extraVolumeMounts:
         - name: paperless-consume
           mountPath: /var/www/html/data/ntauthority/files/consumption/
@@ -225,14 +211,6 @@ spec:
           mountPath: /var/www/html/data/ntauthority/files/auto-upload/
         - name: photo-auto-upload-dani
           mountPath: /var/www/html/data/RedRaven/files/auto-upload/
-        - name: cron
-          mountPath: /var/spool/cron/crontabs/
-        - name: healthcheck
-          mountPath: /healthcheckUrl
-          subPath: healthcheckUrl
-        - name: healthcheck
-          mountPath: /healthcheckToken
-          subPath: healthcheckToken
     imaginary:
       enabled: true
       resources:
@@ -270,8 +248,10 @@ spec:
       architecture: standalone
     cronjob:
       enabled: true
-      command:
-        - /cron.sh
+      type: cronjob
+      cronjob:
+        annotations:
+          healthcheckSecret: nextcloud-cron
     internalDatabase:
       enabled: false
     externalDatabase:
