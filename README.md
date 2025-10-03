@@ -86,7 +86,7 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/external-dns/refs/heads/master/docs/img/external-dns.png"></td>
         <td><a href="https://kubernetes-sigs.github.io/external-dns/">external-dns</a></td>
         <td>DNS Management Automation</td>
-        <td>split-horizon realized using <a href="https://github.com/jobs62/opnsense_unbound_external-dns_webhook">opnsense webhook</a></td>
+        <td>split-horizon realized using <a href="https://github.com/crutonjohn/external-dns-opnsense-webhook">opnsense webhook</a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/cert-manager/cert-manager/refs/heads/master/logo/logo.svg"></td>

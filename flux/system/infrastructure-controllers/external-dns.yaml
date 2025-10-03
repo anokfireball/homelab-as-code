@@ -8,7 +8,6 @@ spec:
   chart:
     spec:
       chart: external-dns
-      # TODO https://github.com/kubernetes-sigs/external-dns/pull/5207
       version: 1.19.0
       sourceRef:
         kind: HelmRepository
@@ -20,31 +19,29 @@ spec:
       name: webhook
       webhook:
         image:
-          repository: ghcr.io/jobs62/opnsense_unbound_external-dns_webhook
-          tag: v0.4.5@sha256:22d3bd25bacaa0a8445a746d6541a8994bcb54e6047f5a079574adc792f88034
+          repository: ghcr.io/crutonjohn/external-dns-opnsense-webhook
+          tag: main@sha256:e2f9ca3cdfeaaf50bf21419820c140194fcfa49b635417ab630a4f940a86ab73
         securityContext:
           runAsNonRoot: true
           runAsUser: 1000
           runAsGroup: 1000
           allowPrivilegeEscalation: false
         env:
-          - name: OPNSENSE_BASE
-            value: http://192.168.1.1/
-          - name: OPNSENSE_BIND
-            value: 0.0.0.0:8080
-          - name: OPNSENSE_KEY
-            valueFrom:
-              secretKeyRef:
-                name: external-dns-secrets
-                key: opnsense-key
-          - name: OPNSENSE_SECRET
+          - name: OPNSENSE_API_SECRET
             valueFrom:
               secretKeyRef:
                 name: external-dns-secrets
                 key: opnsense-secret
+          - name: OPNSENSE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: opnsense-key
+          - name: OPNSENSE_HOST
+            value: http://192.168.1.1/
+          - name: LOG_LEVEL
+            value: debug
     registry: noop
-    extraArgs:
-      - --webhook-provider-url=http://localhost:8080
     managedRecordTypes:
       - A
       - AAAA
