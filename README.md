@@ -102,7 +102,7 @@ In addition to the core homelab IaC, there is one more loosely related stage:
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/kyverno/kyverno/refs/heads/main/img/logo.png"></td>
-        <td><a href="https://kubernetes.github.io/ingress-nginx/">Kyverno</a></td>
+        <td><a href="https://kyverno.io/">Kyverno</a></td>
         <td>Policy Engine</td>
         <td></td>
     </tr>
@@ -295,6 +295,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/refs/heads/main/docs/stirling.svg"></td>
         <td><a href="https://www.stirlingpdf.com/">Stirling PDF</a></td>
         <td>Swiss-Army Knife for PDFs</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/excalidraw/excalidraw/refs/heads/master/public/favicon.svg"></td>
+        <td><a href="https://excalidraw.com/">Excalidraw</a></td>
+        <td>Virtual Whiteboard</td>
         <td></td>
     </tr>
     <tr>
