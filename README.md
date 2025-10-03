@@ -167,12 +167,6 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td>via SMART</td>
     </tr>
     <tr>
-        <td><img width="32" src="https://openmoji.org/data/color/svg/1F9E6.svg"></td>
-        <td><a href="https://github.com/httptoolkit/docker-socks-tunnel/">microsocks</a></td>
-        <td>Lightweight SOCKS5 Server</td>
-        <td>poor man's monitoring gateway, alternatives: OpenSSH, Istio</td>
-    </tr>
-    <tr>
         <td><img height="32" width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/descheduler/refs/heads/master/assets/logo/descheduler-stacked-color.png"></td>
         <td><a href="https://sigs.k8s.io/descheduler">descheduler</a></td>
         <td>Pod Eviction for Node Balancing</td>
