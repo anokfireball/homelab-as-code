@@ -222,103 +222,103 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://raw.githubusercontent.com/pi-hole/docs/refs/heads/master/docs/images/logo.svg"></td>
         <td><a href="https://pi-hole.net/">Pi-hole</a></td>
         <td>Filtering DNS Proxy</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_pi-hole-[http]/uptimes/30d/badge.svg" alt="Pi-hole Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/nextcloud/server/refs/heads/master/core/img/favicon.png"></td>
         <td><a href="https://nextcloud.com/">Nextcloud</a></td>
         <td>File Storage and Management</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_nextcloud-[http---public]/uptimes/30d/badge.svg" alt="Nextcloud Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/dani-garcia/vaultwarden/refs/heads/main/resources/vaultwarden-icon.svg"></td>
         <td><a href="https://github.com/dani-garcia/vaultwarden">Vaultwarden</a></td>
         <td>API-compatible Password Manager</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_bitwarden-[http---public]/uptimes/30d/badge.svg" alt="Vaultwarden Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/immich-app/immich/refs/heads/main/web/static/favicon.ico"></td>
         <td><a href="https://immich.app/">Immich</a></td>
         <td>Photo/Video Storage and Management</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_immich-[http---public]/uptimes/30d/badge.svg" alt="Immich Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/refs/heads/dev/docs/assets/favicon.png"></td>
         <td><a href="https://docs.paperless-ngx.com/">Paperless-ngx</a></td>
         <td>Document Management System</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_paperless-ngx-[http---public]/uptimes/30d/badge.svg" alt="Paperkess-ngx Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/firefly-iii/firefly-iii/refs/heads/main/public/favicon.ico"></td>
         <td><a href="https://www.firefly-iii.org/">Firefly III</a></td>
         <td>Personal Finance Manager</td>
-        <td>including <a href="https://github.com/firefly-iii/data-importer">importer</a> and <a href="https://github.com/cioraneanu/firefly-pico">pico</a></td>
+        <td>including <a href="https://github.com/firefly-iii/data-importer">importer</a> and <a href="https://github.com/cioraneanu/firefly-pico">pico</a><br><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_firefly-iii-[http]/uptimes/30d/badge.svg" alt="Firefly III Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/TomBursch/kitchenowl/refs/heads/main/kitchenowl/web/favicon.ico"></td>
         <td><a href="https://kitchenowl.org/">KitchenOwl</a></td>
         <td>Recipe and Grocery Manager</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_kitchenowl-[http]/uptimes/30d/badge.svg" alt="KitchenOwl Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/gethomepage/homepage/refs/heads/dev/public/homepage.ico"></td>
         <td><a href="https://gethomepage.dev/">Homepage</a></td>
         <td>Application Dashboard</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_homepage-[http]/uptimes/30d/badge.svg" alt="Homepage Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/FreshRSS/freshrss.org/refs/heads/main/static/favicon.ico"></td>
         <td><a href="https://freshrss.org/index.html">Fresh-RSS</a></td>
         <td>RSS Aggregator</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_fresh-rss-[http---public]/uptimes/30d/badge.svg" alt="Fresh-RSS Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/RSS-Bridge/rss-bridge/refs/heads/master/static/favicon.svg"></td>
         <td><a href="https://rss-bridge.org/">RSS-Bridge</a></td>
         <td>Unofficial RSS Feeds of ANY Source</td>
-        <td><i>any</i> as long as you know some PHP</td>
+        <td><i>any</i> as long as you know some PHP<br><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_rss-bridge-[http]/uptimes/30d/badge.svg" alt="RSS-Bridge Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://d21buns5ku92am.cloudfront.net/26628/documents/54546-1717072325-sc-logo-cloud-black-7412d7.svg"></td>
         <td><a href="https://github.com/anokfireball/soundcloud-scraper">Soundcloud Scraper</a></td>
         <td>Parser + Webhook for my Soundcloud Feed</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_soundcloud-scraper-[push]/uptimes/30d/badge.svg" alt="Soundcloud Scraper Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/refs/heads/main/docs/stirling.svg"></td>
         <td><a href="https://www.stirlingpdf.com/">Stirling PDF</a></td>
         <td>Swiss-Army Knife for PDFs</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_stirling-pdf-[http]/uptimes/30d/badge.svg" alt="Stirling PDF Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/excalidraw/excalidraw/refs/heads/master/public/favicon.svg"></td>
         <td><a href="https://excalidraw.com/">Excalidraw</a></td>
         <td>Virtual Whiteboard</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_excalidraw-[http]/uptimes/30d/badge.svg" alt="Excalidraw Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/ubiquiti-unifi.svg"></td>
         <td><a href="https://ui.com/consoles">UniFi Network Application</a></td>
         <td>AP Administration and Management</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_unifi-[http]/uptimes/30d/badge.svg" alt="UniFi Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opnsense-v1.svg"></td>
         <td><a href="https://github.com/anokfireball/opnsense-ipv6-prefix-update">OPNsense Prefix Updater</a></td>
         <td>Update Network Configs with Latest Non-Static IPv6</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/petrus_opnsense-prefix-update-[push]/uptimes/30d/badge.svg" alt="OPNsense Prefix Updater Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/favicon.ico"></td>
         <td><a href="https://n8n.io/">n8n</a></td>
         <td>Workflow Automation</td>
-        <td>freemium/open core</td>
+        <td>freemium/open core<br><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_n8n-[http---public]/uptimes/30d/badge.svg" alt="n8n Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/jellyfin/jellyfin.org/refs/heads/master/static/images/icon-transparent.svg"></td>
         <td><a href="https://jellyfin.org/">Jellyfin</a></td>
         <td>Media Streaming and Management</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_jellyfin-[http]/uptimes/30d/badge.svg" alt="Jellyfin Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/qdm12/gluetun/refs/heads/master/doc/logo.svg"></td>
@@ -330,43 +330,43 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://raw.githubusercontent.com/qbittorrent/qBittorrent-website/refs/heads/master/src/favicon.svg"></td>
         <td><a href="https://www.qbittorrent.org/">qBittorrent</a></td>
         <td>Torrent Client</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_qbittorrent-[http]/uptimes/30d/badge.svg" alt="qBittorrent Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/sabnzbd/sabnzbd/refs/heads/develop/interfaces/Config/templates/staticcfg/images/logo-small.svg"></td>
         <td><a href="https://sabnzbd.org/">SABnzbd</a></td>
         <td>Usenet Client</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_sabnzbd-[http]/uptimes/30d/badge.svg" alt="SABnzbd Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/Prowlarr/Prowlarr/refs/heads/develop/Logo/Prowlarr.svg"></td>
         <td><a href="https://prowlarr.com/">Prowlarr</a></td>
         <td>Torrent & Usenet Indexer Engine</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_prowlarr-[http]/uptimes/30d/badge.svg" alt="Prowlarr Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/Radarr/Radarr/refs/heads/develop/Logo/Radarr.svg"></td>
         <td><a href="https://radarr.video/">Radarr</a></td>
         <td>Movie Management</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_radarr-[http]/uptimes/30d/badge.svg" alt="Radarr Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/Sonarr/Sonarr/refs/heads/develop/Logo/Sonarr.svg"></td>
         <td><a href="https://sonarr.tv/">Sonarr</a></td>
         <td>TV Show Management</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_sonarr-[http]/uptimes/30d/badge.svg" alt="Sonarr Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/Lidarr/Lidarr/refs/heads/develop/Logo/Lidarr.svg"></td>
         <td><a href="https://lidarr.audio/">Lidarr</a></td>
         <td>Music Management</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_lidarr-[http]/uptimes/30d/badge.svg" alt="Lidarr Uptime"></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/FlareSolverr/FlareSolverr/refs/heads/master/resources/flaresolverr_logo.svg"></td>
         <td><a href="https://github.com/FlareSolverr/FlareSolverr">FlareSolverr</a></td>
         <td>Cloudflare Protection Bypass</td>
-        <td></td>
+        <td><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_flaresolverr-[http]/uptimes/30d/badge.svg" alt="FlareSolverr Uptime"></td>
     </tr>
 </table>
 
