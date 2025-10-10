@@ -2,9 +2,8 @@
 
 ![Homelab-as-Code logo](logo.png "Homelab-as-Code logo")
 
-<img src="" alt="Node Uptime">
-<img src="" alt="Cluster Uptime">
-<img src="" alt="Service Uptime">
+<img src="https://gatus.kthxbye.cyou/api/v1/endpoints/k8s-homelab_loadbalancer-[http]/health/badge.svg" alt="Cluster Health">
+<img src="https://gatus.kthxbye.cyou/api/v1/endpoints/k8s-homelab_loadbalancer-[http]/uptimes/30d/badge.svg" alt="Cluster Uptime">
 
 <h3>Bootstrap and GitOps sources to get my baremetal homelab set up consistently.</h3>
 
