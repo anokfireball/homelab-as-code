@@ -200,7 +200,7 @@ spec:
           main:
             image:
               repository: cioraneanu/firefly-pico
-              tag: 1.9.0@sha256:f8a1ab0ac894e261892792ab79b3a38cf9f9af25d1d4069c87d34d2aa3b77ba2
+              tag: 1.9.1@sha256:25b96668834ea020d9d26952a2b853c851578df534c30bbe46fa7399d10e06a0
             env:
               TZ: Europe/Berlin
               APP_URL: firefly-pico.${SERVICE_DOMAIN}
