@@ -249,7 +249,7 @@ spec:
       persistence:
         cache:
           enabled: true
-          type: pvc
+          type: persistentVolumeClaim
           storageClass: cluster-scratch
           accessMode: ReadWriteMany
           size: 10Gi
