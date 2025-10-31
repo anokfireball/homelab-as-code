@@ -188,7 +188,7 @@ spec:
   chart:
     spec:
       chart: immich
-      version: 0.9.3
+      version: 0.10.1
       sourceRef:
         kind: HelmRepository
         name: immich-app
@@ -209,7 +209,7 @@ spec:
       persistence:
         library:
           existingClaim: immich-library
-    redis:
+    valkey:
       enabled: true
       global:
         storageClass: cluster-scratch
