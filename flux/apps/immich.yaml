@@ -194,27 +194,31 @@ spec:
         name: immich-app
         namespace: flux-system
   values:
-    env:
-      DB_HOSTNAME: immich-postgresql-rw
-      DB_USERNAME: immich
-      DB_DATABASE_NAME: immich
-      DB_PASSWORD:
-        valueFrom:
-          secretKeyRef:
-            name: immich-postgres-user
-            key: password
-    image:
-      tag: v2.2.0
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              tag: v2.2.0
+            env:
+              DB_HOSTNAME: immich-postgresql-rw
+              DB_USERNAME: immich
+              DB_DATABASE_NAME: immich
+              DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: immich-postgres-user
+                    key: password
     immich:
       persistence:
         library:
           existingClaim: immich-library
     valkey:
       enabled: true
-      global:
-        storageClass: cluster-scratch
-      master:
-        persistence:
+      persistence:
+        data:
+          type: persistentVolumeClaim
+          storageClass: cluster-scratch
           size: 2Gi
     server:
       service:
@@ -225,7 +229,7 @@ spec:
       ingress:
         main:
           enabled: true
-          ingressClassName: nginx
+          className: nginx
           annotations:
             cert-manager.io/cluster-issuer: letsencrypt
           hosts:
@@ -236,16 +240,29 @@ spec:
             - secretName: immich-tls
               hosts:
                 - immich.${SERVICE_DOMAIN}
+      controllers:
+        main:
+          containers:
+            main:
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 350Mi
       persistence:
         external:
           enabled: true
-          mountPath: /mnt/tank/Bilder
           existingClaim: nas-photos
-      resources:
-        requests:
-          cpu: 50m
-          memory: 350Mi
+          globalMounts:
+            - path: /mnt/tank/Bilder
     machine-learning:
+      controllers:
+        main:
+          containers:
+            main:
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 300Mi
       persistence:
         cache:
           enabled: true
@@ -253,10 +270,6 @@ spec:
           storageClass: cluster-scratch
           accessMode: ReadWriteMany
           size: 10Gi
-      resources:
-        requests:
-          cpu: 50m
-          memory: 300Mi
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
