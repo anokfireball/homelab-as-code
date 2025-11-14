@@ -1,8 +1,8 @@
 - name: install ansible and required dependencies
   apt:
     name:
-    - ansible
-    - age
+      - ansible
+      - age
     state: present
 
 - name: install sops
@@ -12,7 +12,6 @@
         path: /usr/bin/sops
       register: sops_installed
       changed_when: not sops_installed.stat.exists
-
     - name: get sops version
       shell: |
         set -o pipefail
@@ -22,24 +21,30 @@
       register: sops_installed_version
       when: sops_installed.stat.exists
       changed_when: sops_version not in sops_installed_version.stdout
-
     - name: download sops deb
       get_url:
         url: "https://github.com/getsops/sops/releases/download/v{{ sops_version }}/sops_{{ sops_version }}_amd64.deb"
         dest: /tmp/sops.deb
       when: not sops_installed.stat.exists or sops_version not in sops_installed_version.stdout
-
     - name: install deb
       apt:
         deb: /tmp/sops.deb
       when: not sops_installed.stat.exists or sops_version not in sops_installed_version.stdout
 
-- name: set up ansible pull cronjob
+- name: Copy gateway reconcile wrapper script
+  copy:
+    src: gateway-reconcile.sh
+    dest: /usr/local/bin/gateway-reconcile.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure ansible-pull cron with wrapper
   cron:
-    name: "ansible pull"
-    user: ansible
+    name: "ansible-pull homelab-as-code gateway"
     minute: "*/5"
-    job: "ansible-pull -U https://github.com/anokfireball/homelab-as-code.git --inventory \"$(hostname --short),\" ansible/gateway/gateway.yaml"
+    user: ansible
+    job: "/usr/local/bin/gateway-reconcile.sh"
 
 - name: create sops age directory
   file:
