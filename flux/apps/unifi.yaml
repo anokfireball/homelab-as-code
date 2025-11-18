@@ -93,7 +93,7 @@ spec:
           main:
             image:
               repository: ghcr.io/linuxserver/unifi-network-application
-              tag: 9.5.21@sha256:be1da081b8eee24312a7c86f17d48acb8da7e17831a8d9be77d94b6727181d7e
+              tag: 9.5.21@sha256:27ab5832669e95ca09f477b915efc7efbd2404458251570fc20330792b56f5a9
             env:
               TZ: Europe/Berlin
               MONGO_HOST: unifi-controller-mongodb
