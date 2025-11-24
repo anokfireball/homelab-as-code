@@ -24,7 +24,7 @@ spec:
           permissions:
             image:
               repository: ghcr.io/anokfireball/base-image
-              tag: 3.22.2@sha256:9d723216296b2a6b2bcdedc4cce1d03becc268a1ff283cad3c324a2287ec5629
+              tag: 3.22.2@sha256:8b5e2f5aaf098c9b093d740c5d7fe0dc5fce998b0ff694efa5bdf89df0fd2d46
             command: ["chown"]
             args: ["1000:1000", "/incomplete-downloads"]
         containers:
