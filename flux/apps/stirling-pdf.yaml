@@ -18,10 +18,19 @@ spec:
       registry: ghcr.io
       repository: stirling-tools/stirling-pdf
       tag: 2.0.1-fat@sha256:34dc9c4f5671a464e9d15be9eae20cee67ac2a468b7277581faad9729411e4de
+    # https://docs.stirlingpdf.com/Configuration/
     envs:
       - name: SYSTEM_DEFAULTLOCALE
         value: de-DE
       - name: SYSTEM_SHOWUPDATE
+        value: "false"
+      - name: SYSTEM_GOOGLEVISIBILITY
+        value: "false"
+      - name: SYSTEM_ENABLEANALYTICS
+        value: "false"
+      - name: METRICS_ENABLED
+        value: "false"
+      - name: SECURITY_ENABLELOGIN
         value: "false"
     ingress:
       enabled: true
@@ -30,10 +39,10 @@ spec:
         cert-manager.io/cluster-issuer: letsencrypt
         nginx.ingress.kubernetes.io/proxy-body-size: 1G
       hosts:
-      - name: stirling-pdf.${SERVICE_DOMAIN}
-        path: /
-        tls: true
-        tlsSecret: stirling-pdf-tls
+        - name: stirling-pdf.${SERVICE_DOMAIN}
+          path: /
+          tls: true
+          tlsSecret: stirling-pdf-tls
     resources:
       requests:
         cpu: 10m
