@@ -172,7 +172,7 @@ metadata:
 spec:
   resources:
     requests:
-      storage: 75Gi
+      storage: 100Gi
   storageClassName: cluster-replicated
   volumeMode: Filesystem
   accessModes:
