@@ -201,7 +201,7 @@ spec:
           main:
             image:
               repository: ghcr.io/hotio/lidarr
-              tag: release@sha256:08ce384489452e893b720eb9cc2d0da55bc64567ed5eaa8a28a42ddc06b65650
+              tag: release@sha256:a8136298013b6da825e7e82c51965b24f01ba266d69d13861354a8a2fafb89ef
             probes:
               liveness:
                 enabled: true
