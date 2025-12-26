@@ -139,7 +139,7 @@ spec:
           main:
             image:
               repository: ghcr.io/hotio/sonarr
-              tag: release@sha256:13b52951c2599c33633eef97b805d1ecdc76c586426878e76c1f78c8248935df
+              tag: release@sha256:e7fa327434e39f8442bb370b672684ed01ba944a3b017f83f9b21346afa7db57
             probes:
               liveness:
                 enabled: true
