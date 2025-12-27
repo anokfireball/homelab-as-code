@@ -77,7 +77,7 @@ spec:
           main:
             image:
               repository: ghcr.io/hotio/radarr
-              tag: release@sha256:f8bdd1af7611180f7955076e3263e3e734595e1eccd9364e688945fa0090023c
+              tag: release@sha256:0b6bbc1abf5c66f100c3f71b941a892e3243aed6eeaeb0d6b0bb8fbbf8cc48e9
             probes:
               liveness:
                 enabled: true
