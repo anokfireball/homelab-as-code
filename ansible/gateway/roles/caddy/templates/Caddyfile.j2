@@ -8,9 +8,6 @@
 (https_ip) {
     tls {
         issuer acme {
-            # has not yet reached GA/production
-            # https://letsencrypt.org/2025/07/01/issuing-our-first-ip-address-certificate#how-to-get-an-ip-address-cert
-            dir https://acme-staging-v02.api.letsencrypt.org/directory
             profile shortlived
             disable_tlsalpn_challenge
             alt_http_port 80
