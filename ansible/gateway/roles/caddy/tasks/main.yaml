@@ -1,13 +1,12 @@
-- name: Add Caddy xcaddy GPG key
-  apt_key:
-    url: https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key
-    keyring: /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg
-    state: present
-
 - name: Add Caddy xcaddy repository
-  apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/xcaddy/deb/debian any-version main"
-    filename: caddy-xcaddy
+  ansible.builtin.deb822_repository:
+    name: caddy-xcaddy
+    types: deb
+    uris: https://dl.cloudsmith.io/public/caddy/xcaddy/deb/debian
+    suites: any-version
+    components:
+      - main
+    signed_by: https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key
     state: present
   register: caddy_repo
 
