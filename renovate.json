@@ -296,6 +296,34 @@
       "packageNameTemplate": "caddy-dns/cloudflare",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update caddy netcup plugin version",
+      "managerFilePatterns": [
+        "/ansible/gateway/roles/caddy/vars/main.yaml/"
+      ],
+      "matchStrings": [
+        "caddy_netcup_version: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "caddy-dns/netcup",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update caddy porkbun plugin version",
+      "managerFilePatterns": [
+        "/ansible/gateway/roles/caddy/vars/main.yaml/"
+      ],
+      "matchStrings": [
+        "caddy_porkbun_version: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "caddy-dns/porkbun",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {

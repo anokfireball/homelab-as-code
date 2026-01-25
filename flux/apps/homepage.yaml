@@ -69,26 +69,16 @@ spec:
       annotations:
         reloader.stakater.com/auto: "true"
     enableRbac: true
-    ingress:
+    service:
       main:
-        enabled: true
-        ingressClassName: nginx
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        hosts:
-          - host: homepage-ext.${SERVICE_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-        tls:
-          - secretName: homepage-tls
-            hosts:
-              - homepage-ext.${SERVICE_DOMAIN}
+          tailscale.com/expose: "true"
+          tailscale.com/hostname: homelab-homepage-ext
     config:
       useExistingConfigMap: homepage-ext-config
     env:
       - name: HOMEPAGE_ALLOWED_HOSTS
-        value: "homepage-ext.${SERVICE_DOMAIN},links.${EXT_DOMAIN_1},links.${EXT_DOMAIN_2}"
+        value: "links.${EXT_DOMAIN_1},links.${EXT_DOMAIN_2},localhost:3000"
     resources:
       requests:
         cpu: 50m

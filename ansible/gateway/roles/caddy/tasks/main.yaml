@@ -77,22 +77,50 @@
 - name: get cloudflare plugin version
   shell: |
     set -o pipefail
-    /opt/caddy/caddy list-modules --versions | grep dns.providers.cloudflare | awk '{print $2}'
+    /opt/caddy/caddy list-modules --versions | grep dns.providers.cloudflare | awk '{print $2}' || true
   args:
     executable: /bin/bash
   register: built_cloudflare_version
   when: caddy_binary.stat.exists
   changed_when: false
 
-# TODO build with https://github.com/mholt/caddy-dynamicdns?
+- name: get netcup plugin version
+  shell: |
+    set -o pipefail
+    /opt/caddy/caddy list-modules --versions | grep dns.providers.netcup | awk '{print $2}' || true
+  args:
+    executable: /bin/bash
+  register: built_netcup_version
+  when: caddy_binary.stat.exists
+  changed_when: false
+
+- name: get porkbun plugin version
+  shell: |
+    set -o pipefail
+    /opt/caddy/caddy list-modules --versions | grep dns.providers.porkbun | awk '{print $2}' || true
+  args:
+    executable: /bin/bash
+  register: built_porkbun_version
+  when: caddy_binary.stat.exists
+  changed_when: false
+
 - name: build caddy
-  command: xcaddy build {{ caddy_version }} --with github.com/caddy-dns/cloudflare@{{ caddy_cloudflare_version }}
+  command: >
+    xcaddy build {{ caddy_version }}
+    --with github.com/caddy-dns/cloudflare@{{ caddy_cloudflare_version }}
+    --with github.com/caddy-dns/netcup@{{ caddy_netcup_version }}
+    --with github.com/caddy-dns/porkbun@{{ caddy_porkbun_version }}
   args:
     chdir: /opt/caddy
   environment:
     PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
   register: caddy_build
-  when: not caddy_binary.stat.exists or built_caddy_version.stdout != caddy_version or built_cloudflare_version.stdout != caddy_cloudflare_version
+  when: >
+    not caddy_binary.stat.exists or
+    built_caddy_version.stdout != caddy_version or
+    (built_cloudflare_version.stdout | default('')) != caddy_cloudflare_version or
+    (built_netcup_version.stdout | default('')) != caddy_netcup_version or
+    (built_porkbun_version.stdout | default('')) != caddy_porkbun_version
 
 - name: copy caddy binary
   copy:

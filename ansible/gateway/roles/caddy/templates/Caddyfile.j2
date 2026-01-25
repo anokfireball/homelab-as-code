@@ -4,6 +4,27 @@
         resolvers 1.1.1.1
     }
 }
+(https_dns_ext_1) {
+    tls {
+        dns netcup {
+            customer_number {{ netcup_customer_number }}
+            api_key {{ netcup_api_key }}
+            api_password {{ netcup_api_password }}
+        }
+        propagation_timeout 900s
+        propagation_delay 600s
+        resolvers 1.1.1.1
+    }
+}
+(https_dns_ext_2) {
+    tls {
+        dns porkbun {
+            api_key {{ porkbun_api_key }}
+            api_secret_key {{ porkbun_api_secret_key }}
+        }
+        resolvers 1.1.1.1
+    }
+}
 
 (https_ip) {
     tls {
@@ -25,6 +46,17 @@
 {{ proxy.subdomain }}.{{ service_domain }} {
     reverse_proxy {{ proxy.tailnet_node }}.{{ tailnet_domain }}:{{ proxy.port }}
     import https_dns
+}
+{% endfor %}
+
+{% for proxy in caddy_reverse_proxies_ext %}
+{{ proxy.subdomain }}.{{ ext_domain_1 }} {
+    reverse_proxy {{ proxy.tailnet_node }}.{{ tailnet_domain }}:{{ proxy.port }}
+    import https_dns_ext_1
+}
+{{ proxy.subdomain }}.{{ ext_domain_2 }} {
+    reverse_proxy {{ proxy.tailnet_node }}.{{ tailnet_domain }}:{{ proxy.port }}
+    import https_dns_ext_2
 }
 {% endfor %}
 

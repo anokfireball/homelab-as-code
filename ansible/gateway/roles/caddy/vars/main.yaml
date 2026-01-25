@@ -1,6 +1,8 @@
 go_version: 1.25.6
 caddy_version: v2.10.2
 caddy_cloudflare_version: v0.2.2
+caddy_netcup_version: v1.0.0
+caddy_porkbun_version: v0.3.1
 
 caddy_revserse_proxies:
   - subdomain: bitwarden
@@ -21,3 +23,8 @@ caddy_revserse_proxies:
   - subdomain: paperless
     tailnet_node: homelab-paperless
     port: 8000
+
+caddy_reverse_proxies_ext:
+  - subdomain: links
+    tailnet_node: homelab-homepage-ext
+    port: 3000
