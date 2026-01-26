@@ -49,14 +49,15 @@ spec:
         memory: 600Mi
     securityContext:
       enabled: false
-    extraVolumes:
-      - name: fonts-tmpfs
-        emptyDir:
-          medium: Memory
-          sizeLimit: 100Mi
-    extraVolumeMounts:
-      - name: fonts-tmpfs
-        mountPath: /usr/share/fonts/truetype
+    deployment:
+      extraVolumes:
+        - name: fonts-tmpfs
+          emptyDir:
+            medium: Memory
+            sizeLimit: 100Mi
+      extraVolumeMounts:
+        - name: fonts-tmpfs
+          mountPath: /usr/share/fonts/truetype
     probes:
       liveness:
         initialDelaySeconds: 60
