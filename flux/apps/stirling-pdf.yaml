@@ -60,14 +60,6 @@ spec:
           mountPath: /usr/share/fonts/truetype
     probes:
       liveness:
-        enabled: true
-        initialDelaySeconds: 60
-        periodSeconds: 10
-        timeoutSeconds: 5
-        failureThreshold: 3
+        enabled: false
       readiness:
-        enabled: true
-        initialDelaySeconds: 40
-        periodSeconds: 10
-        timeoutSeconds: 5
-        failureThreshold: 3
+        enabled: false
