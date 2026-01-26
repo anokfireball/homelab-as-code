@@ -47,8 +47,22 @@ spec:
       requests:
         cpu: 10m
         memory: 600Mi
+    securityContext:
+      enabled: false
+    extraVolumes:
+      - name: fonts-tmpfs
+        emptyDir:
+          medium: Memory
+          sizeLimit: 100Mi
+    extraVolumeMounts:
+      - name: fonts-tmpfs
+        mountPath: /usr/share/fonts/truetype
     probes:
       liveness:
-        initialDelaySeconds: 30
+        initialDelaySeconds: 60
+        httpPath: /
+        timeoutSeconds: 5
       readiness:
-        initialDelaySeconds: 30
+        initialDelaySeconds: 40
+        httpPath: /
+        timeoutSeconds: 5
