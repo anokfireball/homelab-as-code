@@ -237,7 +237,7 @@ spec:
           main:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
-              tag: 2.20.5@sha256:665f2f5cc5482ea2e44f90a7fa170908aaeb95d8d3c70e17f746de8fcb81f644
+              tag: 2.20.6@sha256:850c3e955def0200819c75e828dad7c26e43142dfb53b6dc7e76d5a0a18ae1da
             env:
               PAPERLESS_OCR_LANGUAGES: deu eng
               PAPERLESS_OCR_LANGUAGE: deu+eng
