@@ -116,7 +116,7 @@ spec:
           collector:
             image:
               repository: ghcr.io/analogj/scrutiny
-              tag: master-collector@sha256:1794212417df0ed01337c7962bb85d1b6041e222a4053c0f78446991dd31375f
+              tag: master-collector@sha256:e1c212d8ba95fa93ca030a6b1373bd21885df6771131c6c413cb48514f90bd0f
             env:
               - name: COLLECTOR_API_ENDPOINT
                 value: http://scrutiny-web:8080
