@@ -1,4 +1,4 @@
-go_version: 1.25.7
+go_version: 1.26.0
 caddy_version: v2.10.2
 caddy_cloudflare_version: v0.2.2
 caddy_netcup_version: v1.0.0
