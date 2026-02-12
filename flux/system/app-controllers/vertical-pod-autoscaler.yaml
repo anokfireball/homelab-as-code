@@ -22,7 +22,7 @@ spec:
       enabled: true
       image:
         repository: registry.k8s.io/autoscaling/vpa-recommender
-        tag: 1.5.1@sha256:e629c61b75ebec1c2db0a9657de975b116458e4e4b5d847fa402159d993dfd3b
+        tag: 1.6.0@sha256:4af365370c187e4eb60302e937b18a188774698b049a1bfdd77d43e51b30abec
     updater:
       enabled: false
     admissionController:
