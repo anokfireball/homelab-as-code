@@ -4,4 +4,5 @@ metadata:
   name: renovate
   namespace: flux-system
 spec:
-  url: https://docs.renovatebot.com/helm-charts
+  type: oci
+  url: oci://ghcr.io/renovatebot/charts/renovate
