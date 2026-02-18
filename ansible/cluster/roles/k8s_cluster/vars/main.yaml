@@ -12,7 +12,7 @@ pod_network_cidr_v6: fd08:172:32::/56
 service_cidr_v4: 172.16.0.0/24
 service_cidr_v6: fd08:172:16::/112
 
-kube_vip_version: v0.9.2
+kube_vip_version: v1.0.4
 vip: 192.168.1.210
 interface: eth0
 
