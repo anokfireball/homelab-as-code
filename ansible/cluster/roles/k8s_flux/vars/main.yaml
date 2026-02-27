@@ -1,5 +1,5 @@
 ---
-flux_version: "2.7.5"
+flux_version: "2.8.1"
 github_user: anokfireball
 github_repository: homelab-as-code
 github_branch: main
