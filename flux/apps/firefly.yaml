@@ -45,7 +45,7 @@ spec:
   values:
     image:
       repository: fireflyiii/core
-      tag: version-6.4.23@sha256:fe09bd2152d04732d16929464a7f3e2c4e84ec7bb7f55defb2a67d5863a2b550
+      tag: version-6.5.3@sha256:565b153fe1a2f8bdc065dc096ba07207e659992195e20fba86a915ebafff66cf
     persistence:
       enabled: false
     config:
