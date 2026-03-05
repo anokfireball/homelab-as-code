@@ -5,4 +5,4 @@ metadata:
   namespace: flux-system
 spec:
   type: oci
-  url: oci://ghcr.io/renovatebot/charts/renovate
+  url: oci://ghcr.io/renovatebot/charts
