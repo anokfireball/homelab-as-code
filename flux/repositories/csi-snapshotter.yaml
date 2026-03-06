@@ -7,4 +7,4 @@ spec:
   interval: 1h
   url: https://github.com/longhorn/csi-snapshotter.git
   ref:
-    tag: v8.2.0
+    tag: v8.5.0
