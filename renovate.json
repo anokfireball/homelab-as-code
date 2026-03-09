@@ -184,7 +184,7 @@
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^k8up-(?<version>\\d+\\.\\d+\\.\\d+)$"
     },
-        {
+    {
       "customType": "regex",
       "description": "Update csi-snapshotter CRDs",
       "managerFilePatterns": [
@@ -197,6 +197,20 @@
       "packageNameTemplate": "longhorn/csi-snapshotter",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update kyverno healthcheck base image",
+      "managerFilePatterns": [
+        "/flux/system/app-configs/kyverno.yaml/"
+      ],
+      "matchStrings": [
+        "image: ghcr\\.io/anokfireball/base-image:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "anokfireball/base-image",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "docker"
     },
     {
       "customType": "regex",
