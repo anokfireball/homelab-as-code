@@ -141,8 +141,7 @@
       "customType": "regex",
       "description": "Update mongodb container",
       "managerFilePatterns": [
-        "/flux/apps/unifi.yaml/",
-        "/flux/apps/overleaf.yaml/"
+        "/flux/apps/unifi.yaml/"
       ],
       "matchStrings": [
         "tag: (?<currentValue>8\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
