@@ -139,20 +139,6 @@
     },
     {
       "customType": "regex",
-      "description": "Update mongodb container",
-      "managerFilePatterns": [
-        "/flux/apps/unifi.yaml/"
-      ],
-      "matchStrings": [
-        "tag: (?<currentValue>8\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "bitnami/mongodb",
-      "versioningTemplate": "docker",
-      "extractVersionTemplate": "^(?<version>8\\.\\d+\\.\\d+)$"
-    },
-    {
-      "customType": "regex",
       "description": "Update postgres 15 containers",
       "managerFilePatterns": [
         "/flux/apps/bitwarden.yaml/",
