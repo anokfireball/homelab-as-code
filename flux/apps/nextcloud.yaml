@@ -115,9 +115,13 @@ spec:
     startupProbe:
       enabled: true
       periodSeconds: 5
-      timeoutSeconds: 5
-      failureThreshold: 60
+      timeoutSeconds: 30
+      failureThreshold: 120
       successThreshold: 1
+    livenessProbe:
+      timeoutSeconds: 30
+    readinessProbe:
+      timeoutSeconds: 30
     ingress:
       enabled: true
       className: nginx
