@@ -1,69 +1,53 @@
-apiVersion: helm.toolkit.fluxcd.io/v2
-kind: HelmRelease
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
 metadata:
-  name: unifi-controller-mongodb
+  name: unifi-mongodb
   namespace: default
 spec:
-  interval: 1m
-  chart:
+  # Keep this single-member ReplicaSet minimal for Unifi; expand later only if needed.
+  members: 1
+  type: ReplicaSet
+  version: "8.0.13"
+  security:
+    authentication:
+      modes:
+        - SCRAM
+  users:
+    - name: unifi-admin
+      db: admin
+      passwordSecretRef:
+        name: unifi-secrets
+        key: mongodb-root-password
+      roles:
+        - name: root
+          db: admin
+      scramCredentialsSecretName: unifi-admin-scram
+    - name: unifi
+      db: admin
+      passwordSecretRef:
+        name: unifi-secrets
+        key: mongodb-password
+      roles:
+        - name: dbOwner
+          db: unifi
+        - name: dbOwner
+          db: unifi_stat
+        - name: dbOwner
+          db: unifi_audit
+      scramCredentialsSecretName: unifi-scram
+  statefulSet:
     spec:
-      chart: mongodb
-      version: 16.5.45
-      sourceRef:
-        kind: HelmRepository
-        name: bitnami
-        namespace: flux-system
-  values:
-    global:
-      defaultStorageClass: cluster-replicated
-    image:
-      repository: bitnami/mongodb
-      tag: 8.0.13-debian-12-r0
-      digest: sha256:2579e968033ec9f97035e91a215a4fb3943eb706eb3871b3d0d1d072e2f45605
-    architecture: standalone
-    useStatefulSet: true
-    auth:
-      rootUser: root
-      existingSecret: unifi-secrets
-    extraEnvVars:
-      - name: MONGO_INITDB_ROOT_USERNAME
-        value: root
-      - name: MONGO_INITDB_ROOT_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: unifi-secrets
-            key: mongodb-root-password
-      - name: MONGO_USER
-        value: unifi
-      - name: MONGO_PASS
-        valueFrom:
-          secretKeyRef:
-            name: unifi-secrets
-            key: mongodb-password
-      - name: MONGO_DBNAME
-        value: unifi
-      - name: MONGO_AUTHSOURCE
-        value: admin
-    initdbScripts:
-      # https://github.com/linuxserver/docker-unifi-network-application?tab=readme-ov-file#setting-up-your-external-database
-      init-unifi-user.sh: |
-        #!/bin/bash
-        mongosh <<EOF
-        use ${MONGO_AUTHSOURCE}
-        db.auth("${MONGO_INITDB_ROOT_USERNAME}", "${MONGO_INITDB_ROOT_PASSWORD}")
-        db.createUser({
-          user: "${MONGO_USER}",
-          pwd: "${MONGO_PASS}",
-          roles: [
-            { db: "${MONGO_DBNAME}", role: "dbOwner" },
-            { db: "${MONGO_DBNAME}_stat", role: "dbOwner" },
-            { db: "${MONGO_DBNAME}_audit", role: "dbOwner" }
-          ]
-        })
-        EOF
-    persistence:
-      enabled: true
-      size: 2Gi
+      serviceName: unifi-mongodb-svc
+      volumeClaimTemplates:
+        - metadata:
+            name: data-volume
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            storageClassName: cluster-replicated
+            resources:
+              requests:
+                storage: 2Gi
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -98,7 +82,7 @@ spec:
               tag: 10.1.85@sha256:d8f654c4a0fa9adc2959c56925cd76b01c0cbf28d6652c6b5df2c48c874a9749
             env:
               TZ: Europe/Berlin
-              MONGO_HOST: unifi-controller-mongodb
+              MONGO_HOST: unifi-mongodb-svc
               MONGO_PORT: 27017
               MONGO_USER: unifi
               MONGO_PASS:

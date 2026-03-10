@@ -1,0 +1,20 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mongodb-kubernetes
+  namespace: mongodb-system
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: mongodb-kubernetes
+      version: 1.7.0
+      sourceRef:
+        kind: HelmRepository
+        name: mongodb
+        namespace: flux-system
+  values:
+    operator:
+      watchNamespace: default
+      name: mongodb-kubernetes-operator
+      replicas: 1
