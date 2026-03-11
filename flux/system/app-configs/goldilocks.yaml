@@ -16,7 +16,7 @@ spec:
   values:
     image:
       repository: us-docker.pkg.dev/fairwinds-ops/oss/goldilocks
-      tag: v4.14.10@sha256:f6e64163ec1210d1a7bc59c8004b836650c3aa1180f6354d2761a4bfe2e194dc
+      tag: v4.14.18@sha256:3e966778faf47518535496d6a53d33ddc44bfc70a1ac2e8c8a524d4eb2305904
     controller:
       rbac:
         enableArgoproj: false
