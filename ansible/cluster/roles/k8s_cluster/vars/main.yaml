@@ -1,7 +1,7 @@
 ---
 k8s_version: "1.33.1"
 # https://containerd.io/releases/#kubernetes-support
-containerd_version: "1.7.28"
+containerd_version: "1.7.30"
 
 upgrade_cluster: false
 
