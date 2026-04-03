@@ -1,0 +1,37 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: homepage-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - homepage.${SERVICE_DOMAIN}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: homepage
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.x-k8s.io
+      kind: XListenerSet
+      name: homepage
+      namespace: default
+      sectionName: https
+  hostnames:
+    - homepage.${SERVICE_DOMAIN}
+  rules:
+    - backendRefs:
+        - name: homepage
+          port: 3000
