@@ -94,6 +94,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td>Let's Encrypt via ACME DNS</td>
     </tr>
     <tr>
+        <td></td>
+        <td><a href="https://gateway.envoyproxy.io/">Envoy Gateway</a></td>
+        <td>Gateway API Implementation</td>
+        <td>shared edge gateway for app-local listener ownership</td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/nginx/nginx.org/refs/heads/main/img/ingress_logo.svg"></td>
         <td><a href="https://kubernetes.github.io/ingress-nginx/">ingress-nginx</a></td>
         <td>Ingress Controller</td>

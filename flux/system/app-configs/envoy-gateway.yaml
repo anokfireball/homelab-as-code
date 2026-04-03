@@ -34,6 +34,9 @@ metadata:
   namespace: envoy-gateway-system
 spec:
   gatewayClassName: eg
+  allowedListeners:
+    namespaces:
+      from: All
   listeners:
     - name: http
       protocol: HTTP

@@ -13,6 +13,12 @@ spec:
         kind: HelmRepository
         name: envoy-gateway
         namespace: flux-system
+  values:
+    config:
+      envoyGateway:
+        gatewayAPI:
+          enabled:
+            - XListenerSet
   install:
     crds: Skip
   upgrade:
