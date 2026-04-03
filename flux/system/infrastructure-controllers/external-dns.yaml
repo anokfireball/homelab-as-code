@@ -5,6 +5,9 @@ metadata:
   namespace: external-dns-system
 spec:
   interval: 1m
+  dependsOn:
+    - name: envoy-gateway-crds
+      namespace: envoy-gateway-system
   chart:
     spec:
       chart: external-dns
@@ -15,6 +18,10 @@ spec:
         namespace: flux-system
   values:
     policy: sync
+    sources:
+      - service
+      - ingress
+      - gateway-httproute
     provider:
       name: webhook
       webhook:

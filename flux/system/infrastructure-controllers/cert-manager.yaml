@@ -5,6 +5,9 @@ metadata:
   namespace: cert-manager-system
 spec:
   interval: 1m
+  dependsOn:
+    - name: envoy-gateway-crds
+      namespace: envoy-gateway-system
   chart:
     spec:
       chart: cert-manager
@@ -19,3 +22,5 @@ spec:
         disableHTTPChallengesRole: true
     crds:
       enabled: true
+    config:
+      enableGatewayAPI: true

@@ -30,6 +30,16 @@ spec:
     - fd08:192:168:1::5/128
 ---
 apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: envoy-gateway-vip
+  namespace: metallb-system
+spec:
+  addresses:
+    - 192.168.1.6/32
+    - fd08:192:168:1::6/128
+---
+apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
   name: default
@@ -39,5 +49,6 @@ spec:
     - dns-vip
     - http-vip
     - default-vip
+    - envoy-gateway-vip
   interfaces:
     - eth0
