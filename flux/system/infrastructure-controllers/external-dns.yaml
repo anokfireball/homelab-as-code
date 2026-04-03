@@ -5,9 +5,6 @@ metadata:
   namespace: external-dns-system
 spec:
   interval: 1m
-  dependsOn:
-    - name: envoy-gateway-crds
-      namespace: envoy-gateway-system
   chart:
     spec:
       chart: external-dns

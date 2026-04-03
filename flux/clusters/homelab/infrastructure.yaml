@@ -38,6 +38,24 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: envoy-gateway-crds
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 5m
+  dependsOn:
+    - name: repositories
+  sourceRef:
+    kind: GitRepository
+    name: envoy-gateway-upstream
+  path: ./charts/gateway-helm/crds
+  prune: false
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: system-infrastructure-controllers
   namespace: flux-system
 spec:
@@ -53,6 +71,7 @@ spec:
   dependsOn:
     - name: repositories
     - name: system-namespaces
+    - name: envoy-gateway-crds
   decryption:
     provider: sops
     secretRef:
