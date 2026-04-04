@@ -27,8 +27,6 @@ spec:
           name: jellyfin
           namespace: arrchive
           sectionName: https
-      hostnames:
-        - jellyfin.${SERVICE_DOMAIN}
       rules:
         - matches:
             - path:
@@ -105,6 +103,21 @@ spec:
             kind: Secret
             name: jellyfin-tls
             namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: jellyfin-listenerset-to-jellyfin-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.x-k8s.io
+      kind: XListenerSet
+      namespace: arrchive
+  to:
+    - group: ""
+      kind: Secret
+      name: jellyfin-tls
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
