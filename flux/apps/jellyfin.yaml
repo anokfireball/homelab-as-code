@@ -18,19 +18,22 @@ spec:
       repository: ghcr.io/jellyfin/jellyfin
       tag: 10.11.7@sha256:2b93aa3830dcd0aab7185c635e20edef1f8dc5d2e999768baf1724e88c078004
     ingress:
+      enabled: false
+    httpRoute:
       enabled: true
-      className: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt
-      hosts:
-        - host: jellyfin.${SERVICE_DOMAIN}
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - secretName: jellyfin-tls
-          hosts:
-            - jellyfin.${SERVICE_DOMAIN}
+      parentRefs:
+        - group: gateway.networking.x-k8s.io
+          kind: XListenerSet
+          name: jellyfin
+          namespace: arrchive
+          sectionName: https
+      hostnames:
+        - jellyfin.${SERVICE_DOMAIN}
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
     volumes:
       - name: nas-filme
         nfs:
@@ -62,3 +65,68 @@ spec:
         size: 10Gi
       media:
         enabled: false
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jellyfin-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: jellyfin-tls
+  dnsNames:
+    - jellyfin.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.x-k8s.io/v1alpha1
+kind: XListenerSet
+metadata:
+  name: jellyfin
+  namespace: arrchive
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: jellyfin.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: jellyfin-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: jellyfin-http-redirect
+  namespace: arrchive
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - jellyfin.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
