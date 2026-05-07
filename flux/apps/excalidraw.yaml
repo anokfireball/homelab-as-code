@@ -21,7 +21,7 @@ spec:
             image:
               repository: excalidraw/excalidraw
               # official images are not verisoned beyond "latest" currently
-              tag: latest@sha256:b6cd04431d88f2756a7c3095cf7970884e8fd6b2800c9445b5a60a5c715bbf0c
+              tag: latest@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
             probes:
               liveness:
                 enabled: true
