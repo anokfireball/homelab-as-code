@@ -24,7 +24,7 @@ spec:
       webhook:
         image:
           repository: ghcr.io/crutonjohn/external-dns-opnsense-webhook
-          tag: main@sha256:e2dcc9c9bddb528f320c155574b8f7f6e353225fc82c448eb5246b0de080f1f4
+          tag: main@sha256:92bc3f6cedbc964a15902117f25ef42d87f74742ee9c4ed4900085d3edc56857
         securityContext:
           runAsNonRoot: true
           runAsUser: 1000
