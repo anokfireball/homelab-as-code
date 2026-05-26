@@ -137,28 +137,6 @@ spec:
       rules:
         - matches:
             - path:
-                type: Exact
-                value: /.well-known/caldav
-          filters:
-            - type: RequestRedirect
-              requestRedirect:
-                statusCode: 301
-                path:
-                  type: ReplaceFullPath
-                  replaceFullPath: /remote.php/dav
-        - matches:
-            - path:
-                type: Exact
-                value: /.well-known/carddav
-          filters:
-            - type: RequestRedirect
-              requestRedirect:
-                statusCode: 301
-                path:
-                  type: ReplaceFullPath
-                  replaceFullPath: /remote.php/dav
-        - matches:
-            - path:
                 type: PathPrefix
                 value: /
     phpClientHttpsFix:
@@ -392,6 +370,44 @@ spec:
           requestRedirect:
             scheme: https
             statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nextcloud-dav-redirects
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.x-k8s.io
+      kind: XListenerSet
+      name: nextcloud
+      namespace: default
+      sectionName: https
+  hostnames:
+    - nextcloud.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /.well-known/caldav
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            statusCode: 301
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /remote.php/dav
+    - matches:
+        - path:
+            type: Exact
+            value: /.well-known/carddav
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            statusCode: 301
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /remote.php/dav
 ---
 apiVersion: k8up.io/v1
 kind: Schedule
