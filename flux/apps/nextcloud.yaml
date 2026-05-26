@@ -98,7 +98,7 @@ spec:
   chart:
     spec:
       chart: nextcloud
-      version: 9.0.6
+      version: 9.1.0
       sourceRef:
         kind: HelmRepository
         name: nextcloud
@@ -123,42 +123,44 @@ spec:
     readinessProbe:
       timeoutSeconds: 30
     ingress:
+      enabled: false
+    httpRoute:
       enabled: true
-      className: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt
-        nginx.ingress.kubernetes.io/affinity: cookie
-        nginx.ingress.kubernetes.io/cors-allow-headers: X-Forwarded-For
-        nginx.ingress.kubernetes.io/enable-cors: "true"
-        nginx.ingress.kubernetes.io/proxy-body-size: 4G
-        nginx.ingress.kubernetes.io/server-snippet: |-
-          server_tokens off;
-          proxy_hide_header X-Powered-By;
-          rewrite ^/.well-known/webfinger /index.php/.well-known/webfinger last;
-          rewrite ^/.well-known/nodeinfo /index.php/.well-known/nodeinfo last;
-          rewrite ^/.well-known/host-meta /public.php?service=host-meta last;
-          rewrite ^/.well-known/host-meta.json /public.php?service=host-meta-json;
-          location = /.well-known/carddav {
-              return 301 $scheme://$host/remote.php/dav;
-          }
-          location = /.well-known/caldav {
-              return 301 $scheme://$host/remote.php/dav;
-          }
-          location = /robots.txt {
-              allow all;
-              log_not_found off;
-              access_log off;
-          }
-          location ~ ^/(?:build|tests|config|lib|3rdparty|templates|data)/ {
-              deny all;
-          }
-          location ~ ^/(?:autotest|occ|issue|indie|db_|console) {
-              deny all;
-          }
-      tls:
-        - secretName: nextcloud-tls
-          hosts:
-            - nextcloud.${SERVICE_DOMAIN}
+      parentRefs:
+        - group: gateway.networking.x-k8s.io
+          kind: XListenerSet
+          name: nextcloud
+          namespace: default
+          sectionName: https
+      hostnames:
+        - nextcloud.${SERVICE_DOMAIN}
+      rules:
+        - matches:
+            - path:
+                type: Exact
+                value: /.well-known/caldav
+          filters:
+            - type: RequestRedirect
+              requestRedirect:
+                statusCode: 301
+                path:
+                  type: ReplaceFullPath
+                  replaceFullPath: /remote.php/dav
+        - matches:
+            - path:
+                type: Exact
+                value: /.well-known/carddav
+          filters:
+            - type: RequestRedirect
+              requestRedirect:
+                statusCode: 301
+                path:
+                  type: ReplaceFullPath
+                  replaceFullPath: /remote.php/dav
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
     phpClientHttpsFix:
       enabled: true
     nextcloud:
@@ -310,6 +312,86 @@ spec:
           backup: nextcloud-data
         storageClass: cluster-replicated
         size: 100Gi
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nextcloud-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: nextcloud-tls
+  dnsNames:
+    - nextcloud.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.x-k8s.io/v1alpha1
+kind: XListenerSet
+metadata:
+  name: nextcloud
+  namespace: default
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: nextcloud.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: nextcloud-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: nextcloud-listenerset-to-nextcloud-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.x-k8s.io
+      kind: XListenerSet
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
+      name: nextcloud-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nextcloud-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - nextcloud.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
 ---
 apiVersion: k8up.io/v1
 kind: Schedule
