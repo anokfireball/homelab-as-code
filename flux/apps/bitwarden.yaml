@@ -126,11 +126,6 @@ spec:
           sectionName: https
       hostnames:
         - bitwarden.${SERVICE_DOMAIN}
-      rules:
-        - matches:
-            - path:
-                type: PathPrefix
-                value: /
 ---
 apiVersion: k8up.io/v1
 kind: PreBackupPod
