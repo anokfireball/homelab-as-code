@@ -127,8 +127,8 @@ spec:
     httpRoute:
       enabled: true
       parentRefs:
-        - group: gateway.networking.x-k8s.io
-          kind: XListenerSet
+        - group: gateway.networking.k8s.io
+          kind: ListenerSet
           name: nextcloud
           namespace: default
           sectionName: https
@@ -304,8 +304,8 @@ spec:
     kind: ClusterIssuer
     name: letsencrypt
 ---
-apiVersion: gateway.networking.x-k8s.io/v1alpha1
-kind: XListenerSet
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
 metadata:
   name: nextcloud
   namespace: default
@@ -338,8 +338,8 @@ metadata:
   namespace: envoy-gateway-system
 spec:
   from:
-    - group: gateway.networking.x-k8s.io
-      kind: XListenerSet
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
       namespace: default
   to:
     - group: ""
@@ -378,8 +378,8 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - group: gateway.networking.x-k8s.io
-      kind: XListenerSet
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
       name: nextcloud
       namespace: default
       sectionName: https

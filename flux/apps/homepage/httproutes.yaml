@@ -24,8 +24,8 @@ metadata:
   namespace: default
 spec:
   parentRefs:
-    - group: gateway.networking.x-k8s.io
-      kind: XListenerSet
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
       name: homepage
       namespace: default
       sectionName: https

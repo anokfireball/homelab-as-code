@@ -18,8 +18,8 @@ metadata:
   namespace: envoy-gateway-system
 spec:
   from:
-    - group: gateway.networking.x-k8s.io
-      kind: XListenerSet
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
       namespace: default
   to:
     - group: ""
