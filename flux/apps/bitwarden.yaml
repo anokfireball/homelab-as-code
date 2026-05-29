@@ -115,28 +115,22 @@ spec:
         tailscale.com/expose: "true"
         tailscale.com/hostname: homelab-bitwarden
     ingress:
+      enabled: false
+    httpRoute:
       enabled: true
-      class: nginx
-      nginxIngressAnnotations: true
-      additionalAnnotations:
-        cert-manager.io/cluster-issuer: letsencrypt
-        # https://github.com/guerzon/vaultwarden/issues/117
-        nginx.ingress.kubernetes.io/server-snippet: |
-          location /notifications {
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection $http_connection;
-
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-
-            proxy_pass http://vaultwarden.default.svc:80;
-          }
-      tls: true
-      hostname: bitwarden.${SERVICE_DOMAIN}
-      tlsSecret: bitwarden-tls
+      parentRefs:
+        - group: gateway.networking.x-k8s.io
+          kind: XListenerSet
+          name: vaultwarden
+          namespace: default
+          sectionName: https
+      hostnames:
+        - bitwarden.${SERVICE_DOMAIN}
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
 ---
 apiVersion: k8up.io/v1
 kind: PreBackupPod
@@ -198,3 +192,83 @@ spec:
       keepWeekly: 12
       keepMonthly: 6
       keepYearly: 2
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: bitwarden-tls
+  dnsNames:
+    - bitwarden.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.x-k8s.io/v1alpha1
+kind: XListenerSet
+metadata:
+  name: vaultwarden
+  namespace: default
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: bitwarden.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: bitwarden-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: vaultwarden-listenerset-to-bitwarden-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.x-k8s.io
+      kind: XListenerSet
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
+      name: bitwarden-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bitwarden-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - bitwarden.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
