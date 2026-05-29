@@ -229,18 +229,26 @@ spec:
             tailscale.com/hostname: homelab-immich
       ingress:
         main:
+          enabled: false
+      route:
+        main:
           enabled: true
-          className: nginx
-          annotations:
-            cert-manager.io/cluster-issuer: letsencrypt
-          hosts:
-            - host: immich.${SERVICE_DOMAIN}
-              paths:
-                - path: /
-          tls:
-            - secretName: immich-tls
-              hosts:
-                - immich.${SERVICE_DOMAIN}
+          kind: HTTPRoute
+          parentRefs:
+            - group: gateway.networking.k8s.io
+              kind: ListenerSet
+              name: immich
+              namespace: default
+              sectionName: https
+          hostnames:
+            - immich.${SERVICE_DOMAIN}
+          rules:
+            - matches:
+                - path:
+                    type: PathPrefix
+                    value: /
+              backendRefs:
+                - identifier: main
       controllers:
         main:
           containers:
@@ -326,3 +334,83 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: immich-machine-learning
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: immich-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: immich-tls
+  dnsNames:
+    - immich.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: immich
+  namespace: default
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: immich.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: immich-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: immich-listenerset-to-immich-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
+      name: immich-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: immich-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - immich.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
