@@ -117,23 +117,109 @@ spec:
             port: 80
     ingress:
       main:
-        className: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        hosts:
-          - host: kitchenowl.${SERVICE_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: main
-                  port: http
-        tls:
-          - secretName: kitchenowl-tls
-            hosts:
-              - kitchenowl.${SERVICE_DOMAIN}
+        enabled: false
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: ListenerSet
+            name: kitchenowl
+            namespace: default
+            sectionName: https
+        hostnames:
+          - kitchenowl.${SERVICE_DOMAIN}
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - identifier: main
     persistence:
       data:
         type: persistentVolumeClaim
         storageClass: cluster-replicated
         accessMode: ReadWriteOnce
         size: 5Gi
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kitchenowl-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: kitchenowl-tls
+  dnsNames:
+    - kitchenowl.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: kitchenowl
+  namespace: default
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: kitchenowl.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: kitchenowl-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: kitchenowl-listenerset-to-kitchenowl-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
+      name: kitchenowl-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kitchenowl-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - kitchenowl.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
