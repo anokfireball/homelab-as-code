@@ -19,6 +19,8 @@ spec:
         gatewayAPI:
           enabled:
             - XListenerSet
+        extensionApis:
+          enableBackend: true
   install:
     crds: Skip
   upgrade:
