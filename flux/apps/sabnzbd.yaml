@@ -38,21 +38,26 @@ spec:
             port: 8080
     ingress:
       main:
-        className: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-          nginx.ingress.kubernetes.io/proxy-body-size: 25M
-        hosts:
-          - host: sabnzbd.${SERVICE_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: main
-                  port: http
-        tls:
-          - secretName: sabnzbd-tls
-            hosts:
-              - sabnzbd.${SERVICE_DOMAIN}
+        enabled: false
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: ListenerSet
+            name: sabnzbd
+            namespace: arrchive
+            sectionName: https
+        hostnames:
+          - sabnzbd.${SERVICE_DOMAIN}
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - identifier: main
     persistence:
       config:
         type: persistentVolumeClaim
@@ -68,3 +73,83 @@ spec:
         type: nfs
         server: 192.168.1.2
         path: /mnt/tank/Scratch/NZB
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sabnzbd-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: sabnzbd-tls
+  dnsNames:
+    - sabnzbd.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: sabnzbd
+  namespace: arrchive
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: sabnzbd.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: sabnzbd-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: sabnzbd-listenerset-to-sabnzbd-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: arrchive
+  to:
+    - group: ""
+      kind: Secret
+      name: sabnzbd-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sabnzbd-http-redirect
+  namespace: arrchive
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - sabnzbd.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
