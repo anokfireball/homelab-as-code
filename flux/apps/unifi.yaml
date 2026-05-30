@@ -145,22 +145,7 @@ spec:
             protocol: HTTPS
     ingress:
       main:
-        className: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-          nginx.ingress.kubernetes.io/backend-protocol: HTTPS
-          nginx.ingress.kubernetes.io/proxy-ssl-verify: "off"
-        hosts:
-          - host: unifi.${SERVICE_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: internal
-                  port: https
-        tls:
-          - secretName: unifi-tls
-            hosts:
-              - unifi.${SERVICE_DOMAIN}
+        enabled: false
     persistence:
       config:
         type: persistentVolumeClaim
@@ -197,3 +182,120 @@ spec:
       keepWeekly: 12
       keepMonthly: 6
       keepYearly: 2
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: unifi-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: unifi-tls
+  dnsNames:
+    - unifi.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: unifi-controller
+  namespace: default
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: unifi.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: unifi-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: unifi-controller-listenerset-to-unifi-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
+      name: unifi-tls
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: unifi-tls-backend
+  namespace: default
+spec:
+  endpoints:
+    - fqdn:
+        hostname: unifi-controller-internal.default.svc.cluster.local
+        port: 8443
+  tls:
+    insecureSkipVerify: true
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: unifi-controller
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: unifi-controller
+      namespace: default
+      sectionName: https
+  hostnames:
+    - unifi.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: unifi-tls-backend
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: unifi-controller-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - unifi.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
