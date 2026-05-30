@@ -287,21 +287,26 @@ spec:
             port: 8000
     ingress:
       main:
-        className: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-          nginx.ingress.kubernetes.io/proxy-body-size: 1G
-        hosts:
-          - host: paperless.${SERVICE_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: main
-                  port: http
-        tls:
-          - secretName: paperless-tls
-            hosts:
-              - paperless.${SERVICE_DOMAIN}
+        enabled: false
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: ListenerSet
+            name: paperless-ngx
+            namespace: default
+            sectionName: https
+        hostnames:
+          - paperless.${SERVICE_DOMAIN}
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - identifier: main
     persistence:
       postconsumptionscript:
         type: configMap
@@ -330,3 +335,83 @@ spec:
         existingClaim: nas-dokumente-export
         globalMounts:
           - path: /usr/src/paperless/export
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: paperless-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: paperless-tls
+  dnsNames:
+    - paperless.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: paperless-ngx
+  namespace: default
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: paperless.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: paperless-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: paperless-ngx-listenerset-to-paperless-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
+      name: paperless-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: paperless-ngx-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - paperless.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
