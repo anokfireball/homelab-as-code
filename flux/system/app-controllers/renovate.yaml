@@ -54,6 +54,8 @@ spec:
   values:
     global:
       alwaysAppendIdentifierToResourceName: true
+    defaultPodOptions:
+      automountServiceAccountToken: true
     controllers:
       main:
         type: cronjob
