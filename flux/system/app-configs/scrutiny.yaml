@@ -65,20 +65,26 @@ spec:
             port: 8080
     ingress:
       main:
-        className: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        hosts:
-          - host: scrutiny.${SERVICE_DOMAIN}
-            paths:
-              - path: /
-                service:
-                  identifier: main
-                  port: http
-        tls:
-          - secretName: scrutiny-tls
-            hosts:
-              - scrutiny.${SERVICE_DOMAIN}
+        enabled: false
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: ListenerSet
+            name: scrutiny-web
+            namespace: monitoring-system
+            sectionName: https
+        hostnames:
+          - scrutiny.${SERVICE_DOMAIN}
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - identifier: main
     persistence:
       config:
         type: persistentVolumeClaim
@@ -151,3 +157,83 @@ spec:
         hostPath: /run/udev
         globalMounts:
           - path: /run/udev
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: scrutiny-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: scrutiny-tls
+  dnsNames:
+    - scrutiny.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: scrutiny-web
+  namespace: monitoring-system
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: scrutiny.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: scrutiny-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: scrutiny-web-listenerset-to-scrutiny-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: monitoring-system
+  to:
+    - group: ""
+      kind: Secret
+      name: scrutiny-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: scrutiny-web-http-redirect
+  namespace: monitoring-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - scrutiny.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
