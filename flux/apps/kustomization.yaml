@@ -21,3 +21,4 @@ resources:
   - soundcloud-scraper.yaml
   - stirling-pdf.yaml
   - unifi.yaml
+  - vert.yaml
