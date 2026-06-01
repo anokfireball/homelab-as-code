@@ -306,7 +306,7 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://raw.githubusercontent.com/VERT-sh/VERT/refs/heads/main/static/favicon.png"></td>
         <td><a href="https://vert.sh/">VERT</a></td>
         <td>File Format Converter</td>
-        <td></td>
+        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_vert-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_vert-[http]/uptimes/30d/badge.svg" alt="VERT Uptime"></a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/ubiquiti-unifi.svg"></td>
