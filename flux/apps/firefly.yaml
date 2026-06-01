@@ -167,16 +167,17 @@ spec:
         TZ: Europe/Berlin
       files: []
     ingress:
+      enabled: false
+    httpRoute:
       enabled: true
-      className: nginx
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt
-      hosts:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: ListenerSet
+          name: firefly-importer
+          namespace: default
+          sectionName: https
+      hostnames:
         - firefly-importer.${SERVICE_DOMAIN}
-      tls:
-        - secretName: firefly-importer-tls
-          hosts:
-            - firefly-importer.${SERVICE_DOMAIN}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -311,6 +312,86 @@ spec:
       sectionName: http
   hostnames:
     - firefly-pico.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: firefly-importer-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: firefly-importer-tls
+  dnsNames:
+    - firefly-importer.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: firefly-importer
+  namespace: default
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: firefly-importer.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: firefly-importer-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: firefly-importer-listenerset-to-firefly-importer-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
+      name: firefly-importer-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: firefly-importer-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - firefly-importer.${SERVICE_DOMAIN}
   rules:
     - matches:
         - path:
