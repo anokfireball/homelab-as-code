@@ -267,6 +267,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_kitchenowl-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_kitchenowl-[http]/uptimes/30d/badge.svg" alt="KitchenOwl Uptime"></a></td>
     </tr>
     <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/wger-project/wger/refs/heads/master/wger/core/static/images/logos/logo-bg-white.svg"></td>
+        <td><a href="https://wger.de/">wger</a></td>
+        <td>Fitness and Workout Tracker</td>
+        <td></td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/gethomepage/homepage/refs/heads/dev/public/homepage.ico"></td>
         <td><a href="https://gethomepage.dev/">Homepage</a></td>
         <td>Application Dashboard</td>

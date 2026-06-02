@@ -22,3 +22,4 @@ resources:
   - stirling-pdf.yaml
   - unifi.yaml
   - vert.yaml
+  - wger.yaml
