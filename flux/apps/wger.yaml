@@ -119,9 +119,9 @@ spec:
         enabled: true
       persistence:
         enabled: true
-        storageClass: cluster-replicated
+        storageClass: nas-replicated-hdd
         accessModes:
-          - ReadWriteOnce
+          - ReadWriteMany
         sizeMedia: 2Gi
         sizeStatic: 1Gi
         sizeCeleryBeat: 1Gi
