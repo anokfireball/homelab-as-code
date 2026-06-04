@@ -61,7 +61,7 @@ spec:
           backend:
             image:
               repository: tombursch/kitchenowl-backend
-              tag: v0.7.8@sha256:b48e4ab727cdf160c345389dca6e919c8d29b11bced9431bca491f5af6d91db3
+              tag: v0.7.9@sha256:e69f6bf74c93ad2e26145186f34682072746c6b845968b7ea2c06da5b352dce9
             probes:
               liveness:
                 enabled: true
