@@ -270,7 +270,7 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://raw.githubusercontent.com/wger-project/wger/refs/heads/master/wger/core/static/images/logos/logo-bg-white.svg"></td>
         <td><a href="https://wger.de/">wger</a></td>
         <td>Fitness and Workout Tracker</td>
-        <td></td>
+        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_wger-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_wger-[http]/uptimes/30d/badge.svg" alt="wger Uptime"></a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/gethomepage/homepage/refs/heads/dev/public/homepage.ico"></td>
