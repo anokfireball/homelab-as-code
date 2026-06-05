@@ -95,6 +95,8 @@ metadata:
   namespace: default
 spec:
   interval: 1m
+  install:
+    timeout: 30m
   chart:
     spec:
       chart: wger
