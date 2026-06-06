@@ -45,7 +45,7 @@ spec:
   values:
     runnersImage:
       repository: n8nio/runners
-      tag: "2.23.1"
+      tag: "2.25.5@sha256:751d212f0e6817bd1dc0997f63a4ad2954641a04a0575b6aeafa8b09053079d8"
       pullPolicy: IfNotPresent
     service:
       main:
