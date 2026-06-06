@@ -43,6 +43,10 @@ spec:
         name: truecharts
         namespace: flux-system
   values:
+    runnersImage:
+      repository: n8nio/runners
+      tag: "2.23.1"
+      pullPolicy: IfNotPresent
     service:
       main:
         annotations:
@@ -111,6 +115,31 @@ spec:
                 N8N_USER_FOLDER: /data
                 N8N_EDITOR_BASE_URL: https://n8n.${SERVICE_DOMAIN}/
                 WEBHOOK_URL: https://n8n.${SERVICE_DOMAIN}/
+                N8N_RUNNERS_ENABLED: "true"
+                N8N_RUNNERS_MODE: "external"
+                N8N_RUNNERS_BROKER_LISTEN_ADDRESS: "0.0.0.0"
+                N8N_RUNNERS_AUTH_TOKEN:
+                  secretKeyRef:
+                    name: n8n-runners-auth
+                    expandObjectName: false
+                    key: token
+            task-runner:
+              enabled: true
+              imageSelector: runnersImage
+              env:
+                N8N_RUNNERS_TASK_BROKER_URI: "http://localhost:5679"
+                N8N_RUNNERS_AUTH_TOKEN:
+                  secretKeyRef:
+                    name: n8n-runners-auth
+                    expandObjectName: false
+                    key: token
+              probes:
+                liveness:
+                  enabled: false
+                readiness:
+                  enabled: false
+                startup:
+                  enabled: false
     ingress:
       main:
         enabled: true
