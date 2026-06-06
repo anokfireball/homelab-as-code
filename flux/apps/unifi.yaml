@@ -28,12 +28,16 @@ spec:
         name: unifi-secrets
         key: mongodb-password
       roles:
+        - name: clusterMonitor
+          db: admin
         - name: dbOwner
           db: unifi
         - name: dbOwner
           db: unifi_stat
         - name: dbOwner
           db: unifi_audit
+        - name: dbOwner
+          db: unifi_restore
       scramCredentialsSecretName: unifi-scram
   statefulSet:
     spec:
