@@ -42,10 +42,18 @@
     {
       "matchPackageNames": [
         "ghcr.io/analogj/scrutiny",
-        "longhorn",
         "longhorn/csi-snapshotter"
       ],
       "automerge": false
+    },
+    {
+      "matchPackageNames": [
+        "longhorn",
+        "kubernetes/kubernetes",
+        "containerd/containerd"
+      ],
+      "automerge": false,
+      "separateMultipleMinor": true
     },
     {
       "matchPackageNames": [
