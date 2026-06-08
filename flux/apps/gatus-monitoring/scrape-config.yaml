@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: gatus-oci
+  namespace: monitoring-system
+spec:
+  scheme: HTTPS
+  metricsPath: /metrics
+  scrapeInterval: 60s
+  staticConfigs:
+    - targets:
+        - gatus.${SERVICE_DOMAIN}
+      labels:
+        cluster: oci
+        app: gatus

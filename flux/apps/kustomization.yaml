@@ -6,6 +6,7 @@ resources:
   - excalidraw.yaml
   - firefly.yaml
   - fresh-rss.yaml
+  - gatus-monitoring
   - homepage
   - immich.yaml
   - jellyfin.yaml
