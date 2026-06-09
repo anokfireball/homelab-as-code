@@ -1,0 +1,121 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: authentik
+  namespace: authentik
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: authentik
+      version: 2026.5.2
+      sourceRef:
+        kind: HelmRepository
+        name: goauthentik
+        namespace: flux-system
+  values:
+    authentik:
+      existingSecret: authentik-secrets
+      error_reporting:
+        enabled: false
+    server:
+      ingress:
+        enabled: false
+    postgresql:
+      enabled: true
+      auth:
+        username: authentik
+        password: authentik
+        database: authentik
+      primary:
+        persistence:
+          enabled: true
+          storageClass: cluster-scratch
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: authentik
+  namespace: envoy-gateway-system
+spec:
+  secretName: authentik-tls
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  dnsNames:
+  - authentik.${SERVICE_DOMAIN}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: authentik
+  namespace: authentik
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+  - name: https
+    hostname: authentik.${SERVICE_DOMAIN}
+    port: 443
+    protocol: HTTPS
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: authentik-tls
+        namespace: envoy-gateway-system
+    allowedRoutes:
+      namespaces:
+        from: All
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: authentik-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: ListenerSet
+    namespace: authentik
+  to:
+  - group: ""
+    kind: Secret
+    name: authentik-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: authentik
+  namespace: authentik
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: ListenerSet
+    name: authentik
+    namespace: authentik
+    sectionName: https
+  hostnames:
+  - authentik.${SERVICE_DOMAIN}
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: authentik-server
+      port: 80
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: authentik
+  namespace: authentik
+spec:
+  endpoints:
+  - dnsName: authentik.${SERVICE_DOMAIN}
+    recordType: A
+    targets:
+    - 192.168.1.6
