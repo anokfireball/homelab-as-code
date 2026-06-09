@@ -15,7 +15,8 @@ spec:
         namespace: flux-system
   values:
     authentik:
-      existingSecret: authentik-secrets
+      existingSecret:
+        secretName: authentik-secrets
       error_reporting:
         enabled: false
     server:

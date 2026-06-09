@@ -1,0 +1,11 @@
+apiVersion: authentication.concierge.pinniped.dev/v1alpha1
+kind: JWTAuthenticator
+metadata:
+  name: supervisor
+  namespace: pinniped-concierge
+spec:
+  issuer: https://pinniped.${SERVICE_DOMAIN}
+  audience: concierge
+  claims:
+    username: email
+    groups: groups

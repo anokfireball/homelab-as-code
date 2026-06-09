@@ -19,6 +19,7 @@ spec:
       - service
       - ingress
       - gateway-httproute
+      - crd
     provider:
       name: webhook
       webhook:

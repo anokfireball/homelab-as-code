@@ -317,6 +317,21 @@
       "packageNameTemplate": "caddy-dns/porkbun",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Track Pinniped version for manifest refresh",
+      "managerFilePatterns": [
+        "/flux/system/infrastructure-configs/pinniped-supervisor.yaml/",
+        "/flux/system/infrastructure-configs/pinniped-concierge.yaml/"
+      ],
+      "matchStrings": [
+        "# pinniped-version: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "vmware-tanzu/pinniped",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
     }
   ],
   "flux": {
