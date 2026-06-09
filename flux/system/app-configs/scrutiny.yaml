@@ -47,8 +47,8 @@ spec:
         containers:
           web:
             image:
-              repository: ghcr.io/analogj/scrutiny
-              tag: master-web@sha256:192656ce791dc3e5bda7f7bf81cd3cb9f77ab2cde42a9bd0d8cac442b7e8bee1
+              repository: ghcr.io/starosdev/scrutiny
+              tag: latest-web@sha256:1a5a81d36c47e8280328157ac55edc148c36b9b8c1e3fafe2e54f0faaee01d29
             env:
               - name: SCRUTINY_WEB_INFLUXDB_HOST
                 value: scrutiny-influxdb-influxdb2
@@ -57,6 +57,8 @@ spec:
                   secretKeyRef:
                     name: scrutiny-influxdb-admin
                     key: admin-token
+              - name: SCRUTINY_WEB_METRICS_ENABLED
+                value: "true"
     service:
       main:
         controller: hub
@@ -121,8 +123,8 @@ spec:
         containers:
           collector:
             image:
-              repository: ghcr.io/analogj/scrutiny
-              tag: master-collector@sha256:e0d55d2742017c7025e491e05eb516bc71758c575f7e0bfefe34f9ce13aced89
+              repository: ghcr.io/starosdev/scrutiny
+              tag: latest-collector@sha256:1ca86a003f2f1b7573bba421e2f02b36b309528acaa1af846a05e074f46baf6b
             env:
               - name: COLLECTOR_API_ENDPOINT
                 value: http://scrutiny-web:8080
