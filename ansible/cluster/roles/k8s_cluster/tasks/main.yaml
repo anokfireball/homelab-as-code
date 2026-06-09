@@ -89,6 +89,7 @@
 - when: "'controlplane' in group_names"
   block:
     - import_tasks: tasks/oidc.yaml
+    - import_tasks: tasks/certs.yaml
 
 - when: k8s_upgrade
   import_tasks: upgrade.yaml

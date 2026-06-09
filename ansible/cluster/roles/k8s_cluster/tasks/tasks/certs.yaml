@@ -1,0 +1,61 @@
+---
+- name: deploy kubeadm cert renewal script
+  copy:
+    dest: /usr/local/sbin/kubeadm-cert-renew
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      set -eu
+      /usr/bin/kubeadm certs renew all
+      /bin/systemctl restart kubelet
+      # kube-vip caches its kubeconfig client at process start and does not
+      # re-read renewed cert files after a kubelet restart alone.
+      # Force-remove the container so kubelet recreates it immediately from
+      # the static pod manifest with a fresh client.
+      vip_id="$(/usr/bin/crictl ps -q --name kube-vip || true)"
+      if [ -n "${vip_id}" ]; then
+        /usr/bin/crictl rm -f "${vip_id}" || true
+      fi
+  notify: reload systemd daemon
+
+- name: deploy kubeadm cert renewal systemd service unit
+  copy:
+    dest: /etc/systemd/system/kubeadm-cert-renew.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Renew kubeadm-managed certificates
+      ConditionPathExists=/etc/kubernetes/pki/ca.crt
+      After=kubelet.service
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/sbin/kubeadm-cert-renew
+  notify: reload systemd daemon
+
+- name: deploy kubeadm cert renewal systemd timer unit
+  copy:
+    dest: /etc/systemd/system/kubeadm-cert-renew.timer
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Monthly kubeadm cert renewal
+
+      [Timer]
+      OnCalendar={{ cert_renew_oncalendar }}
+      RandomizedDelaySec={{ cert_renew_randomized_delay }}
+      Persistent=true
+      AccuracySec=1h
+
+      [Install]
+      WantedBy=timers.target
+  notify: reload systemd daemon
+
+- name: flush handlers to ensure systemd daemon is reloaded before enabling timer
+  meta: flush_handlers
+
+- name: enable and start kubeadm cert renewal timer
+  systemd_service:
+    name: kubeadm-cert-renew.timer
+    enabled: true
+    state: started

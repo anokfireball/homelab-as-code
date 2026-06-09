@@ -24,3 +24,7 @@ calico_node_subnet_prefix_length_v6: 120
 
 reset_cluster: false
 reset_confirmation: ""
+
+# cert renewal timer
+cert_renew_oncalendar: "monthly"
+cert_renew_randomized_delay: "4h"

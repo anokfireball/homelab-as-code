@@ -12,3 +12,11 @@
   systemd_service:
     name: containerd
     state: restarted
+
+- name: bounce control plane static pods
+  shell: |
+    set -e
+    /bin/systemctl restart kubelet
+    vip_id="$(/usr/bin/crictl ps -q --name kube-vip || true)"
+    [ -n "${vip_id}" ] && /usr/bin/crictl rm -f "${vip_id}" || true
+  changed_when: true
