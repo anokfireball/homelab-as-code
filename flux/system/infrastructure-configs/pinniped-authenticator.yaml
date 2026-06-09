@@ -1,0 +1,13 @@
+apiVersion: authentication.concierge.pinniped.dev/v1alpha1
+kind: JWTAuthenticator
+metadata:
+  name: supervisor
+  namespace: pinniped-concierge
+spec:
+  issuer: https://pinniped.kthxbye.cyou
+  audience: concierge
+  tls:
+    certificateAuthorityData: ""
+  claims:
+    username: email
+    groups: groups

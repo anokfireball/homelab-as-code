@@ -1,0 +1,19 @@
+apiVersion: idp.supervisor.pinniped.dev/v1alpha1
+kind: OIDCIdentityProvider
+metadata:
+  name: authentik
+  namespace: pinniped-supervisor
+spec:
+  issuer: https://auth.kthxbye.cyou/application/o/pinniped/
+  tls:
+    certificateAuthorityData: ""
+  claims:
+    username: email
+    groups: groups
+  client:
+    secretName: pinniped-authentik-client
+  authorizationConfig:
+    additionalScopes:
+    - groups
+    - email
+    - profile
