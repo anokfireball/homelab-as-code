@@ -23,15 +23,29 @@ spec:
       ingress:
         enabled: false
     postgresql:
-      enabled: true
-      auth:
-        username: authentik
-        password: authentik
-        database: authentik
-      primary:
-        persistence:
-          enabled: true
-          storageClass: cluster-scratch
+      enabled: false
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: authentik-postgresql
+  namespace: authentik
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-system-trixie
+  enableSuperuserAccess: false
+  bootstrap:
+    initdb:
+      database: authentik
+      owner: authentik
+      encoding: UTF8
+      localeCollate: C
+      localeCType: C
+      secret:
+        name: authentik-postgres-user
+  storage:
+    size: 10Gi
+    storageClass: cluster-scratch
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
