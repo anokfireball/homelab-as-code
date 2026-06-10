@@ -37,7 +37,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
 - [ansible/cluster](ansible/cluster) contains the stage 2 system configuration for the cluster nodes.
   This includes a range of tasks including power management, networking setup, and most importantly bootstrapping the kubernetes cluster using [kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/).
   The included Ansible playbook performs the required tasks on the nodes via SSH and a dedicated Ansible user created in the previous step.
-  After completion of this stage, the Kubernetes cluster is set up with [HA](https://kube-vip.io/) control planes, joined worker nodes, dual-stack [CNI](https://www.tigera.io/tigera-products/calico/), almost working [OIDC authn](https://dexidp.io/), and last but not least a bootstrapped [GitOps](https://fluxcd.io/) setup that is ready to start reconciling.
+  After completion of this stage, the Kubernetes cluster is set up with [HA](https://kube-vip.io/) control planes, joined worker nodes, dual-stack [CNI](https://www.tigera.io/tigera-products/calico/), working [OIDC authn](https://pinniped.dev/) via [Pinniped](https://pinniped.dev/) and [Authentik](https://goauthentik.io/), and last but not least a bootstrapped [GitOps](https://fluxcd.io/) setup that is ready to start reconciling.
 - [flux](flux) contains the final stage 3 GitOps cluster configuration.
   This includes everything running _inside_ kubernetes in the cluster and ranges from basic system infrastructure like [load balancer](https://metallb.io/), [ingress](https://kubernetes.github.io/ingress-nginx/), and [CSI](https://longhorn.io/) to more user-style applications such as [password manager](https://bitwarden.com/) and [file management](https://nextcloud.com/) apps.
   The included Flux kustomizations are automatically installed and/or reconciled on the cluster without* user interaction.
@@ -184,10 +184,16 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/dexidp/website/refs/heads/main/static/img/logos/dex-glyph-color.svg"></td>
-        <td><a href="https://dexidp.io/">Dex</a></td>
-        <td>OIDC Provider</td>
-        <td>used for API server authentication</td>
+        <td><img width="32" src="https://raw.githubusercontent.com/goauthentik/authentik/main/website/static/img/icon.svg"></td>
+        <td><a href="https://goauthentik.io/">Authentik</a></td>
+        <td>SSO and Identity Provider</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://raw.githubusercontent.com/vmware-tanzu/pinniped/main/site/themes/pinniped/static/img/favicon.png"></td>
+        <td><a href="https://pinniped.dev/">Pinniped</a></td>
+        <td>Kubernetes Authentication Broker</td>
+        <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/tailscale/tailscale/refs/heads/main/client/web/src/assets/icons/tailscale-icon.svg"></td>
