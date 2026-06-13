@@ -127,6 +127,8 @@ spec:
           value: "django_redis.client.DefaultClient"
         - name: SITE_URL
           value: "https://wger.${SERVICE_DOMAIN}"
+        - name: CSRF_TRUSTED_ORIGINS
+          value: "https://wger.${SERVICE_DOMAIN}"
       timezone: "Europe/Berlin"
       global:
         annotations:
