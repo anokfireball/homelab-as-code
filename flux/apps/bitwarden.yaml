@@ -46,6 +46,8 @@ spec:
         name: guerzon
         namespace: flux-system
   values:
+    commonAnnotations:
+      reloader.stakater.com/auto: "true"
     image:
       registry: ghcr.io
       repository: dani-garcia/vaultwarden

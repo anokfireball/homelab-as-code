@@ -78,6 +78,8 @@ spec:
         fsGroup: 1000
     workload:
       main:
+        annotations:
+          reloader.stakater.com/auto: "true"
         podSpec:
           containers:
             main:

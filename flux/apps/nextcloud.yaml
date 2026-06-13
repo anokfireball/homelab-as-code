@@ -104,6 +104,8 @@ spec:
         name: nextcloud
         namespace: flux-system
   values:
+    deploymentAnnotations:
+      reloader.stakater.com/auto: "true"
     image:
       flavor: fpm-alpine
     resources:

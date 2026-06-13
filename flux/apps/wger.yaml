@@ -114,19 +114,28 @@ spec:
       name: wger-secrets
       valuesKey: SIGNING_KEY
       targetPath: app.jwt.secret.key
+    - kind: Secret
+      name: wger-secrets
+      valuesKey: smtp-username
+      targetPath: app.mail.user
   values:
     app:
+      environment:
+        - name: ALLOW_REGISTRATION
+          value: "True"
+        - name: DJANGO_CACHE_CLIENT_CLASS
+          value: "django_redis.client.DefaultClient"
+        - name: SITE_URL
+          value: "https://wger.${SERVICE_DOMAIN}"
       timezone: "Europe/Berlin"
-      nginx:
-        enabled: true
+      global:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        image:
+          tag:
       persistence:
         enabled: true
-        storageClass: nas-replicated-hdd
-        accessModes:
-          - ReadWriteMany
-        sizeMedia: 2Gi
-        sizeStatic: 1Gi
-        sizeCeleryBeat: 1Gi
+        storageClass: cluster-replicated
       django:
         existingDatabase:
           enabled: true
@@ -138,31 +147,21 @@ spec:
             dbuserKey: username
             dbpwKey: password
           dbname: wger
-      environment:
-        - name: GUNICORN_CMD_ARGS
-          value: "--workers 2 --threads 2 --worker-class gthread --timeout 240"
-        - name: ALLOW_REGISTRATION
-          value: "True"
-        - name: EXPOSE_PROMETHEUS_METRICS
-          value: "True"
-        - name: DJANGO_CACHE_CLIENT_CLASS
-          value: "django_redis.client.DefaultClient"
-        - name: SITE_URL
-          value: "https://wger.${SERVICE_DOMAIN}"
+      mail:
+        enabled: true
+        server: ${SMTP_HOST}
+        port: 465
+        from_email: wger@${SERVICE_DOMAIN}
+        secret:
+          name: wger-secrets
+          key: smtp-password
     celery:
       enabled: true
-    ingress:
-      enabled: false
-    service:
-      port: 8000
     postgres:
       enabled: false
     redis:
       enabled: true
-      auth:
-        enabled: false
       storage:
-        requestedSize: 2Gi
         className: cluster-scratch
 ---
 apiVersion: cert-manager.io/v1
