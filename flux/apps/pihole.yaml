@@ -111,13 +111,14 @@ spec:
       - https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/SmartTV.txt
       - https://raw.githubusercontent.com/TheShawnMiranda/LG-TV-Ad-Block/master/list
       - https://www.github.developerdan.com/hosts/lists/amp-hosts-extended.txt
+      - https://a.dove.isdumb.one/pihole.txt
       # DOH (DNS is totalitarian in this network!)
       - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/doh.txt
       - https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH/DOHadb.txt
     whitelist:
       - ${SMTP_HOST}
       - jnn-pa.googleapis.com
-      - idealo.de
+      - (\.|^)idealo\.de$
     deploymentAnnotations:
       reloader.stakater.com/auto: "true"
     podDnsConfig:
