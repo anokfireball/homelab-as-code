@@ -129,6 +129,10 @@ spec:
           value: "https://wger.${SERVICE_DOMAIN}"
         - name: CSRF_TRUSTED_ORIGINS
           value: "https://wger.${SERVICE_DOMAIN}"
+        - name: EMAIL_USE_SSL
+          value: "True"
+        - name: EMAIL_USE_TLS
+          value: "False"
       timezone: "Europe/Berlin"
       global:
         annotations:
