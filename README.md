@@ -267,10 +267,10 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td>including <a href="https://github.com/firefly-iii/data-importer">importer</a> and <a href="https://github.com/cioraneanu/firefly-pico">pico</a><br><a href="https://gatus.kthxbye.cyou/endpoints/services_firefly-iii-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_firefly-iii-[http]/uptimes/30d/badge.svg" alt="Firefly III Uptime"></a></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/TomBursch/kitchenowl/refs/heads/main/kitchenowl/web/favicon.ico"></td>
-        <td><a href="https://kitchenowl.org/">KitchenOwl</a></td>
-        <td>Recipe and Grocery Manager</td>
-        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_kitchenowl-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_kitchenowl-[http]/uptimes/30d/badge.svg" alt="KitchenOwl Uptime"></a></td>
+        <td><img width="32" src="https://raw.githubusercontent.com/TandoorRecipes/recipes/refs/heads/develop/cookbook/static/assets/logo_color_32.png"></td>
+        <td><a href="https://tandoor.dev/">Tandoor Recipes</a></td>
+        <td>Recipe Manager</td>
+        <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/wger-project/wger/refs/heads/master/wger/core/static/images/logos/logo-bg-white.svg"></td>

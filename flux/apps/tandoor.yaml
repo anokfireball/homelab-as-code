@@ -1,0 +1,325 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: tandoor-postgresql
+  namespace: default
+spec:
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.2-27@sha256:9308dcd778be66f56bdce8503916ab820d12420e7d1bc74fff0d663c95e126c3
+  instances: 1
+  managed:
+    services:
+      disabledDefaultServices: ["ro", "r"]
+    roles:
+      - name: backup
+        passwordSecret:
+          name: postgres-backup-user
+        login: true
+        superuser: false
+        inRoles:
+          - pg_read_all_data
+  bootstrap:
+    initdb:
+      database: tandoor
+      owner: tandoor
+      secret:
+        name: tandoor-postgres-user
+  storage:
+    size: 2Gi
+    storageClass: cluster-replicated
+---
+apiVersion: k8up.io/v1
+kind: PreBackupPod
+metadata:
+  name: tandoor-database-backup
+  namespace: default
+  labels:
+    backup: tandoor-database
+  annotations:
+    k8up.io/backup: "true"
+spec:
+  backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
+  pod:
+    spec:
+      containers:
+        - name: tandoor-database-backup
+          image: postgres:17.4-alpine@sha256:6c717ca5788964057727e357b9bb634df43197ccbee573994b438921f97a3583
+          command:
+            - "sleep"
+            - "infinity"
+          env:
+            - name: POSTGRES_HOST
+              value: tandoor-postgresql-rw
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-backup-user
+                  key: password
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: tandoor-database
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Habitat-Giggle9-Composer/tandoor
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: tandoor-database
+    schedule: "27 3/6 * * *"
+    concurrentRunsAllowed: false
+  prune:
+    schedule: "57 0 1 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: tandoor-media
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Habitat-Giggle9-Composer/tandoor-media
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: tandoor-media
+    schedule: "47 4/6 * * *"
+    concurrentRunsAllowed: false
+  prune:
+    schedule: "17 1 1 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tandoor-media
+  namespace: default
+  annotations:
+    k8up.io/backup: "true"
+  labels:
+    backup: tandoor-media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: cluster-replicated
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tandoor
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.0.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    controllers:
+      main:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          main:
+            image:
+              repository: ghcr.io/tandoorrecipes/recipes
+              tag: 2.6.9@sha256:969c5b3552ffbf18a6f82b3ad5babbae89bfbd30ab6e3195fd3c158bcf3062ed
+            probes:
+              liveness:
+                enabled: true
+                type: HTTP
+                path: /
+                spec:
+                  initialDelaySeconds: 60
+                  periodSeconds: 30
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                type: HTTP
+                path: /
+                spec:
+                  initialDelaySeconds: 60
+                  failureThreshold: 10
+              startup:
+                enabled: true
+                type: HTTP
+                path: /
+                spec:
+                  failureThreshold: 30
+            env:
+              TZ: Europe/Berlin
+              SECRET_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: tandoor-secrets
+                    key: SECRET_KEY
+              ALLOWED_HOSTS: "*"
+              CSRF_TRUSTED_ORIGINS: https://tandoor.${SERVICE_DOMAIN}
+              ALLAUTH_TRUSTED_PROXY_COUNT: "2"
+              ENABLE_SIGNUP: "0"
+              DB_ENGINE: django.db.backends.postgresql
+              POSTGRES_HOST: tandoor-postgresql-rw
+              POSTGRES_DB: tandoor
+              POSTGRES_PORT: "5432"
+              POSTGRES_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: tandoor-postgres-user
+                    key: username
+              POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: tandoor-postgres-user
+                    key: password
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 80
+    ingress:
+      main:
+        enabled: false
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: ListenerSet
+            name: tandoor
+            namespace: default
+            sectionName: https
+        hostnames:
+          - tandoor.${SERVICE_DOMAIN}
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - identifier: main
+    persistence:
+      media:
+        type: persistentVolumeClaim
+        existingClaim: tandoor-media
+        globalMounts:
+          - path: /opt/recipes/mediafiles
+      static:
+        type: emptyDir
+        globalMounts:
+          - path: /opt/recipes/staticfiles
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tandoor-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: tandoor-tls
+  dnsNames:
+    - tandoor.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: tandoor
+  namespace: default
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: tandoor.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: tandoor-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: tandoor-listenerset-to-tandoor-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: default
+  to:
+    - group: ""
+      kind: Secret
+      name: tandoor-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tandoor-http-redirect
+  namespace: default
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - tandoor.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

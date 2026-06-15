@@ -11,7 +11,7 @@ resources:
   - scrutiny-monitoring
   - immich.yaml
   - jellyfin.yaml
-  - kitchenowl.yaml
+  - tandoor.yaml
   - n8n.yaml
   - nextcloud.yaml
   - opnsense-ipv6-prefix-update.yaml
