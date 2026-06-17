@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: renovate
-      version: 46.195.1
+      version: 46.196.0
       sourceRef:
         kind: HelmRepository
         name: renovate
