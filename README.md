@@ -362,36 +362,6 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td>Usenet Client</td>
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_sabnzbd-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_sabnzbd-[http]/uptimes/30d/badge.svg" alt="SABnzbd Uptime"></a></td>
     </tr>
-    <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/Prowlarr/Prowlarr/refs/heads/develop/Logo/Prowlarr.svg"></td>
-        <td><a href="https://prowlarr.com/">Prowlarr</a></td>
-        <td>Torrent & Usenet Indexer Engine</td>
-        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_prowlarr-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_prowlarr-[http]/uptimes/30d/badge.svg" alt="Prowlarr Uptime"></a></td>
-    </tr>
-    <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/Radarr/Radarr/refs/heads/develop/Logo/Radarr.svg"></td>
-        <td><a href="https://radarr.video/">Radarr</a></td>
-        <td>Movie Management</td>
-        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_radarr-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_radarr-[http]/uptimes/30d/badge.svg" alt="Radarr Uptime"></a></td>
-    </tr>
-    <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/Sonarr/Sonarr/refs/heads/develop/Logo/Sonarr.svg"></td>
-        <td><a href="https://sonarr.tv/">Sonarr</a></td>
-        <td>TV Show Management</td>
-        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_sonarr-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_sonarr-[http]/uptimes/30d/badge.svg" alt="Sonarr Uptime"></a></td>
-    </tr>
-    <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/Lidarr/Lidarr/refs/heads/develop/Logo/Lidarr.svg"></td>
-        <td><a href="https://lidarr.audio/">Lidarr</a></td>
-        <td>Music Management</td>
-        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_lidarr-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_lidarr-[http]/uptimes/30d/badge.svg" alt="Lidarr Uptime"></a></td>
-    </tr>
-    <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/FlareSolverr/FlareSolverr/refs/heads/master/resources/flaresolverr_logo.svg"></td>
-        <td><a href="https://github.com/FlareSolverr/FlareSolverr">FlareSolverr</a></td>
-        <td>Cloudflare Protection Bypass</td>
-        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_flaresolverr-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_flaresolverr-[http]/uptimes/30d/badge.svg" alt="FlareSolverr Uptime"></a></td>
-    </tr>
 </table>
 
 ## ☁️ Cloud Dependencies
