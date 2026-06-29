@@ -124,7 +124,7 @@ spec:
           collector:
             image:
               repository: ghcr.io/starosdev/scrutiny
-              tag: latest-collector@sha256:69bb6f5eb1ebeebf6f47a60b8267a04bae5bbc0d685b6b1548780459d26610a6
+              tag: latest-collector@sha256:00d4e36d0cbaa384d6301f70eb1e24e53700c8dbcfc98f33887c18842d39c236
             env:
               - name: COLLECTOR_API_ENDPOINT
                 value: http://scrutiny-web:8080
