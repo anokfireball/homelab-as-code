@@ -35,7 +35,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -82,7 +82,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_devices_total)",
               "refId": "A"
@@ -94,7 +94,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -148,7 +148,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_devices_by_protocol)",
               "legendFormat": "{{protocol}}",
@@ -161,7 +161,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -228,7 +228,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum(min without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_device_status{host_id=~\"$host\"}))",
               "refId": "A"
@@ -240,7 +240,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -328,7 +328,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_temperature_celsius{host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}}",
@@ -341,7 +341,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -399,7 +399,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_temperature_celsius{host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}}",
@@ -412,7 +412,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -488,7 +488,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_power_on_hours{host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}}",
@@ -501,7 +501,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -577,7 +577,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_power_cycle_count{host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}}",
@@ -590,7 +590,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -645,7 +645,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_percentage_used_value{protocol=\"NVMe\", host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}}",
@@ -658,7 +658,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -713,7 +713,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_available_spare_value{protocol=\"NVMe\", host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}}",
@@ -726,7 +726,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -924,7 +924,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "group without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_device_info{host_id=~\"$host\"})",
               "format": "table",
@@ -934,7 +934,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_temperature_celsius{host_id=~\"$host\"})",
               "format": "table",
@@ -944,7 +944,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_power_on_hours{host_id=~\"$host\"})",
               "format": "table",
@@ -954,7 +954,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_device_capacity_bytes{host_id=~\"$host\"})",
               "format": "table",
@@ -964,7 +964,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "min without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_device_status{host_id=~\"$host\"})",
               "format": "table",
@@ -974,7 +974,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_collector_timestamp{host_id=~\"$host\"})",
               "format": "table",
@@ -1129,7 +1129,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1209,7 +1209,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_5_raw_value{attribute_id=\"5\", protocol=\"ATA\", host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}} - Reallocated Sectors",
@@ -1218,7 +1218,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_197_raw_value{attribute_id=\"197\", protocol=\"ATA\", host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}} - Pending Sectors",
@@ -1227,7 +1227,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_198_raw_value{attribute_id=\"198\", protocol=\"ATA\", host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}} - Offline Uncorrectable",
@@ -1240,7 +1240,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1320,7 +1320,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_media_errors_value{protocol=\"NVMe\", host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}} - Media Errors",
@@ -1329,7 +1329,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_num_err_log_entries_value{protocol=\"NVMe\", host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}} - Error Log Entries",
@@ -1338,7 +1338,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "max without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_unsafe_shutdowns_value{protocol=\"NVMe\", host_id=~\"$host\"})",
               "legendFormat": "{{host_id}}/{{device_name}} - Unsafe Shutdowns",
@@ -1351,7 +1351,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1433,7 +1433,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "group without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_5_status_info{host_id=~\"$host\"})",
               "format": "table",
@@ -1443,7 +1443,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "group without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_197_status_info{host_id=~\"$host\"})",
               "format": "table",
@@ -1453,7 +1453,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "group without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_198_status_info{host_id=~\"$host\"})",
               "format": "table",
@@ -1463,7 +1463,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "group without(instance, job, pod, container, endpoint, namespace, service) (scrutiny_smart_attr_critical_warning_status_info{protocol=\"NVMe\", host_id=~\"$host\"})",
               "format": "table",
@@ -1556,7 +1556,7 @@ data:
             },
             "datasource": {
               "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
+              "uid": "$${DS_PROMETHEUS}"
             },
             "definition": "label_values(scrutiny_device_info, host_id)",
             "hide": 0,

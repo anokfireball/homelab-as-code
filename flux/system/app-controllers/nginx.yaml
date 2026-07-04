@@ -114,7 +114,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "Total time for NGINX and upstream servers to process a request and send a response",
           "fieldConfig": {
@@ -197,7 +197,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(\n  0.5,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        ingress =~ \"$ingress\"\n      }[5m]\n    )\n  )\n)",
               "interval": "",
@@ -207,7 +207,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(\n  0.95,\n  sum by (le)(\n    rate(\n    nginx_ingress_controller_request_duration_seconds_bucket{\n        ingress =~ \"$ingress\"\n      }[5m]\n    )\n  )\n)",
               "interval": "",
@@ -217,7 +217,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(\n  0.99,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        ingress =~ \"$ingress\"\n      }[5m]\n    )\n  )\n)",
               "interval": "",
@@ -231,7 +231,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "The time spent on receiving the response from the upstream server",
           "fieldConfig": {
@@ -314,7 +314,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(\n  0.5,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_response_duration_seconds_bucket{\n        ingress =~ \"$ingress\"\n      }[5m]\n    )\n  )\n)",
               "instant": false,
@@ -326,7 +326,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(\n  0.95,\n  sum by (le)(\n    rate(\n    nginx_ingress_controller_response_duration_seconds_bucket{\n        ingress =~ \"$ingress\"\n      }[5m]\n    )\n  )\n)",
               "interval": "",
@@ -336,7 +336,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(\n  0.99,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_response_duration_seconds_bucket{\n        ingress =~ \"$ingress\"\n      }[5m]\n    )\n  )\n)",
               "interval": "",
@@ -350,7 +350,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -432,7 +432,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "  sum by (method, host, path)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_count{\n        ingress =~ \"$ingress\"\n      }[5m]\n    )\n  )\n",
               "interval": "",
@@ -447,7 +447,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "For each path observed, its median upstream response time",
           "fieldConfig": {
@@ -530,7 +530,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(\n  .5,\n  sum by (le, method, host, path)(\n    rate(\n      nginx_ingress_controller_response_duration_seconds_bucket{\n        ingress =~ \"$ingress\"\n      }[5m]\n    )\n  )\n)",
               "interval": "",
@@ -545,7 +545,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "Percentage of 4xx and 5xx responses among all responses.",
           "fieldConfig": {
@@ -628,7 +628,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum by (method, host, path) (rate(nginx_ingress_controller_request_duration_seconds_count{\n  ingress =~ \"$ingress\",\n  status =~ \"[4-5].*\"\n}[5m])) / sum by (method, host, path) (rate(nginx_ingress_controller_request_duration_seconds_count{\n  ingress =~ \"$ingress\",\n}[5m]))",
               "interval": "",
@@ -643,7 +643,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "For each path observed, the sum of upstream request time",
           "fieldConfig": {
@@ -726,7 +726,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum by (method, host, path) (rate(nginx_ingress_controller_response_duration_seconds_sum{ingress =~ \"$ingress\"}[5m]))",
               "interval": "",
@@ -741,7 +741,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -823,7 +823,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "  sum (\n    rate(\n      nginx_ingress_controller_request_duration_seconds_count{\n        ingress =~ \"$ingress\",\n        status =~\"[4-5].*\",\n      }[5m]\n    )\n  ) by(method, host, path, status)\n",
               "interval": "",
@@ -838,7 +838,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -920,7 +920,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum (\n  rate (\n      nginx_ingress_controller_response_size_sum {\n        ingress =~ \"$ingress\",\n      }[5m]\n  )\n)  by (method, host, path) / sum (\n  rate(\n      nginx_ingress_controller_response_size_count {\n        ingress =~ \"$ingress\",\n      }[5m]\n  )\n) by (method, host, path)\n",
               "hide": false,
@@ -933,7 +933,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "    sum (rate(nginx_ingress_controller_response_size_bucket{\n        ingress =~ \"$ingress\",\n    }[5m])) by (le)\n",
               "hide": true,
@@ -956,7 +956,7 @@ data:
             "current": {
               "selected": false,
               "text": "Prometheus",
-              "value": "${DS_PROMETHEUS}"
+              "value": "$${DS_PROMETHEUS}"
             },
             "hide": 0,
             "includeAll": false,
@@ -975,7 +975,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
+              "uid": "$${DS_PROMETHEUS}"
             },
             "definition": "label_values(nginx_ingress_controller_requests, ingress) ",
             "hide": 0,
@@ -1114,7 +1114,7 @@ data:
           {
             "datasource": {
               "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
+              "uid": "$${DS_PROMETHEUS}"
             },
             "enable": true,
             "expr": "sum(changes(nginx_ingress_controller_config_last_reload_successful_timestamp_seconds{instance!=\"unknown\",controller_class=~\"$controller_class\",namespace=~\"$namespace\"}[30s])) by (controller_class)",
@@ -1140,7 +1140,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1199,7 +1199,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "round(sum(irate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$namespace\"}[2m])), 0.001)",
               "format": "time_series",
@@ -1214,7 +1214,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1279,7 +1279,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum(avg_over_time(nginx_ingress_controller_nginx_process_connections{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",state=\"active\"}[2m]))",
               "format": "time_series",
@@ -1295,7 +1295,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1364,7 +1364,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum(rate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$namespace\",status!~\"[4-5].*\"}[2m])) / sum(rate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$namespace\"}[2m]))",
               "format": "time_series",
@@ -1379,7 +1379,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1445,7 +1445,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "avg(irate(nginx_ingress_controller_success{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}[1m])) * 60",
               "format": "time_series",
@@ -1461,7 +1461,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1527,7 +1527,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "count(nginx_ingress_controller_config_last_reload_successful{controller_pod=~\"$controller\",controller_namespace=~\"$namespace\"} == 0)",
               "format": "time_series",
@@ -1543,7 +1543,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1648,7 +1648,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "round(sum(irate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",exported_namespace=~\"$exported_namespace\",ingress=~\"$ingress\"}[2m])) by (ingress), 0.001)",
               "format": "time_series",
@@ -1668,7 +1668,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1817,7 +1817,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum(rate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$namespace\",exported_namespace=~\"$exported_namespace\",ingress=~\"$ingress\",status!~\"[4-5].*\"}[2m])) by (ingress) / sum(rate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$namespace\",exported_namespace=~\"$exported_namespace\",ingress=~\"$ingress\"}[2m])) by (ingress)",
               "format": "time_series",
@@ -1836,7 +1836,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -1921,7 +1921,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum (irate (nginx_ingress_controller_request_size_sum{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}[2m]))",
               "format": "time_series",
@@ -1936,7 +1936,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "- sum (irate (nginx_ingress_controller_response_size_sum{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}[2m]))",
               "format": "time_series",
@@ -1955,7 +1955,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -2086,7 +2086,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "avg(nginx_ingress_controller_nginx_process_resident_memory_bytes{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}) ",
               "format": "time_series",
@@ -2105,7 +2105,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -2185,7 +2185,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "avg (rate (nginx_ingress_controller_nginx_process_cpu_seconds_total{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}[2m])) ",
               "format": "time_series",
@@ -2203,7 +2203,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "This data is real time, independent of dashboard time range",
           "fieldConfig": {
@@ -2426,7 +2426,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(0.50, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (le, ingress))",
               "format": "table",
@@ -2439,7 +2439,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(0.90, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (le, ingress))",
               "format": "table",
@@ -2452,7 +2452,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (le, ingress))",
               "format": "table",
@@ -2465,7 +2465,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum(irate(nginx_ingress_controller_request_size_sum{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (ingress)",
               "format": "table",
@@ -2479,7 +2479,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "sum(irate(nginx_ingress_controller_response_size_sum{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (ingress)",
               "format": "table",
@@ -2503,7 +2503,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -2586,7 +2586,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "exemplar": true,
               "expr": "histogram_quantile(0.80, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (le))",
@@ -2601,7 +2601,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "exemplar": true,
               "expr": "histogram_quantile(0.90, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (le))",
@@ -2616,7 +2616,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "editorMode": "code",
               "exemplar": true,
@@ -2645,7 +2645,7 @@ data:
           "dataFormat": "tsbuckets",
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "description": "",
           "fieldConfig": {
@@ -2720,7 +2720,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "exemplar": true,
               "expr": "sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (le)",
@@ -2749,7 +2749,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "$${DS_PROMETHEUS}"
           },
           "fieldConfig": {
             "defaults": {
@@ -2863,7 +2863,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "$${DS_PROMETHEUS}"
               },
               "expr": "avg(nginx_ingress_controller_ssl_expire_time_seconds{kubernetes_pod_name=~\"$controller\",namespace=~\"$namespace\",ingress=~\"$ingress\"}) by (host) - time()",
               "format": "time_series",
@@ -2901,7 +2901,7 @@ data:
             "current": {
               "selected": false,
               "text": "Prometheus",
-              "value": "${DS_PROMETHEUS}"
+              "value": "$${DS_PROMETHEUS}"
             },
             "hide": 0,
             "includeAll": false,
@@ -2921,7 +2921,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
+              "uid": "$${DS_PROMETHEUS}"
             },
             "definition": "",
             "hide": 0,
@@ -2945,7 +2945,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
+              "uid": "$${DS_PROMETHEUS}"
             },
             "definition": "",
             "hide": 0,
@@ -2969,7 +2969,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
+              "uid": "$${DS_PROMETHEUS}"
             },
             "definition": "",
             "hide": 0,
@@ -2993,7 +2993,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
+              "uid": "$${DS_PROMETHEUS}"
             },
             "definition": "",
             "hide": 0,
@@ -3017,7 +3017,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${DS_PROMETHEUS}"
+              "uid": "$${DS_PROMETHEUS}"
             },
             "definition": "",
             "hide": 0,
