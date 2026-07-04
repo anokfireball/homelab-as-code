@@ -221,6 +221,7 @@ spec:
           type: persistentVolumeClaim
           storageClass: cluster-scratch
           size: 2Gi
+          accessMode: ReadWriteOnce
     server:
       service:
         main:
