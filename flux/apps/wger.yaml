@@ -97,6 +97,8 @@ spec:
   interval: 1m
   install:
     timeout: 30m
+  upgrade:
+    timeout: 30m
   chart:
     spec:
       chart: wger
@@ -112,10 +114,6 @@ spec:
       targetPath: app.django.secret.key
     - kind: Secret
       name: wger-secrets
-      valuesKey: SIGNING_KEY
-      targetPath: app.jwt.secret.key
-    - kind: Secret
-      name: wger-secrets
       valuesKey: smtp-username
       targetPath: app.mail.user
   values:
@@ -123,10 +121,6 @@ spec:
       environment:
         - name: ALLOW_REGISTRATION
           value: "True"
-        - name: SYNC_INGREDIENTS_CELERY
-          value: "True"
-        - name: DJANGO_CACHE_CLIENT_CLASS
-          value: "django_redis.client.DefaultClient"
         - name: SITE_URL
           value: "https://wger.${SERVICE_DOMAIN}"
         - name: CSRF_TRUSTED_ORIGINS
@@ -139,10 +133,7 @@ spec:
       global:
         annotations:
           reloader.stakater.com/auto: "true"
-        image:
-          tag:
       persistence:
-        enabled: true
         storageClass: cluster-replicated
       django:
         existingDatabase:
@@ -163,12 +154,12 @@ spec:
         secret:
           name: wger-secrets
           key: smtp-password
-    celery:
-      enabled: true
+    powersync:
+      image:
+        tag: "1.23.2"
     postgres:
       enabled: false
     redis:
-      enabled: true
       storage:
         className: cluster-scratch
 ---
@@ -248,7 +239,7 @@ spec:
             value: /
       backendRefs:
         - name: wger-http
-          port: 8000
+          port: 80
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
