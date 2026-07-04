@@ -10,7 +10,7 @@ spec:
     services:
       disabledDefaultServices: ["ro", "r"]
     roles:
-      - name: backup
+      - name: stashbackup
         passwordSecret:
           name: postgres-backup-user
         login: true
