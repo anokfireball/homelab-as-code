@@ -17,15 +17,51 @@ spec:
         superuser: false
         inRoles:
           - pg_read_all_data
+      # wger owns the DB and is the user PowerSync uses for logical
+      # replication (PS_DATABASE_URI). It needs REPLICATION + CREATEROLE
+      # so `manage.py setup-powersync-storage` can create/own the
+      # powersync_storage role and schema.
+      - name: wger
+        ensure: present
+        login: true
+        superuser: false
+        createrole: true
+        replication: true
+        passwordSecret:
+          name: wger-postgres-user
   bootstrap:
     initdb:
       database: wger
       owner: wger
       secret:
         name: wger-postgres-user
+  postgresql:
+    pg_hba:
+      # PowerSync connects as wger for logical replication (walsender);
+      # the catch-all `host all all` rule does not cover the replication
+      # pseudo-database, so an explicit entry is required.
+      - host replication wger all scram-sha-256
   storage:
     size: 20Gi
     storageClass: cluster-replicated
+---
+# PowerSync replicates from the wger database via logical replication and
+# requires a publication named "powersync". The wger Helm chart does not
+# create it (neither the chart templates nor the setup-powersync-storage
+# post-install hook), so manage it declaratively here.
+apiVersion: postgresql.cnpg.io/v1
+kind: Publication
+metadata:
+  name: wger-powersync
+  namespace: default
+spec:
+  cluster:
+    name: wger-postgresql
+  dbname: wger
+  name: powersync
+  publicationReclaimPolicy: retain
+  target:
+    allTables: true
 ---
 apiVersion: k8up.io/v1
 kind: PreBackupPod
@@ -97,6 +133,8 @@ spec:
   interval: 1m
   install:
     timeout: 30m
+  upgrade:
+    timeout: 30m
   chart:
     spec:
       chart: wger
@@ -112,21 +150,20 @@ spec:
       targetPath: app.django.secret.key
     - kind: Secret
       name: wger-secrets
-      valuesKey: SIGNING_KEY
-      targetPath: app.jwt.secret.key
-    - kind: Secret
-      name: wger-secrets
       valuesKey: smtp-username
       targetPath: app.mail.user
   values:
     app:
       environment:
+        # The static volume is a block-backed RWX PVC whose ext4 root
+        # contains a root-owned `lost+found`. The entrypoint's default
+        # `collectstatic --clear` fails with PermissionError trying to
+        # traverse it, leaving static files uncollected (broken CSS).
+        # Disabling --clear collects without touching lost+found.
+        - name: DJANGO_CLEAR_STATIC_FIRST
+          value: "False"
         - name: ALLOW_REGISTRATION
           value: "True"
-        - name: SYNC_INGREDIENTS_CELERY
-          value: "True"
-        - name: DJANGO_CACHE_CLIENT_CLASS
-          value: "django_redis.client.DefaultClient"
         - name: SITE_URL
           value: "https://wger.${SERVICE_DOMAIN}"
         - name: CSRF_TRUSTED_ORIGINS
@@ -139,10 +176,7 @@ spec:
       global:
         annotations:
           reloader.stakater.com/auto: "true"
-        image:
-          tag:
       persistence:
-        enabled: true
         storageClass: cluster-replicated
       django:
         existingDatabase:
@@ -163,12 +197,12 @@ spec:
         secret:
           name: wger-secrets
           key: smtp-password
-    celery:
-      enabled: true
+    powersync:
+      image:
+        tag: "1.23.2"
     postgres:
       enabled: false
     redis:
-      enabled: true
       storage:
         className: cluster-scratch
 ---
@@ -248,7 +282,7 @@ spec:
             value: /
       backendRefs:
         - name: wger-http
-          port: 8000
+          port: 80
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
