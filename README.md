@@ -264,7 +264,7 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://raw.githubusercontent.com/firefly-iii/firefly-iii/refs/heads/main/public/favicon.ico"></td>
         <td><a href="https://www.firefly-iii.org/">Firefly III</a></td>
         <td>Personal Finance Manager</td>
-        <td>including <a href="https://github.com/firefly-iii/data-importer">importer</a> and <a href="https://github.com/cioraneanu/firefly-pico">pico</a><br><a href="https://gatus.kthxbye.cyou/endpoints/services_firefly-iii-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_firefly-iii-[http]/uptimes/30d/badge.svg" alt="Firefly III Uptime"></a></td>
+        <td>including <a href="https://github.com/firefly-iii/data-importer">importer</a><br><a href="https://gatus.kthxbye.cyou/endpoints/services_firefly-iii-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_firefly-iii-[http]/uptimes/30d/badge.svg" alt="Firefly III Uptime"></a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/TandoorRecipes/recipes/refs/heads/develop/cookbook/static/assets/logo_color_32.png"></td>
