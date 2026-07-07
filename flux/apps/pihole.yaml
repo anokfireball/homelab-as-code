@@ -15,7 +15,7 @@ spec:
         namespace: flux-system
   values:
     dualStack:
-      enabled: true
+      enabled: false
     serviceDns:
       mixedService: true
       type: LoadBalancer
