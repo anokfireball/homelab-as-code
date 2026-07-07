@@ -26,16 +26,83 @@ spec:
       flags:
         on-by-default: true
       ingress:
+        enabled: false
+      httpRoute:
         enabled: true
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        hosts:
-          - host: goldilocks.${SERVICE_DOMAIN}
-            paths:
-              - path: /
-                type: Prefix
-        tls:
-          - secretName: goldilocks-tls
-            hosts:
-              - goldilocks.${SERVICE_DOMAIN}
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: ListenerSet
+            name: goldilocks
+            namespace: goldilocks-system
+            sectionName: https
+        hostnames:
+          - goldilocks.${SERVICE_DOMAIN}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: goldilocks-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: goldilocks-tls
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+  dnsNames:
+    - goldilocks.${SERVICE_DOMAIN}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: goldilocks
+  namespace: goldilocks-system
+spec:
+  parentRef:
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "goldilocks.${SERVICE_DOMAIN}"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: goldilocks-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: goldilocks-listenerset-to-goldilocks-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: goldilocks-system
+  to:
+    - group: ""
+      kind: Secret
+      name: goldilocks-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: goldilocks-http-redirect
+  namespace: goldilocks-system
+spec:
+  parentRefs:
+    - name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - "goldilocks.${SERVICE_DOMAIN}"
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
