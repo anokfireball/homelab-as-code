@@ -23,16 +23,7 @@ spec:
         enabled: true
     alertmanager:
       ingress:
-        enabled: true
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        hosts:
-          - alertmanager.${SERVICE_DOMAIN}
-        tls:
-          - secretName: alertmanager-tls
-            hosts:
-              - alertmanager.${SERVICE_DOMAIN}
+        enabled: false
       alertmanagerSpec:
         retention: 168h
         storage:
@@ -55,16 +46,7 @@ spec:
             grafana_dashboard_folder: kube-prometheus-stack
     prometheus:
       ingress:
-        enabled: true
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        hosts:
-          - prometheus.${SERVICE_DOMAIN}
-        tls:
-          - secretName: prometheus-tls
-            hosts:
-              - prometheus.${SERVICE_DOMAIN}
+        enabled: false
       prometheusSpec:
         retention: 90d
         retentionSize: 250GiB
@@ -78,3 +60,209 @@ spec:
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
         scrapeConfigSelectorNilUsesHelmValues: false
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: alertmanager-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: alertmanager-tls
+  dnsNames:
+    - alertmanager.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: alertmanager
+  namespace: monitoring-system
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: alertmanager.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: alertmanager-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: alertmanager-listenerset-to-alertmanager-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: monitoring-system
+  to:
+    - group: ""
+      kind: Secret
+      name: alertmanager-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: alertmanager
+  namespace: monitoring-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: alertmanager
+      namespace: monitoring-system
+      sectionName: https
+  hostnames:
+    - alertmanager.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: kube-prometheus-stack-alertmanager
+          port: 9093
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: alertmanager-http-redirect
+  namespace: monitoring-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - alertmanager.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prometheus-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: prometheus-tls
+  dnsNames:
+    - prometheus.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: prometheus
+  namespace: monitoring-system
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: prometheus.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: prometheus-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: prometheus-listenerset-to-prometheus-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: monitoring-system
+  to:
+    - group: ""
+      kind: Secret
+      name: prometheus-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: prometheus
+  namespace: monitoring-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: prometheus
+      namespace: monitoring-system
+      sectionName: https
+  hostnames:
+    - prometheus.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: kube-prometheus-stack-prometheus
+          port: 9090
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: prometheus-http-redirect
+  namespace: monitoring-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - prometheus.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
