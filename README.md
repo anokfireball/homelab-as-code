@@ -39,7 +39,7 @@ At the highest possible level, this repo and HaC workflow consists of three part
   The included Ansible playbook performs the required tasks on the nodes via SSH and a dedicated Ansible user created in the previous step.
   After completion of this stage, the Kubernetes cluster is set up with [HA](https://kube-vip.io/) control planes, joined worker nodes, dual-stack [CNI](https://www.tigera.io/tigera-products/calico/), working [OIDC authn](https://pinniped.dev/) via [Pinniped](https://pinniped.dev/) and [Authentik](https://goauthentik.io/), and last but not least a bootstrapped [GitOps](https://fluxcd.io/) setup that is ready to start reconciling.
 - [flux](flux) contains the final stage 3 GitOps cluster configuration.
-  This includes everything running _inside_ kubernetes in the cluster and ranges from basic system infrastructure like [load balancer](https://metallb.io/), [ingress](https://kubernetes.github.io/ingress-nginx/), and [CSI](https://longhorn.io/) to more user-style applications such as [password manager](https://bitwarden.com/) and [file management](https://nextcloud.com/) apps.
+  This includes everything running _inside_ kubernetes in the cluster and ranges from basic system infrastructure like [load balancer](https://metallb.io/), [ingress](https://gateway.envoyproxy.io/), and [CSI](https://longhorn.io/) to more user-style applications such as [password manager](https://bitwarden.com/) and [file management](https://nextcloud.com/) apps.
   The included Flux kustomizations are automatically installed and/or reconciled on the cluster without* user interaction.
   This process is staggered since there is an inherent dependency between some of the components.
   After completion of this stage, the cluster is fully set up and ready for use.
@@ -98,12 +98,6 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://gateway.envoyproxy.io/">Envoy Gateway</a></td>
         <td>Gateway API Implementation</td>
         <td>shared edge gateway for app-local listener ownership</td>
-    </tr>
-    <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/nginx/nginx.org/refs/heads/main/img/ingress_logo.svg"></td>
-        <td><a href="https://kubernetes.github.io/ingress-nginx/">ingress-nginx</a></td>
-        <td>Ingress Controller</td>
-        <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/kyverno/kyverno/refs/heads/main/img/logo.png"></td>
