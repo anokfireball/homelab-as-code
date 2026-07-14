@@ -39,19 +39,7 @@ spec:
     gateway:
       enabled: true
       ingress:
-        enabled: true
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        hosts:
-          - host: loki.${SERVICE_DOMAIN}
-            paths:
-              - path: /
-                pathType: Prefix
-        tls:
-          - hosts:
-              - loki.${SERVICE_DOMAIN}
-            secretName: loki-tls
+        enabled: false
     singleBinary:
       replicas: 1
       persistence:
@@ -81,6 +69,109 @@ spec:
       replicas: 0
     bloomGateway:
       replicas: 0
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: loki-tls
+  namespace: envoy-gateway-system
+spec:
+  secretName: loki-tls
+  dnsNames:
+    - loki.${SERVICE_DOMAIN}
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: loki
+  namespace: monitoring-system
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared
+    namespace: envoy-gateway-system
+  listeners:
+    - name: https
+      hostname: loki.${SERVICE_DOMAIN}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: loki-tls
+            namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: loki-listenerset-to-loki-tls
+  namespace: envoy-gateway-system
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: monitoring-system
+  to:
+    - group: ""
+      kind: Secret
+      name: loki-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: loki
+  namespace: monitoring-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: loki
+      namespace: monitoring-system
+      sectionName: https
+  hostnames:
+    - loki.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: loki-gateway
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: loki-http-redirect
+  namespace: monitoring-system
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - loki.${SERVICE_DOMAIN}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
 ---
 apiVersion: v1
 kind: ConfigMap
