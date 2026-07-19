@@ -1,105 +1,25 @@
-apiVersion: cert-manager.io/v1
-kind: Certificate
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
 metadata:
-  name: longhorn-tls
-  namespace: envoy-gateway-system
-spec:
-  secretName: longhorn-tls
-  dnsNames:
-    - longhorn.${SERVICE_DOMAIN}
-  issuerRef:
-    kind: ClusterIssuer
-    name: letsencrypt
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: ListenerSet
-metadata:
-  name: longhorn
+  name: longhorn-gateway
   namespace: longhorn-system
 spec:
-  parentRef:
-    group: gateway.networking.k8s.io
-    kind: Gateway
-    name: shared
-    namespace: envoy-gateway-system
-  listeners:
-    - name: https
-      hostname: longhorn.${SERVICE_DOMAIN}
-      port: 443
-      protocol: HTTPS
-      allowedRoutes:
-        namespaces:
-          from: All
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - group: ""
-            kind: Secret
-            name: longhorn-tls
-            namespace: envoy-gateway-system
----
-apiVersion: gateway.networking.k8s.io/v1beta1
-kind: ReferenceGrant
-metadata:
-  name: longhorn-listenerset-to-longhorn-tls
-  namespace: envoy-gateway-system
-spec:
-  from:
-    - group: gateway.networking.k8s.io
-      kind: ListenerSet
-      namespace: longhorn-system
-  to:
-    - group: ""
-      kind: Secret
-      name: longhorn-tls
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: longhorn
-  namespace: longhorn-system
-spec:
-  parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: ListenerSet
-      name: longhorn
-      namespace: longhorn-system
-      sectionName: https
-  hostnames:
-    - longhorn.${SERVICE_DOMAIN}
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - name: longhorn-frontend
-          port: 80
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: longhorn-http-redirect
-  namespace: longhorn-system
-spec:
-  parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: shared
-      namespace: envoy-gateway-system
-      sectionName: http
-  hostnames:
-    - longhorn.${SERVICE_DOMAIN}
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      filters:
-        - type: RequestRedirect
-          requestRedirect:
-            scheme: https
-            statusCode: 301
+  interval: 1m
+  chart:
+    spec:
+      chart: ./charts/gateway-route
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    name: longhorn
+    hostname: longhorn.${SERVICE_DOMAIN}
+    route:
+      enabled: true
+      backend:
+        name: longhorn-frontend
+        port: 80
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
