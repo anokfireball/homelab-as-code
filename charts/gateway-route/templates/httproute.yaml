@@ -1,0 +1,26 @@
+{{- if .Values.route.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ include "gateway-route.namespace" . }}
+  labels:
+    {{- include "gateway-route.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      name: {{ .Values.name }}
+      namespace: {{ include "gateway-route.namespace" . }}
+      sectionName: https
+  hostnames:
+    - {{ .Values.hostname }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ required "route.backend.name is required when route.enabled" .Values.route.backend.name }}
+          port: {{ required "route.backend.port is required when route.enabled -- there is no safe default, ports vary widely across services (e.g. n8n:5678, stirling-pdf:8080, alertmanager:9093, prometheus:9090, homepage:3000)" .Values.route.backend.port }}
+{{- end }}

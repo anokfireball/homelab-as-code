@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ required "name is required" .Values.name }}-tls
+  namespace: {{ .Values.certManager.namespace }}
+  labels:
+    {{- include "gateway-route.labels" . | nindent 4 }}
+spec:
+  secretName: {{ .Values.name }}-tls
+  dnsNames:
+    - {{ required "hostname is required" .Values.hostname }}
+  issuerRef:
+    kind: ClusterIssuer
+    name: {{ .Values.certManager.issuer }}

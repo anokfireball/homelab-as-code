@@ -1,0 +1,59 @@
+# -- Base name used to derive all resource names:
+#    Certificate: <name>-tls
+#    Secret:      <name>-tls
+#    ListenerSet: <name>
+#    ReferenceGrant: <name>-listenerset-to-<name>-tls
+#    Redirect HTTPRoute: <name>-http-redirect
+#    Manual HTTPRoute:   <name>
+name: ""
+
+# -- Namespace for the ListenerSet and any HTTPRoutes this chart creates.
+#    Defaults to .Release.Namespace. Leave unset in every normal usage:
+#    deploy the enclosing HelmRelease into the namespace you want the
+#    ListenerSet to live in.
+namespace: ""
+
+# -- Fully-qualified hostname. Flux's postBuild.substituteFrom expands
+#    ${SERVICE_DOMAIN} in the rendered Kustomization output BEFORE Helm
+#    ever sees this value, so by the time the chart renders, this is
+#    already a literal string (e.g. "pihole.example.com").
+hostname: ""
+
+gateway:
+  name: shared
+  namespace: envoy-gateway-system
+
+certManager:
+  issuer: letsencrypt
+  # -- Namespace where the Certificate and its Secret live. Must match
+  #    the namespace the shared Gateway's Envoy proxy can read secrets
+  #    from (granted via the ReferenceGrant this chart also creates).
+  namespace: envoy-gateway-system
+
+route:
+  # -- Set true only for services with no chart-native HTTPRoute support,
+  #    where a plain Service backendRef is sufficient (single hostname,
+  #    single "/" PathPrefix rule). Services with chart-native route
+  #    support (bjw-s app-template, bitwarden, nextcloud, goldilocks,
+  #    firefly-iii, jellyfin, etc.) MUST leave this false and continue
+  #    creating their own HTTPRoute via their own chart's values.
+  #    Services needing a non-Service backendRef (e.g. unifi's Envoy
+  #    Backend CRD for TLS-with-insecureSkipVerify) or extra path rules
+  #    beyond a single "/" prefix (e.g. nextcloud's DAV redirects) MUST
+  #    also leave this false and keep writing that HTTPRoute by hand.
+  enabled: false
+  backend:
+    name: ""
+    # -- No default on purpose: ports vary widely across services
+    #    (n8n:5678, stirling-pdf:8080, alertmanager:9093, prometheus:9090,
+    #    homepage:3000, vs. many others on 80). Must be set explicitly
+    #    whenever route.enabled is true -- the chart fails the render if
+    #    it's left unset rather than silently defaulting to a possibly
+    #    wrong port that would only surface as a production 502.
+    port: null
+
+redirect:
+  # -- HTTP (port 80) -> HTTPS redirect HTTPRoute on the shared Gateway.
+  #    Set false only to match an intentional existing opt-out (e.g.
+  #    authentik, pinniped-supervisor).
+  enabled: true

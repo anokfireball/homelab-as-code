@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "gateway-route values",
+  "type": "object",
+  "required": ["name", "hostname", "gateway", "certManager", "route", "redirect"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Base name used to derive all resource names (Certificate/Secret <name>-tls, ListenerSet <name>, etc.)."
+    },
+    "namespace": {
+      "type": "string",
+      "description": "Namespace for the ListenerSet and any HTTPRoutes this chart creates. Empty string defaults to .Release.Namespace."
+    },
+    "hostname": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Fully-qualified hostname, already substituted by Flux's postBuild.substituteFrom by the time Helm renders it."
+    },
+    "gateway": {
+      "type": "object",
+      "required": ["name", "namespace"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "namespace": { "type": "string", "minLength": 1 }
+      }
+    },
+    "certManager": {
+      "type": "object",
+      "required": ["issuer", "namespace"],
+      "properties": {
+        "issuer": { "type": "string", "minLength": 1 },
+        "namespace": { "type": "string", "minLength": 1 }
+      }
+    },
+    "route": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "backend": {
+          "type": "object",
+          "properties": {
+            "name": { "type": ["string", "null"] },
+            "port": { "type": ["integer", "null"], "minimum": 1, "maximum": 65535 }
+          }
+        }
+      },
+      "if": {
+        "properties": { "enabled": { "const": true } }
+      },
+      "then": {
+        "properties": {
+          "backend": {
+            "type": "object",
+            "required": ["name", "port"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+            }
+          }
+        }
+      }
+    },
+    "redirect": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    }
+  }
+}

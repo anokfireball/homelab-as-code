@@ -1,0 +1,37 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ include "gateway-route.namespace" . }}
+  labels:
+    {{- include "gateway-route.labels" . | nindent 4 }}
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.gateway.name }}
+    namespace: {{ .Values.gateway.namespace }}
+  listeners:
+    # NOTE: the listener name "https" is a stable cross-repo contract, not
+    # an internal implementation detail. ~15+ consuming charts (bjw-s
+    # app-template's route.main.parentRefs, bitwarden/nextcloud/jellyfin/
+    # goldilocks/firefly-iii's native httpRoute blocks, etc.) hardcode
+    # `sectionName: https` in their own values to bind their own HTTPRoute
+    # to this exact listener. Renaming it breaks every one of those routes
+    # silently -- no render-time error, just 404s/503s in production once
+    # Flux reconciles. Do not rename without a fleet-wide coordinated
+    # update across every consumer.
+    - name: https
+      hostname: {{ .Values.hostname }}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: {{ .Values.name }}-tls
+            namespace: {{ .Values.certManager.namespace }}

@@ -1,0 +1,16 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: {{ .Values.name }}-listenerset-to-{{ .Values.name }}-tls
+  namespace: {{ .Values.certManager.namespace }}
+  labels:
+    {{- include "gateway-route.labels" . | nindent 4 }}
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: ListenerSet
+      namespace: {{ include "gateway-route.namespace" . }}
+  to:
+    - group: ""
+      kind: Secret
+      name: {{ .Values.name }}-tls
