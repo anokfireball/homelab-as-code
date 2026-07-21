@@ -6,7 +6,7 @@ resources:
   - firefly.yaml
   - fresh-rss.yaml
   - gatus-monitoring
-  - homepage
+  - homepage.yaml
   - scrutiny-monitoring
   - immich.yaml
   - jellyfin.yaml

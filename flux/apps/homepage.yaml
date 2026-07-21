@@ -71,3 +71,26 @@ spec:
       requests:
         cpu: 50m
         memory: 100Mi
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: homepage-gateway
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: ./charts/gateway-route
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    name: homepage
+    hostname: homepage.${SERVICE_DOMAIN}
+    route:
+      enabled: true
+      backend:
+        name: homepage
+        port: 3000
