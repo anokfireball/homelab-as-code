@@ -23,6 +23,7 @@
       ],
       "matchPackageNames": [
         "renovate",
+        "ghcr.io/renovatebot/charts/renovate",
         "kube-prometheus-stack"
       ],
       "matchUpdateTypes": [
