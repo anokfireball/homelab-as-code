@@ -38,71 +38,20 @@ spec:
         hostnames:
           - goldilocks.${SERVICE_DOMAIN}
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
 metadata:
-  name: goldilocks-tls
-  namespace: envoy-gateway-system
-spec:
-  secretName: goldilocks-tls
-  issuerRef:
-    kind: ClusterIssuer
-    name: letsencrypt
-  dnsNames:
-    - goldilocks.${SERVICE_DOMAIN}
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: ListenerSet
-metadata:
-  name: goldilocks
+  name: goldilocks-gateway
   namespace: goldilocks-system
 spec:
-  parentRef:
-    name: shared
-    namespace: envoy-gateway-system
-  listeners:
-    - name: https
-      protocol: HTTPS
-      port: 443
-      hostname: "goldilocks.${SERVICE_DOMAIN}"
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - group: ""
-            kind: Secret
-            name: goldilocks-tls
-            namespace: envoy-gateway-system
----
-apiVersion: gateway.networking.k8s.io/v1beta1
-kind: ReferenceGrant
-metadata:
-  name: goldilocks-listenerset-to-goldilocks-tls
-  namespace: envoy-gateway-system
-spec:
-  from:
-    - group: gateway.networking.k8s.io
-      kind: ListenerSet
-      namespace: goldilocks-system
-  to:
-    - group: ""
-      kind: Secret
-      name: goldilocks-tls
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: goldilocks-http-redirect
-  namespace: goldilocks-system
-spec:
-  parentRefs:
-    - name: shared
-      namespace: envoy-gateway-system
-      sectionName: http
-  hostnames:
-    - "goldilocks.${SERVICE_DOMAIN}"
-  rules:
-    - filters:
-        - type: RequestRedirect
-          requestRedirect:
-            scheme: https
-            statusCode: 301
+  interval: 1m
+  chart:
+    spec:
+      chart: ./charts/gateway-route
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    name: goldilocks
+    hostname: goldilocks.${SERVICE_DOMAIN}
