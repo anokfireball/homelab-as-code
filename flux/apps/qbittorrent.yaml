@@ -197,82 +197,20 @@ spec:
         server: 192.168.1.2
         path: /mnt/tank/Scratch/Torrent
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
 metadata:
-  name: qbittorrent-tls
-  namespace: envoy-gateway-system
-spec:
-  secretName: qbittorrent-tls
-  dnsNames:
-    - qbittorrent.${SERVICE_DOMAIN}
-  issuerRef:
-    kind: ClusterIssuer
-    name: letsencrypt
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: ListenerSet
-metadata:
-  name: qbittorrent
+  name: qbittorrent-gateway
   namespace: arrchive
 spec:
-  parentRef:
-    group: gateway.networking.k8s.io
-    kind: Gateway
-    name: shared
-    namespace: envoy-gateway-system
-  listeners:
-    - name: https
-      hostname: qbittorrent.${SERVICE_DOMAIN}
-      port: 443
-      protocol: HTTPS
-      allowedRoutes:
-        namespaces:
-          from: All
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - group: ""
-            kind: Secret
-            name: qbittorrent-tls
-            namespace: envoy-gateway-system
----
-apiVersion: gateway.networking.k8s.io/v1beta1
-kind: ReferenceGrant
-metadata:
-  name: qbittorrent-listenerset-to-qbittorrent-tls
-  namespace: envoy-gateway-system
-spec:
-  from:
-    - group: gateway.networking.k8s.io
-      kind: ListenerSet
-      namespace: arrchive
-  to:
-    - group: ""
-      kind: Secret
-      name: qbittorrent-tls
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: qbittorrent-http-redirect
-  namespace: arrchive
-spec:
-  parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: shared
-      namespace: envoy-gateway-system
-      sectionName: http
-  hostnames:
-    - qbittorrent.${SERVICE_DOMAIN}
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      filters:
-        - type: RequestRedirect
-          requestRedirect:
-            scheme: https
-            statusCode: 301
+  interval: 1m
+  chart:
+    spec:
+      chart: ./charts/gateway-route
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    name: qbittorrent
+    hostname: qbittorrent.${SERVICE_DOMAIN}
