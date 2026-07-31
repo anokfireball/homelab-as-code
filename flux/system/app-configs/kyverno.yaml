@@ -52,7 +52,7 @@ spec:
             op: replace
             value:
               - name: healthcheck
-                image: ghcr.io/anokfireball/base-image:3.24.1@sha256:114f93dca76a1688a73ed1a8c2399971fd33a63a2fcaabe5306cba51d07a4c1b
+                image: ghcr.io/anokfireball/base-image:3.24.1@sha256:bfbdd9eab4d90a78046c2eefc035037d7f4ee02945ffdd972be13ee8293e196e
                 command: ["curl"]
                 args: [
                   "-fs",
