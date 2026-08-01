@@ -205,6 +205,23 @@ spec:
                   secretKeyRef:
                     name: tandoor-postgres-user
                     key: password
+              SORT_TREE_BY_NAME: "1"
+              EMAIL_HOST: ${SMTP_HOST}
+              EMAIL_PORT: "465"
+              EMAIL_HOST_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: tandoor-secrets
+                    key: smtp-username
+              EMAIL_HOST_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: tandoor-secrets
+                    key: smtp-password
+              EMAIL_USE_TLS: "0"
+              EMAIL_USE_SSL: "1"
+              DEFAULT_FROM_EMAIL: tandoor@${SERVICE_DOMAIN}
+              SPACE_AI_ENABLED: "1"
     service:
       main:
         controller: main
