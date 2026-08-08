@@ -250,10 +250,11 @@ spec:
               PAPERLESS_TIME_ZONE: Europe/Berlin
               PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
               PAPERLESS_CONSUMER_RECURSIVE: true
-              PAPERLESS_CONSUMER_POLLING: 60
+              PAPERLESS_CONSUMER_POLLING_INTERVAL: 60
               PAPERLESS_PRE_CONSUME_SCRIPT: /postconsumptionscript/export.sh
               PAPERLESS_DBHOST: paperless-ngx-postgresql-rw
               PAPERLESS_DBUSER: paperless-ngx
+              PAPERLESS_DBENGINE: postgresql
               PAPERLESS_DBPASS:
                 valueFrom:
                   secretKeyRef:
