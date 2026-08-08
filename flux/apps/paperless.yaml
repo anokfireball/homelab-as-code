@@ -237,7 +237,7 @@ spec:
           main:
             image:
               repository: ghcr.io/paperless-ngx/paperless-ngx
-              tag: 2.20.15@sha256:6c86cad803970ea782683a8e80e7403444c5bf3cf70de63b4d3c8e87500db92f
+              tag: 3.0.5@sha256:65a4cabf0169ea7fbd90ab7bb28ba3f8b5909613635acda1a03ad606f34b456b
             env:
               PAPERLESS_OCR_LANGUAGES: deu eng
               PAPERLESS_OCR_LANGUAGE: deu+eng
@@ -250,10 +250,11 @@ spec:
               PAPERLESS_TIME_ZONE: Europe/Berlin
               PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
               PAPERLESS_CONSUMER_RECURSIVE: true
-              PAPERLESS_CONSUMER_POLLING: 60
+              PAPERLESS_CONSUMER_POLLING_INTERVAL: 60
               PAPERLESS_PRE_CONSUME_SCRIPT: /postconsumptionscript/export.sh
               PAPERLESS_DBHOST: paperless-ngx-postgresql-rw
               PAPERLESS_DBUSER: paperless-ngx
+              PAPERLESS_DBENGINE: postgresql
               PAPERLESS_DBPASS:
                 valueFrom:
                   secretKeyRef:
