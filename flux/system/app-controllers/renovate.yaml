@@ -164,7 +164,7 @@ spec:
               exit 1
             fi
 
-            TOKEN_ENCODED=$(echo -n "$TOKEN" | base64)
+            TOKEN_ENCODED=$(echo -n "$TOKEN" | base64 | tr -d '\n')
 
             if kubectl get secret renovate-github-token -n renovate-system >/dev/null 2>&1; then
               echo "Secret exists, patching..."
@@ -172,7 +172,7 @@ spec:
               kubectl patch secret renovate-github-token -n renovate-system --type='json' -p="$PATCH" || { echo "Patch failed!"; exit 1; }
             else
               echo "Secret does not exist, creating..."
-              kubectl create secret generic renovate-github-token -n renovate-system --from-literal=RENOVATE_TOKEN="$TOKEN_ENCODED" || { echo "Create failed!"; exit 1; }
+              kubectl create secret generic renovate-github-token -n renovate-system --from-literal=RENOVATE_TOKEN="$TOKEN" || { echo "Create failed!"; exit 1; }
             fi
     persistence:
       scripts:
