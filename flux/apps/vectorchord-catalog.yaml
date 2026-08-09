@@ -1,7 +1,7 @@
 ---
 # Immich's CNPG operand uses the immutable-style VectorChord image rather than
-# the stock CloudNativePG postgres image, so it has its own (namespaced)
-# ImageCatalog. Referenced by immich.yaml via spec.imageCatalogRef.
+# the stock CloudNativePG postgres image, so it gets its own (namespaced)
+# ImageCatalog, referenced by immich.yaml via spec.imageCatalogRef.
 #
 # Image version managed by Renovate (see renovate.json customManagers).
 apiVersion: postgresql.cnpg.io/v1
@@ -12,4 +12,7 @@ metadata:
 spec:
   images:
     - major: 16
-      image: ghcr.io/tensorchord/cloudnative-vectorchord:16-0.4.2
+      # pinned to the vectorchord/pgvector line immich builds its postgres
+      # images from:
+      # https://github.com/immich-app/base-images/blob/main/postgres/versions.yaml
+      image: ghcr.io/tensorchord/cloudnative-vectorchord:16-1.1.1
