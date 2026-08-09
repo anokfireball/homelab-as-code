@@ -136,8 +136,10 @@ metadata:
   name: nas-dokumente-export
   namespace: default
   annotations:
-    # TODO this would ideally run the export command as a pre-backup script
-    # ... but k8up expects pre-backup scripts to output to stdout
+    # Export dir is populated by the paperless-ngx-export CronJob, which runs a
+    # debounced document_exporter 10min after the last ingested document (via
+    # the .paperless-dirty sentinel written by the post-consume script). restic
+    # then backs up this directory incrementally via the paperless-data Schedule.
     k8up.io/backup: "true"
   labels:
     backup: paperless-data
@@ -334,6 +336,86 @@ spec:
           - path: /usr/src/paperless/media
       export:
         existingClaim: nas-dokumente-export
+        globalMounts:
+          - path: /usr/src/paperless/export
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: paperless-ngx-export
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.0.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    global:
+      alwaysAppendIdentifierToResourceName: true
+    defaultPodOptions:
+      nodeSelector:
+        kubernetes.io/hostname: worker3
+    controllers:
+      main:
+        type: cronjob
+        cronjob:
+          schedule: "* * * * *"
+          concurrencyPolicy: Forbid
+        containers:
+          main:
+            image:
+              repository: ghcr.io/paperless-ngx/paperless-ngx
+              tag: 3.0.5@sha256:65a4cabf0169ea7fbd90ab7bb28ba3f8b5909613635acda1a03ad606f34b456b
+            command:
+              - /bin/bash
+              - -c
+              - |
+                set -euo pipefail
+                DIRTY_FILE="/usr/src/paperless/export/.paperless-dirty"
+                if [ -f "$DIRTY_FILE" ]; then
+                  MTIME=$(stat -c %Y "$DIRTY_FILE" 2>/dev/null || echo 0)
+                  AGE=$(( $(date +%s) - MTIME ))
+                  if [ "$AGE" -ge 600 ]; then
+                    document_exporter /usr/src/paperless/export --no-progress-bar
+                    rm -f "$DIRTY_FILE"
+                  fi
+                fi
+            env:
+              PAPERLESS_DBENGINE: postgresql
+              PAPERLESS_DBHOST: paperless-ngx-postgresql-rw
+              PAPERLESS_DBUSER: paperless-ngx
+              PAPERLESS_DBNAME: paperless-ngx
+              PAPERLESS_REDIS: redis://paperless-ngx-redis-master:6379
+              PAPERLESS_DBPASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-postgres-user
+                    key: password
+              PAPERLESS_SECRET_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-secrets
+                    key: paperless-secret-key
+    persistence:
+      media:
+        type: persistentVolumeClaim
+        existingClaim: paperless-ngx-media
+        globalMounts:
+          - path: /usr/src/paperless/media
+      data:
+        type: persistentVolumeClaim
+        existingClaim: paperless-ngx-data
+        globalMounts:
+          - path: /usr/src/paperless/data
+      export:
+        type: nfs
+        server: 192.168.1.2
+        path: /mnt/tank/Dokumente/Paperless/export
         globalMounts:
           - path: /usr/src/paperless/export
 ---
