@@ -4,7 +4,11 @@ metadata:
   name: nextcloud-postgresql
   namespace: default
 spec:
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.5-20@sha256:9de626b82bf15bea05ed1172bfc0e45a3687662ec76ac8cbda8f95d02198db39
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
   instances: 1
   managed:
     services:
@@ -42,7 +46,7 @@ spec:
     spec:
       containers:
         - name: nextcloud-database-backup
-          image: postgres:16.8-alpine@sha256:114d10708f03b728b5844fa6ff04383c43e6d409967a9cf652d5e5d6fbf5111a
+          image: ghcr.io/cloudnative-pg/postgresql:17.10-standard-trixie@sha256:3659f88641c0a4f79d5c9385f3624306ed0c593d202dcc260e67c6f32f157751
           command:
             - "sleep"
             - "infinity"

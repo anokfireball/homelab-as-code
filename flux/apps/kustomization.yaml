@@ -22,5 +22,6 @@ resources:
   - soundcloud-scraper.yaml
   - stirling-pdf.yaml
   - unifi.yaml
+  - vectorchord-catalog.yaml
   - vert.yaml
   - wger.yaml

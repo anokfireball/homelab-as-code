@@ -8,7 +8,11 @@ spec:
   # https://github.com/paperless-ngx/paperless-ngx/blob/v2.13.5/Dockerfile#L96
   # https://packages.debian.org/de/bookworm/postgresql-client
   # https://www.postgresql.org/support/versioning/
-  imageName: ghcr.io/cloudnative-pg/postgresql:15.10-29@sha256:802bf1479ef7b0e0655749203cded4ecbc9a114841273de71cb205f3a03254cd
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 15
   instances: 1
   managed:
     services:
@@ -46,7 +50,7 @@ spec:
     spec:
       containers:
         - name: paperless-database-backup
-          image: postgres:15.12-alpine@sha256:ef4879231c4a490f8365bef5dfa2c137d95b7d7703d0b53605693091be48d5b4
+          image: ghcr.io/cloudnative-pg/postgresql:15.18-standard-trixie@sha256:5da9a3fcee9a13a36260c5424c068c3c3533f7e734e586718311234e6a9ab6b6
           command:
             - "sleep"
             - "infinity"

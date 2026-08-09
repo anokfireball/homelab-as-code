@@ -4,7 +4,11 @@ metadata:
   name: tandoor-postgresql
   namespace: default
 spec:
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.2-27@sha256:9308dcd778be66f56bdce8503916ab820d12420e7d1bc74fff0d663c95e126c3
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ClusterImageCatalog
+    name: postgresql
+    major: 17
   instances: 1
   managed:
     services:
@@ -42,7 +46,7 @@ spec:
     spec:
       containers:
         - name: tandoor-database-backup
-          image: postgres:17.4-alpine@sha256:6c717ca5788964057727e357b9bb634df43197ccbee573994b438921f97a3583
+          image: ghcr.io/cloudnative-pg/postgresql:17.10-standard-trixie@sha256:3659f88641c0a4f79d5c9385f3624306ed0c593d202dcc260e67c6f32f157751
           command:
             - "sleep"
             - "infinity"

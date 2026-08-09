@@ -7,6 +7,19 @@
   "prConcurrentLimit": 0,
   "packageRules": [
     {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "postgres",
+        "library/postgres"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
       "matchFileNames": [
         "flux/**"
       ],
@@ -148,36 +161,103 @@
     },
     {
       "customType": "regex",
-      "description": "Update postgres 15 containers",
+      "description": "Update CNPG postgres 15 images (operand catalog, prebackup, init containers)",
       "managerFilePatterns": [
-        "/flux/apps/bitwarden.yaml/",
-        "/flux/apps/paperless.yaml/"
+        "/flux/.+\\.ya?ml$/"
       ],
       "matchStrings": [
-        "imageName: ghcr.io/cloudnative-pg/postgresql:(?<currentValue>15\\.\\d+-\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
+        "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>15\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "cloudnative-pg/postgresql",
       "registryUrlTemplate": "https://ghcr.io",
       "versioningTemplate": "docker",
-      "extractVersionTemplate": "^(?<version>15\\.\\d+-\\d+)$"
+      "extractVersionTemplate": "^(?<version>15\\.\\d+-standard-trixie)$"
     },
     {
       "customType": "regex",
-      "description": "Update postgres 17 containers",
+      "description": "Update CNPG postgres 17 images (operand catalog, prebackup, init containers)",
       "managerFilePatterns": [
-        "/flux/apps/nextcloud.yaml/",
-        "/flux/apps/firefly.yaml/",
-        "/flux/apps/fresh-rss.yaml/"
+        "/flux/.+\\.ya?ml$/"
       ],
       "matchStrings": [
-        "imageName: ghcr.io/cloudnative-pg/postgresql:(?<currentValue>17\\.\\d+-\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
+        "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>17\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "cloudnative-pg/postgresql",
       "registryUrlTemplate": "https://ghcr.io",
       "versioningTemplate": "docker",
-      "extractVersionTemplate": "^(?<version>17\\.\\d+-\\d+)$"
+      "extractVersionTemplate": "^(?<version>17\\.\\d+-standard-trixie)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update CNPG postgres 18 images (operand catalog, prebackup, init containers)",
+      "managerFilePatterns": [
+        "/flux/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>18\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "cloudnative-pg/postgresql",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>18\\.\\d+-standard-trixie)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update k8up PreBackupPod postgres backup containers",
+      "managerFilePatterns": [
+        "/flux/apps/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "image: (?:library/)?postgres:(?<currentValue>\\d+\\.\\d+-alpine)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "postgres",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Pinniped deployment container image",
+      "managerFilePatterns": [
+        "/flux/system/infrastructure-configs/pinniped-supervisor.yaml/",
+        "/flux/system/infrastructure-configs/pinniped-concierge.yaml/"
+      ],
+      "matchStrings": [
+        "image: ghcr\\.io/vmware/pinniped/pinniped-server:(?<currentValue>v\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "vmware/pinniped/pinniped-server",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Update immich VectorChord CNPG catalog image",
+      "managerFilePatterns": [
+        "/flux/apps/vectorchord-catalog.yaml/"
+      ],
+      "matchStrings": [
+        "image: ghcr\\.io/tensorchord/cloudnative-vectorchord:(?<currentValue>\\d+-\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "tensorchord/cloudnative-vectorchord",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Update wger PowerSync service image tag",
+      "managerFilePatterns": [
+        "/flux/apps/wger.yaml/"
+      ],
+      "matchStrings": [
+        "powersync:\\s*image:\\s*tag: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/powersync/powersync-service",
+      "versioningTemplate": "docker"
     },
     {
       "customType": "regex",
