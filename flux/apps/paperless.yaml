@@ -385,7 +385,9 @@ spec:
                   MTIME=$(stat -c %Y "$DIRTY_FILE" 2>/dev/null || echo 0)
                   AGE=$(( $(date +%s) - MTIME ))
                   if [ "$AGE" -ge 600 ]; then
-                    document_exporter /usr/src/paperless/export --no-progress-bar
+                    # invoke via bash so the with-contenv shebang is bypassed and
+                    # the process env (k8s) is inherited directly (no s6 envdir).
+                    bash /usr/local/bin/document_exporter /usr/src/paperless/export --no-progress-bar
                     rm -f "$DIRTY_FILE"
                   fi
                 fi
