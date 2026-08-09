@@ -12,4 +12,4 @@ metadata:
 spec:
   images:
     - major: 16
-      image: ghcr.io/tensorchord/cloudnative-vectorchord:16-0.4.2
+      image: ghcr.io/tensorchord/cloudnative-vectorchord:17-0.4.2
