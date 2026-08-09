@@ -61,7 +61,7 @@ spec:
     spec:
       containers:
         - name: immich-database-backup
-          image: postgres:16.8-alpine@sha256:114d10708f03b728b5844fa6ff04383c43e6d409967a9cf652d5e5d6fbf5111a
+          image: postgres:16.14-alpine@sha256:038f7c0d3c8a4074bfd687fa1622e78e1493f731a4846262b18492ca0bf16e46
           command:
             - "sleep"
             - "infinity"
