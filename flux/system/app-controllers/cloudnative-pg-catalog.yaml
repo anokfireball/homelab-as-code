@@ -1,0 +1,19 @@
+---
+# Central source of truth for the CloudNativePG operand image per PostgreSQL
+# major version. Clusters reference this catalog via spec.imageCatalogRef and
+# no longer pin spec.imageName. Updating an entry here rolls out the new image
+# to every Cluster on that major.
+#
+# Image versions are managed by Renovate (see renovate.json customManagers).
+apiVersion: postgresql.cnpg.io/v1
+kind: ClusterImageCatalog
+metadata:
+  name: postgresql
+spec:
+  images:
+    - major: 15
+      image: ghcr.io/cloudnative-pg/postgresql:15.18-standard-trixie@sha256:5da9a3fcee9a13a36260c5424c068c3c3533f7e734e586718311234e6a9ab6b6
+    - major: 17
+      image: ghcr.io/cloudnative-pg/postgresql:17.10-standard-trixie@sha256:3659f88641c0a4f79d5c9385f3624306ed0c593d202dcc260e67c6f32f157751
+    - major: 18
+      image: ghcr.io/cloudnative-pg/postgresql:18.4-standard-trixie@sha256:f0cc49632b5cc1e51f65ba03658c89bd31d64ea2672b14843a808a8d281417e1
