@@ -15,4 +15,4 @@ spec:
       # pinned to the vectorchord/pgvector line immich builds its postgres
       # images from:
       # https://github.com/immich-app/base-images/blob/main/postgres/versions.yaml
-      image: ghcr.io/tensorchord/cloudnative-vectorchord:16-1.1.1
+      image: ghcr.io/tensorchord/cloudnative-vectorchord:18-1.1.1
