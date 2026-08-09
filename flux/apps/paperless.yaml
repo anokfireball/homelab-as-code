@@ -251,7 +251,7 @@ spec:
               PAPERLESS_CONSUMER_DELETE_DUPLICATES: true
               PAPERLESS_CONSUMER_RECURSIVE: true
               PAPERLESS_CONSUMER_POLLING_INTERVAL: 60
-              PAPERLESS_PRE_CONSUME_SCRIPT: /postconsumptionscript/export.sh
+              PAPERLESS_POST_CONSUME_SCRIPT: /postconsumptionscript/touch.sh
               PAPERLESS_DBHOST: paperless-ngx-postgresql-rw
               PAPERLESS_DBUSER: paperless-ngx
               PAPERLESS_DBENGINE: postgresql
@@ -274,9 +274,9 @@ spec:
     configMaps:
       postconsumptionscript:
         data:
-          export.sh: |
+          touch.sh: |
             #!/usr/bin/env bash
-            document_exporter /usr/src/paperless/export
+            touch /usr/src/paperless/export/.paperless-dirty
     service:
       main:
         controller: main
