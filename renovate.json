@@ -7,56 +7,6 @@
   "prConcurrentLimit": 0,
   "packageRules": [
     {
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "cloudnative-pg/postgresql"
-      ],
-      "matchCurrentValue": "^15\\.",
-      "allowedVersions": "/^15\\./"
-    },
-    {
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "cloudnative-pg/postgresql"
-      ],
-      "matchCurrentValue": "^16\\.",
-      "allowedVersions": "/^16\\./"
-    },
-    {
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "cloudnative-pg/postgresql"
-      ],
-      "matchCurrentValue": "^17\\.",
-      "allowedVersions": "/^17\\./"
-    },
-    {
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "cloudnative-pg/postgresql"
-      ],
-      "matchCurrentValue": "^18\\.",
-      "allowedVersions": "/^18\\./"
-    },
-    {
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "tensorchord/cloudnative-vectorchord"
-      ],
-      "matchCurrentValue": "^16-",
-      "allowedVersions": "/^16-/"
-    },
-    {
       "matchFileNames": [
         "flux/**"
       ],
@@ -208,7 +158,7 @@
       "datasourceTemplate": "docker",
       "packageNameTemplate": "cloudnative-pg/postgresql",
       "registryUrlTemplate": "https://ghcr.io",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "regex:^(?<major>15)\\.(?<minor>\\d+)-standard-trixie$",
       "extractVersionTemplate": "^(?<version>15\\.\\d+-standard-trixie)$"
     },
     {
@@ -223,7 +173,7 @@
       "datasourceTemplate": "docker",
       "packageNameTemplate": "cloudnative-pg/postgresql",
       "registryUrlTemplate": "https://ghcr.io",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "regex:^(?<major>16)\\.(?<minor>\\d+)-standard-trixie$",
       "extractVersionTemplate": "^(?<version>16\\.\\d+-standard-trixie)$"
     },
     {
@@ -238,7 +188,7 @@
       "datasourceTemplate": "docker",
       "packageNameTemplate": "cloudnative-pg/postgresql",
       "registryUrlTemplate": "https://ghcr.io",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "regex:^(?<major>17)\\.(?<minor>\\d+)-standard-trixie$",
       "extractVersionTemplate": "^(?<version>17\\.\\d+-standard-trixie)$"
     },
     {
@@ -253,7 +203,7 @@
       "datasourceTemplate": "docker",
       "packageNameTemplate": "cloudnative-pg/postgresql",
       "registryUrlTemplate": "https://ghcr.io",
-      "versioningTemplate": "docker",
+      "versioningTemplate": "regex:^(?<major>18)\\.(?<minor>\\d+)-standard-trixie$",
       "extractVersionTemplate": "^(?<version>18\\.\\d+-standard-trixie)$"
     },
     {
@@ -278,12 +228,12 @@
         "/flux/apps/vectorchord-catalog.yaml/"
       ],
       "matchStrings": [
-        "image: ghcr\\.io/tensorchord/cloudnative-vectorchord:(?<currentValue>\\d+-\\d+\\.\\d+\\.\\d+)"
+        "image: ghcr\\.io/tensorchord/cloudnative-vectorchord:(?<currentValue>\\d+\\.?\\d*-\\d+\\.\\d+\\.\\d+)"
       ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "tensorchord/cloudnative-vectorchord",
       "registryUrlTemplate": "https://ghcr.io",
-      "versioningTemplate": "docker"
+      "versioningTemplate": "regex:^16(?:\\.\\d+)?-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
     {
       "customType": "regex",
