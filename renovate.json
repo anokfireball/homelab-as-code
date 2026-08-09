@@ -11,13 +11,10 @@
         "docker"
       ],
       "matchPackageNames": [
-        "postgres",
-        "library/postgres"
+        "cloudnative-pg/postgresql"
       ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "enabled": false
+      "matchCurrentValue": "^15\\.",
+      "allowedVersions": "/^15\\./"
     },
     {
       "matchDatasources": [
@@ -26,8 +23,8 @@
       "matchPackageNames": [
         "cloudnative-pg/postgresql"
       ],
-      "matchCurrentValue": "^15\\.",
-      "allowedVersions": "/^15\\./"
+      "matchCurrentValue": "^16\\.",
+      "allowedVersions": "/^16\\./"
     },
     {
       "matchDatasources": [
@@ -216,6 +213,21 @@
     },
     {
       "customType": "regex",
+      "description": "Update CNPG postgres 16 images (prebackup, init containers)",
+      "managerFilePatterns": [
+        "/flux/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>16\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "cloudnative-pg/postgresql",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "docker",
+      "extractVersionTemplate": "^(?<version>16\\.\\d+-standard-trixie)$"
+    },
+    {
+      "customType": "regex",
       "description": "Update CNPG postgres 17 images (operand catalog, prebackup, init containers)",
       "managerFilePatterns": [
         "/flux/.+\\.ya?ml$/"
@@ -243,19 +255,6 @@
       "registryUrlTemplate": "https://ghcr.io",
       "versioningTemplate": "docker",
       "extractVersionTemplate": "^(?<version>18\\.\\d+-standard-trixie)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Update k8up PreBackupPod postgres backup containers",
-      "managerFilePatterns": [
-        "/flux/apps/.+\\.ya?ml$/"
-      ],
-      "matchStrings": [
-        "image: (?:library/)?postgres:(?<currentValue>\\d+\\.\\d+-alpine)@(?<currentDigest>sha256:[a-f0-9]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "postgres",
-      "versioningTemplate": "docker"
     },
     {
       "customType": "regex",

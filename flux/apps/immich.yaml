@@ -61,7 +61,7 @@ spec:
     spec:
       containers:
         - name: immich-database-backup
-          image: postgres:16.8-alpine@sha256:114d10708f03b728b5844fa6ff04383c43e6d409967a9cf652d5e5d6fbf5111a
+          image: ghcr.io/cloudnative-pg/postgresql:16.14-standard-trixie@sha256:626ef1999bbd88bf2cd61c4c91a0942f0bf65e7fab76af2a67a2058d75bb089b
           command:
             - "sleep"
             - "infinity"
