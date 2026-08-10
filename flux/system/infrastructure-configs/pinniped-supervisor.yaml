@@ -753,7 +753,7 @@ spec:
       serviceAccountName: pinniped-supervisor
       containers:
       - name: pinniped-supervisor
-        image: ghcr.io/vmware/pinniped/pinniped-server:v0.46.0@sha256:140294862f6c83f9e242c58bbaf54f15d768666030cc451344897f221a605c9a
+        image: ghcr.io/vmware/pinniped/pinniped-server:v0.47.0@sha256:3a46e1ea8b874281698dd27e60d6f9b46738cb10483baa9dc78a0023cc17e29d
         imagePullPolicy: IfNotPresent
         command:
         - pinniped-supervisor
