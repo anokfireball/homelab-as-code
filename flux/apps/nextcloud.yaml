@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
         - name: nextcloud-database-backup
-          image: ghcr.io/cloudnative-pg/postgresql:17.10-standard-trixie@sha256:3659f88641c0a4f79d5c9385f3624306ed0c593d202dcc260e67c6f32f157751
+          image: ghcr.io/cloudnative-pg/postgresql:17.10-standard-trixie@sha256:78c4fdf165e8ffb1b5b7a7fc6b22b3cf37890a338b4c1c8c4d913896129a86da
           command:
             - "sleep"
             - "infinity"
