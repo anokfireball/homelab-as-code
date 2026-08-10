@@ -27,11 +27,6 @@ spec:
           name: jellyfin
           namespace: arrchive
           sectionName: https
-      rules:
-        - matches:
-            - path:
-                type: PathPrefix
-                value: /
     volumes:
       - name: nas-filme
         nfs:
