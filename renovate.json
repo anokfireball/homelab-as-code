@@ -245,7 +245,8 @@
         "powersync:\\s*image:\\s*tag: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "ghcr.io/powersync/powersync-service",
+      "packageNameTemplate": "journeyapps/powersync-service",
+      "registryUrlTemplate": "https://index.docker.io",
       "versioningTemplate": "docker"
     },
     {
