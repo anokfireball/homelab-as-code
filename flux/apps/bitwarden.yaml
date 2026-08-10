@@ -114,6 +114,7 @@ spec:
       security: force_tls
       from: bitwarden@${SERVICE_DOMAIN}
       fromName: Bitwarden
+      heloName: bitwarden.${SERVICE_DOMAIN}
       username:
         existingSecretKey: smtp-username
       password:
