@@ -71,17 +71,6 @@
         "docker"
       ],
       "pinDigests": false
-    },
-    {
-      "description": "tensorchord vectorchord image is regex-managed without a currentDigest capture, so a digest pin cannot be emitted; exclude from docker:pinDigests.",
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "tensorchord/cloudnative-vectorchord",
-        "ghcr.io/tensorchord/cloudnative-vectorchord"
-      ],
-      "pinDigests": false
     }
   ],
   "ignoreTests": true,
@@ -249,12 +238,13 @@
         "/flux/apps/vectorchord-catalog.yaml/"
       ],
       "matchStrings": [
-        "image: ghcr\\.io/tensorchord/cloudnative-vectorchord:(?<currentValue>\\d+\\.?\\d*-\\d+\\.\\d+\\.\\d+)"
+        "image: ghcr\\.io/tensorchord/cloudnative-vectorchord:(?<currentValue>\\d+\\.?\\d*-\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "tensorchord/cloudnative-vectorchord",
       "registryUrlTemplate": "https://ghcr.io",
-      "versioningTemplate": "regex:^16(?:\\.\\d+)?-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+      "versioningTemplate": "regex:^16(?:\\.\\d+)?-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      "autoReplaceStringTemplate": "image: ghcr.io/tensorchord/cloudnative-vectorchord:{{newValue}}{{#if newDigest}}@{{newDigest}}{{/if}}"
     },
     {
       "customType": "regex",
