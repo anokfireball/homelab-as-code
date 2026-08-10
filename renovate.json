@@ -61,6 +61,27 @@
         "external-dns"
       ],
       "automerge": false
+    },
+    {
+      "description": "Do not digest-pin OCI Helm charts. Flux marks charts from `type: oci` HelmRepositories as docker-datasource deps, so docker:pinDigests tries to resolve a digest for a chart tag (none exists) and the pin-dependencies branch fails.",
+      "matchManagers": [
+        "flux"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "pinDigests": false
+    },
+    {
+      "description": "tensorchord vectorchord image is regex-managed without a currentDigest capture, so a digest pin cannot be emitted; exclude from docker:pinDigests.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "tensorchord/cloudnative-vectorchord",
+        "ghcr.io/tensorchord/cloudnative-vectorchord"
+      ],
+      "pinDigests": false
     }
   ],
   "ignoreTests": true,
