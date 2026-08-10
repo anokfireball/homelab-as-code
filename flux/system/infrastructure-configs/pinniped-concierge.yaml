@@ -911,6 +911,17 @@ spec:
         runAsUser: 65532
         runAsGroup: 65532
       serviceAccountName: pinniped-concierge
+      # Control-plane hosts' resolv.conf carries a trailing search entry
+      # matching ${SERVICE_DOMAIN} with ndots:5, so the short issuer name
+      # (2 labels) is search-expanded before the FQDN and can be answered by
+      # a zone-wide wildcard for that domain pointing at an unrelated
+      # external host. That breaks OIDC discovery with "remote error: tls:
+      # internal error", wedging the JWTAuthenticator in Error. ndots:2 makes
+      # the issuer resolve absolute-first to the gateway.
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "2"
       containers:
       - name: pinniped-concierge
         image: ghcr.io/vmware/pinniped/pinniped-server:v0.47.0@sha256:3a46e1ea8b874281698dd27e60d6f9b46738cb10483baa9dc78a0023cc17e29d
