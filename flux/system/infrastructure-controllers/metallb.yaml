@@ -13,3 +13,9 @@ spec:
         kind: HelmRepository
         name: metallb
         namespace: flux-system
+  # MetalLB is used in L2/ARP mode only (no BGP peers/advertisements).
+  # From 0.16.0 the default BGP backend became frr-k8s; disable it so the
+  # chart deploys only the controller + L2 speaker (no frr daemonset/controller).
+  values:
+    frrk8s:
+      enabled: false
