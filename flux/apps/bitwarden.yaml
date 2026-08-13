@@ -72,7 +72,7 @@ spec:
         # Current Vaultwarden is built with PG 15, also use that as long as it is supported
         # https://github.com/dani-garcia/vaultwarden/blob/1.32.6/docker/Dockerfile.alpine#L56-L57
         # https://www.postgresql.org/support/versioning/
-        image: ghcr.io/cloudnative-pg/postgresql:15.18-standard-trixie@sha256:7c58e99763091d73bfe8c54f017faca88df607e5b8fdabf5927557c8fd35d2ca
+        image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:3c47eed117cb492a6da1c49d8306f4c6e92fc9dc1cd7c2f9f811b6b1afd3b5a1
         command:
           - /bin/sh
           - -ec
@@ -152,7 +152,7 @@ spec:
     spec:
       containers:
         - name: bitwarden-database-backup
-          image: ghcr.io/cloudnative-pg/postgresql:15.18-standard-trixie@sha256:7c58e99763091d73bfe8c54f017faca88df607e5b8fdabf5927557c8fd35d2ca
+          image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:3c47eed117cb492a6da1c49d8306f4c6e92fc9dc1cd7c2f9f811b6b1afd3b5a1
           command:
             - "sleep"
             - "infinity"
