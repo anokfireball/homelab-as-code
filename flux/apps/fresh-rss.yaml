@@ -132,7 +132,7 @@ spec:
     spec:
       containers:
         - name: fresh-rss-database-backup
-          image: ghcr.io/cloudnative-pg/postgresql:17.10-standard-trixie@sha256:78c4fdf165e8ffb1b5b7a7fc6b22b3cf37890a338b4c1c8c4d913896129a86da
+          image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:376a3ba3e01eb07dd4254397be939b406820c1e61b0fa37fecf8a2dac6eba552
           command:
             - "sleep"
             - "infinity"
