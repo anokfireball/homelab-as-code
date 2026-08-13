@@ -8,11 +8,17 @@ spec:
   chart:
     spec:
       chart: vpa
-      version: 4.12.5
+      version: 5.0.0
       sourceRef:
         kind: HelmRepository
         name: fairwinds
         namespace: flux-system
+  upgrade:
+    # chart 5.0.0 ships updated VPA 1.7 CRDs (InPlace mode, CPU startup boost,
+    # per-VPA config, status observedGeneration); Flux's default upgrade.crds
+    # policy is "Skip", so replace them explicitly or the recommender's status
+    # writes get pruned against the stale 1.6 CRDs
+    crds: CreateReplace
   dependsOn:
     - name: metrics-server
       namespace: kube-system
