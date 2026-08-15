@@ -8,12 +8,14 @@ spec:
   chart:
     spec:
       chart: gateway-helm
-      version: 1.8.3
+      version: 1.9.0
       sourceRef:
         kind: HelmRepository
         name: envoy-gateway
         namespace: flux-system
   values:
+    crds:
+      enabled: false
     config:
       envoyGateway:
         gatewayAPI:
