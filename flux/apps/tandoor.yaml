@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
         - name: tandoor-database-backup
-          image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:91e0de662d53895a45f1396f4ee1a75daeb0c26fc87853afc9c8f43e01fdaa21
+          image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:cdb10c72bf308a113e053478db05457b1322722f7bc69e03fe34c672b22e6bd4
           command:
             - "sleep"
             - "infinity"
