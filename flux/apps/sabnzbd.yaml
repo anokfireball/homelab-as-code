@@ -20,7 +20,7 @@ spec:
           main:
             image:
               repository: ghcr.io/linuxserver/sabnzbd
-              tag: 5.1.2@sha256:d22bc8b3185f0e0c1050f6427df6b9ad072f70586b3b1edf916131b0c3101542
+              tag: 5.1.2@sha256:13d4404f1242f819e0cc2e294def5858def251a3609eb59404dad303075a564a
             probes:
               liveness:
                 enabled: true
