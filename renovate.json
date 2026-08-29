@@ -304,12 +304,19 @@
     },
     {
       "customType": "regex",
-      "description": "Update kyverno healthcheck base image",
+      "description": "Update kyverno healthcheck base image (policy pin + CronJob annotations force helm re-apply, so the mutated healthcheck re-rolls)",
       "managerFilePatterns": [
-        "/flux/system/app-configs/kyverno.yaml/"
+        "/flux/system/app-configs/kyverno.yaml/",
+        "/flux/apps/firefly.yaml/",
+        "/flux/apps/nextcloud.yaml/",
+        "/flux/apps/opnsense-ipv6-prefix-update.yaml/",
+        "/flux/apps/paperless.yaml/",
+        "/flux/apps/soundcloud-scraper.yaml/",
+        "/flux/system/app-controllers/renovate.yaml/"
       ],
       "matchStrings": [
-        "image: ghcr\\.io/anokfireball/base-image:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
+        "image: ghcr\\.io/anokfireball/base-image:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)",
+        "healthcheckImage: ghcr\\.io/anokfireball/base-image:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "anokfireball/base-image",

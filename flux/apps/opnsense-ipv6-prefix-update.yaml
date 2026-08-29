@@ -21,6 +21,7 @@ spec:
           schedule: "*/1 * * * *"
         annotations:
           healthcheckSecret: opnsense-ipv6-prefix-update-secrets
+          healthcheckImage: ghcr.io/anokfireball/base-image:3.24.1@sha256:e944a2132ca4c0a0bb3e37d65cb96958a2e8e6d1f4b1784770efbd3f3b8c1258
         containers:
           main:
             image:
