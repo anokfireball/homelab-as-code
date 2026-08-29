@@ -96,4 +96,6 @@ spec:
                   spec:
                     volumes:
                       - name: healthcheck-runtime
-                        emptyDir: {}
+                        emptyDir:
+                          medium: Memory
+                          sizeLimit: 1Mi
