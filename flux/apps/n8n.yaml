@@ -41,7 +41,7 @@ spec:
   chart:
     spec:
       chart: n8n
-      version: 21.33.2
+      version: 21.36.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
