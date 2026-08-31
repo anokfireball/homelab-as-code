@@ -12,7 +12,7 @@ metadata:
 spec:
   images:
     - major: 15
-      image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:fde348633fb229b8bece76f3dc8c8eaf0bf7ef8970b3e12e07def9d1109ca6bc
+      image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:10c19625c4f43cd4f1cb04caf072a942853e10e510d96e9be656b3a7f0ad968a
     - major: 17
       image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:cdb10c72bf308a113e053478db05457b1322722f7bc69e03fe34c672b22e6bd4
     - major: 18
