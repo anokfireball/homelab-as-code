@@ -58,7 +58,7 @@ spec:
       enabled: true
       annotations:
         healthcheckSecret: firefly-cron
-        healthcheckImage: ghcr.io/anokfireball/base-image:3.24.1@sha256:90084fc69a100db267e10610375b6b47364c12efeef66d517f634ef43cca8e29
+        healthcheckImage: ghcr.io/anokfireball/base-image:3.24.1@sha256:f3aa431db04600112680285e7d0f4c328b26459bf3b708106045ebf1b87f9d35
       auth:
         existingSecret: firefly-cron
       image:
