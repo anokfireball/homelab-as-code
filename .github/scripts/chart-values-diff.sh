@@ -18,8 +18,12 @@ values_at() { # $1 = chart, $2 = version, $3 = url, $4 = type, $5 = outfile
     # helm v4 prints per-pull metadata ("Pulled:"/"Digest:") to stdout ahead
     # of the values; left in, those differ on every bump and drown the real
     # interface change. helm v3 does not emit them, so this is a no-op there.
-    helm show values "${3%/}/$1" --version "$2" 2>/dev/null \
-      | grep -vE '^(Pulled|Digest):' >"$5"
+    # Fetch first so the exit status is helm's: piping straight into grep
+    # would make a chart with genuinely empty values (grep finds nothing,
+    # exits 1) indistinguishable from a failed pull.
+    helm show values "${3%/}/$1" --version "$2" >"$5.raw" 2>/dev/null || return 1
+    grep -vE '^(Pulled|Digest):' "$5.raw" >"$5" || :
+    rm -f "$5.raw"
   else
     local alias
     alias="cvd-$(printf '%s' "$3" | md5sum | cut -c1-10)"
@@ -35,11 +39,14 @@ changed=$(git diff --name-only "$BASE_SHA"...HEAD -- 'flux/**/*.yaml' || true)
 for f in $changed; do
   [ -f "$f" ] || continue
   while IFS=$'\t' read -r name chart version src; do
-    [ -n "${chart:-}" ] && [ -n "${version:-}" ] || continue
+    # Explicit form rather than `A && B || continue` (SC2015): identical
+    # behaviour here, but the guard's intent does not depend on the reader
+    # knowing that C also runs when A succeeds and B fails.
+    if [ -z "${chart:-}" ] || [ -z "${version:-}" ]; then continue; fi
     old=$(git show "$BASE_SHA:$f" 2>/dev/null \
           | yq -N 'select(.kind == "HelmRelease") | select(.metadata.name == "'"$name"'")
                    | .spec.chart.spec.version // ""' 2>/dev/null | head -1)
-    [ -n "$old" ] && [ "$old" != "$version" ] || continue
+    if [ -z "$old" ] || [ "$old" = "$version" ]; then continue; fi
 
     IFS=$'\t' read -r url type <<<"$(repo_url "$src")"
     [ -n "${url:-}" ] || { echo "- \`$name\`: $old -> $version (source \`$src\` not resolved; skipped)" >>"$OUT"; continue; }
