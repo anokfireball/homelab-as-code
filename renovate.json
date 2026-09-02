@@ -71,6 +71,26 @@
         "docker"
       ],
       "pinDigests": false
+    },
+    {
+      "description": "Do not digest-pin PowerSync service. The regex custom manager captures only the Helm values tag field, which cannot carry an @sha256: suffix.",
+      "matchManagers": [
+        "regex"
+      ],
+      "matchPackageNames": [
+        "journeyapps/powersync-service"
+      ],
+      "pinDigests": false
+    },
+    {
+      "description": "Calico OCI Helm chart versions are prefixed with 'v'; coerce to semver so renovate's helm/flux managers bump them. CNI upgrades are signed-off manually.",
+      "matchPackageNames": [
+        "tigera-operator",
+        "crd.projectcalico.org.v1"
+      ],
+      "versioning": "semverCoerced",
+      "automerge": false,
+      "separateMultipleMinor": true
     }
   ],
   "ignoreTests": true,
