@@ -25,7 +25,8 @@ jobs:
         run: go install github.com/homeport/dyff/cmd/dyff@v1.12.0
       - name: Compute chart values diff
         run: |
-          export PATH="$(go env GOPATH)/bin:$PATH"
+          gopath="$(go env GOPATH)"
+          export PATH="$gopath/bin:$PATH"
           .github/scripts/chart-values-diff.sh \
             "${{ github.event.pull_request.base.sha }}" /tmp/chart-values.md
       - name: Comment or skip

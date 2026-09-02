@@ -21,7 +21,8 @@ values_at() { # $1 = chart, $2 = version, $3 = url, $4 = type, $5 = outfile
     helm show values "${3%/}/$1" --version "$2" 2>/dev/null \
       | grep -vE '^(Pulled|Digest):' >"$5"
   else
-    local alias="cvd-$(printf '%s' "$3" | md5sum | cut -c1-10)"
+    local alias
+    alias="cvd-$(printf '%s' "$3" | md5sum | cut -c1-10)"
     helm repo add "$alias" "$3" >/dev/null 2>&1 || return 1
     helm repo update "$alias" >/dev/null 2>&1 || return 1
     helm show values "$alias/$1" --version "$2" >"$5" 2>/dev/null
