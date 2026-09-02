@@ -52,17 +52,20 @@ jobs:
     name: Renovate Config
     runs-on: ubuntu-latest
     # The validator ships inside the renovate package; the standalone npm
-    # package `renovate-config-validator` is a 0.0.1 placeholder with no bin.
-    # Using the published image runs the same binary the cluster runs, and
-    # Renovate's github-actions manager keeps `container.image` current.
+    # package `renovate-config-validator` is a 0.0.1 placeholder with no bin,
+    # so npx cannot resolve an executable at all. The published image runs the
+    # same binary the cluster runs, and Renovate's github-actions manager
+    # keeps `container.image` current.
     container:
-      image: ghcr.io/renovatebot/renovate:44.56.3
+      image: ghcr.io/renovatebot/renovate:44.56.3@sha256:17e84d989f7fa89bc9f4b723281cbc4e5a312a05f245c0fc6c4e653dfa4caa63
       options: --user root
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      # `--no-global` is required: given a filename, the validator defaults to
-      # treating it as a global self-hosted config, which silently skips the
-      # repo-config checks that cover customManagers and manager scopes.
+      # renovate.json is this repo's *repo* config; the self-hosted global
+      # config is a separate Secret-mounted file. Given a filename the
+      # validator defaults to global mode, and only repo mode rejects a
+      # self-hosted-only option misplaced here (verified: `binarySource` in
+      # this file passes global mode but fails repo mode).
       - run: renovate-config-validator --no-global renovate.json
 
   ansible:
@@ -113,6 +116,11 @@ jobs:
         run: |
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           "$(go env GOPATH)/bin/actionlint"
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Lint shell scripts
+        # actionlint's shellcheck integration only covers `run:` blocks inside
+        # workflow YAML, so standalone scripts would otherwise go unchecked.
+        run: shellcheck .github/scripts/*.sh
 
   success:
     name: CI - Success
