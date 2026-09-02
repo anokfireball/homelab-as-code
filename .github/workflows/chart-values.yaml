@@ -1,0 +1,47 @@
+---
+name: Chart Values
+
+on:
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  chart-values:
+    name: Chart Values Diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - name: Install dyff
+        run: go install github.com/homeport/dyff/cmd/dyff@v1.12.0
+      - name: Compute chart values diff
+        run: |
+          gopath="$(go env GOPATH)"
+          export PATH="$gopath/bin:$PATH"
+          .github/scripts/chart-values-diff.sh \
+            "${{ github.event.pull_request.base.sha }}" /tmp/chart-values.md
+      - name: Comment or skip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [ ! -s /tmp/chart-values.md ]; then
+            echo "No chart version changes; no comment."
+            exit 0
+          fi
+          {
+            echo "<!-- chart-values-diff -->"
+            echo "### Helm chart parameter changes"
+            echo
+            cat /tmp/chart-values.md
+          } >/tmp/comment.md
+          gh pr comment "$PR" --body-file /tmp/comment.md --edit-last --create-if-none
