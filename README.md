@@ -142,6 +142,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td></td>
     </tr>
     <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/mongodb.svg"></td>
+        <td><a href="https://github.com/mongodb/mongodb-kubernetes">MongoDB Kubernetes Operator</a></td>
+        <td>Cloud-Native MongoDB Operator</td>
+        <td></td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/grafana/grafana/refs/heads/main/public/img/grafana_icon.svg"></td>
         <td><a href="https://grafana.com/grafana/">Grafana</a></td>
         <td>Monitoring and Observability</td>
@@ -157,6 +163,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://raw.githubusercontent.com/grafana/loki/refs/heads/main/docs/sources/logo.png"></td>
         <td><a href="https://grafana.com/loki/">Loki</a></td>
         <td>Log Aggregation and Storage</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><a href="https://grafana.com/oss/promtail/">Promtail</a></td>
+        <td>Log Shipper for Loki</td>
         <td></td>
     </tr>
     <tr>
@@ -178,7 +190,7 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/goauthentik/authentik/main/website/static/img/icon.svg"></td>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/authentik.svg"></td>
         <td><a href="https://goauthentik.io/">Authentik</a></td>
         <td>SSO and Identity Provider</td>
         <td></td>
@@ -327,7 +339,7 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://gatus.kthxbye.cyou/endpoints/petrus_opnsense-prefix-update-[push]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/petrus_opnsense-prefix-update-[push]/uptimes/30d/badge.svg" alt="OPNsense Prefix Updater Uptime"></a></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://raw.githubusercontent.com/n8n-io/n8n-docs/refs/heads/main/docs/_images/favicon.ico"></td>
+        <td><img width="32" src="https://raw.githubusercontent.com/n8n-io/n8n/refs/heads/master/packages/frontend/editor-ui/public/favicon.ico"></td>
         <td><a href="https://n8n.io/">n8n</a></td>
         <td>Workflow Automation</td>
         <td>freemium/open core<br><a href="https://gatus.kthxbye.cyou/endpoints/services_n8n-[http---public]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_n8n-[http---public]/uptimes/30d/badge.svg" alt="n8n Uptime"></a></td>
