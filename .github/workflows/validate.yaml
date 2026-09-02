@@ -51,12 +51,19 @@ jobs:
   renovate-config:
     name: Renovate Config
     runs-on: ubuntu-latest
+    # The validator ships inside the renovate package; the standalone npm
+    # package `renovate-config-validator` is a 0.0.1 placeholder with no bin.
+    # Using the published image runs the same binary the cluster runs, and
+    # Renovate's github-actions manager keeps `container.image` current.
+    container:
+      image: ghcr.io/renovatebot/renovate:44.56.3
+      options: --user root
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: lts/*
-      - run: npx -y renovate-config-validator renovate.json
+      # `--no-global` is required: given a filename, the validator defaults to
+      # treating it as a global self-hosted config, which silently skips the
+      # repo-config checks that cover customManagers and manager scopes.
+      - run: renovate-config-validator --no-global renovate.json
 
   ansible:
     name: Ansible Syntax
@@ -71,13 +78,21 @@ jobs:
         name: Install ansible and declared collections
         run: |
           pipx install --include-deps ansible
-          pipx inject ansible ansible-lint
+          # `--include-apps` is required, otherwise ansible-lint is injected
+          # into the venv but never exposed on PATH.
+          pipx inject --include-apps ansible ansible-lint
           # One invocation per requirements file: `ansible-galaxy collection
           # install -r a -r b` silently honours only the last -r.
-          ansible-galaxy collection install -r ansible/cluster/requirements.yaml
-          ansible-galaxy collection install -r ansible/gateway/requirements.yaml
+          ansible-galaxy collection install --force \
+            -r ansible/cluster/requirements.yaml -p /tmp/hac-collections
+          ansible-galaxy collection install --force \
+            -r ansible/gateway/requirements.yaml -p /tmp/hac-collections
       - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
         name: Syntax check
+        # Resolve only against the declared collections, so an undeclared one
+        # fails here instead of passing on the runner image's bundled copies.
+        env:
+          ANSIBLE_COLLECTIONS_PATH: /tmp/hac-collections
         run: ansible-lint --nocolor --format=pep8 --tags syntax-check ansible/
 
   workflow-lint:
