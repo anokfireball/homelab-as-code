@@ -1,0 +1,120 @@
+---
+name: Validate
+
+on:
+  pull_request:
+    branches: ["main"]
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  flux:
+    name: Flux Render
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
+        id: changed-files
+        with:
+          patterns: |
+            flux/**
+            charts/**
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: stable
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Install flate
+        run: go install github.com/home-operations/flate/cmd/flate@v0.6.2
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Render and validate the Flux graph
+        run: |
+          set -o pipefail
+          "$(go env GOPATH)/bin/flate" test all --path . \
+            --allow-missing-secrets --no-progress 2>&1 | tee /tmp/flate.log
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Fail on Helm values drift
+        run: |
+          if grep -q "values not used by the chart" /tmp/flate.log; then
+            echo "::error::A HelmRelease sets values the chart no longer consumes."
+            grep -A3 "values not used by the chart" /tmp/flate.log
+            exit 1
+          fi
+
+  renovate-config:
+    name: Renovate Config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: lts/*
+      - run: npx -y renovate-config-validator renovate.json
+
+  ansible:
+    name: Ansible Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
+        id: changed-files
+        with:
+          patterns: ansible/**
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Install ansible and declared collections
+        run: |
+          pipx install --include-deps ansible
+          pipx inject ansible ansible-lint
+          # One invocation per requirements file: `ansible-galaxy collection
+          # install -r a -r b` silently honours only the last -r.
+          ansible-galaxy collection install -r ansible/cluster/requirements.yaml
+          ansible-galaxy collection install -r ansible/gateway/requirements.yaml
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Syntax check
+        run: ansible-lint --nocolor --format=pep8 --tags syntax-check ansible/
+
+  workflow-lint:
+    name: Workflow Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
+        id: changed-files
+        with:
+          patterns: .github/**
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: stable
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Lint workflow files
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
+          "$(go env GOPATH)/bin/actionlint"
+
+  success:
+    name: CI - Success
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [flux, renovate-config, ansible, workflow-lint]
+    steps:
+      - name: Fail on flux not success or skipped
+        if: ${{ !(needs.flux.result == 'success' || needs.flux.result == 'skipped') }}
+        run: exit 1
+      - name: Fail on renovate-config not success or skipped
+        if: ${{ !(needs.renovate-config.result == 'success' || needs.renovate-config.result == 'skipped') }}
+        run: exit 1
+      - name: Fail on ansible not success or skipped
+        if: ${{ !(needs.ansible.result == 'success' || needs.ansible.result == 'skipped') }}
+        run: exit 1
+      - name: Fail on workflow-lint not success or skipped
+        if: ${{ !(needs.workflow-lint.result == 'success' || needs.workflow-lint.result == 'skipped') }}
+        run: exit 1
+      - run: echo "All checks passed or skipped"
