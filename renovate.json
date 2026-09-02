@@ -77,7 +77,7 @@
     {
       "description": "Do not digest-pin PowerSync service. The regex custom manager captures only the Helm values tag field, which cannot carry an @sha256: suffix.",
       "matchManagers": [
-        "regex"
+        "custom.regex"
       ],
       "matchPackageNames": [
         "journeyapps/powersync-service"
