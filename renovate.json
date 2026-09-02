@@ -15,7 +15,8 @@
         "digest"
       ],
       "matchCurrentVersion": "!/^0/",
-      "automerge": true
+      "automerge": true,
+      "ignoreTests": false
     },
     {
       "matchFileNames": [
@@ -31,7 +32,8 @@
         "patch",
         "digest"
       ],
-      "automerge": true
+      "automerge": true,
+      "ignoreTests": false
     },
     {
       "matchPackageNames": [
