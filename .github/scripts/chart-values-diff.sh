@@ -39,11 +39,14 @@ changed=$(git diff --name-only "$BASE_SHA"...HEAD -- 'flux/**/*.yaml' || true)
 for f in $changed; do
   [ -f "$f" ] || continue
   while IFS=$'\t' read -r name chart version src; do
-    [ -n "${chart:-}" ] && [ -n "${version:-}" ] || continue
+    # Explicit form rather than `A && B || continue` (SC2015): identical
+    # behaviour here, but the guard's intent does not depend on the reader
+    # knowing that C also runs when A succeeds and B fails.
+    if [ -z "${chart:-}" ] || [ -z "${version:-}" ]; then continue; fi
     old=$(git show "$BASE_SHA:$f" 2>/dev/null \
           | yq -N 'select(.kind == "HelmRelease") | select(.metadata.name == "'"$name"'")
                    | .spec.chart.spec.version // ""' 2>/dev/null | head -1)
-    [ -n "$old" ] && [ "$old" != "$version" ] || continue
+    if [ -z "$old" ] || [ "$old" = "$version" ]; then continue; fi
 
     IFS=$'\t' read -r url type <<<"$(repo_url "$src")"
     [ -n "${url:-}" ] || { echo "- \`$name\`: $old -> $version (source \`$src\` not resolved; skipped)" >>"$OUT"; continue; }
