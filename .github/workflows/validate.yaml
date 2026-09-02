@@ -19,7 +19,7 @@ jobs:
     name: Flux Render
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
         id: changed-files
         with:
@@ -60,7 +60,7 @@ jobs:
       image: ghcr.io/renovatebot/renovate:44.56.3@sha256:17e84d989f7fa89bc9f4b723281cbc4e5a312a05f245c0fc6c4e653dfa4caa63
       options: --user root
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       # `--no-global` is a correctness requirement, not extra strictness.
       # renovate.json is this repo's *repo* config. The cluster's self-hosted
       # global config is a different file: flux/system/app-controllers/
@@ -76,7 +76,7 @@ jobs:
     name: Ansible Syntax
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
         id: changed-files
         with:
@@ -106,7 +106,7 @@ jobs:
     name: Workflow Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
         id: changed-files
         with:
