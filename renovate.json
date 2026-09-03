@@ -443,6 +443,29 @@
       "packageNameTemplate": "vmware-tanzu/pinniped",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Go tools installed in workflow files",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "go install (?<depName>github\\.com/[^/\\s]+/[^/\\s]+)(?:/[^@\\s]+)*@(?<currentValue>v[^\\s\"']+)"
+      ],
+      "datasourceTemplate": "go"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the shellcheck image used by workflow lint",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "koalaman/shellcheck:(?<currentValue>v[\\d.]+)"
+      ],
+      "depNameTemplate": "koalaman/shellcheck",
+      "datasourceTemplate": "docker"
     }
   ],
   "flux": {
