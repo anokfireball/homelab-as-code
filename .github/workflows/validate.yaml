@@ -32,13 +32,39 @@ jobs:
           go-version: stable
       - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
         name: Install flate
-        run: go install github.com/home-operations/flate/cmd/flate@v0.6.2
+        run: go install github.com/home-operations/flate/cmd/flate@v0.6.5
       - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
         name: Render and validate the Flux graph
         run: |
           set -o pipefail
           "$(go env GOPATH)/bin/flate" test all --path . \
             --allow-missing-secrets --no-progress 2>&1 | tee /tmp/flate.log
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Canary the values-drift warning
+        # The drift gate greps flate's output for a human-readable warning and
+        # flate exits 0 when it emits it, so a reworded warning would disable
+        # the gate silently. Inject a key no chart consumes into a throwaway
+        # copy and require the warning to appear.
+        run: |
+          canary="$RUNNER_TEMP/drift-canary"
+          rm -rf "$canary"
+          cp -a . "$canary"
+          python3 - "$canary/flux/apps/jellyfin.yaml" <<'PY'
+          import sys
+          p = sys.argv[1]
+          s = open(p).read()
+          assert "    ingress:" in s, f"canary anchor missing in {p}"
+          open(p, "w").write(s.replace("    ingress:", "    canaryUnusedKey: 1\n    ingress:", 1))
+          PY
+          if "$(go env GOPATH)/bin/flate" test all --path "$canary" -n arrchive \
+               --allow-missing-secrets --no-progress 2>&1 \
+             | grep -q "values not used by the chart"; then
+            echo "Canary OK: the drift gate's warning string is still emitted."
+          else
+            echo "::error::flate no longer emits 'values not used by the chart'."
+            echo "::error::The 'Fail on Helm values drift' gate is now inert - update its grep."
+            exit 1
+          fi
       - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
         name: Fail on Helm values drift
         run: |
@@ -129,13 +155,49 @@ jobs:
         # so it fails on info-level findings too (verified: SC2086:info in a
         # `run:` block exits 1). Passing `-S warning` here would make
         # standalone scripts laxer than inline ones, not more consistent.
-        run: shellcheck .github/scripts/*.sh
+        run: |
+          docker run --rm -v "$PWD:/mnt:ro" -w /mnt \
+            koalaman/shellcheck:v0.11.0 .github/scripts/*.sh
+
+  images:
+    name: Image Refs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # image-refs.sh diffs the changed files against the PR base commit.
+          fetch-depth: 0
+      - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
+        id: changed-files
+        with:
+          patterns: flux/**
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: stable
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Install crane
+        run: go install github.com/google/go-containerregistry/cmd/crane@v0.22.0
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Verify introduced image references
+        # Only the refs this PR introduces: 33 of the repo's rendered refs live
+        # on docker.io, whose anonymous pull limit is shared per runner IP, so
+        # re-verifying every ref on every PR would flake.
+        run: |
+          gopath="$(go env GOPATH)"
+          export PATH="$gopath/bin:$PATH"
+          .github/scripts/image-refs.sh "${{ github.event.pull_request.base.sha }}" >/tmp/refs.txt
+          if [ ! -s /tmp/refs.txt ]; then
+            echo "No image references introduced."
+            exit 0
+          fi
+          .github/scripts/image-verify.sh </tmp/refs.txt
 
   success:
     name: CI - Success
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [flux, renovate-config, ansible, workflow-lint]
+    needs: [flux, renovate-config, ansible, workflow-lint, images]
     steps:
       - name: Fail on flux not success or skipped
         if: ${{ !(needs.flux.result == 'success' || needs.flux.result == 'skipped') }}
@@ -148,5 +210,8 @@ jobs:
         run: exit 1
       - name: Fail on workflow-lint not success or skipped
         if: ${{ !(needs.workflow-lint.result == 'success' || needs.workflow-lint.result == 'skipped') }}
+        run: exit 1
+      - name: Fail on images not success or skipped
+        if: ${{ !(needs.images.result == 'success' || needs.images.result == 'skipped') }}
         run: exit 1
       - run: echo "All checks passed or skipped"
