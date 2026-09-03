@@ -157,7 +157,8 @@ jobs:
         # standalone scripts laxer than inline ones, not more consistent.
         run: |
           docker run --rm -v "$PWD:/mnt:ro" -w /mnt \
-            koalaman/shellcheck:v0.11.0 .github/scripts/*.sh
+            koalaman/shellcheck:v0.11.0@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d \
+            .github/scripts/*.sh
 
   images:
     name: Image Refs

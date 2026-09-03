@@ -457,12 +457,12 @@
     },
     {
       "customType": "regex",
-      "description": "Update the shellcheck image used by workflow lint",
+      "description": "Update the shellcheck image used by workflow lint. The digest group is optional so `docker:pinDigests` can both add and later refresh it; without a `currentDigest` capture the pin lands once and then never updates.",
       "managerFilePatterns": [
         "/^\\.github/workflows/.+\\.ya?ml$/"
       ],
       "matchStrings": [
-        "koalaman/shellcheck:(?<currentValue>v[\\d.]+)"
+        "koalaman/shellcheck:(?<currentValue>v[\\d.]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
       "depNameTemplate": "koalaman/shellcheck",
       "datasourceTemplate": "docker"
