@@ -178,7 +178,7 @@ jobs:
           go-version: stable
       - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
         name: Install crane
-        run: go install github.com/google/go-containerregistry/cmd/crane@v0.22.0
+        run: go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
       - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
         name: Verify introduced image references
         # Only the refs this PR introduces: 33 of the repo's rendered refs live
