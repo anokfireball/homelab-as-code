@@ -58,12 +58,12 @@ spec:
       enabled: true
       annotations:
         healthcheckSecret: firefly-cron
-        healthcheckImage: ghcr.io/anokfireball/base-image:3.24.1@sha256:c16023ce80e79d431a6ab8ff96c6579461142f4b8e1f0922abb9b7ce454fcd14
+        healthcheckImage: ghcr.io/anokfireball/base-image:3.24.1@sha256:435d41383a18792c3f23a228524bae209296dbe6c02a4c76ceee95c6e54e75d6
       auth:
         existingSecret: firefly-cron
       image:
         repository: ghcr.io/anokfireball/base-image
-        tag: 3.24.1@sha256:c16023ce80e79d431a6ab8ff96c6579461142f4b8e1f0922abb9b7ce454fcd14
+        tag: 3.24.1@sha256:435d41383a18792c3f23a228524bae209296dbe6c02a4c76ceee95c6e54e75d6
     ingress:
       enabled: false
     httpRoute:
