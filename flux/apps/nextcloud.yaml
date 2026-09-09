@@ -1599,10 +1599,8 @@ spec:
         default:
           permissions: "~* &* +@all"
           passwordKey: redis-password
-    # 1-replica Deployment on an RWO volume: RollingUpdate deadlocks whenever the
-    # new pod lands on a node other than the one holding the Longhorn attachment.
-    deploymentStrategy: Recreate
+    # Cache/file-locking only; contents are reconstructible. An emptyDir keeps
+    # this off RWO storage, whose single-node attachment deadlocks a rolling
+    # update when the replacement pod is scheduled onto a different node.
     dataStorage:
-      enabled: true
-      requestedSize: 2Gi
-      className: cluster-scratch
+      enabled: false
