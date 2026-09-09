@@ -1599,7 +1599,8 @@ spec:
         default:
           permissions: "~* &* +@all"
           passwordKey: redis-password
+    # Cache/file-locking only; contents are reconstructible. An emptyDir keeps
+    # this off RWO storage, whose single-node attachment deadlocks a rolling
+    # update when the replacement pod is scheduled onto a different node.
     dataStorage:
-      enabled: true
-      requestedSize: 2Gi
-      className: cluster-scratch
+      enabled: false

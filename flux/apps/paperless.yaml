@@ -113,10 +113,11 @@ spec:
         namespace: flux-system
   values:
     fullnameOverride: paperless-ngx-redis-master
+    # Celery broker only; contents are reconstructible. An emptyDir keeps this
+    # off RWO storage, whose single-node attachment deadlocks a rolling update
+    # when the replacement pod is scheduled onto a different node.
     dataStorage:
-      enabled: true
-      requestedSize: 2Gi
-      className: cluster-scratch
+      enabled: false
 ---
 apiVersion: v1
 kind: PersistentVolume

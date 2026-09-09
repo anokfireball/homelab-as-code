@@ -226,10 +226,11 @@ spec:
         namespace: flux-system
   values:
     fullnameOverride: wger-redis
+    # Cache only; contents are reconstructible. An emptyDir keeps this off RWO
+    # storage, whose single-node attachment deadlocks a rolling update when the
+    # replacement pod is scheduled onto a different node.
     dataStorage:
-      enabled: true
-      requestedSize: 10Gi
-      className: cluster-scratch
+      enabled: false
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
