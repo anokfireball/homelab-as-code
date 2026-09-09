@@ -1599,9 +1599,6 @@ spec:
         default:
           permissions: "~* &* +@all"
           passwordKey: redis-password
-    # 1-replica Deployment on an RWO volume: RollingUpdate deadlocks whenever the
-    # new pod lands on a node other than the one holding the Longhorn attachment.
-    deploymentStrategy: Recreate
     dataStorage:
       enabled: true
       requestedSize: 2Gi
