@@ -72,7 +72,7 @@ spec:
         # Current Vaultwarden is built with PG 15, also use that as long as it is supported
         # https://github.com/dani-garcia/vaultwarden/blob/1.32.6/docker/Dockerfile.alpine#L56-L57
         # https://www.postgresql.org/support/versioning/
-        image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:10c19625c4f43cd4f1cb04caf072a942853e10e510d96e9be656b3a7f0ad968a
+        image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:66969d0899c922d2332a6c5c60a161b6e4874c76b665fde32a2863c282b28c7f
         command:
           - /bin/sh
           - -ec
