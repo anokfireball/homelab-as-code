@@ -96,7 +96,7 @@ spec:
     spec:
       containers:
         - name: firefly-database-backup
-          image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:0eea5ac8c5e3043db94f4d512ffcfb9c06d6270a97f6d56e9f08e1571ef0484e
+          image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:d12317e4365edf4c6237ae6ff5e18d7568a580a5fa8285fae6c385ac5e51d0bf
           command:
             - "sleep"
             - "infinity"
