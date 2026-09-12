@@ -61,7 +61,10 @@ metadata:
 spec:
   interval: 1h
   retryInterval: 1m
-  timeout: 5m
+  # Longer window for the Kustomizations that wait on actual rollouts; see
+  # apps.yaml. The ones that only apply namespaces, RBAC, repositories or CRDs
+  # keep the default.
+  timeout: 20m
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -80,6 +83,14 @@ spec:
     substituteFrom:
       - kind: Secret
         name: cluster-secrets
+  patches:
+    # Same HelmRelease timeout default as apps.yaml; see the rationale there.
+    - patch: |
+        - op: add
+          path: /spec/timeout
+          value: 15m
+      target:
+        kind: HelmRelease
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -89,7 +100,7 @@ metadata:
 spec:
   interval: 1h
   retryInterval: 1m
-  timeout: 5m
+  timeout: 20m
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -115,7 +126,7 @@ metadata:
 spec:
   interval: 1h
   retryInterval: 1m
-  timeout: 5m
+  timeout: 20m
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -141,6 +152,13 @@ spec:
       target:
         kind: DaemonSet
         labelSelector: "longhorn.io/component=engine-image"
+    # Same HelmRelease timeout default as apps.yaml; see the rationale there.
+    - patch: |
+        - op: add
+          path: /spec/timeout
+          value: 15m
+      target:
+        kind: HelmRelease
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -150,7 +168,7 @@ metadata:
 spec:
   interval: 1h
   retryInterval: 1m
-  timeout: 5m
+  timeout: 20m
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -167,6 +185,14 @@ spec:
     substituteFrom:
       - kind: Secret
         name: cluster-secrets
+  patches:
+    # Same HelmRelease timeout default as apps.yaml; see the rationale there.
+    - patch: |
+        - op: add
+          path: /spec/timeout
+          value: 15m
+      target:
+        kind: HelmRelease
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

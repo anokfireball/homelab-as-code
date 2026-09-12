@@ -7,7 +7,11 @@ metadata:
 spec:
   interval: 1h
   retryInterval: 1m
-  timeout: 5m
+  # Kept above the HelmRelease timeout patched in below, so a slow rollout is
+  # observed to completion in one pass rather than failing every attempt.
+  # Kustomizations that only apply namespaces, RBAC, secrets or CRDs keep the
+  # default: nothing there can legitimately take minutes.
+  timeout: 20m
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -24,3 +28,15 @@ spec:
     substituteFrom:
       - kind: Secret
         name: cluster-secrets
+  patches:
+    # Helm's default timeout is shorter than a cold image pull takes on this
+    # cluster. Exceeding it fails the upgrade and leaves the release stalled
+    # until it is reconciled by hand, even once the workload is healthy.
+    # A release needing more headroom keeps its own spec.install.timeout /
+    # spec.upgrade.timeout, which take precedence over this.
+    - patch: |
+        - op: add
+          path: /spec/timeout
+          value: 15m
+      target:
+        kind: HelmRelease
