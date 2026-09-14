@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
+      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
         id: changed-files
         with:
           patterns: |
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
+      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
         id: changed-files
         with:
           patterns: ansible/**
@@ -133,7 +133,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
+      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
         id: changed-files
         with:
           patterns: .github/**
@@ -168,7 +168,7 @@ jobs:
         with:
           # image-refs.sh diffs the changed files against the PR base commit.
           fetch-depth: 0
-      - uses: bjw-s-labs/action-changed-files@a9a36fb08ce06db9b02fbd8026cc2c0945eb9841 # v0.6.0
+      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
         id: changed-files
         with:
           patterns: flux/**
