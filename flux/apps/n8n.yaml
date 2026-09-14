@@ -188,7 +188,7 @@ spec:
     spec:
       containers:
         - name: n8n-database-backup
-          image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:d12317e4365edf4c6237ae6ff5e18d7568a580a5fa8285fae6c385ac5e51d0bf
+          image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:aa235b61d333083ac4817c2b9d356606f40042ddbf889fb1bdf3707ea22742a7
           command:
             - "sleep"
             - "infinity"
