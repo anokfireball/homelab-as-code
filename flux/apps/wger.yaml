@@ -82,7 +82,7 @@ spec:
     spec:
       containers:
         - name: wger-database-backup
-          image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:66969d0899c922d2332a6c5c60a161b6e4874c76b665fde32a2863c282b28c7f
+          image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:30fd02ea758ef8f998b7e995ce5b86d0cbdb5205dd78d9669a266dc409484c26
           command:
             - "sleep"
             - "infinity"
