@@ -28,15 +28,7 @@ new_refs=$(.github/scripts/image-refs.sh "$BASE_SHA")
 [ -n "$new_refs" ] || exit 0
 
 # Old refs, so a new ref can be paired with the previous ref for the same repo.
-old_refs=$(git diff --name-only "$BASE_SHA"...HEAD -- 'flux/**/*.yaml' 2>/dev/null \
-  | while read -r f; do git show "$BASE_SHA:$f" 2>/dev/null; echo "---"; done \
-  | yq -N '
-      [ .. | select(kind == "map" and has("repository") and has("tag"))
-            | .repository + ":" + .tag ]
-      + [ .. | select(kind == "map") | to_entries | .[]
-            | select(.key | test("[Ii]mage$")) | .value | select(kind == "scalar") ]
-      | .[]
-    ' 2>/dev/null | grep -E '^[^[:space:]]+:[^[:space:]]+$' | sort -u)
+old_refs=$(.github/scripts/image-refs.sh --old "$BASE_SHA")
 
 repo_of() { r="${1%@sha256:*}"; b="${r##*/}"; p="${r%"$b"}"; printf '%s%s' "$p" "${b%:*}"; }
 
