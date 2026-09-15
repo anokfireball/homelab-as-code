@@ -16,7 +16,7 @@ kube_vip_version: v1.2.2
 vip: 192.168.1.210
 interface: eth0
 
-calico_version: v3.30.2
+calico_version: v3.32.2
 # range: [20:32]
 calico_node_subnet_prefix_length_v4: 24
 # range: [116:128]
