@@ -317,6 +317,7 @@
       ],
       "datasourceTemplate": "github-tags",
       "packageNameTemplate": "longhorn/csi-snapshotter",
+      "depNameTemplate": "csi-snapshotter",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
     },
