@@ -204,8 +204,6 @@ spec:
     powersync:
       image:
         tag: "1.26.1"
-      # Temporarily stopped while the wger 2.7 migrations run (chart 2.0 upgrade).
-      replicas: 0
     postgres:
       enabled: false
     redis:
