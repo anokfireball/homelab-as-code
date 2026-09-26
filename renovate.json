@@ -188,8 +188,7 @@
         "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>15\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "cloudnative-pg/postgresql",
-      "registryUrlTemplate": "https://ghcr.io",
+      "packageNameTemplate": "ghcr.io/cloudnative-pg/postgresql",
       "versioningTemplate": "regex:^(?<major>15)\\.(?<minor>\\d+)-standard-trixie$",
       "extractVersionTemplate": "^(?<version>15\\.\\d+-standard-trixie)$"
     },
@@ -203,8 +202,7 @@
         "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>16\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "cloudnative-pg/postgresql",
-      "registryUrlTemplate": "https://ghcr.io",
+      "packageNameTemplate": "ghcr.io/cloudnative-pg/postgresql",
       "versioningTemplate": "regex:^(?<major>16)\\.(?<minor>\\d+)-standard-trixie$",
       "extractVersionTemplate": "^(?<version>16\\.\\d+-standard-trixie)$"
     },
@@ -218,8 +216,7 @@
         "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>17\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "cloudnative-pg/postgresql",
-      "registryUrlTemplate": "https://ghcr.io",
+      "packageNameTemplate": "ghcr.io/cloudnative-pg/postgresql",
       "versioningTemplate": "regex:^(?<major>17)\\.(?<minor>\\d+)-standard-trixie$",
       "extractVersionTemplate": "^(?<version>17\\.\\d+-standard-trixie)$"
     },
@@ -233,8 +230,7 @@
         "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>18\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "cloudnative-pg/postgresql",
-      "registryUrlTemplate": "https://ghcr.io",
+      "packageNameTemplate": "ghcr.io/cloudnative-pg/postgresql",
       "versioningTemplate": "regex:^(?<major>18)\\.(?<minor>\\d+)-standard-trixie$",
       "extractVersionTemplate": "^(?<version>18\\.\\d+-standard-trixie)$"
     },
