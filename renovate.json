@@ -341,8 +341,7 @@
         "healthcheckImage: ghcr\\.io/anokfireball/base-image:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
       "datasourceTemplate": "docker",
-      "packageNameTemplate": "anokfireball/base-image",
-      "registryUrlTemplate": "https://ghcr.io",
+      "packageNameTemplate": "ghcr.io/anokfireball/base-image",
       "versioningTemplate": "docker"
     },
     {
