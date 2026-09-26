@@ -364,8 +364,15 @@ spec:
     global:
       alwaysAppendIdentifierToResourceName: true
     defaultPodOptions:
-      nodeSelector:
-        kubernetes.io/hostname: worker3
+      affinity:
+        # co-locate with paperless so its RWO data/media volumes can attach
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: paperless-ngx
+                  app.kubernetes.io/controller: main
+              topologyKey: kubernetes.io/hostname
     controllers:
       main:
         type: cronjob
