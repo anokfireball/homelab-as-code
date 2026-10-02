@@ -2502,18 +2502,6 @@ spec:
       name: pinniped-supervisor-oidc
       port: 443
 ---
-apiVersion: externaldns.k8s.io/v1alpha1
-kind: DNSEndpoint
-metadata:
-  name: pinniped-supervisor
-  namespace: pinniped-supervisor
-spec:
-  endpoints:
-  - dnsName: pinniped.${SERVICE_DOMAIN}
-    recordType: A
-    targets:
-    - 192.168.1.6
----
 apiVersion: config.supervisor.pinniped.dev/v1alpha1
 kind: FederationDomain
 metadata:
