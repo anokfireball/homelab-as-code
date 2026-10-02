@@ -129,6 +129,8 @@ Envoy Gateway uses the Gateway API with a shared `Gateway` and per-app `Listener
 
 Split-horizon DNS is implemented via external-dns with the [OPNsense webhook](https://github.com/crutonjohn/external-dns-opnsense-webhook): internal DNS records point to the internal VIP, while public DNS (Cloudflare) points to the public gateway.
 
+External-dns derives internal records from HTTPRoutes and TLSRoutes, following ListenerSets to the shared Gateway. A and AAAA records point to the Gateway's addresses (192.168.1.6 and fd08:192:168:1::6), so applications following the Ingress Pattern require no additional DNS resources such as `DNSEndpoint`.
+
 ### cert-manager
 A single `ClusterIssuer` named `letsencrypt` using ACME DNS-01 challenge via Cloudflare. Certificates are requested per-app in the `envoy-gateway-system` namespace.
 

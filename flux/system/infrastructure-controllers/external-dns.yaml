@@ -15,11 +15,11 @@ spec:
         namespace: flux-system
   values:
     policy: sync
+    triggerLoopOnEvent: true
     sources:
-      - service
-      - ingress
       - gateway-httproute
-      - crd
+      - gateway-tlsroute
+    enableGatewayListenerSets: true
     provider:
       name: webhook
       webhook:

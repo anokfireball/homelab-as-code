@@ -75,15 +75,3 @@ spec:
         port: 80
     redirect:
       enabled: false
----
-apiVersion: externaldns.k8s.io/v1alpha1
-kind: DNSEndpoint
-metadata:
-  name: authentik
-  namespace: authentik
-spec:
-  endpoints:
-  - dnsName: authentik.${SERVICE_DOMAIN}
-    recordType: A
-    targets:
-    - 192.168.1.6
