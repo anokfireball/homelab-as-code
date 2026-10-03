@@ -1,9 +1,5 @@
 ---
-k8s_version: "1.33.1"
-# https://containerd.io/releases/#kubernetes-support
-containerd_version: "1.7.28"
-
-upgrade_cluster: false
+# versions and derived package specs live in group_vars/all/versions.yaml (shared with upgrade.yaml)
 
 node_ula_prefix: "fd08:192:168:1::"
 
@@ -12,7 +8,6 @@ pod_network_cidr_v6: fd08:172:32::/56
 service_cidr_v4: 172.16.0.0/24
 service_cidr_v6: fd08:172:16::/112
 
-kube_vip_version: v1.2.2
 vip: 192.168.1.210
 interface: eth0
 

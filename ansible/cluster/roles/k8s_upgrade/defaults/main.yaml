@@ -1,0 +1,12 @@
+---
+# upgrade_shed kind -> kubectl resource
+upgrade_shed_resource:
+  deployment: deployment
+  statefulset: statefulset
+  cronjob: cronjob
+  cnpg: clusters.postgresql.cnpg.io
+
+# annotation storing the pre-upgrade state of shed objects
+upgrade_restore_annotation: homelab.io/upgrade-restore
+# annotation marking HelmReleases suspended by upgrade.yaml
+upgrade_suspended_annotation: homelab.io/upgrade-suspended

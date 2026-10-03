@@ -32,6 +32,8 @@ metadata:
   namespace: authentik
 spec:
   instances: 1
+  # single instance: a PDB cannot protect anything and only blocks node drains
+  enablePDB: false
   imageCatalogRef:
     apiGroup: postgresql.cnpg.io
     kind: ClusterImageCatalog

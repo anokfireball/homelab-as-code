@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+# containerd 2.x: only overrides, everything else uses containerd's built-in defaults
+version = 3
+
+[plugins.'io.containerd.cri.v1.images']
+  # required by spegel
+  discard_unpacked_layers = false
+
+[plugins.'io.containerd.cri.v1.images'.registry]
+  # required by spegel
+  config_path = '/etc/containerd/certs.d'
+
+[plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.runc]
+  runtime_type = 'io.containerd.runc.v2'
+
+[plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.runc.options]
+  SystemdCgroup = true

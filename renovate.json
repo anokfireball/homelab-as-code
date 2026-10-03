@@ -53,7 +53,7 @@
       "matchPackageNames": [
         "longhorn",
         "kubernetes/kubernetes",
-        "containerd/containerd"
+        "containerd.io"
       ],
       "automerge": false,
       "separateMultipleMinor": true
@@ -112,7 +112,7 @@
       "customType": "regex",
       "description": "Update cluster k8s version",
       "managerFilePatterns": [
-        "/ansible/cluster/roles/k8s_cluster/vars/main.yaml/"
+        "/ansible/cluster/group_vars/all/versions.yaml/"
       ],
       "matchStrings": [
         "k8s_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
@@ -124,17 +124,18 @@
     },
     {
       "customType": "regex",
-      "description": "Update cluster containerd version",
+      "description": "Update cluster containerd version. Nodes install containerd.io from Docker's apt repo, which does not publish every upstream release.",
       "managerFilePatterns": [
-        "/ansible/cluster/roles/k8s_cluster/vars/main.yaml/"
+        "/ansible/cluster/group_vars/all/versions.yaml/"
       ],
       "matchStrings": [
         "containerd_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "containerd/containerd",
+      "datasourceTemplate": "deb",
+      "packageNameTemplate": "containerd.io",
+      "registryUrlTemplate": "https://download.docker.com/linux/ubuntu?suite=noble&components=stable&binaryArch=amd64",
       "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)-"
     },
     {
       "customType": "regex",
@@ -154,7 +155,7 @@
       "customType": "regex",
       "description": "Update cluster kube-vip version",
       "managerFilePatterns": [
-        "/ansible/cluster/roles/k8s_cluster/vars/main.yaml/"
+        "/ansible/cluster/group_vars/all/versions.yaml/"
       ],
       "matchStrings": [
         "kube_vip_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"

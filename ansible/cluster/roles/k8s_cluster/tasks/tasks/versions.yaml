@@ -1,0 +1,28 @@
+---
+# Facts about what is actually installed/running on this node:
+#   installed_kubelet, installed_kubeadm, installed_containerd ("" if not installed)
+#   running_apiserver, running_kube_vip (control plane only, "" if no manifest)
+- name: gather installed packages
+  package_facts:
+    manager: apt
+
+- name: read control plane static pod image tags
+  when: "'controlplane' in group_names"
+  command: >-
+    awk -F: '/^ *image:/ {print $NF; exit}' /etc/kubernetes/manifests/{{ item }}.yaml
+  loop: [kube-apiserver, kube-vip]
+  register: static_pod_tags
+  changed_when: false
+  failed_when: false
+
+- name: set installed version facts
+  vars:
+    semver_re: '^(\d+\.\d+\.\d+).*$'
+    pkgs: "{{ ansible_facts.packages }}"
+    image_tags: "{{ static_pod_tags.results | default([]) | selectattr('stdout', 'defined') | items2dict(key_name='item', value_name='stdout') }}"
+  set_fact:
+    installed_kubelet: "{{ pkgs['kubelet'][0].version | regex_replace(semver_re, '\\1') if 'kubelet' in pkgs else '' }}"
+    installed_kubeadm: "{{ pkgs['kubeadm'][0].version | regex_replace(semver_re, '\\1') if 'kubeadm' in pkgs else '' }}"
+    installed_containerd: "{{ pkgs['containerd.io'][0].version | regex_replace(semver_re, '\\1') if 'containerd.io' in pkgs else '' }}"
+    running_apiserver: "{{ image_tags['kube-apiserver'] | default('') }}"
+    running_kube_vip: "{{ image_tags['kube-vip'] | default('') }}"

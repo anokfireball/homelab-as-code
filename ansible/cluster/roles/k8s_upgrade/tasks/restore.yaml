@@ -1,0 +1,56 @@
+---
+# Undo shed.yaml from the state annotations, in reverse order; then resume the HelmReleases it suspended.
+- name: restore shed workloads
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  shell: |
+    set -euo pipefail
+    ns={{ item.namespace | quote }}
+    name={{ item.name | quote }}
+    res={{ upgrade_shed_resource[item.kind] | quote }}
+
+    if ! kubectl -n "$ns" get "$res" "$name" >/dev/null 2>&1; then
+      echo "not found, skipping"
+      exit 0
+    fi
+    saved=$(kubectl -n "$ns" get "$res" "$name" -o jsonpath="{.metadata.annotations.{{ upgrade_restore_annotation | replace('.', '\\.') }}}")
+    if [ -z "$saved" ]; then exit 0; fi
+
+    case {{ item.kind | quote }} in
+      deployment|statefulset) kubectl -n "$ns" scale "$res" "$name" --replicas="$saved" ;;
+      cronjob) kubectl -n "$ns" patch "$res" "$name" --type merge -p "{\"spec\":{\"suspend\":$saved}}" ;;
+      cnpg)
+        if [ "$saved" = off ]; then
+          kubectl -n "$ns" annotate "$res" "$name" cnpg.io/hibernation-
+        else
+          kubectl -n "$ns" annotate "$res" "$name" "cnpg.io/hibernation=$saved" --overwrite
+        fi ;;
+    esac >/dev/null
+    kubectl -n "$ns" annotate "$res" "$name" "{{ upgrade_restore_annotation }}-" >/dev/null
+    echo CHANGED
+  args:
+    executable: /bin/bash
+  loop: "{{ upgrade_shed | reverse | list }}"
+  loop_control:
+    label: "{{ item.kind }} {{ item.namespace }}/{{ item.name }}"
+  register: restore_result
+  changed_when: "'CHANGED' in restore_result.stdout"
+
+- name: resume HelmReleases suspended by upgrade.yaml
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  shell: |
+    set -euo pipefail
+    marker="{.metadata.annotations.{{ upgrade_suspended_annotation | replace('.', '\\.') }}}"
+    kubectl get helmreleases.helm.toolkit.fluxcd.io -A \
+      -o jsonpath="{range .items[*]}{.metadata.namespace} {.metadata.name} $marker{\"\n\"}{end}" \
+      | awk '$3 == "true" { print $1, $2 }' \
+      | while read -r ns name; do
+          kubectl -n "$ns" patch helmreleases.helm.toolkit.fluxcd.io "$name" --type merge -p '{"spec":{"suspend":false}}' >/dev/null
+          kubectl -n "$ns" annotate helmreleases.helm.toolkit.fluxcd.io "$name" "{{ upgrade_suspended_annotation }}-" >/dev/null
+          echo "resumed $ns/$name"
+        done
+  args:
+    executable: /bin/bash
+  register: resume_result
+  changed_when: resume_result.stdout | length > 0
