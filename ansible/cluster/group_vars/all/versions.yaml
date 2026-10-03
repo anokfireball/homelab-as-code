@@ -3,7 +3,7 @@
 # cluster.yaml installs these on new nodes only; upgrade.yaml rolls existing nodes to them.
 k8s_version: "1.33.1"
 containerd_version: "1.7.29"
-kube_vip_version: v1.2.2
+kube_vip_version: v1.2.4
 
 # Recommended containerd versions per Kubernetes minor (minimum patch per containerd minor).
 # https://containerd.io/releases/#kubernetes-support
