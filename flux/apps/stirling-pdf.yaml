@@ -17,7 +17,7 @@ spec:
     image:
       registry: ghcr.io
       repository: stirling-tools/stirling-pdf
-      tag: 2.14.3-fat@sha256:444c2a995e5266e585cbc22d9613d5b4c11c8ea6ac486a9a05869b55d1775f6a
+      tag: 3.0.2-fat@sha256:de0a8984b54159211fb070fcb9cfe4ec8d00bef69f217f78ebde10e57eb471cb
     # https://docs.stirlingpdf.com/Configuration/
     envs:
       - name: SYSTEM_DEFAULTLOCALE
@@ -32,6 +32,20 @@ spec:
         value: "false"
       - name: SECURITY_ENABLELOGIN
         value: "false"
+      # v3 meters automation/API/AI runs against a local free tier; disable
+      # account-link billing entirely (kill switch, no stirling.com linking)
+      - name: STIRLING_BILLING_ACCOUNTLINK_ENABLED
+        value: "false"
+      # v3 defaults to Shenandoah GC (~20m idle CPU, upstream #8278); restore
+      # the v2 "balanced" G1 profile. Memory % flags are appended by init.
+      - name: JAVA_BASE_OPTS
+        value: >-
+          -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError
+          -XX:HeapDumpPath=/configs/heap_dumps -XX:+UseG1GC
+          -XX:MaxGCPauseMillis=200 -XX:G1HeapRegionSize=4m
+          -XX:G1PeriodicGCInterval=60000 -XX:+UseStringDeduplication
+          -XX:+UseCompactObjectHeaders -XX:+ExplicitGCInvokesConcurrent
+          -Dspring.threads.virtual.enabled=true -Djava.awt.headless=true
     ingress:
       enabled: false
     resources:
@@ -49,11 +63,18 @@ spec:
       extraVolumeMounts:
         - name: fonts-tmpfs
           mountPath: /usr/share/fonts/truetype
+    # /api/v1/info/status is reachable unauthenticated since v3 (403 in v2)
     probes:
       liveness:
-        enabled: false
+        enabled: true
+        initialDelaySeconds: 60
+        periodSeconds: 30
+        timeoutSeconds: 5
       readiness:
-        enabled: false
+        enabled: true
+        initialDelaySeconds: 20
+        periodSeconds: 10
+        timeoutSeconds: 5
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
