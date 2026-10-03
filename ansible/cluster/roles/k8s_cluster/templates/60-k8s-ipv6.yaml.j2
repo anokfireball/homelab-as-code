@@ -14,5 +14,8 @@ network:
                   metric: 100
                 - to: "{{ node_ula_prefix }}/64"
                   via: "{{ node_ula_prefix }}1"
+                  # without on-link, a networkd restart can try this route before the gateway is
+                  # resolvable, fail with "No route to host" and take all of eth0 (IPv4 too) down
+                  on-link: true
                   scope: global
                   metric: 200
