@@ -39,6 +39,25 @@ k8s_longhorn → prerequisites for Longhorn (open-iscsi, disk prep)
 k8s_flux     → Flux bootstrap + SOPS key injection
 ```
 
+`cluster.yaml` installs the versions pinned in `group_vars/all/versions.yaml` on new nodes only. On nodes that are already part of the cluster it fails if kubelet, kubeadm, containerd, the containerd config or kube-vip differ from the pins, instead of changing them.
+
+#### Node upgrades (`ansible/cluster/upgrade.yaml`)
+
+Rolls the existing nodes to the pinned versions (Kubernetes patch or one minor step, containerd, containerd config, kube-vip). Workflow: merge the Renovate PR, then run
+
+```sh
+ansible-playbook -i inventory.ini upgrade.yaml --tags preflight   # checks + plan, no cluster changes
+ansible-playbook -i inventory.ini upgrade.yaml                    # rolling upgrade, re-run to resume
+ansible-playbook -i inventory.ini upgrade.yaml --tags restore     # scale shed workloads back up after an abort
+```
+
+- kubectl runs on the controller with `/etc/kubernetes/admin.conf` fetched to `~/.kube/homelab-admin.conf` (not via Pinniped/Authentik, which can be down mid-upgrade)
+- preflight: one minor step at most, containerd/k8s pair listed in `containerd_supported`, pinned packages available in apt, API/etcd/Longhorn healthy, all nodes Ready, single-instance CNPG clusters with `enablePDB: false`, Longhorn `nodeDrainPolicy: block-for-eviction-if-contains-last-replica`
+- control plane nodes one at a time: kube-vip manifest, `kubeadm upgrade apply` (first node) / `kubeadm upgrade node`, then the node cycle
+- node cycle: cordon, restart single-replica webhooks/controllers elsewhere (`upgrade_premove`), drain with timeout, containerd + config, kubelet, wait for Ready with the pinned versions, uncordon, wait for Longhorn volumes to be healthy again
+- before the workers, `upgrade_shed` workloads are scaled down / suspended / hibernated (a single worker cannot host everything) and restored at the end; the previous state is kept in `homelab.io/upgrade-restore` annotations, so interrupted runs can be resumed or restored
+- every step derives what is left to do from the node and cluster state, so re-running after a failure continues where it stopped
+
 API server authentication uses Authentik as the OIDC provider with Pinniped handling the kubeconfig-based OIDC flow (configured in `flux/system/infrastructure-configs/`).
 
 ### Stage 3: Flux GitOps (`flux/`)
@@ -573,7 +592,8 @@ labels:
 
 Renovate uses regex custom managers to track versions that are not in standard Helm/Docker fields:
 
-- k8s, containerd, Calico, kube-vip: `ansible/cluster/roles/k8s_cluster/vars/main.yaml`
+- k8s, containerd (Docker's apt repo via the `deb` datasource), kube-vip: `ansible/cluster/group_vars/all/versions.yaml`
+- Calico: `ansible/cluster/roles/k8s_cluster/vars/main.yaml`
 - Flux: `ansible/cluster/roles/k8s_flux/vars/main.yaml`
 - Caddy, Go, SOPS, Caddy DNS plugins: `ansible/gateway/roles/*/vars/main.yaml`
 - CloudNativePG PostgreSQL image versions (per major version): app YAML files

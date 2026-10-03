@@ -13,6 +13,8 @@ spec:
     name: postgresql
     major: 15
   instances: 1
+  # single instance: a PDB cannot protect anything and only blocks node drains
+  enablePDB: false
   managed:
     services:
       disabledDefaultServices: ["ro", "r"]

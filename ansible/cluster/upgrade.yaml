@@ -1,0 +1,90 @@
+---
+# Rolling upgrade of all nodes to the versions pinned in group_vars/all/versions.yaml
+# (kubernetes, containerd, containerd config, kube-vip). Re-run to resume after a failure.
+#
+#   ansible-playbook -i inventory.ini upgrade.yaml                    # full run
+#   ansible-playbook -i inventory.ini upgrade.yaml --tags preflight   # checks and plan only, changes nothing in the cluster
+#   ansible-playbook -i inventory.ini upgrade.yaml --tags restore     # scale shed workloads back up (e.g. after an abort)
+#   ansible-playbook -i inventory.ini upgrade.yaml -e upgrade_restore=false   # keep workloads shed for the next run
+
+- name: admin kubeconfig
+  hosts: controlplane[0]
+  gather_facts: false
+  become: true
+  tags: [always]
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: kubeconfig.yaml
+
+- name: preflight
+  hosts: cluster
+  gather_facts: true
+  become: true
+  any_errors_fatal: true
+  tags: [preflight]
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: preflight.yaml
+
+- name: control plane
+  hosts: controlplane
+  serial: 1
+  gather_facts: false
+  become: true
+  any_errors_fatal: true
+  max_fail_percentage: 0
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: control_plane.yaml
+
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: node_cycle.yaml
+      when: node_needs_cycle
+
+- name: shed workloads
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+  tags: [shed]
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: shed.yaml
+      when: >-
+        'shed' in ansible_run_tags or
+        groups['worker'] | map('extract', hostvars) | selectattr('node_needs_cycle', 'defined')
+        | selectattr('node_needs_cycle') | list | length > 0
+
+- name: workers
+  hosts: worker
+  serial: 1
+  gather_facts: false
+  become: true
+  any_errors_fatal: true
+  max_fail_percentage: 0
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: worker.yaml
+
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: node_cycle.yaml
+      when: node_needs_cycle
+
+- name: restore workloads
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+  tags: [restore]
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: restore.yaml
+      when: upgrade_restore or 'restore' in ansible_run_tags

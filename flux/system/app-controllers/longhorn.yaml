@@ -28,3 +28,5 @@ spec:
       backupTarget: nfs://192.168.1.2:/mnt/tank/Backup/longhorn
       backupCompressionMethod: None
       rwxVolumeFastFailover: true
+      # move a volume's last healthy replica off a node before allowing its drain (upgrade.yaml relies on this)
+      nodeDrainPolicy: block-for-eviction-if-contains-last-replica

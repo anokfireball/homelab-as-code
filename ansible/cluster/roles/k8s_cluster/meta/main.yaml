@@ -1,3 +1,4 @@
 ---
-dependencies:
-  - { role: os_base }
+# os_base runs before this role in cluster.yaml; no meta dependency so that upgrade.yaml can
+# include_role individual task files of this role without re-running os_base
+dependencies: []

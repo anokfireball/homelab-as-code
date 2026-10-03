@@ -1,0 +1,130 @@
+---
+# Drain the node, bring containerd and kubelet to the pinned versions/config, verify, uncordon.
+# Safe to re-run: every step either is idempotent or is skipped when already done.
+- name: cordon and drain
+  delegate_to: localhost
+  become: false
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  block:
+    - name: cordon
+      command: kubectl cordon {{ inventory_hostname }}
+      register: cordon_result
+      changed_when: "'already cordoned' not in cordon_result.stdout"
+
+    - name: list pods on the node
+      command: >-
+        kubectl get pods -A --field-selector spec.nodeName={{ inventory_hostname }}
+        -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\n"}{end}'
+      register: node_pods
+      changed_when: false
+
+    # restarted while the node is cordoned, so they come up elsewhere before the drain evicts them
+    - name: move single-replica controllers and webhooks off the node
+      shell: >-
+        kubectl -n {{ item.namespace }} rollout restart deployment/{{ item.name }} &&
+        kubectl -n {{ item.namespace }} rollout status deployment/{{ item.name }} --timeout=5m
+      loop: "{{ upgrade_premove }}"
+      loop_control:
+        label: "{{ item.namespace }}/{{ item.name }}"
+      when: >-
+        node_pods.stdout_lines
+        | select('match', '^' ~ item.namespace ~ '/' ~ item.name ~ '-[a-z0-9]+-[a-z0-9]{5}$')
+        | list | length > 0
+      changed_when: true
+
+    - name: drain
+      command: >-
+        kubectl drain {{ inventory_hostname }}
+        --ignore-daemonsets --delete-emptydir-data --timeout={{ upgrade_drain_timeout }}
+      changed_when: true
+
+- name: upgrade node packages
+  block:
+    - name: stop kubelet
+      systemd_service:
+        name: kubelet
+        state: stopped
+
+    - name: install containerd
+      when: containerd_needs_upgrade
+      include_role:
+        name: k8s_cluster
+        tasks_from: tasks/packages.yaml
+      vars:
+        packages: "{{ k8s_pkg_containerd }}"
+
+    - name: render containerd config
+      include_role:
+        name: k8s_cluster
+        tasks_from: tasks/containerd.yaml
+
+    - name: restart containerd
+      systemd_service:
+        name: containerd
+        state: restarted
+        enabled: true
+      when: containerd_needs_upgrade or containerd_config.changed
+
+    - name: wait for containerd
+      command: ctr version
+      register: ctr_version
+      retries: 12
+      delay: 5
+      until: ctr_version.rc == 0
+      changed_when: false
+
+    - name: install kubelet, kubectl, cri-tools
+      when: kubelet_needs_upgrade
+      include_role:
+        name: k8s_cluster
+        tasks_from: tasks/packages.yaml
+      vars:
+        packages: "{{ k8s_pkg_kubelet }}"
+
+    - name: start kubelet
+      systemd_service:
+        name: kubelet
+        state: restarted
+        daemon_reload: true
+        enabled: true
+
+  rescue:
+    # leave the node Ready (and cordoned) so the cluster and a re-run of upgrade.yaml keep working
+    - name: start kubelet after failure
+      systemd_service:
+        name: kubelet
+        state: started
+
+    - fail:
+        msg: "{{ inventory_hostname }}: node upgrade failed ({{ ansible_failed_result.msg | default('see above') }}); node is left cordoned"
+
+- name: verify and uncordon
+  delegate_to: localhost
+  become: false
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  block:
+    - name: node Ready with pinned kubelet and containerd
+      command: >-
+        kubectl get node {{ inventory_hostname }}
+        -o jsonpath='{.status.nodeInfo.kubeletVersion} {.status.nodeInfo.containerRuntimeVersion} {.status.conditions[?(@.type=="Ready")].status}'
+      register: node_status
+      retries: "{{ upgrade_node_ready_retries }}"
+      delay: 10
+      until: node_status.stdout == 'v' ~ k8s_version ~ ' containerd://' ~ containerd_version ~ ' True'
+      changed_when: false
+
+    - name: uncordon
+      command: kubectl uncordon {{ inventory_hostname }}
+      changed_when: true
+
+- include_tasks: health.yaml
+  vars:
+    health_etcd: "{{ 'controlplane' in group_names }}"
+    health_longhorn_retries: "{{ upgrade_longhorn_healthy_retries }}"
+
+- name: confirm before continuing with the next node
+  pause:
+    prompt: "{{ inventory_hostname }} done, press enter to continue (ctrl+c, a to abort)"
+  when: upgrade_pause_between_nodes

@@ -31,67 +31,81 @@
       when: ip_addr_show_result.stdout_lines | length > 0
       changed_when: true
 
-- name: determine node execution strategy
+- name: check if node is part of the cluster
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubelet_conf_stat
+
+- set_fact:
+    k8s_join: "{{ not kubelet_conf_stat.stat.exists }}"
+
+- import_tasks: tasks/versions.yaml
+
+# cluster.yaml never changes versions of running nodes (that would restart runtimes cluster-wide
+# without draining); upgrade.yaml rolls them node by node instead
+- name: verify existing node matches pinned versions
+  when: not k8s_join
   block:
-    - name: check installed version of kubelet
-      package_facts:
-        manager: apt
-    - name: check if kubelet has valid configuration
-      stat:
-        path: /etc/kubernetes/kubelet.conf
-      register: kubelet_conf_stat
-    - set_fact:
-        containerd_upgrade: |
-          {{
-            upgrade_cluster
-            and ansible_facts.packages['containerd.io'] is defined
-            and (ansible_facts.packages['containerd.io'][0].version | regex_replace("^(\d+\.\d+\.\d+).*$", "\1") is version(containerd_version, '<'))
-          }}
-        k8s_downgrade: |
-          {{
-            ansible_facts.packages['kubelet'] is defined
-            and (ansible_facts.packages['kubelet'][0].version | regex_replace("^(\d+\.\d+\.\d+).*$", "\1") is version(k8s_version, '>'))
-          }}
-        k8s_upgrade: |
-          {{
-            upgrade_cluster
-            and ansible_facts.packages['kubelet'] is defined
-            and (ansible_facts.packages['kubelet'][0].version | regex_replace("^(\d+\.\d+\.\d+).*$", "\1") is version(k8s_version, '<'))
-          }}
-        k8s_join: |
-          {{ not kubelet_conf_stat.stat.exists }}
+    - import_tasks: tasks/containerd.yaml
+      vars:
+        containerd_config_check_only: true
 
-- fail:
-    msg: "downgrade ({{ ansible_facts.packages['kubelet'][0].version }} to {{ k8s_version }}) is not supported, please just re-provision the node"
-  when: k8s_downgrade and not reset_cluster
-
-- name: strip patch version from k8s version
-  set_fact:
-    k8s_version_stripped: "{{ k8s_version | regex_replace('^(\\d+\\.\\d+)\\.\\d+$', '\\1') }}"
+    - assert:
+        that:
+          - installed_kubelet == k8s_version
+          - installed_kubeadm == k8s_version
+          - installed_containerd == containerd_version
+          - not containerd_config.changed
+          - "'controlplane' not in group_names or running_kube_vip == kube_vip_version"
+        fail_msg: >-
+          {{ inventory_hostname }} does not match the pinned versions
+          (kubelet {{ installed_kubelet }} -> {{ k8s_version }},
+          kubeadm {{ installed_kubeadm }} -> {{ k8s_version }},
+          containerd {{ installed_containerd }} -> {{ containerd_version }},
+          containerd config outdated: {{ containerd_config.changed }},
+          kube-vip {{ running_kube_vip | default('-', true) }} -> {{ kube_vip_version }}).
+          Run upgrade.yaml first.
+        quiet: true
 
 - import_tasks: tasks/network.yaml
 
 - import_tasks: tasks/repos.yaml
 
-- import_tasks: tasks/containerd.yaml
-
-- when: "'controlplane' in group_names"
+- name: install pinned runtime and kubernetes packages on new nodes
+  when: k8s_join
   block:
-    - import_tasks: tasks/kube-vip.yaml
+    - include_tasks: tasks/packages.yaml
+      vars:
+        packages: "{{ k8s_pkg_containerd }}"
+        packages_allow_downgrade: true
 
-- when: not k8s_upgrade
-  block:
-    - import_tasks: tasks/kubeadm.yaml
-    - import_tasks: tasks/kubelet.yaml
+    - set_fact:
+        containerd_package_changed: "{{ packages_result.changed }}"
+
+    - import_tasks: tasks/containerd.yaml
+
+    - name: restart containerd
+      systemd_service:
+        name: containerd
+        state: restarted
+        enabled: true
+      when: containerd_package_changed or containerd_config.changed
+
+    - when: "'controlplane' in group_names"
+      import_tasks: tasks/kube-vip.yaml
+
+    - include_tasks: tasks/packages.yaml
+      vars:
+        packages: "{{ k8s_pkg_kubeadm + k8s_pkg_kubelet }}"
+        packages_allow_downgrade: true
+
+- import_tasks: tasks/kubelet.yaml
 
 - import_tasks: join.yaml
 
 - when: "'controlplane' in group_names"
   block:
     - import_tasks: tasks/certs.yaml
-
-- when: k8s_upgrade
-  import_tasks: upgrade.yaml
 
 - import_tasks: tasks/calico.yaml
   when: inventory_hostname == "controlplane1"

@@ -1,0 +1,25 @@
+---
+# Single source of truth for node-level versions, bumped by Renovate.
+# cluster.yaml installs these on new nodes only; upgrade.yaml rolls existing nodes to them.
+k8s_version: "1.33.1"
+containerd_version: "1.7.28"
+kube_vip_version: v1.2.2
+
+# Recommended containerd versions per Kubernetes minor (minimum patch per containerd minor).
+# https://containerd.io/releases/#kubernetes-support
+# upgrade.yaml refuses to run a k8s/containerd combination not listed here;
+# extend this table when bumping the Kubernetes minor.
+containerd_supported:
+  "1.33": ["2.1.0", "2.0.4", "1.7.24"]
+  "1.34": ["2.1.3", "2.0.6", "1.7.28"]
+  "1.35": ["2.2.0", "2.1.5", "1.7.28"]
+  "1.36": ["2.3.0", "2.2.0"]
+  "1.37": ["2.4.0", "2.3.0"]
+
+# derived, do not edit
+k8s_minor: "{{ k8s_version | regex_replace('^(\\d+\\.\\d+)\\.\\d+$', '\\1') }}"
+k8s_pkg_kubeadm: ["kubeadm={{ k8s_version }}-*"]
+k8s_pkg_kubelet: ["kubelet={{ k8s_version }}-*", "kubectl={{ k8s_version }}-*", "cri-tools={{ k8s_minor }}.*"]
+k8s_pkg_containerd: ["containerd.io={{ containerd_version }}-*"]
+# containerd >= 2 uses config schema v3 (CRI split into io.containerd.cri.v1.{runtime,images})
+containerd_config_template: "containerd-v{{ '3' if containerd_version is version('2.0.0', '>=') else '2' }}.toml.j2"

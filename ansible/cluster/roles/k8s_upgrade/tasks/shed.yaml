@@ -1,0 +1,49 @@
+---
+# Scale down / suspend / hibernate upgrade_shed. Original state is stored on each object
+# (upgrade_restore_annotation) so restore.yaml works across runs.
+- name: shed workloads
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  shell: |
+    set -euo pipefail
+    ns={{ item.namespace | quote }}
+    name={{ item.name | quote }}
+    res={{ upgrade_shed_resource[item.kind] | quote }}
+    hr={{ item.hr | default('') | quote }}
+    changed=0
+
+    # keep Helm from scaling things back while suspended (only HelmReleases this run suspends get resumed)
+    if [ -n "$hr" ] && [ "$(kubectl -n "$ns" get helmreleases.helm.toolkit.fluxcd.io "$hr" -o jsonpath='{.spec.suspend}')" != "true" ]; then
+      kubectl -n "$ns" annotate helmreleases.helm.toolkit.fluxcd.io "$hr" {{ upgrade_suspended_annotation }}=true --overwrite >/dev/null
+      kubectl -n "$ns" patch helmreleases.helm.toolkit.fluxcd.io "$hr" --type merge -p '{"spec":{"suspend":true}}' >/dev/null
+      changed=1
+    fi
+
+    case {{ item.kind | quote }} in
+      deployment|statefulset) current=$(kubectl -n "$ns" get "$res" "$name" -o jsonpath='{.spec.replicas}'); target=0 ;;
+      cronjob) current=$(kubectl -n "$ns" get "$res" "$name" -o jsonpath='{.spec.suspend}'); current=${current:-false}; target=true ;;
+      cnpg) current=$(kubectl -n "$ns" get "$res" "$name" -o jsonpath='{.metadata.annotations.cnpg\.io/hibernation}'); current=${current:-off}; target=on ;;
+    esac
+
+    saved=$(kubectl -n "$ns" get "$res" "$name" -o jsonpath="{.metadata.annotations.{{ upgrade_restore_annotation | replace('.', '\\.') }}}")
+    if [ -z "$saved" ]; then
+      kubectl -n "$ns" annotate "$res" "$name" "{{ upgrade_restore_annotation }}=$current" >/dev/null
+    fi
+
+    if [ "$current" != "$target" ]; then
+      case {{ item.kind | quote }} in
+        deployment|statefulset) kubectl -n "$ns" scale "$res" "$name" --replicas=0 ;;
+        cronjob) kubectl -n "$ns" patch "$res" "$name" --type merge -p '{"spec":{"suspend":true}}' ;;
+        cnpg) kubectl -n "$ns" annotate "$res" "$name" cnpg.io/hibernation=on --overwrite ;;
+      esac >/dev/null
+      changed=1
+    fi
+
+    if [ "$changed" = 1 ]; then echo CHANGED; fi
+  args:
+    executable: /bin/bash
+  loop: "{{ upgrade_shed }}"
+  loop_control:
+    label: "{{ item.kind }} {{ item.namespace }}/{{ item.name }}"
+  register: shed_result
+  changed_when: "'CHANGED' in shed_result.stdout"

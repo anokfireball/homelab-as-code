@@ -1,0 +1,13 @@
+---
+# Sets cluster_k8s_version (without "v"): the version `kubeadm upgrade apply` last brought the control plane to.
+- name: read kubeadm ClusterConfiguration
+  command: kubectl -n kube-system get configmap kubeadm-config -o jsonpath={.data.ClusterConfiguration}
+  delegate_to: localhost
+  become: false
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  register: kubeadm_cluster_configuration
+  changed_when: false
+
+- set_fact:
+    cluster_k8s_version: "{{ (kubeadm_cluster_configuration.stdout | from_yaml).kubernetesVersion | regex_replace('^v', '') }}"

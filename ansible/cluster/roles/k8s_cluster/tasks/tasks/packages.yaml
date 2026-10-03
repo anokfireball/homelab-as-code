@@ -1,0 +1,22 @@
+---
+# Install pinned packages and hold them. Shared by bootstrap (new nodes) and upgrade.yaml.
+# vars:
+#   packages: list of "name=version-glob" specs
+#   packages_allow_downgrade: bool (only for nodes that are not part of the cluster)
+- name: install pinned packages {{ packages | join(', ') }}
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 300
+    allow_change_held_packages: true
+    allow_downgrade: "{{ packages_allow_downgrade | default(false) }}"
+    # unattended-upgrades may hold the lock
+    lock_timeout: 600
+  register: packages_result
+
+- name: hold pinned packages
+  dpkg_selections:
+    name: "{{ item.split('=')[0] }}"
+    selection: hold
+  loop: "{{ packages }}"

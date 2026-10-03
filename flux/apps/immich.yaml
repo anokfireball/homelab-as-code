@@ -12,6 +12,8 @@ spec:
     name: vectorchord
     major: 16
   instances: 1
+  # single instance: a PDB cannot protect anything and only blocks node drains
+  enablePDB: false
   postgresql:
     shared_preload_libraries:
       - "vchord.so"

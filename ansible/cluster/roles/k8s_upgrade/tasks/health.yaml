@@ -1,0 +1,57 @@
+---
+# Cluster health gates, run from the controller against the VIP.
+# vars:
+#   health_etcd: also require all etcd members healthy (default true)
+#   health_longhorn_retries: how long to wait for Longhorn volumes to become healthy (default: no waiting)
+- name: cluster health
+  delegate_to: localhost
+  become: false
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  block:
+    - name: API server ready through the VIP
+      command: kubectl get --raw /readyz
+      register: health_readyz
+      retries: 30
+      delay: 10
+      until: health_readyz.rc == 0
+      changed_when: false
+
+    - name: all etcd members healthy
+      when: health_etcd | default(true)
+      shell: |
+        set -o pipefail
+        expected={{ groups['controlplane'] | length }}
+        for pod in $(kubectl -n kube-system get pods -l component=etcd --field-selector=status.phase=Running -o name); do
+          if out=$(kubectl -n kube-system exec "$pod" -- etcdctl --endpoints=https://127.0.0.1:2379 \
+              --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+              --cert=/etc/kubernetes/pki/etcd/server.crt \
+              --key=/etc/kubernetes/pki/etcd/server.key \
+              endpoint health --cluster 2>&1); then
+            echo "$out"
+            [ "$(grep -c 'is healthy' <<<"$out")" -eq "$expected" ] && exit 0
+          fi
+        done
+        exit 1
+      args:
+        executable: /bin/bash
+      register: health_etcd_result
+      retries: 18
+      delay: 10
+      until: health_etcd_result.rc == 0
+      changed_when: false
+
+    - name: all attached Longhorn volumes healthy
+      command: >-
+        kubectl -n longhorn-system get volumes.longhorn.io
+        -o jsonpath='{range .items[*]}{.metadata.name} {.status.state} {.status.robustness}{"\n"}{end}'
+      register: health_longhorn
+      retries: "{{ health_longhorn_retries | default(1) }}"
+      delay: "{{ upgrade_longhorn_healthy_delay }}"
+      until: health_longhorn.rc == 0 and health_longhorn_unhealthy | length == 0
+      failed_when: health_longhorn.rc != 0 or health_longhorn_unhealthy | length > 0
+      vars:
+        health_longhorn_unhealthy: >-
+          {{ health_longhorn.stdout_lines | default([])
+             | select('search', ' attached ') | reject('search', ' healthy$') | list }}
+      changed_when: false

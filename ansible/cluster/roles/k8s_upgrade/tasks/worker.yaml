@@ -1,0 +1,22 @@
+---
+# Worker node (serial: 1): kubeadm node config. Kubelet/containerd follow in node_cycle.yaml.
+- name: upgrade worker kubelet configuration
+  when: kubeadm_needs_upgrade
+  block:
+    - include_tasks: cluster_version.yaml
+
+    - name: control plane is upgraded first
+      assert:
+        that: cluster_k8s_version == k8s_version
+        fail_msg: "control plane runs {{ cluster_k8s_version }}, upgrade the control plane to {{ k8s_version }} before workers"
+        quiet: true
+
+    - include_role:
+        name: k8s_cluster
+        tasks_from: tasks/packages.yaml
+      vars:
+        packages: "{{ k8s_pkg_kubeadm }}"
+
+    - name: kubeadm upgrade node
+      command: kubeadm upgrade node
+      changed_when: true

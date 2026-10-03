@@ -8,11 +8,6 @@
     name: kubelet
     state: restarted
 
-- name: restart containerd
-  systemd_service:
-    name: containerd
-    state: restarted
-
 - name: bounce control plane static pods
   shell: |
     set -e

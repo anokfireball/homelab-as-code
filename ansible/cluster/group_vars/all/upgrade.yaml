@@ -1,0 +1,75 @@
+---
+# Settings for upgrade.yaml.
+
+# admin.conf fetched from the first control plane node; all kubectl calls of upgrade.yaml use it
+# (talks to the VIP, independent of Pinniped/Authentik which may be down while a worker drains)
+upgrade_kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/homelab-admin.conf"
+
+upgrade_drain_timeout: 15m
+# node Ready + reporting target versions after the kubelet restart (retries x 10s)
+upgrade_node_ready_retries: 60
+# Longhorn replica rebuilds after a node cycle (largest volume ~100Gi)
+upgrade_longhorn_healthy_retries: 120
+upgrade_longhorn_healthy_delay: 30
+
+# prompt for confirmation after every node cycle
+upgrade_pause_between_nodes: false
+# scale shed workloads back up at the end of the run; set to false to keep them down across several runs
+upgrade_restore: true
+
+# Single-replica webhook backends and controllers. Before a node is drained (while cordoned), these are
+# rolled out elsewhere so admission keeps working instead of all of them restarting at once mid-drain.
+upgrade_premove:
+  - { namespace: kyverno-system, name: kyverno-admission-controller }
+  - { namespace: cert-manager-system, name: cert-manager-webhook }
+  - { namespace: cert-manager-system, name: cert-manager }
+  - { namespace: metallb-system, name: metallb-controller }
+  - { namespace: cloudnative-pg-system, name: cloudnative-pg }
+  - { namespace: envoy-gateway-system, name: envoy-gateway }
+  - { namespace: flux-system, name: source-controller }
+  - { namespace: flux-system, name: kustomize-controller }
+  - { namespace: flux-system, name: helm-controller }
+
+# Workloads scaled down while workers are cycled: a single worker cannot host the load of both.
+# Shed in list order, restored in reverse order. Original state is stored as an annotation on each
+# object, so an interrupted run can be resumed or restored (`--tags restore`).
+# kind: deployment | statefulset | cronjob (suspended) | cnpg (hibernated)
+# hr: owning HelmRelease (same namespace); suspended so Helm does not scale it back mid-upgrade
+upgrade_shed:
+  # tier A: required to fit on one worker
+  - { namespace: kube-system, hr: descheduler, kind: cronjob, name: descheduler }
+  - { namespace: monitoring-system, hr: loki, kind: statefulset, name: loki-chunks-cache }
+  - { namespace: monitoring-system, hr: loki, kind: statefulset, name: loki-results-cache }
+  # operator first, otherwise it recreates unifi-mongodb
+  - { namespace: mongodb-system, hr: mongodb-kubernetes, kind: deployment, name: mongodb-kubernetes-operator }
+  - { namespace: default, kind: statefulset, name: unifi-mongodb }
+  - { namespace: default, hr: unifi-controller, kind: deployment, name: unifi-controller }
+  - { namespace: arrchive, hr: qbittorrent, kind: deployment, name: qbittorrent-main }
+  - { namespace: arrchive, hr: sabnzbd, kind: deployment, name: sabnzbd }
+  # tier B: memory headroom
+  - { namespace: arrchive, hr: jellyfin, kind: deployment, name: jellyfin }
+  - { namespace: default, hr: nextcloud, kind: deployment, name: nextcloud-imaginary }
+  - { namespace: default, hr: stirling-pdf, kind: deployment, name: stirling-pdf-stirling-pdf-chart }
+  - { namespace: default, hr: immich, kind: deployment, name: immich-machine-learning }
+  - { namespace: default, kind: deployment, name: sillytavern }
+  - { namespace: default, hr: excalidraw, kind: deployment, name: excalidraw }
+  - { namespace: default, hr: vert, kind: deployment, name: vert }
+  - { namespace: default, hr: rss-bridge, kind: deployment, name: rss-bridge-main }
+  - { namespace: default, hr: wger, kind: deployment, name: wger-app }
+  - { namespace: default, hr: wger, kind: deployment, name: wger-celery }
+  - { namespace: default, hr: wger, kind: deployment, name: wger-celery-worker }
+  - { namespace: default, hr: wger, kind: deployment, name: wger-nginx }
+  - { namespace: default, hr: wger, kind: deployment, name: wger-powersync }
+  - { namespace: default, hr: wger-redis, kind: deployment, name: wger-redis }
+  - { namespace: default, kind: cnpg, name: wger-postgresql }
+  - { namespace: default, hr: tandoor, kind: deployment, name: tandoor }
+  - { namespace: default, kind: cnpg, name: tandoor-postgresql }
+  - { namespace: default, hr: firefly-importer, kind: deployment, name: firefly-importer }
+  - { namespace: default, hr: firefly, kind: deployment, name: firefly-firefly-iii }
+  - { namespace: default, kind: cnpg, name: firefly-postgresql }
+  - { namespace: goldilocks-system, hr: goldilocks, kind: deployment, name: goldilocks-controller }
+  - { namespace: goldilocks-system, hr: goldilocks, kind: deployment, name: goldilocks-dashboard }
+  - { namespace: kube-system, hr: vertical-pod-autoscaler, kind: deployment, name: vertical-pod-autoscaler-vpa-recommender }
+  - { namespace: monitoring-system, hr: scrutiny-web, kind: deployment, name: scrutiny-web }
+  - { namespace: monitoring-system, hr: scrutiny-influxdb, kind: statefulset, name: scrutiny-influxdb-influxdb2 }
+  - { namespace: k8up-system, hr: k8up, kind: deployment, name: k8up }
