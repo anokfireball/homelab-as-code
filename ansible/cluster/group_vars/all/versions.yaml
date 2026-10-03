@@ -1,7 +1,7 @@
 ---
 # Single source of truth for node-level versions, bumped by Renovate.
 # cluster.yaml installs these on new nodes only; upgrade.yaml rolls existing nodes to them.
-k8s_version: "1.33.1"
+k8s_version: "1.35.9"
 containerd_version: "1.7.29"
 kube_vip_version: v1.2.2
 
