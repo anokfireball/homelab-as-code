@@ -12,6 +12,12 @@
       register: cordon_result
       changed_when: "'already cordoned' not in cordon_result.stdout"
 
+    # Longhorn share-manager pods tolerate every taint (incl. cordon); the Kyverno policy
+    # longhorn-share-manager-avoid-draining-nodes keeps them off nodes with this label
+    - name: mark node as draining
+      command: kubectl label node {{ inventory_hostname }} homelab.io/draining=true --overwrite
+      changed_when: false
+
     - name: list pods on the node
       command: >-
         kubectl get pods -A --field-selector spec.nodeName={{ inventory_hostname }}
@@ -118,6 +124,10 @@
     - name: uncordon
       command: kubectl uncordon {{ inventory_hostname }}
       changed_when: true
+
+    - name: unmark node as draining
+      command: kubectl label node {{ inventory_hostname }} homelab.io/draining-
+      changed_when: false
 
 - include_tasks: health.yaml
   vars:

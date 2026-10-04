@@ -7,6 +7,12 @@
       #!/bin/sh
       set -eu
       /usr/bin/kubeadm certs renew all
+      # kube-vip.conf is a copy of admin.conf with the local API server address (see kube-vip.yaml)
+      if [ -f /etc/kubernetes/kube-vip.conf ]; then
+        sed -E 's#^([[:space:]]*server:).*#\1 https://kubernetes:6443#' /etc/kubernetes/admin.conf > /etc/kubernetes/kube-vip.conf.new
+        chmod 600 /etc/kubernetes/kube-vip.conf.new
+        mv /etc/kubernetes/kube-vip.conf.new /etc/kubernetes/kube-vip.conf
+      fi
       /bin/systemctl restart kubelet
       # kube-vip caches its kubeconfig client at process start and does not
       # re-read renewed cert files after a kubelet restart alone.
