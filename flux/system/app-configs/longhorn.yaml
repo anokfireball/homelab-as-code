@@ -96,3 +96,38 @@ spec:
     - base
   name: weekly-trim
   task: filesystem-trim
+---
+# Longhorn's global toleration (operator: Exists) also tolerates the cordon taint, so share-manager
+# pods of RWX volumes get rescheduled onto the node being drained and its drain never finishes.
+# upgrade.yaml labels the node homelab.io/draining while it is cordoned; keep share-managers off it.
+# failurePolicy Ignore: storage must not depend on Kyverno being up.
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: longhorn-share-manager-avoid-draining-nodes
+spec:
+  failurePolicy: Ignore
+  rules:
+    - name: avoid-draining-nodes
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - longhorn-system
+              selector:
+                matchLabels:
+                  longhorn.io/component: share-manager
+              operations:
+                - CREATE
+      mutate:
+        patchStrategicMerge:
+          spec:
+            affinity:
+              nodeAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  nodeSelectorTerms:
+                    - matchExpressions:
+                        - key: homelab.io/draining
+                          operator: DoesNotExist

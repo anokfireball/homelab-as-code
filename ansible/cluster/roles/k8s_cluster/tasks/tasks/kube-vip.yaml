@@ -4,6 +4,28 @@
   register: kube_vip_pull_output
   changed_when: "kube_vip_pull_output.stdout is search('total:\\s*0.0\\s*B') == False"
 
+# kube-vip must reach the API server without the VIP it provides: admin.conf/super-admin.conf point at the
+# VIP, so when no instance holds it (e.g. after all kube-vip pods were replaced) leader election deadlocks.
+# kube-vip.conf talks to the local API server via the manifest's hostAlias kubernetes -> 127.0.0.1.
+# Before kubeadm init there is no admin.conf yet; the first node bootstraps with super-admin.conf.
+- name: check for admin kubeconfig
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: kube_vip_admin_conf
+
+- name: read admin kubeconfig
+  when: kube_vip_admin_conf.stat.exists
+  slurp:
+    src: /etc/kubernetes/admin.conf
+  register: kube_vip_admin_conf_content
+
+- name: write kube-vip kubeconfig pointing at the local API server
+  when: kube_vip_admin_conf.stat.exists
+  copy:
+    content: "{{ kube_vip_admin_conf_content.content | b64decode | regex_replace('(?m)^(\\s*server:).*$', '\\1 https://kubernetes:6443') }}"
+    dest: /etc/kubernetes/kube-vip.conf
+    mode: "0600"
+
 - name: generate kube-vip manifest
   command: >
     ctr run --rm --net-host ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }} vip /kube-vip manifest pod
@@ -12,7 +34,7 @@
     --controlplane
     --arp
     --leaderElection
-    --k8sConfigPath /etc/kubernetes/super-admin.conf
+    --k8sConfigPath /etc/kubernetes/{{ 'kube-vip.conf' if kube_vip_admin_conf.stat.exists else 'super-admin.conf' }}
   register: kube_vip_manifest
   changed_when: false
 
