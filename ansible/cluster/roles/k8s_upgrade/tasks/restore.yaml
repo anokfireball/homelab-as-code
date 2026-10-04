@@ -26,7 +26,7 @@
           kubectl -n "$ns" annotate "$res" "$name" "cnpg.io/hibernation=$saved" --overwrite
         fi ;;
     esac >/dev/null
-    kubectl -n "$ns" annotate "$res" "$name" "{{ upgrade_restore_annotation }}-" >/dev/null
+    kubectl -n "$ns" annotate "$res" "$name" "{{ upgrade_restore_annotation }}-" kustomize.toolkit.fluxcd.io/reconcile- >/dev/null
     echo CHANGED
   args:
     executable: /bin/bash
@@ -47,7 +47,7 @@
       | awk '$3 == "true" { print $1, $2 }' \
       | while read -r ns name; do
           kubectl -n "$ns" patch helmreleases.helm.toolkit.fluxcd.io "$name" --type merge -p '{"spec":{"suspend":false}}' >/dev/null
-          kubectl -n "$ns" annotate helmreleases.helm.toolkit.fluxcd.io "$name" "{{ upgrade_suspended_annotation }}-" >/dev/null
+          kubectl -n "$ns" annotate helmreleases.helm.toolkit.fluxcd.io "$name" "{{ upgrade_suspended_annotation }}-" kustomize.toolkit.fluxcd.io/reconcile- >/dev/null
           echo "resumed $ns/$name"
         done
   args:
