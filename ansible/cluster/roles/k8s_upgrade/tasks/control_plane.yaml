@@ -47,4 +47,7 @@
       when: cluster_k8s_version == k8s_version
       changed_when: true
 
+    # the previous node's replicas may still be rebuilding, and restarting the static pods briefly degrades more
     - include_tasks: health.yaml
+      vars:
+        health_longhorn_retries: "{{ upgrade_longhorn_healthy_retries }}"
