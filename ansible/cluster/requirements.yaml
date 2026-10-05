@@ -3,4 +3,4 @@ collections:
   - ansible.posix
   - community.general
   - name: community.sops
-    version: 2.4.0
+    version: 2.5.0
