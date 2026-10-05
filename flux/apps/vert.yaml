@@ -20,7 +20,7 @@ spec:
           main:
             image:
               repository: ghcr.io/vert-sh/vert
-              tag: main@sha256:c760af3d0015073360af2252d48269f8a09286d630d240961fa5f65b415f5c1f
+              tag: main@sha256:6adce806865b23c163c6d7f8f703dd08cc357622319a146fa4dcf2da96ec4684
             probes:
               liveness:
                 enabled: true
