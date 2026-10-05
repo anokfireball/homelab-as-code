@@ -12,11 +12,18 @@
     hr={{ item.hr | default('') | quote }}
     changed=0
 
+    # kustomize-controller strips fields set with kubectl (suspend, annotations, hibernation) on its next
+    # apply, so opt the object out of Flux first; restore.yaml removes the opt-out again
+    flux_off=kustomize.toolkit.fluxcd.io/reconcile=disabled
+
     # keep Helm from scaling things back while suspended (only HelmReleases this run suspends get resumed)
     if [ -n "$hr" ] && [ "$(kubectl -n "$ns" get helmreleases.helm.toolkit.fluxcd.io "$hr" -o jsonpath='{.spec.suspend}')" != "true" ]; then
-      kubectl -n "$ns" annotate helmreleases.helm.toolkit.fluxcd.io "$hr" {{ upgrade_suspended_annotation }}=true --overwrite >/dev/null
+      kubectl -n "$ns" annotate helmreleases.helm.toolkit.fluxcd.io "$hr" "$flux_off" {{ upgrade_suspended_annotation }}=true --overwrite >/dev/null
       kubectl -n "$ns" patch helmreleases.helm.toolkit.fluxcd.io "$hr" --type merge -p '{"spec":{"suspend":true}}' >/dev/null
       changed=1
+    fi
+    if [ {{ item.kind | quote }} = cnpg ]; then
+      kubectl -n "$ns" annotate "$res" "$name" "$flux_off" --overwrite >/dev/null
     fi
 
     case {{ item.kind | quote }} in
