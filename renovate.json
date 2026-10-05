@@ -19,12 +19,15 @@
       "ignoreTests": false
     },
     {
+      "description": "Renovate itself (cluster chart and the validate.yaml CI image) plus kube-prometheus-stack: automerge minor/patch/digest. The CI image bump gates itself, since renovate-config runs the new image against this file before CI - Success reports.",
       "matchFileNames": [
-        "flux/**"
+        "flux/**",
+        ".github/workflows/**"
       ],
       "matchPackageNames": [
         "renovate",
         "ghcr.io/renovatebot/charts/renovate",
+        "ghcr.io/renovatebot/renovate",
         "kube-prometheus-stack"
       ],
       "matchUpdateTypes": [
