@@ -18,6 +18,28 @@
       command: kubectl label node {{ inventory_hostname }} homelab.io/draining=true --overwrite
       changed_when: false
 
+    # a drain that finishes while this node holds a volume's only replica strands that data:
+    # the instance-manager is gone before Longhorn can copy it (hop A, authentik on worker3)
+    - name: move a volume's last replica off the node before draining
+      shell: |
+        set -euo pipefail
+        node={{ inventory_hostname | quote }}
+        last=$(kubectl -n longhorn-system get replicas.longhorn.io -o json | jq -r --arg n "$node" '
+          [.items[] | select(.spec.failedAt=="" and .spec.nodeID!="") | {v:.spec.volumeName, n:.spec.nodeID}]
+          | group_by(.v)[] | select(length==1 and .[0].n==$n) | .[0].v')
+        if [ -z "$last" ]; then exit 0; fi
+        echo "last replica still here: $last"
+        kubectl -n longhorn-system patch nodes.longhorn.io "$node" --type merge \
+          -p '{"spec":{"evictionRequested":true}}' >/dev/null
+        exit 1
+      args:
+        executable: /bin/bash
+      register: last_replica
+      retries: 60
+      delay: 15
+      until: last_replica.rc == 0
+      changed_when: last_replica.stdout | length > 0
+
     - name: list pods on the node
       command: >-
         kubectl get pods -A --field-selector spec.nodeName={{ inventory_hostname }}
