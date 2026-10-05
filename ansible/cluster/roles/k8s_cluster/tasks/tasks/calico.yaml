@@ -1,5 +1,6 @@
 ---
-# CRD bundles too large to use kubectl apply
+# Server-side apply: the CRD bundle exceeds the client-side last-applied annotation limit, and
+# new releases add CRDs that `kubectl replace` cannot create (the procedure Calico documents for upgrades).
 - name: create calico config directory
   file:
     path: /etc/calico
@@ -12,25 +13,12 @@
     dest: /etc/calico/operator-crds.yaml
   register: calico_crds_manifest
 
-- name: check if calico operator CRDs already exist
-  shell: |
-    set -o pipefail
-    # figure out if a CRD with name "apiservers.operator.tigera.io" exists
-    kubectl get crds -o json | jq '.items[] | select(.metadata.name == "apiservers.operator.tigera.io")' | wc -l
-  args:
-    executable: /bin/bash
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-  register: calico_crds_exists
-  ignore_errors: true
-  changed_when: calico_crds_exists.stdout == '0'
-
 - name: apply calico operator CRDs
-  command: |
-    kubectl {{ 'create' if calico_crds_exists.stdout == '0' else 'replace' }} -f /etc/calico/operator-crds.yaml
+  command: kubectl apply --server-side --force-conflicts -f /etc/calico/operator-crds.yaml
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
-  changed_when: calico_crds_exists.stdout == '0' or calico_crds_manifest.changed
+  register: calico_crds_apply
+  changed_when: calico_crds_apply.stdout is search('(created|configured)')
 
 - name: download calico operator manifest
   get_url:
@@ -39,24 +27,12 @@
     dest: /etc/calico/tigera-operator.yaml
   register: calico_operator_manifest
 
-- name: check if calico operator already exists
-  shell: |
-    set -o pipefail
-    kubectl get deployments -n tigera-operator -o json | jq ".items | length"
-  args:
-    executable: /bin/bash
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
-  register: calico_operator_exists
-  ignore_errors: true
-  changed_when: calico_operator_exists.stdout == '0'
-
 - name: apply calico operator manifest
-  command: |
-    kubectl {{ 'create' if calico_operator_exists.stdout == '0' else 'replace' }} -f /etc/calico/tigera-operator.yaml
+  command: kubectl apply --server-side --force-conflicts -f /etc/calico/tigera-operator.yaml
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
-  changed_when: calico_operator_exists.stdout == '0' or calico_operator_manifest.changed
+  register: calico_operator_apply
+  changed_when: calico_operator_apply.stdout is search('(created|configured)')
 
 - name: copy calico custom resource manifest
   template:
