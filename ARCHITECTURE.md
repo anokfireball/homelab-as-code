@@ -582,6 +582,7 @@ labels:
 |---|---|
 | `flux/**`: patch or digest update, non-pre-1.0 package | Yes |
 | `flux/**`: renovate or kube-prometheus-stack minor/patch/digest | Yes |
+| `.github/workflows/**`: renovate CI validator image minor/patch/digest | Yes |
 | Everything else | No (PR created, manual merge) |
 
 ### Always-manual packages
