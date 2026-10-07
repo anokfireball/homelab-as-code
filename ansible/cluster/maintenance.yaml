@@ -1,0 +1,91 @@
+---
+# Drain-aware OS maintenance, one node at a time: drain, apt dist-upgrade (kubernetes packages stay held),
+# reboot if /var/run/reboot-required exists, wait for Ready at the pinned versions, uncordon, health gates.
+# Unattended-upgrades never reboots the nodes, so pending reboots are done with this playbook.
+#
+#   ansible-playbook -i inventory.ini maintenance.yaml                          # all nodes
+#   ansible-playbook -i inventory.ini maintenance.yaml --limit worker3          # one node
+#   ansible-playbook -i inventory.ini maintenance.yaml --tags preflight          # health checks only, changes nothing
+#   ansible-playbook -i inventory.ini maintenance.yaml -e maintenance_apt_upgrade=false   # only reboot where required
+#   ansible-playbook -i inventory.ini maintenance.yaml -e maintenance_reboot=always       # reboot every node
+#   ansible-playbook -i inventory.ini maintenance.yaml --tags restore           # scale shed workloads back up (e.g. after an abort)
+#
+# The plays that run on the controller (kubeconfig, preflight, shed, restore) target the node groups with
+# run_once instead of localhost, so they follow --limit: shedding only happens when a worker is in the run.
+
+- name: admin kubeconfig
+  hosts: cluster
+  gather_facts: false
+  become: true
+  tags: [always]
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: kubeconfig.yaml
+        apply:
+          delegate_to: "{{ groups['controlplane'][0] }}"
+          run_once: true
+
+- name: preflight
+  hosts: cluster
+  gather_facts: false
+  become: false
+  any_errors_fatal: true
+  tags: [preflight]
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: maintenance_preflight.yaml
+        apply:
+          run_once: true
+
+- name: control plane
+  hosts: controlplane
+  serial: 1
+  gather_facts: false
+  become: true
+  any_errors_fatal: true
+  max_fail_percentage: 0
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: maintenance_cycle.yaml
+
+- name: shed workloads
+  hosts: worker
+  gather_facts: false
+  become: false
+  tags: [shed]
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: shed.yaml
+        apply:
+          delegate_to: localhost
+          run_once: true
+
+- name: workers
+  hosts: worker
+  serial: 1
+  gather_facts: false
+  become: true
+  any_errors_fatal: true
+  max_fail_percentage: 0
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: maintenance_cycle.yaml
+
+- name: restore workloads
+  hosts: worker
+  gather_facts: false
+  become: false
+  tags: [restore]
+  tasks:
+    - include_role:
+        name: k8s_upgrade
+        tasks_from: restore.yaml
+        apply:
+          delegate_to: localhost
+          run_once: true
+      when: upgrade_restore or 'restore' in ansible_run_tags

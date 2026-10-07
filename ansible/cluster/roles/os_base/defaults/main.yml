@@ -1,0 +1,4 @@
+---
+# apt-daily-upgrade.timer fires at base hour + (index in groups['cluster']) * spacing, one node per slot
+unattended_upgrade_base_hour: 3
+unattended_upgrade_hour_spacing: 1

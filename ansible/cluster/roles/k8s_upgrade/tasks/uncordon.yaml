@@ -1,0 +1,38 @@
+---
+# Wait for the node to be Ready, then undo drain.yaml.
+# vars:
+#   uncordon_pinned_versions: also require the pinned kubelet and containerd versions (default true);
+#     false waits for Ready only
+- name: verify and uncordon
+  delegate_to: localhost
+  become: false
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  block:
+    - name: node Ready{{ ' with pinned kubelet and containerd' if uncordon_pinned_versions | default(true) else '' }}
+      command: >-
+        kubectl get node {{ inventory_hostname }}
+        -o jsonpath='{.status.nodeInfo.kubeletVersion} {.status.nodeInfo.containerRuntimeVersion} {.status.conditions[?(@.type=="Ready")].status}'
+      register: node_status
+      retries: "{{ upgrade_node_ready_retries }}"
+      delay: 10
+      until: >-
+        node_status.stdout == 'v' ~ k8s_version ~ ' containerd://' ~ containerd_version ~ ' True'
+        if uncordon_pinned_versions | default(true)
+        else node_status.stdout is search(' True$')
+      changed_when: false
+
+    - name: uncordon
+      command: kubectl uncordon {{ inventory_hostname }}
+      changed_when: true
+
+    - name: unmark node as draining
+      command: kubectl label node {{ inventory_hostname }} homelab.io/draining-
+      changed_when: false
+
+    - name: clear longhorn eviction request
+      command: >-
+        kubectl -n longhorn-system patch nodes.longhorn.io {{ inventory_hostname }}
+        --type merge -p '{"spec":{"evictionRequested":false}}'
+      changed_when: false
+      failed_when: false
