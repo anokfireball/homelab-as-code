@@ -57,6 +57,7 @@ spec:
             env:
               TZ: Europe/Berlin
               BASE_URL: https://freshrss.${SERVICE_DOMAIN}
+              INTERNAL_HOST_ALLOWLIST: "fd08:192:168:1::6/128 192.168.1.6/32"
               CRON_MIN: "*/12"
               FRESHRSS_INSTALL:
                 valueFrom:
