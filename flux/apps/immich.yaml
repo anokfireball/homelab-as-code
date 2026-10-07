@@ -194,7 +194,7 @@ spec:
   chart:
     spec:
       chart: immich
-      version: 0.13.2
+      version: 0.13.3
       sourceRef:
         kind: HelmRepository
         name: immich-app
