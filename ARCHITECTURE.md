@@ -58,6 +58,22 @@ ansible-playbook -i inventory.ini upgrade.yaml --tags restore     # scale shed w
 - before the workers, `upgrade_shed` workloads are scaled down / suspended / hibernated (a single worker cannot host everything) and restored at the end; the previous state is kept in `homelab.io/upgrade-restore` annotations, so interrupted runs can be resumed or restored
 - every step derives what is left to do from the node and cluster state, so re-running after a failure continues where it stopped
 
+#### OS maintenance (`ansible/cluster/maintenance.yaml`)
+
+Unattended-upgrades installs security updates but never reboots a node (`Unattended-Upgrade::Automatic-Reboot "false"`). `apt-daily-upgrade.timer` fires at a fixed slot per node, 03:00 plus one hour per position in the `cluster` group (controlplane1 03:00 … worker3 07:00, `unattended_upgrade_base_hour`/`unattended_upgrade_hour_spacing`), and neither apt timer catches up on missed runs (`Persistent=false`). `apt-daily.service` (download only) is stopped after `TimeoutStartSec=1h`, so a hung download cannot block `apt-daily-upgrade.service` indefinitely; the upgrade service itself has no timeout, killing dpkg is unsafe. Apply only that part with `ansible-playbook -i inventory.ini cluster.yaml --tags unattended_upgrades`.
+
+Pending reboots and full OS updates go through `maintenance.yaml`, one node at a time:
+
+```sh
+ansible-playbook -i inventory.ini maintenance.yaml --tags preflight   # health checks only
+ansible-playbook -i inventory.ini maintenance.yaml                    # all nodes
+ansible-playbook -i inventory.ini maintenance.yaml --limit worker3    # one node
+```
+
+- preflight: API/etcd/Longhorn healthy, all nodes Ready, nodes in the run at the pinned kubelet/containerd versions
+- per node: the same cordon/drain and verify/uncordon steps as the upgrade node cycle, `apt-get dist-upgrade` in between (kubernetes packages stay held; `-e maintenance_apt_upgrade=false` skips it), reboot if `/var/run/reboot-required` exists (`-e maintenance_reboot=always` reboots every node), then the health gates
+- `upgrade_shed` workloads are shed and restored only when a worker is part of the run; `--tags restore` works as for `upgrade.yaml`
+
 API server authentication uses Authentik as the OIDC provider with Pinniped handling the kubeconfig-based OIDC flow (configured in `flux/system/infrastructure-configs/`).
 
 ### Stage 3: Flux GitOps (`flux/`)

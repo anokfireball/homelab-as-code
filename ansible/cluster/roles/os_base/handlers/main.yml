@@ -4,6 +4,10 @@
     state: restarted
     name: unattended-upgrades
 
+- name: daemon-reload
+  systemd_service:
+    daemon_reload: true
+
 - name: update grub
   command: update-grub
   changed_when: true

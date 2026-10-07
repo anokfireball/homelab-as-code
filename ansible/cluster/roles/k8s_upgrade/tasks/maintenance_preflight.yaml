@@ -1,0 +1,31 @@
+---
+# Read-only checks before maintenance.yaml drains anything; run once per play.
+- include_tasks: health.yaml
+
+- name: node states
+  delegate_to: localhost
+  become: false
+  environment:
+    KUBECONFIG: "{{ upgrade_kubeconfig }}"
+  command: >-
+    kubectl get nodes
+    -o jsonpath='{range .items[*]}{.metadata.name} {.status.nodeInfo.kubeletVersion} {.status.nodeInfo.containerRuntimeVersion}
+    {.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}'
+  register: maintenance_nodes
+  changed_when: false
+
+# uncordon.yaml waits for the pinned versions; a node that is not at them would be left cordoned
+- name: all nodes Ready, nodes to maintain at the pinned versions
+  vars:
+    not_ready: "{{ maintenance_nodes.stdout_lines | reject('search', ' True$') | list }}"
+    not_pinned: >-
+      {{ ansible_play_hosts | map('regex_replace', '$', ' v' ~ k8s_version ~ ' containerd://' ~ containerd_version ~ ' True')
+         | difference(maintenance_nodes.stdout_lines) | map('split', ' ') | map('first') | list }}
+  assert:
+    that:
+      - not_ready | length == 0
+      - not_pinned | length == 0
+    fail_msg: >-
+      not Ready: {{ not_ready | join(', ') or '-' }};
+      not at kubelet v{{ k8s_version }} / containerd {{ containerd_version }} (run upgrade.yaml first): {{ not_pinned | join(', ') or '-' }}
+    quiet: true

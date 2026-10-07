@@ -74,8 +74,54 @@
     - { path: "/etc/apt/apt.conf.d/10periodic", key: "APT::Periodic::AutocleanInterval", value: "7" }
     - { path: "/etc/apt/apt.conf.d/20auto-upgrades", key: "APT::Periodic::Unattended-Upgrade", value: "1" }
     - { path: "/etc/apt/apt.conf.d/50unattended-upgrades", key: "Unattended-Upgrade::MinimalSteps", value: "true" }
-    - { path: "/etc/apt/apt.conf.d/50unattended-upgrades", key: "Unattended-Upgrade::Automatic-Reboot", value: "true" }
+    # nodes are rebooted drained, one at a time, with maintenance.yaml
+    - { path: "/etc/apt/apt.conf.d/50unattended-upgrades", key: "Unattended-Upgrade::Automatic-Reboot", value: "false" }
   notify: restart unattended-upgrades
+  tags: [unattended_upgrades]
+
+# Timers: one fixed slot per node instead of the shared randomized window, and no catch-up after downtime
+# (Persistent=true made nodes catch up on missed runs at the same time).
+# apt-daily.service (download only) is a oneshot without a start timeout; a hung run blocks every
+# apt-daily-upgrade.service run, which is ordered after it. apt-daily-upgrade.service gets no timeout:
+# killing it mid-dpkg is unsafe.
+# Only drop-ins are written; whether the units are enabled or masked is left alone.
+- name: create apt systemd drop-in directories
+  file:
+    path: "/etc/systemd/system/{{ item }}.d"
+    state: directory
+    mode: "0755"
+  loop: [apt-daily.timer, apt-daily-upgrade.timer, apt-daily.service]
+  tags: [unattended_upgrades]
+
+- name: stagger apt timers across nodes, bound apt-daily.service
+  copy:
+    dest: "/etc/systemd/system/{{ item.unit }}.d/override.conf"
+    mode: "0644"
+    content: "{{ item.content }}"
+  loop:
+    - unit: apt-daily.timer
+      content: |
+        [Timer]
+        Persistent=false
+    - unit: apt-daily-upgrade.timer
+      content: |
+        [Timer]
+        OnCalendar=
+        OnCalendar=*-*-* {{ '%02d' | format(unattended_upgrade_hour | int) }}:00:00
+        RandomizedDelaySec=0
+        Persistent=false
+    - unit: apt-daily.service
+      content: |
+        [Service]
+        TimeoutStartSec=1h
+  loop_control:
+    label: "{{ item.unit }}"
+  vars:
+    unattended_upgrade_hour: >-
+      {{ (unattended_upgrade_base_hour | int
+          + groups['cluster'].index(inventory_hostname) * unattended_upgrade_hour_spacing | int) % 24 }}
+  notify: daemon-reload
+  tags: [unattended_upgrades]
 
 - name: check SWAP
   command: swapon -s

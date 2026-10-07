@@ -5,7 +5,7 @@
   become: true
   any_errors_fatal: true
   roles:
-    - { role: os_base }
+    - { role: os_base, tags: [os_base] }
     - { role: os_power }
     - { role: k8s_cluster }
     - { role: k8s_longhorn }

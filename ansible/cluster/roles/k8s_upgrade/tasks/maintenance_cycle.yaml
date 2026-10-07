@@ -1,0 +1,38 @@
+---
+# Drain the node, apply OS updates, reboot if needed, verify, uncordon.
+# kubelet, kubeadm, kubectl, containerd.io and cri-tools are apt-mark held and stay at the pinned
+# versions; upgrade.yaml changes those. Safe to re-run: a node left cordoned is drained and finished again.
+- include_tasks: drain.yaml
+
+- name: upgrade OS packages
+  # apt-get dist-upgrade; the apt module only passes --allow-change-held-packages when asked to
+  apt:
+    upgrade: dist
+    update_cache: true
+    # unattended-upgrades may hold the lock
+    lock_timeout: 600
+  when: maintenance_apt_upgrade
+
+- name: check whether a reboot is required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+
+- name: reboot
+  reboot:
+    msg: "maintenance.yaml: rebooting drained node"
+    # bare metal: firmware POST plus boot
+    reboot_timeout: 900
+  when: maintenance_reboot == 'always' or reboot_required.stat.exists
+
+- include_tasks: uncordon.yaml
+
+- include_tasks: health.yaml
+  vars:
+    health_etcd: "{{ 'controlplane' in group_names }}"
+    health_longhorn_retries: "{{ upgrade_longhorn_healthy_retries }}"
+
+- name: confirm before continuing with the next node
+  pause:
+    prompt: "{{ inventory_hostname }} done, press enter to continue (ctrl+c, a to abort)"
+  when: upgrade_pause_between_nodes

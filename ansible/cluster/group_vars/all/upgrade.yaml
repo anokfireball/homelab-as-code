@@ -1,7 +1,7 @@
 ---
-# Settings for upgrade.yaml.
+# Settings for upgrade.yaml and maintenance.yaml (shared: kubeconfig, drain, health gates, pause, shed/restore).
 
-# admin.conf fetched from the first control plane node; all kubectl calls of upgrade.yaml use it
+# admin.conf fetched from the first control plane node; all kubectl calls of upgrade.yaml/maintenance.yaml use it
 # (talks to the VIP, independent of Pinniped/Authentik which may be down while a worker drains)
 upgrade_kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/homelab-admin.conf"
 
@@ -16,6 +16,11 @@ upgrade_longhorn_healthy_delay: 30
 upgrade_pause_between_nodes: false
 # scale shed workloads back up at the end of the run; set to false to keep them down across several runs
 upgrade_restore: true
+
+# maintenance.yaml: apt dist-upgrade every node (held kubernetes packages excluded)
+maintenance_apt_upgrade: true
+# maintenance.yaml: required (only if /var/run/reboot-required exists) | always
+maintenance_reboot: required
 
 # Single-replica webhook backends and controllers. Before a node is drained (while cordoned), these are
 # rolled out elsewhere so admission keeps working instead of all of them restarting at once mid-drain.
