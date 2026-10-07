@@ -51,7 +51,6 @@ upgrade_shed:
   - { namespace: default, hr: nextcloud, kind: deployment, name: nextcloud-imaginary }
   - { namespace: default, hr: stirling-pdf, kind: deployment, name: stirling-pdf-stirling-pdf-chart }
   - { namespace: default, hr: immich, kind: deployment, name: immich-machine-learning }
-  - { namespace: default, kind: deployment, name: sillytavern }
   - { namespace: default, hr: excalidraw, kind: deployment, name: excalidraw }
   - { namespace: default, hr: vert, kind: deployment, name: vert }
   - { namespace: default, hr: rss-bridge, kind: deployment, name: rss-bridge-main }
