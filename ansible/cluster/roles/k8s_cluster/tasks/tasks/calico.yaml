@@ -58,3 +58,20 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
   changed_when: calico_custom_resource_exists.stdout == '0' or calico_custom_resource_manifest.changed
+
+# Every systemd-networkd restart (systemd/netplan upgrades) briefly removes the DHCP address from eth0, and the
+# kernel drops all IPv4 routes on it, Felix's routes to the other nodes' pod blocks included. Felix only puts them
+# back on its route refresh: measured 88-96s at the default 90s, 4-6s at 10s. FelixConfiguration "default" is
+# created by the operator, so patch the one field instead of owning the resource.
+- name: shorten felix route refresh interval
+  command: >-
+    kubectl patch felixconfigurations.projectcalico.org default --type merge
+    -p '{"spec":{"routeRefreshInterval":"{{ calico_route_refresh_interval }}"}}'
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: calico_felix_patch
+  # on a fresh cluster the operator and the Calico API server need a moment to create it
+  retries: 30
+  delay: 10
+  until: calico_felix_patch.rc == 0
+  changed_when: "'(no change)' not in calico_felix_patch.stdout"

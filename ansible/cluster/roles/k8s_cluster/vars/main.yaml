@@ -16,6 +16,8 @@ calico_version: v3.33.0
 calico_node_subnet_prefix_length_v4: 24
 # range: [116:128]
 calico_node_subnet_prefix_length_v6: 120
+# how fast Felix restores its routes after something else removed them (see tasks/calico.yaml); Calico default 90s
+calico_route_refresh_interval: 10s
 
 reset_cluster: false
 reset_confirmation: ""
