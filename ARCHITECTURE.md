@@ -41,6 +41,8 @@ k8s_flux     → Flux bootstrap + SOPS key injection
 
 `cluster.yaml` installs the versions pinned in `group_vars/all/versions.yaml` on new nodes only. On nodes that are already part of the cluster it fails if kubelet, kubeadm, containerd, the containerd config or kube-vip differ from the pins, instead of changing them.
 
+Step-by-step instructions for running `upgrade.yaml` and `maintenance.yaml` by hand: [ansible/cluster/RUNBOOK.md](ansible/cluster/RUNBOOK.md).
+
 #### Node upgrades (`ansible/cluster/upgrade.yaml`)
 
 Rolls the existing nodes to the pinned versions (Kubernetes patch or one minor step, containerd, containerd config, kube-vip). Workflow: merge the Renovate PR, then run
