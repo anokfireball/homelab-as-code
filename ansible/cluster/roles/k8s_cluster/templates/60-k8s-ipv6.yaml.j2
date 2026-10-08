@@ -6,16 +6,8 @@ network:
             ra-overrides:
               use-dns: false
               use-domains: false
+            # no explicit routes: the kernel adds the on-link /64 for this address, and RA provides the default
+            # route. A static route via the gateway made networkd restarts fail ("Could not set route: No route
+            # to host"), which takes all of eth0 down, IPv4 included
             addresses:
                 - "{{ node_ula_prefix }}{{ node_suffix }}/64"
-            routes:
-                - to: "{{ node_ula_prefix }}/64"
-                  scope: link
-                  metric: 100
-                - to: "{{ node_ula_prefix }}/64"
-                  via: "{{ node_ula_prefix }}1"
-                  # without on-link, a networkd restart can try this route before the gateway is
-                  # resolvable, fail with "No route to host" and take all of eth0 (IPv4 too) down
-                  on-link: true
-                  scope: global
-                  metric: 200
