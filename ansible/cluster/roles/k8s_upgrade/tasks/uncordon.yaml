@@ -16,10 +16,11 @@
       register: node_status
       retries: "{{ upgrade_node_ready_retries }}"
       delay: 10
+      # conditionals are evaluated inside {% if %}, which rejects an unparenthesized `x if c else y`
       until: >-
-        node_status.stdout == 'v' ~ k8s_version ~ ' containerd://' ~ containerd_version ~ ' True'
+        (node_status.stdout == 'v' ~ k8s_version ~ ' containerd://' ~ containerd_version ~ ' True'
         if uncordon_pinned_versions | default(true)
-        else node_status.stdout is search(' True$')
+        else node_status.stdout is search(' True$'))
       changed_when: false
 
     - name: uncordon
