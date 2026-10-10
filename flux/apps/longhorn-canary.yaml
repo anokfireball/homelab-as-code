@@ -21,6 +21,42 @@ data:
       exit 1
     fi
     echo "ok: wrote and verified 16MiB on $src"
+    cutoff=$(( $(date +%s) - 1800 ))
+    leaked=$(kubectl get pv -o json | jq -r --arg p "longhorn-canary-$CANARY-" --argjson cutoff "$cutoff" \
+      '.items[] | select(.spec.claimRef.namespace == "default" and (.spec.claimRef.name | startswith($p))
+        and (.metadata.creationTimestamp | fromdateiso8601) < $cutoff) | .metadata.name')
+    if [ -n "$leaked" ]; then
+      echo "canary volumes older than 30m were not cleaned up:" $leaked >&2
+      exit 1
+    fi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: longhorn-canary
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: longhorn-canary
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: longhorn-canary
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: longhorn-canary
+subjects:
+  - kind: ServiceAccount
+    name: longhorn-canary
+    namespace: default
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -43,6 +79,7 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          serviceAccountName: longhorn-canary
           securityContext:
             runAsNonRoot: true
             runAsUser: 65534
@@ -52,12 +89,17 @@ spec:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
               command: ["bash", "/scripts/check.sh"]
+              env:
+                - name: CANARY
+                  value: replicated
+                - name: HOME
+                  value: /tmp
               resources:
                 requests:
                   cpu: 10m
-                  memory: 32Mi
-                limits:
                   memory: 64Mi
+                limits:
+                  memory: 128Mi
               volumeMounts:
                 - name: canary
                   mountPath: /canary
@@ -98,6 +140,7 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          serviceAccountName: longhorn-canary
           securityContext:
             runAsNonRoot: true
             runAsUser: 65534
@@ -107,12 +150,17 @@ spec:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
               command: ["bash", "/scripts/check.sh"]
+              env:
+                - name: CANARY
+                  value: scratch
+                - name: HOME
+                  value: /tmp
               resources:
                 requests:
                   cpu: 10m
-                  memory: 32Mi
-                limits:
                   memory: 64Mi
+                limits:
+                  memory: 128Mi
               volumeMounts:
                 - name: canary
                   mountPath: /canary
