@@ -11,6 +11,7 @@ resources:
   - immich.yaml
   - jellyfin.yaml
   - tandoor.yaml
+  - longhorn-canary.yaml
   - n8n.yaml
   - nextcloud.yaml
   - opnsense-ipv6-prefix-update.yaml

@@ -1,0 +1,133 @@
+# Per volume type: provision, mount, write and read back; heartbeat via Kyverno healthcheckSecret.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: longhorn-canary
+  namespace: default
+data:
+  check.sh: |
+    set -euo pipefail
+    src=$(awk '$2 == "/canary" {print $1}' /proc/mounts)
+    case "$src" in
+      /dev/longhorn/*) ;;
+      *) echo "/canary is not a Longhorn volume (source: '$src')" >&2; exit 1 ;;
+    esac
+    dd if=/dev/urandom of=/tmp/expected bs=1M count=16 status=none
+    want=$(sha256sum < /tmp/expected)
+    dd if=/tmp/expected of=/canary/data bs=1M oflag=direct conv=fsync status=none
+    got=$(dd if=/canary/data bs=1M iflag=direct status=none | sha256sum)
+    if [ "$want" != "$got" ]; then
+      echo "read-back checksum mismatch on $src" >&2
+      exit 1
+    fi
+    echo "ok: wrote and verified 16MiB on $src"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: longhorn-canary-replicated
+  namespace: default
+  annotations:
+    healthcheckSecret: longhorn-canary-replicated
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 600
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            fsGroup: 65534
+          containers:
+            - name: canary
+              image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              command: ["bash", "/scripts/check.sh"]
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 64Mi
+              volumeMounts:
+                - name: canary
+                  mountPath: /canary
+                - name: scripts
+                  mountPath: /scripts
+          volumes:
+            - name: scripts
+              configMap:
+                name: longhorn-canary
+            - name: canary
+              ephemeral:
+                volumeClaimTemplate:
+                  spec:
+                    accessModes: ["ReadWriteOnce"]
+                    storageClassName: cluster-replicated-canary
+                    resources:
+                      requests:
+                        storage: 1Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: longhorn-canary-scratch
+  namespace: default
+  annotations:
+    healthcheckSecret: longhorn-canary-scratch
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 600
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            fsGroup: 65534
+          containers:
+            - name: canary
+              image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              command: ["bash", "/scripts/check.sh"]
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 64Mi
+              volumeMounts:
+                - name: canary
+                  mountPath: /canary
+                - name: scripts
+                  mountPath: /scripts
+          volumes:
+            - name: scripts
+              configMap:
+                name: longhorn-canary
+            - name: canary
+              ephemeral:
+                volumeClaimTemplate:
+                  spec:
+                    accessModes: ["ReadWriteOnce"]
+                    storageClassName: cluster-scratch
+                    resources:
+                      requests:
+                        storage: 1Gi
