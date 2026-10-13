@@ -35,10 +35,15 @@ jobs:
         run: go install github.com/home-operations/flate/cmd/flate@v0.6.5
       - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
         name: Render and validate the Flux graph
+        # ghcr.io intermittently answers a chart pull with HTTP 429 (the header
+        # of the script has the details) and flate does not retry that status.
+        # Re-run on that signature only, so any other failure still fails on
+        # the first try. /tmp/flate.log ends up holding the final attempt,
+        # which is what the drift gate below greps.
         run: |
-          set -o pipefail
-          "$(go env GOPATH)/bin/flate" test all --path . \
-            --allow-missing-secrets --no-progress 2>&1 | tee /tmp/flate.log
+          .github/scripts/retry-on-rate-limit.sh /tmp/flate.log -- \
+            "$(go env GOPATH)/bin/flate" test all --path . \
+              --allow-missing-secrets --no-progress
       - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
         name: Canary the values-drift warning
         # The drift gate greps flate's output for a human-readable warning and
