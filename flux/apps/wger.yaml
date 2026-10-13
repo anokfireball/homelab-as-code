@@ -205,7 +205,7 @@ spec:
           key: smtp-password
     powersync:
       image:
-        tag: "1.26.1"
+        tag: "1.27.0"
     postgres:
       enabled: false
     redis:
