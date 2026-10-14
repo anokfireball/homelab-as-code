@@ -17,10 +17,17 @@ caddy_credentials:
   - porkbun_api_key
   - porkbun_api_secret_key
 
+# Optional per-proxy `blocked_paths`: Caddy path matcher patterns answered with
+# a 404 by Caddy instead of being proxied. The path matcher is case-insensitive
+# and matches the decoded, cleaned path (dot segments resolved, slashes merged).
 caddy_revserse_proxies:
   - subdomain: bitwarden
     tailnet_node: homelab-bitwarden
     port: 80
+    # Vaultwarden admin panel stays LAN-only (Envoy in the cluster).
+    blocked_paths:
+      - /admin
+      - /admin/*
   - subdomain: freshrss
     tailnet_node: homelab-freshrss
     port: 80
