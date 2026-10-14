@@ -162,6 +162,17 @@ All pools are advertised on `eth0`.
 
 Envoy Gateway uses the Gateway API with a shared `Gateway` and per-app `ListenerSet` (see [Ingress Pattern](#ingress-pattern)). All services must use this pattern.
 
+### HTTP/3
+
+Every HTTPS listener on the shared `Gateway` also serves HTTP/3 (QUIC on `443/UDP` of the `envoy-gateway-vip` addresses); apps need no per-app configuration. One `ClientTrafficPolicy` named `http3` (`http3: {}`, in `envoy-gateway-system`) targets the `Gateway`, and Envoy adds `alt-svc: h3=":443"; ma=86400` to every HTTPS response.
+
+Envoy Gateway only exposes `443/UDP` on the Service (`https-443-h3`) when the first listener on port 443 is HTTPS and covered by an http3 policy. Gateway-owned listeners sort before ListenerSets, and ListenerSets sort by creation time, so the oldest ListenerSet would decide, which today is the Pinniped TLS passthrough. The `Gateway` therefore owns an `https-anchor` listener (certificate `h3-anchor-tls`, hostname `h3-anchor.${SERVICE_DOMAIN}`, no routes) that always sorts first. Without it HTTP/3 silently times out while every status condition stays green. Do not remove it while the policy exists.
+
+- A `ClientTrafficPolicy` that targets a ListenerSet replaces the shared one for its listener, so it must repeat `http3: {}`.
+- The policy must live in `envoy-gateway-system`; in any other namespace Envoy Gateway ignores it silently.
+- `pinniped.${SERVICE_DOMAIN}` is TLS passthrough and stays HTTP/2 over TCP. The Tailscale `homelab-*` hostnames are plain HTTP on the tailnet and cannot use HTTP/3.
+- Verify with `curl --http3-only --resolve <host>:443:192.168.1.6 https://<host>/` and by checking that the Envoy Service lists `https-443-h3`.
+
 ### external-dns
 
 Split-horizon DNS is implemented via external-dns with the [OPNsense webhook](https://github.com/crutonjohn/external-dns-opnsense-webhook): internal DNS records point to the internal VIP, while public DNS (Cloudflare) points to the public gateway.
