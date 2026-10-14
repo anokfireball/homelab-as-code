@@ -6,7 +6,8 @@
     suites: any-version
     components:
       - main
-    signed_by: https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key
+    # Vendored: Cloudsmith answers Python urllib (used for signed_by URLs) with 403.
+    signed_by: "{{ lookup('ansible.builtin.file', 'caddy-xcaddy.asc') }}"
     state: present
   register: caddy_repo
 
