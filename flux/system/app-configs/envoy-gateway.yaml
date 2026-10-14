@@ -44,6 +44,44 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    # HTTP/3 anchor: Envoy Gateway names the single :443 proxy listener after
+    # the FIRST listener on that port (Gateway-owned listeners first, then
+    # ListenerSets by creationTimestamp) and only exposes 443/UDP on the
+    # Service when that first listener is HTTPS. Without this listener the
+    # oldest ListenerSet (pinniped-supervisor, TLS passthrough) owns :443 and
+    # HTTP/3 silently stays unreachable. Do not remove while the http3
+    # ClientTrafficPolicy below exists.
+    - name: https-anchor
+      protocol: HTTPS
+      port: 443
+      hostname: h3-anchor.${SERVICE_DOMAIN}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: h3-anchor-tls
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+# Enables HTTP/3 (QUIC on 443/UDP) for every HTTPS listener on Gateway
+# `shared`, including all ListenerSet-owned listeners. Envoy adds
+# `alt-svc: h3=":443"; ma=86400` automatically. A ListenerSet-scoped
+# ClientTrafficPolicy REPLACES these settings for its listener, so any such
+# policy must repeat `http3: {}`. TLS passthrough listeners (pinniped) are
+# unaffected and stay TCP-only.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: http3
+  namespace: envoy-gateway-system
+spec:
+  http3: {}
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: shared
 ---
 # Certificate for the Gateway-owned `https-anchor` listener on :443 (see the
 # Gateway above). No route uses this hostname and external-dns creates no
