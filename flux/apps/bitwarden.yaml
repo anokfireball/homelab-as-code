@@ -69,6 +69,9 @@ spec:
         class: cluster-replicated
         accessMode: ReadWriteOnce
         size: 1Gi
+        # selected by the bitwarden-data k8up Schedule
+        labels:
+          backup: vaultwarden-data
     initContainers:
       - name: wait-for-postgresql
         # Current Vaultwarden is built with PG 15, also use that as long as it is supported
@@ -138,6 +141,20 @@ spec:
           sectionName: https
       hostnames:
         - bitwarden.${SERVICE_DOMAIN}
+  # The chart cannot set custom PVC annotations, and k8up runs with skipWithoutAnnotation.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: PersistentVolumeClaim
+              name: vaultwarden-data-vaultwarden-0
+            patch: |
+              apiVersion: v1
+              kind: PersistentVolumeClaim
+              metadata:
+                name: vaultwarden-data-vaultwarden-0
+                annotations:
+                  k8up.io/backup: "true"
 ---
 apiVersion: k8up.io/v1
 kind: PreBackupPod
@@ -192,6 +209,37 @@ spec:
     concurrentRunsAllowed: false
   prune:
     schedule: "53 0 1 * *"
+    concurrentRunsAllowed: false
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: bitwarden-data
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: Habitat-Giggle9-Composer/bitwarden-data
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: vaultwarden-data
+    schedule: "29 5/6 * * *"
+    concurrentRunsAllowed: false
+  # vaultwarden runs as root; some attachments are root-owned with mode 0600
+  podSecurityContext:
+    runAsUser: 0
+  prune:
+    schedule: "59 0 1 * *"
     concurrentRunsAllowed: false
     retention:
       keepHourly: 6
