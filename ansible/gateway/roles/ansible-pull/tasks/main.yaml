@@ -60,3 +60,18 @@
     content: "{{ sops_age_key }}"
     dest: /home/ansible/.config/sops/age/keys.txt
     mode: '0600'
+
+- name: create gateway-reconcile config directory
+  file:
+    path: /home/ansible/.config/gateway-reconcile
+    state: directory
+    owner: ansible
+    mode: '0700'
+
+- name: store gatus push auth header
+  copy:
+    content: "Authorization: Bearer {{ gatus_push_token }}\n"
+    dest: /home/ansible/.config/gateway-reconcile/gatus-auth-header
+    owner: ansible
+    mode: '0600'
+  no_log: true

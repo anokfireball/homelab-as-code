@@ -16,7 +16,7 @@ else
 fi
 
 curl -s -S -X POST \
-    -H "Authorization: Bearer j8EwZNd6w4TGP3twjFHyErtToDQnhEWTXvT3WjekQvDzqcjsdHML7fbovPEeEEFr" \
+    -H @/home/ansible/.config/gateway-reconcile/gatus-auth-header \
     --globoff \
     "https://gatus.kthxbye.cyou/api/v1/endpoints/neti_neti-[ansible]/external?success=${SUCCESS}&duration=${DURATION_MS}ms" \
     --resolve gatus.kthxbye.cyou:443:$(dig @1.1.1.1 +short gatus.kthxbye.cyou)

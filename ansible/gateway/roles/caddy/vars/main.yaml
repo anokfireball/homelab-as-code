@@ -4,6 +4,19 @@ caddy_cloudflare_version: v0.2.4
 caddy_netcup_version: v1.0.0
 caddy_porkbun_version: v0.3.1
 
+# DNS provider secrets are passed to Caddy via systemd LoadCredential= so they
+# never land in the world-readable Caddyfile. Sources are root-only; systemd
+# exposes them to the caddy user under caddy_credentials_dir at service start.
+caddy_credentials_source_dir: /etc/caddy/credentials
+caddy_credentials_dir: /run/credentials/caddy.service
+caddy_credentials:
+  - cloudflare_api_token
+  - netcup_customer_number
+  - netcup_api_key
+  - netcup_api_password
+  - porkbun_api_key
+  - porkbun_api_secret_key
+
 caddy_revserse_proxies:
   - subdomain: bitwarden
     tailnet_node: homelab-bitwarden

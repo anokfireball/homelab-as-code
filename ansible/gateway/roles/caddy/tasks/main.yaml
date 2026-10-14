@@ -162,6 +162,38 @@
   community.sops.load_vars:
     file: secrets.sops.yaml
 
+- name: make sure caddy credentials folder exists
+  file:
+    path: "{{ caddy_credentials_source_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: store caddy credentials
+  copy:
+    content: "{{ lookup('ansible.builtin.vars', item) }}"
+    dest: "{{ caddy_credentials_source_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: '0600'
+  loop: "{{ caddy_credentials }}"
+  no_log: true
+  register: caddy_credentials_files
+
+- name: make sure caddy systemd drop-in folder exists
+  file:
+    path: /etc/systemd/system/caddy.service.d
+    state: directory
+    mode: '0755'
+
+- name: pass credentials to caddy via systemd
+  template:
+    src: caddy-credentials.conf.j2
+    dest: /etc/systemd/system/caddy.service.d/credentials.conf
+    mode: '0644'
+  register: caddy_credentials_dropin
+
 - name: template Caddyfile
   template:
     src: Caddyfile.j2
@@ -172,7 +204,7 @@
 - name: reload systemd
   systemd:
     daemon_reload: true
-  when: caddy_service.changed
+  when: caddy_service.changed or caddy_credentials_dropin.changed
 
 - name: ensure caddy service is enabled and started
   systemd:
@@ -184,4 +216,4 @@
   systemd:
     name: caddy
     state: restarted
-  when: caddy_copy.changed or caddy_service.changed or caddy_template.changed
+  when: caddy_copy.changed or caddy_service.changed or caddy_template.changed or caddy_credentials_dropin.changed or caddy_credentials_files.changed
