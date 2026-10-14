@@ -44,6 +44,10 @@
 
 {% for proxy in caddy_revserse_proxies %}
 {{ proxy.subdomain }}.{{ service_domain }} {
+{% if proxy.blocked_paths is defined %}
+    @blocked_paths path {{ proxy.blocked_paths | join(' ') }}
+    respond @blocked_paths 404
+{% endif %}
     reverse_proxy {{ proxy.tailnet_node }}.{{ tailnet_domain }}:{{ proxy.port }}
     import https_dns
 }
