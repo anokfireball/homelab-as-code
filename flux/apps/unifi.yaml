@@ -7,7 +7,7 @@ spec:
   # Keep this single-member ReplicaSet minimal for Unifi; expand later only if needed.
   members: 1
   type: ReplicaSet
-  version: "8.3.13"
+  version: "9.0.4"
   security:
     authentication:
       modes:
