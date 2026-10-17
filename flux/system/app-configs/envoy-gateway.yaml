@@ -77,6 +77,7 @@ spec:
 # ClientTrafficPolicy REPLACES these settings for its listener, so any such
 # policy must repeat `http3: {}`. TLS passthrough listeners (pinniped) are
 # unaffected and stay TCP-only.
+# Hybrid PQ (X25519MLKEM768) first; X25519/P-256 keep the classical fallback.
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: ClientTrafficPolicy
 metadata:
@@ -84,6 +85,11 @@ metadata:
   namespace: envoy-gateway-system
 spec:
   http3: {}
+  tls:
+    ecdhCurves:
+      - X25519MLKEM768
+      - X25519
+      - P-256
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
