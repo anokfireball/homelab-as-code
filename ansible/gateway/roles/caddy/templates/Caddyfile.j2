@@ -1,28 +1,37 @@
 (https_dns) {
     tls {
-        dns cloudflare {file.{{ caddy_credentials_dir }}/cloudflare_api_token}
-        resolvers 1.1.1.1
+        issuer acme {
+            dns cloudflare {file.{{ caddy_credentials_dir }}/cloudflare_api_token}
+            resolvers 1.1.1.1
+            profile tlsserver
+        }
     }
 }
 (https_dns_ext_1) {
     tls {
-        dns netcup {
-            customer_number {file.{{ caddy_credentials_dir }}/netcup_customer_number}
-            api_key {file.{{ caddy_credentials_dir }}/netcup_api_key}
-            api_password {file.{{ caddy_credentials_dir }}/netcup_api_password}
+        issuer acme {
+            dns netcup {
+                customer_number {file.{{ caddy_credentials_dir }}/netcup_customer_number}
+                api_key {file.{{ caddy_credentials_dir }}/netcup_api_key}
+                api_password {file.{{ caddy_credentials_dir }}/netcup_api_password}
+            }
+            propagation_timeout 900s
+            propagation_delay 600s
+            resolvers 1.1.1.1
+            profile tlsserver
         }
-        propagation_timeout 900s
-        propagation_delay 600s
-        resolvers 1.1.1.1
     }
 }
 (https_dns_ext_2) {
     tls {
-        dns porkbun {
-            api_key {file.{{ caddy_credentials_dir }}/porkbun_api_key}
-            api_secret_key {file.{{ caddy_credentials_dir }}/porkbun_api_secret_key}
+        issuer acme {
+            dns porkbun {
+                api_key {file.{{ caddy_credentials_dir }}/porkbun_api_key}
+                api_secret_key {file.{{ caddy_credentials_dir }}/porkbun_api_secret_key}
+            }
+            resolvers 1.1.1.1
+            profile tlsserver
         }
-        resolvers 1.1.1.1
     }
 }
 
