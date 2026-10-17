@@ -14,6 +14,12 @@ spec:
         externalTrafficPolicy: Local
         annotations:
           metallb.io/address-pool: envoy-gateway-vip
+      # Overrides gateway-helm's default Envoy image (1.9.2 ships 1.39.1; 1.39.3 fixes CVE-2026-35189).
+      # Renovate proposes only 1.39.x patches/digests here. When bumping gateway-helm to a new
+      # minor, update this tag to that release's Envoy version (or delete it) in the same PR.
+      envoyDeployment:
+        container:
+          image: docker.io/envoyproxy/envoy:distroless-v1.39.3@sha256:7369b033550a14997e5d698677b7b51f0210a80754f5d084c5caa1a78268267b
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
