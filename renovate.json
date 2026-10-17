@@ -96,6 +96,18 @@
       "versioning": "semverCoerced",
       "automerge": false,
       "separateMultipleMinor": true
+    },
+    {
+      "description": "Envoy Proxy image override: only distroless-vX.Y.Z tags; patch and digest only, because minors move with gateway-helm; never automerge, because the data plane has a single replica. Must stay after the flux/** automerge rule.",
+      "matchPackageNames": ["envoyproxy/envoy"],
+      "versioning": "regex:^distroless-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      "separateMinorPatch": true,
+      "automerge": false
+    },
+    {
+      "matchPackageNames": ["envoyproxy/envoy"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
     }
   ],
   "ignoreTests": true,
@@ -465,6 +477,14 @@
         "koalaman/shellcheck:(?<currentValue>v[\\d.]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"
       ],
       "depNameTemplate": "koalaman/shellcheck",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the Envoy Proxy image pinned on EnvoyProxy eg-shared. The flux manager does not see container images inside CR specs. The digest group is optional so docker:pinDigests can both add and refresh it.",
+      "managerFilePatterns": ["/flux/system/app-configs/envoy-gateway.yaml/"],
+      "matchStrings": ["image: docker\\.io/envoyproxy/envoy:(?<currentValue>distroless-v\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"],
+      "depNameTemplate": "envoyproxy/envoy",
       "datasourceTemplate": "docker"
     }
   ],
