@@ -18,7 +18,3 @@ spec:
       enabled: true
       labels:
         release: kube-prometheus-stack
-    grafanaDashboard:
-      enabled: true
-      annotations:
-        grafana_dashboard_folder: spegel
