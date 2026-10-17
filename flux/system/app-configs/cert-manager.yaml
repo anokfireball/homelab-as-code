@@ -15,6 +15,6 @@ spec:
         patchStrategicMerge:
           spec:
             privateKey:
-              +(algorithm): RSA
-              +(size): 4096
+              +(algorithm): ECDSA
+              +(size): 256
               +(rotationPolicy): Always
