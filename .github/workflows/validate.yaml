@@ -199,11 +199,29 @@ jobs:
           fi
           .github/scripts/image-verify.sh </tmp/refs.txt
 
+  envoy-proxy:
+    name: Envoy Proxy Compat
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
+        id: changed-files
+        with:
+          patterns: |
+            flux/system/app-controllers/envoy-gateway.yaml
+            flux/system/app-configs/envoy-gateway.yaml
+            .github/scripts/envoy-proxy-compat.sh
+      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+        name: Envoy override matches the gateway-helm Envoy minor
+        # A gateway-helm minor bump cannot merge until the EnvoyProxy image
+        # override moves to that release's Envoy minor (or is deleted).
+        run: .github/scripts/envoy-proxy-compat.sh
+
   success:
     name: CI - Success
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [flux, renovate-config, ansible, workflow-lint, images]
+    needs: [flux, renovate-config, ansible, workflow-lint, images, envoy-proxy]
     steps:
       - name: Fail on flux not success or skipped
         if: ${{ !(needs.flux.result == 'success' || needs.flux.result == 'skipped') }}
@@ -219,5 +237,8 @@ jobs:
         run: exit 1
       - name: Fail on images not success or skipped
         if: ${{ !(needs.images.result == 'success' || needs.images.result == 'skipped') }}
+        run: exit 1
+      - name: Fail on envoy-proxy not success or skipped
+        if: ${{ !(needs.envoy-proxy.result == 'success' || needs.envoy-proxy.result == 'skipped') }}
         run: exit 1
       - run: echo "All checks passed or skipped"

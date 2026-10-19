@@ -98,16 +98,27 @@
       "separateMultipleMinor": true
     },
     {
-      "description": "Envoy Proxy image override: only distroless-vX.Y.Z tags; patch and digest only, because minors move with gateway-helm; never automerge, because the data plane has a single replica. Must stay after the flux/** automerge rule.",
+      "description": "Envoy Proxy image override: only distroless-vX.Y.Z tags. Minor and major updates are disabled below: the minor must match the pinned gateway-helm release, which CI's envoy-proxy-compat check enforces on the gateway-helm bump PR. versioning lives in its own rule because it is resolved before update types exist.",
       "matchPackageNames": ["envoyproxy/envoy"],
       "versioning": "regex:^distroless-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
-      "separateMinorPatch": true,
-      "automerge": false
+      "separateMinorPatch": true
+    },
+    {
+      "description": "Automerge Envoy Proxy patches and digests within the current minor (the release line gateway-helm runs); each merge restarts the single proxy pod. Must stay after the flux/** automerge rule.",
+      "matchPackageNames": ["envoyproxy/envoy"],
+      "matchUpdateTypes": ["patch", "digest"],
+      "automerge": true
     },
     {
       "matchPackageNames": ["envoyproxy/envoy"],
       "matchUpdateTypes": ["major", "minor"],
       "enabled": false
+    },
+    {
+      "description": "A gateway-helm minor/major bump changes the Envoy minor its controller expects. CI fails the PR until the EnvoyProxy eg-shared image override is moved to that minor or deleted.",
+      "matchPackageNames": ["gateway-helm"],
+      "matchUpdateTypes": ["major", "minor"],
+      "prBodyNotes": ["⚠️ This release ships a different Envoy minor. In this PR, update the `image:` override on `EnvoyProxy eg-shared` in `flux/system/app-configs/envoy-gateway.yaml` to the new Envoy minor (at least the release's `DefaultEnvoyProxyImage`), or delete it. The `Envoy Proxy Compat` check fails until then."]
     }
   ],
   "ignoreTests": true,
