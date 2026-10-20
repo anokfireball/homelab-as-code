@@ -1,12 +1,3 @@
-- name: Remove legacy one-line Tailscale sources
-  file:
-    path: "/etc/apt/sources.list.d/{{ item }}"
-    state: absent
-  loop:
-    - tailscale.list
-    - tailscale.list.disabled
-  register: tailscale_legacy_sources
-
 - name: Add Tailscale repository
   ansible.builtin.deb822_repository:
     name: tailscale
@@ -22,7 +13,7 @@
 - name: Update apt cache
   apt:
     update_cache: true
-  when: tailscale_repo.changed or tailscale_legacy_sources.changed
+  when: tailscale_repo.changed
 
 - name: Install Tailscale
   apt:
