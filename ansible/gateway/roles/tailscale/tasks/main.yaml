@@ -1,20 +1,28 @@
-- name: Add Tailscale GPG key
-  apt_key:
-    url: https://pkgs.tailscale.com/stable/ubuntu/noble.noarmor.gpg
-    keyring: /usr/share/keyrings/tailscale-archive-keyring.gpg
-    state: present
+- name: Remove legacy one-line Tailscale sources
+  file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  loop:
+    - tailscale.list
+    - tailscale.list.disabled
+  register: tailscale_legacy_sources
 
 - name: Add Tailscale repository
-  apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/tailscale-archive-keyring.gpg] https://pkgs.tailscale.com/stable/ubuntu noble main"
-    filename: tailscale
+  ansible.builtin.deb822_repository:
+    name: tailscale
+    types: deb
+    uris: https://pkgs.tailscale.com/stable/ubuntu
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components:
+      - main
+    signed_by: "https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_facts['distribution_release'] }}.noarmor.gpg"
     state: present
   register: tailscale_repo
 
 - name: Update apt cache
   apt:
     update_cache: true
-  when: tailscale_repo.changed
+  when: tailscale_repo.changed or tailscale_legacy_sources.changed
 
 - name: Install Tailscale
   apt:
