@@ -88,7 +88,7 @@ jobs:
     # same binary the cluster runs, and Renovate's github-actions manager
     # keeps `container.image` current.
     container:
-      image: ghcr.io/renovatebot/renovate:44.171.1@sha256:6fffb26e606488bf674f2d9400fc3fc6b2a0243a0c22a4a4d22e422ee44934c5
+      image: ghcr.io/renovatebot/renovate:44.171.7@sha256:d132a0586f02a25fd70a11b9b362f16f18c2f7ae047c3c9be207ff4146d8b286
       options: --user root
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
