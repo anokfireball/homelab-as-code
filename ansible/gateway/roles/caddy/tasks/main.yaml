@@ -114,7 +114,7 @@
   args:
     chdir: /opt/caddy
   environment:
-    PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
+    PATH: "/usr/local/go/bin:{{ ansible_facts['env']['PATH'] }}"
   register: caddy_build
   when: >
     not caddy_binary.stat.exists or
