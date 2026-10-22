@@ -98,16 +98,11 @@
       "separateMultipleMinor": true
     },
     {
-      "description": "Envoy Proxy image override: only distroless-vX.Y.Z tags. Minor and major updates are disabled below: the minor must match the pinned gateway-helm release, which CI's envoy-proxy-compat check enforces on the gateway-helm bump PR. versioning lives in its own rule because it is resolved before update types exist.",
+      "description": "Envoy Proxy image override: only distroless-vX.Y.Z tags; patch and digest only, because the minor must match the pinned gateway-helm release (CI's envoy-proxy-compat check enforces that on the gateway-helm bump PR); never automerge, because the data plane has a single replica and every merge restarts it. Must stay after the flux/** automerge rule.",
       "matchPackageNames": ["envoyproxy/envoy"],
       "versioning": "regex:^distroless-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
-      "separateMinorPatch": true
-    },
-    {
-      "description": "Automerge Envoy Proxy patches and digests within the current minor (the release line gateway-helm runs); each merge restarts the single proxy pod. Must stay after the flux/** automerge rule.",
-      "matchPackageNames": ["envoyproxy/envoy"],
-      "matchUpdateTypes": ["patch", "digest"],
-      "automerge": true
+      "separateMinorPatch": true,
+      "automerge": false
     },
     {
       "matchPackageNames": ["envoyproxy/envoy"],

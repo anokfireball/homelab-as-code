@@ -15,10 +15,11 @@ spec:
         annotations:
           metallb.io/address-pool: envoy-gateway-vip
       # Overrides gateway-helm's default Envoy image so Envoy patch releases (CVE fixes) land
-      # before Envoy Gateway ships them. Renovate bumps this only within its current minor and
-      # automerges patches. CI (.github/scripts/envoy-proxy-compat.sh) fails any PR where this
-      # minor differs from the one the pinned gateway-helm release ships, so a gateway-helm minor
-      # bump must move this tag to the new Envoy minor (or delete the override) in the same PR.
+      # before Envoy Gateway ships them. Renovate bumps this only within its current minor, and
+      # never automerges (each merge restarts the single proxy pod). CI
+      # (.github/scripts/envoy-proxy-compat.sh) fails any PR where this minor differs from the
+      # one the pinned gateway-helm release ships, so a gateway-helm minor bump must move this
+      # tag to the new Envoy minor (or delete the override) in the same PR.
       envoyDeployment:
         container:
           image: docker.io/envoyproxy/envoy:distroless-v1.39.4@sha256:ccb37e93d8274a525fe00d67287716dbe3d58bc4237d7627af9e64fae0fd25c8

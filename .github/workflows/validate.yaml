@@ -15,26 +15,65 @@ permissions:
   contents: read
 
 jobs:
-  flux:
-    name: Flux Render
+  # Decides once which checks the PR's files call for. Every check job below is
+  # skipped at job level (no runner, no checkout) when its group is empty, and
+  # CI - Success treats a skipped job as a pass. The action reads the file list
+  # from the API, so this job needs no checkout.
+  changes:
+    name: Changed Paths
     runs-on: ubuntu-latest
+    outputs:
+      flux: ${{ steps.groups.outputs.flux }}
+      images: ${{ steps.groups.outputs.images }}
+      renovate: ${{ steps.groups.outputs.renovate }}
+      ansible: ${{ steps.groups.outputs.ansible }}
+      workflows: ${{ steps.groups.outputs.workflows }}
+      scripts: ${{ steps.groups.outputs.scripts }}
+      envoy: ${{ steps.groups.outputs.envoy }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
         id: changed-files
         with:
-          patterns: |
-            flux/**
-            charts/**
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+          patterns: "**"
+          # Removing a manifest can break the rendered graph (dependsOn,
+          # references), so deletions count.
+          include_deleted_files: true
+      - id: groups
+        name: Group the changed files by the checks they gate
+        env:
+          CHANGED_FILES: ${{ steps.changed-files.outputs.changed_files }}
+        # Each group lists what the check actually consumes, including the
+        # check's own definition where editing it can change the outcome. A
+        # script or pin edit that the check cannot exercise (images and the
+        # advisory diffs read only flux/**/*.yaml) is deliberately absent.
+        run: |
+          files="$(jq -r '.[]' <<<"$CHANGED_FILES")"
+          group() { # $1 = output name, $2 = ERE matched against repo-relative paths
+            if grep -Eq "$2" <<<"$files"; then echo "$1=true"; else echo "$1=false"; fi
+          }
+          {
+            group flux '^(flux|charts)/|^\.github/workflows/validate\.yaml$|^\.github/scripts/retry-on-rate-limit\.sh$'
+            group images '^flux/.*\.yaml$'
+            group renovate '^renovate\.json$|^\.github/workflows/validate\.yaml$'
+            group ansible '^ansible/'
+            group workflows '^\.github/workflows/'
+            group scripts '^\.github/scripts/'
+            group envoy '^flux/system/(app-controllers|app-configs)/envoy-gateway\.yaml$|^\.github/scripts/envoy-proxy-compat\.sh$'
+          } | tee -a "$GITHUB_OUTPUT"
+
+  flux:
+    name: Flux Render
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.flux == 'true' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: stable
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Install flate
+      - name: Install flate
         run: go install github.com/home-operations/flate/cmd/flate@v0.6.5
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Render and validate the Flux graph
+      - name: Render and validate the Flux graph
         # ghcr.io intermittently answers a chart pull with HTTP 429 (the header
         # of the script has the details) and flate does not retry that status.
         # Re-run on that signature only, so any other failure still fails on
@@ -44,8 +83,7 @@ jobs:
           .github/scripts/retry-on-rate-limit.sh /tmp/flate.log -- \
             "$(go env GOPATH)/bin/flate" test all --path . \
               --allow-missing-secrets --no-progress
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Canary the values-drift warning
+      - name: Canary the values-drift warning
         # The drift gate greps flate's output for a human-readable warning and
         # flate exits 0 when it emits it, so a reworded warning would disable
         # the gate silently. Inject a key no chart consumes into a throwaway
@@ -70,8 +108,7 @@ jobs:
             echo "::error::The 'Fail on Helm values drift' gate is now inert - update its grep."
             exit 1
           fi
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Fail on Helm values drift
+      - name: Fail on Helm values drift
         run: |
           if grep -q "values not used by the chart" /tmp/flate.log; then
             echo "::error::A HelmRelease sets values the chart no longer consumes."
@@ -82,6 +119,8 @@ jobs:
   renovate-config:
     name: Renovate Config
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.renovate == 'true' }}
     # The validator ships inside the renovate package; the standalone npm
     # package `renovate-config-validator` is a 0.0.1 placeholder with no bin,
     # so npx cannot resolve an executable at all. The published image runs the
@@ -106,14 +145,11 @@ jobs:
   ansible:
     name: Ansible Syntax
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.ansible == 'true' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
-        id: changed-files
-        with:
-          patterns: ansible/**
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Install ansible and declared collections
+      - name: Install ansible and declared collections
         run: |
           pipx install --include-deps ansible
           # `--include-apps` is required, otherwise ansible-lint is injected
@@ -125,8 +161,7 @@ jobs:
             -r ansible/cluster/requirements.yaml -p /tmp/hac-collections
           ansible-galaxy collection install --force \
             -r ansible/gateway/requirements.yaml -p /tmp/hac-collections
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Syntax check
+      - name: Syntax check
         # Resolve only against the declared collections, so an undeclared one
         # fails here instead of passing on the runner image's bundled copies.
         env:
@@ -136,22 +171,20 @@ jobs:
   workflow-lint:
     name: Workflow Lint
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.workflows == 'true' || needs.changes.outputs.scripts == 'true' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
-        id: changed-files
-        with:
-          patterns: .github/**
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+      - if: ${{ needs.changes.outputs.workflows == 'true' }}
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: stable
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+      - if: ${{ needs.changes.outputs.workflows == 'true' }}
         name: Lint workflow files
         run: |
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           "$(go env GOPATH)/bin/actionlint"
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
+      - if: ${{ needs.changes.outputs.scripts == 'true' }}
         name: Lint shell scripts
         # actionlint's shellcheck integration only covers `run:` blocks inside
         # workflow YAML, so standalone scripts would otherwise go unchecked.
@@ -168,24 +201,19 @@ jobs:
   images:
     name: Image Refs
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.images == 'true' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           # image-refs.sh diffs the changed files against the PR base commit.
           fetch-depth: 0
-      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
-        id: changed-files
-        with:
-          patterns: flux/**
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: stable
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Install crane
+      - name: Install crane
         run: go install github.com/google/go-containerregistry/cmd/crane@v0.22.1
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Verify introduced image references
+      - name: Verify introduced image references
         # Only the refs this PR introduces: 33 of the repo's rendered refs live
         # on docker.io, whose anonymous pull limit is shared per runner IP, so
         # re-verifying every ref on every PR would flake.
@@ -202,17 +230,11 @@ jobs:
   envoy-proxy:
     name: Envoy Proxy Compat
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.envoy == 'true' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
-        id: changed-files
-        with:
-          patterns: |
-            flux/system/app-controllers/envoy-gateway.yaml
-            flux/system/app-configs/envoy-gateway.yaml
-            .github/scripts/envoy-proxy-compat.sh
-      - if: ${{ steps.changed-files.outputs.changed_files != '[]' }}
-        name: Envoy override matches the gateway-helm Envoy minor
+      - name: Envoy override matches the gateway-helm Envoy minor
         # A gateway-helm minor bump cannot merge until the EnvoyProxy image
         # override moves to that release's Envoy minor (or is deleted).
         run: .github/scripts/envoy-proxy-compat.sh
@@ -221,8 +243,13 @@ jobs:
     name: CI - Success
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [flux, renovate-config, ansible, workflow-lint, images, envoy-proxy]
+    needs: [changes, flux, renovate-config, ansible, workflow-lint, images, envoy-proxy]
     steps:
+      - name: Fail on changes not success
+        # Dependents of a failed `changes` are skipped, which the checks below
+        # accept; without this a broken path detection would pass vacuously.
+        if: ${{ needs.changes.result != 'success' }}
+        run: exit 1
       - name: Fail on flux not success or skipped
         if: ${{ !(needs.flux.result == 'success' || needs.flux.result == 'skipped') }}
         run: exit 1
