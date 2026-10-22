@@ -24,7 +24,7 @@ spec:
           permissions:
             image:
               repository: ghcr.io/anokfireball/base-image
-              tag: 3.24.3@sha256:db1f43338aa0d4373ec1e3322ae5bdf62eeb0421fece44dfe0e3564044cf319c
+              tag: 3.24.3@sha256:43d0279a24e06ae6e8058177787ea8e75f50df1880f2a2d0710817357987b719
             command: ["chown"]
             args: ["1000:1000", "/incomplete-downloads"]
         containers:
@@ -110,7 +110,7 @@ spec:
           logs:
             image:
               repository: ghcr.io/anokfireball/base-image
-              tag: 3.24.3@sha256:db1f43338aa0d4373ec1e3322ae5bdf62eeb0421fece44dfe0e3564044cf319c
+              tag: 3.24.3@sha256:43d0279a24e06ae6e8058177787ea8e75f50df1880f2a2d0710817357987b719
             command: ["tail"]
             args: ["-F", "/config/qBittorrent/logs/qbittorrent.log"]
     service:
