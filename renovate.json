@@ -93,7 +93,7 @@
         "tigera-operator",
         "crd.projectcalico.org.v1"
       ],
-      "versioning": "semverCoerced",
+      "versioning": "semver-coerced",
       "automerge": false,
       "separateMultipleMinor": true
     },
