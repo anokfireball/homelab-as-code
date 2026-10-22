@@ -27,7 +27,7 @@ spec:
           main:
             image:
               repository: ghcr.io/anokfireball/soundcloud-scraper
-              tag: v1.3.2@sha256:079caf107228366797674268dad8b307a9b11f3712cc98102d0c24f6afdbba8e
+              tag: v1.3.3@sha256:a9b38bcaa146ce1ec715ee5302abb0bb7e192188e6bd2b2047922d0d7d1b078a
             env:
               DATA_DIR: /data
               SOUNDCLOUD_USERNAME: psykko0
