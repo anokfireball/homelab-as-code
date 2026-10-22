@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: stirling-pdf-chart
-      version: 3.1.0
+      version: 3.2.0
       sourceRef:
         kind: HelmRepository
         name: stirling-pdf
@@ -48,6 +48,16 @@ spec:
           -Dspring.threads.virtual.enabled=true -Djava.awt.headless=true
     ingress:
       enabled: false
+    httpRoute:
+      enabled: true
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: ListenerSet
+          name: stirling-pdf
+          namespace: default
+          sectionName: https
+      hostnames:
+        - stirling-pdf.${SERVICE_DOMAIN}
     resources:
       requests:
         cpu: 10m
@@ -93,8 +103,3 @@ spec:
   values:
     name: stirling-pdf
     hostname: stirling-pdf.${SERVICE_DOMAIN}
-    route:
-      enabled: true
-      backend:
-        name: stirling-pdf-stirling-pdf-chart
-        port: 8080
