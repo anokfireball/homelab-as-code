@@ -62,6 +62,16 @@ spec:
                      sep=\"?\";
                      if [[ \"\x24url\" == *\"?\"* ]]; then sep=\"&\"; fi;
                      curl -fs --globoff -X POST \"\x24{url}\x24{sep}duration=\x24{runtime}s\" -H \"Authorization: Bearer \x24(TOKEN)\""
+                securityContext:
+                  runAsNonRoot: true
+                  runAsUser: 65534
+                  runAsGroup: 65534
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
+                  capabilities:
+                    drop: ["ALL"]
+                  seccompProfile:
+                    type: RuntimeDefault
                 volumeMounts:
                   - name: healthcheck-runtime
                     mountPath: /rt

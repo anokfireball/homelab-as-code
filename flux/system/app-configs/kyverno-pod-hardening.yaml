@@ -1,0 +1,195 @@
+# Audit-only pod hardening and image provenance checks. Nothing here blocks or mutates:
+# Pod Security Admission is the only enforcing layer. Results land in PolicyReports.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: audit-readonly-root-filesystem
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  variables:
+    - name: containers
+      expression: object.spec.containers + object.spec.?initContainers.orValue([])
+  validations:
+    - expression: >-
+        variables.containers.all(c, c.?securityContext.?readOnlyRootFilesystem.orValue(false))
+      messageExpression: >-
+        'writable root filesystem: ' + variables.containers.filter(c,
+        !c.?securityContext.?readOnlyRootFilesystem.orValue(false)).map(c, c.name).join(', ')
+---
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: audit-service-account-token
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  variables:
+    - name: serviceAccount
+      expression: object.spec.?serviceAccountName.orValue('default')
+    # kube-api-access-* is the volume the ServiceAccount admission plugin adds for automounted tokens
+    - name: tokenMounted
+      expression: object.spec.?volumes.orValue([]).exists(v, v.name.startsWith('kube-api-access-'))
+    # A token is only worth mounting if some (Cluster)RoleBinding grants its ServiceAccount anything.
+    # Needs list on (cluster)rolebindings for the reports controller (see the kyverno HelmRelease).
+    - name: serviceAccountBound
+      expression: >-
+        dyn(resource.List('rbac.authorization.k8s.io/v1', 'rolebindings', object.metadata.namespace).items).exists(b,
+        b.?subjects.orValue([]).exists(s, s.kind == 'ServiceAccount' && s.name == variables.serviceAccount &&
+        s.?namespace.orValue(object.metadata.namespace) == object.metadata.namespace)) ||
+        dyn(resource.List('rbac.authorization.k8s.io/v1', 'clusterrolebindings', '').items).exists(b,
+        b.?subjects.orValue([]).exists(s, s.kind == 'ServiceAccount' && s.name == variables.serviceAccount &&
+        s.?namespace.orValue('') == object.metadata.namespace))
+  validations:
+    - expression: "!variables.tokenMounted || variables.serviceAccountBound"
+      messageExpression: >-
+        'service account ' + variables.serviceAccount + ' has no RoleBinding or ClusterRoleBinding but its
+        token is mounted; set automountServiceAccountToken=false'
+---
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: audit-user-namespaces
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  # Pods that cannot run in a user namespace are left to Pod Security Admission: host namespaces,
+  # privileged containers, raw block devices, hostPath and inline NFS. NFS-backed PVCs (nas-* classes,
+  # Longhorn ReadWriteMany) are not visible from the pod spec and get a PolicyException instead.
+  matchConditions:
+    - name: no-host-namespaces
+      expression: >-
+        !object.spec.?hostNetwork.orValue(false) && !object.spec.?hostPID.orValue(false) &&
+        !object.spec.?hostIPC.orValue(false)
+    - name: no-node-level-access
+      expression: >-
+        !(object.spec.containers + object.spec.?initContainers.orValue([])).exists(c,
+        c.?securityContext.?privileged.orValue(false) || size(c.?volumeDevices.orValue([])) > 0) &&
+        !object.spec.?volumes.orValue([]).exists(v, has(v.hostPath) || has(v.nfs))
+  validations:
+    - expression: object.spec.?hostUsers.orValue(true) == false
+      message: the pod shares the host user namespace; set hostUsers=false
+---
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-digest
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "*"
+  attestors: []
+  validationConfigurations:
+    # mutateDigest defaults to true: it would resolve tags against registries and rewrite pods.
+    mutateDigest: false
+    verifyDigest: true
+    required: false
+  validations: []
+---
+# One policy per signing publisher; identity from the publisher's release workflow.
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-fluxcd
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "ghcr.io/fluxcd/*"
+  attestors:
+    - name: fluxcd
+      cosign:
+        keyless:
+          identities:
+            - issuer: https://token.actions.githubusercontent.com
+              subjectRegExp: ^https://github\.com/fluxcd/.+$
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.fluxcd]) > 0)
+      message: image is not signed by a fluxcd GitHub Actions release workflow
+---
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-kubernetes
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "registry.k8s.io/*"
+  attestors:
+    - name: kubernetes
+      cosign:
+        keyless:
+          identities:
+            - issuer: https://accounts.google.com
+              subject: krel-trust@k8s-releng-prod.iam.gserviceaccount.com
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.kubernetes]) > 0)
+      message: image is not signed by the Kubernetes release process
