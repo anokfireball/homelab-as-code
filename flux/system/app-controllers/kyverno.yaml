@@ -18,6 +18,10 @@ spec:
       enabled: true
       annotations:
         grafana_dashboard_folder: kyverno
+    features:
+      policyExceptions:
+        enabled: true
+        namespace: kyverno-system
     # TODO once a third worker is available again
     # https://kyverno.io/docs/installation/methods/#high-availability-installation
     admissionController:
@@ -35,3 +39,9 @@ spec:
     reportsController:
       # replicas: 2
       serviceMonitor: *service-monitor-config
+      # audit-service-account-token lists (Cluster)RoleBindings during background scans
+      rbac:
+        clusterRole:
+          extraResources:
+            - apiGroups: [rbac.authorization.k8s.io]
+              resources: [rolebindings, clusterrolebindings]
