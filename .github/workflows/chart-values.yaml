@@ -4,6 +4,9 @@ name: Advisory
 on:
   pull_request:
     branches: ["main"]
+    # Both scripts diff only flux/**/*.yaml against the base; anything else
+    # yields no comment. Not a required check, so a skipped run is harmless.
+    paths: ["flux/**/*.yaml"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
