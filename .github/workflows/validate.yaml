@@ -42,14 +42,22 @@ jobs:
         name: Group the changed files by the checks they gate
         env:
           CHANGED_FILES: ${{ steps.changed-files.outputs.changed_files }}
+          EVENT: ${{ github.event_name }}
         # Each group lists what the check actually consumes, including the
         # check's own definition where editing it can change the outcome. A
         # script or pin edit that the check cannot exercise (images and the
         # advisory diffs read only flux/**/*.yaml) is deliberately absent.
+        # The action only lists files for pull_request/push; on merge_group and
+        # workflow_dispatch it returns nothing, which would skip every check and
+        # pass vacuously, so those events run everything.
         run: |
           files="$(jq -r '.[]' <<<"$CHANGED_FILES")"
           group() { # $1 = output name, $2 = ERE matched against repo-relative paths
-            if grep -Eq "$2" <<<"$files"; then echo "$1=true"; else echo "$1=false"; fi
+            if [ "$EVENT" != pull_request ] || grep -Eq "$2" <<<"$files"; then
+              echo "$1=true"
+            else
+              echo "$1=false"
+            fi
           }
           {
             group flux '^(flux|charts)/|^\.github/workflows/validate\.yaml$|^\.github/scripts/retry-on-rate-limit\.sh$'
