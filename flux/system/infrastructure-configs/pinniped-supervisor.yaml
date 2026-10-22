@@ -697,6 +697,8 @@ metadata:
   name: pinniped-supervisor
   labels:
     app: pinniped-supervisor
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
 ---
 apiVersion: v1
 kind: ServiceAccount
