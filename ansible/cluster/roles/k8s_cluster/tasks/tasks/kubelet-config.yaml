@@ -1,0 +1,58 @@
+---
+# The cluster-wide KubeletConfiguration lives in the kubeadm-managed kube-system/kubelet-config
+# ConfigMap. kubeadm join and kubeadm upgrade render /var/lib/kubelet/config.yaml from it, so a
+# setting changed only on a node would be reverted by the next upgrade.
+- name: read the cluster kubelet configuration
+  command: kubectl -n kube-system get configmap kubelet-config -o jsonpath={.data.kubelet}
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  register: kubelet_config_cluster
+  changed_when: false
+  run_once: true
+  delegate_to: controlplane1
+
+# Containers without a seccompProfile run Unconfined unless the kubelet defaults them to RuntimeDefault.
+- name: default containers to the RuntimeDefault seccomp profile
+  command:
+    argv:
+      - kubectl
+      - -n
+      - kube-system
+      - patch
+      - configmap
+      - kubelet-config
+      - --type=merge
+      - --patch
+      - "{{ {'data': {'kubelet': kubelet_config_cluster.stdout | from_yaml | combine({'seccompDefault': true}) | to_nice_yaml(indent=2)}} | to_json }}"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: not ((kubelet_config_cluster.stdout | from_yaml).seccompDefault | default(false))
+  changed_when: true
+  run_once: true
+  delegate_to: controlplane1
+
+- name: read the node kubelet configuration
+  slurp:
+    src: /var/lib/kubelet/config.yaml
+  register: kubelet_config_node
+
+- name: apply the cluster kubelet configuration to the node
+  when: not ((kubelet_config_node.content | b64decode | from_yaml).seccompDefault | default(false))
+  throttle: 1
+  block:
+    - name: render /var/lib/kubelet/config.yaml from the kubelet-config ConfigMap
+      command: kubeadm upgrade node phase kubelet-config
+      changed_when: true
+
+    - name: restart kubelet
+      systemd_service:
+        name: kubelet
+        state: restarted
+
+    - name: wait for the kubelet health endpoint
+      uri:
+        url: http://127.0.0.1:10248/healthz
+      register: kubelet_healthz
+      until: kubelet_healthz.status == 200
+      retries: 30
+      delay: 2
