@@ -91,7 +91,7 @@ spec:
     memcached:
       image:
         repository: memcached
-        tag: "1.6.39-alpine@sha256:c8503d4491edd3110cc07d0465089d3a41cf1daf8645e71149e39a51835e92cd"
+        tag: "1.6.45-alpine@sha256:6d687bc26426d092694743054fc674fc54d3c161fefa1ad20b54192f8580a8c1"
       podSecurityContext:
         seccompProfile:
           type: RuntimeDefault
