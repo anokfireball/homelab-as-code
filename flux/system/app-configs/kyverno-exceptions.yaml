@@ -46,3 +46,23 @@ spec:
       The nas-canary-* CronJobs mount NFS PVCs (nas-replicated-hdd-canary on nas-hdd, nas-scratch-ssd on nas-ssd) and
       longhorn-canary-rwx-write/longhorn-canary-rwx mount a Longhorn ReadWriteMany volume served over NFS; these cannot
       be idmapped, so hostUsers=false cannot be set. The pods still run as uid 65534 with all capabilities dropped.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-monitoring-system-loki
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: loki
+      expression: >-
+        object.metadata.namespace == 'monitoring-system' &&
+        object.metadata.?labels[?'app.kubernetes.io/name'].orValue('') == 'loki' &&
+        object.metadata.?labels[?'app.kubernetes.io/component'].orValue('') == 'single-binary'
+  properties:
+    reason: >-
+      Loki's single-binary StatefulSet mounts its 500Gi chunk PVC from storage class nas-replicated-hdd
+      (provisioner nas-hdd, fsType nfs), which cannot be idmapped, so the pod must stay in the host user namespace.
