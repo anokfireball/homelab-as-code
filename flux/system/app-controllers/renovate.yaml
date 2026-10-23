@@ -22,7 +22,7 @@ spec:
       schedule: "51 0/6 * * *"
       annotations:
         healthcheckSecret: renovate-config
-        healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:43d0279a24e06ae6e8058177787ea8e75f50df1880f2a2d0710817357987b719
+        healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:1935f05d3c7925f4557c6db57c7cd90dc59f01cb8984f18b67e78977c7e781e7
     renovate:
       existingConfigFile: /config/config.json
     extraVolumes:
@@ -111,12 +111,12 @@ spec:
           identifier: renovate-github-token-refresher
         annotations:
           healthcheckSecret: renovate-github-token-secrets
-          healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:43d0279a24e06ae6e8058177787ea8e75f50df1880f2a2d0710817357987b719
+          healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:1935f05d3c7925f4557c6db57c7cd90dc59f01cb8984f18b67e78977c7e781e7
         containers:
           main:
             image:
               repository: ghcr.io/anokfireball/base-image
-              tag: 3.24.3@sha256:43d0279a24e06ae6e8058177787ea8e75f50df1880f2a2d0710817357987b719
+              tag: 3.24.3@sha256:1935f05d3c7925f4557c6db57c7cd90dc59f01cb8984f18b67e78977c7e781e7
             envFrom:
               - secret: renovate-github-token-secrets
             command: ["/bin/bash", "/scripts/token.sh"]
