@@ -14,11 +14,29 @@ spec:
         name: grafana
         namespace: flux-system
   values:
+    # promtail stays uid 0: D1 hostPath /var/log/pods and /var/lib/docker/containers (root-owned node logs). Namespace stays privileged.
+    image:
+      tag: "3.5.1@sha256:65bfae480b572854180c78f7dc567a4ad2ba548b0c410e696baa1e0fa6381299"
     config:
       clients:
         - url: http://loki.monitoring-system:3100/loki/api/v1/push
           headers:
             X-Scope-OrgID: "1"
+    podSecurityContext:
+      runAsUser: 0
+      runAsGroup: 0
+      seccompProfile:
+        type: RuntimeDefault
     sidecar:
       configReloader:
         enabled: true
+        image:
+          tag: "v0.12.0@sha256:a7c754986900e41fc47656bdc8dfce33227112a7cce547e0d9ef5d279f4f8e99"
+        containerSecurityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          runAsGroup: 65534
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+          allowPrivilegeEscalation: false
