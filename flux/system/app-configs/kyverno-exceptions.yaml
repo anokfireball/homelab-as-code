@@ -21,3 +21,28 @@ spec:
       Renovate's slim image installs tools at runtime (binarySource=install, e.g. flux for gotk-components.yaml)
       into /opt/containerbase next to the git and docker it ships, and an init container seeding a writable copy
       would run after renovate because add-healthcheck-to-cronjobs prepends the moved container to initContainers.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-default-storage-canary
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  # Background scans report the CronJob, its Jobs and their Pods separately.
+  matchConditions:
+    - name: storage-canary-nfs-or-rwx
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        ((object.kind == 'CronJob' && object.metadata.name in ['nas-canary-replicated', 'nas-canary-scratch',
+        'longhorn-canary-rwx', 'longhorn-canary-rwx-write']) ||
+        object.metadata.?ownerReferences.orValue([]).exists(o, (o.kind == 'CronJob' && o.name in ['nas-canary-replicated',
+        'nas-canary-scratch', 'longhorn-canary-rwx', 'longhorn-canary-rwx-write']) ||
+        (o.kind == 'Job' && o.name.matches('^(nas-canary-replicated|nas-canary-scratch|longhorn-canary-rwx|longhorn-canary-rwx-write)-[0-9]+$'))))
+  properties:
+    reason: >-
+      The nas-canary-* CronJobs mount NFS PVCs (nas-replicated-hdd-canary on nas-hdd, nas-scratch-ssd on nas-ssd) and
+      longhorn-canary-rwx-write/longhorn-canary-rwx mount a Longhorn ReadWriteMany volume served over NFS; these cannot
+      be idmapped, so hostUsers=false cannot be set. The pods still run as uid 65534 with all capabilities dropped.

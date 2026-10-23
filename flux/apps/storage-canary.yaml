@@ -151,15 +151,24 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          hostUsers: false
           serviceAccountName: storage-canary
           securityContext:
             runAsNonRoot: true
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               command: ["bash", "/scripts/check.sh"]
               env:
                 - name: MOUNT_PATTERN
@@ -179,6 +188,8 @@ spec:
                   mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
           volumes:
             - name: scripts
               configMap:
@@ -192,6 +203,8 @@ spec:
                     resources:
                       requests:
                         storage: 1Gi
+            - name: tmp
+              emptyDir: {}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -214,15 +227,24 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          hostUsers: false
           serviceAccountName: storage-canary
           securityContext:
             runAsNonRoot: true
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               command: ["bash", "/scripts/check.sh"]
               env:
                 - name: MOUNT_PATTERN
@@ -242,6 +264,8 @@ spec:
                   mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
           volumes:
             - name: scripts
               configMap:
@@ -255,6 +279,8 @@ spec:
                     resources:
                       requests:
                         storage: 1Gi
+            - name: tmp
+              emptyDir: {}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -283,9 +309,17 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               command: ["bash", "/scripts/check.sh"]
               env:
                 - name: MOUNT_PATTERN
@@ -305,6 +339,8 @@ spec:
                   mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
           volumes:
             - name: scripts
               configMap:
@@ -318,6 +354,8 @@ spec:
                     resources:
                       requests:
                         storage: 1Gi
+            - name: tmp
+              emptyDir: {}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -346,9 +384,17 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               command: ["bash", "/scripts/check.sh"]
               env:
                 - name: MOUNT_PATTERN
@@ -368,6 +414,8 @@ spec:
                   mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
           volumes:
             - name: scripts
               configMap:
@@ -381,6 +429,8 @@ spec:
                     resources:
                       requests:
                         storage: 1Gi
+            - name: tmp
+              emptyDir: {}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -407,9 +457,17 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               command: ["bash", "/scripts/write.sh"]
               env:
                 - name: MOUNT_PATTERN
@@ -429,6 +487,8 @@ spec:
                   mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
           volumes:
             - name: scripts
               configMap:
@@ -436,6 +496,8 @@ spec:
             - name: canary
               persistentVolumeClaim:
                 claimName: longhorn-canary-rwx
+            - name: tmp
+              emptyDir: {}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -465,9 +527,17 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               command: ["bash", "/scripts/verify.sh"]
               env:
                 - name: MOUNT_PATTERN
@@ -489,6 +559,8 @@ spec:
                   mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
           volumes:
             - name: scripts
               configMap:
@@ -496,6 +568,8 @@ spec:
             - name: canary
               persistentVolumeClaim:
                 claimName: longhorn-canary-rwx
+            - name: tmp
+              emptyDir: {}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -515,6 +589,7 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          hostUsers: false
           nodeSelector:
             kubernetes.io/hostname: worker2
           securityContext:
@@ -522,9 +597,17 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               command: ["bash", "/scripts/write.sh"]
               env:
                 - name: MOUNT_PATTERN
@@ -544,6 +627,8 @@ spec:
                   mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
           volumes:
             - name: scripts
               configMap:
@@ -551,6 +636,8 @@ spec:
             - name: canary
               persistentVolumeClaim:
                 claimName: longhorn-canary-handoff
+            - name: tmp
+              emptyDir: {}
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -573,6 +660,7 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          hostUsers: false
           nodeSelector:
             kubernetes.io/hostname: worker3
           securityContext:
@@ -580,9 +668,17 @@ spec:
             runAsUser: 65534
             runAsGroup: 65534
             fsGroup: 65534
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: canary
               image: ghcr.io/anokfireball/base-image:3.24.2@sha256:38fd8456ca419d38e5c903a57971490e8d910286cdd0f1536397969f757b7097
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               command: ["bash", "/scripts/verify.sh"]
               env:
                 - name: MOUNT_PATTERN
@@ -604,6 +700,8 @@ spec:
                   mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
           volumes:
             - name: scripts
               configMap:
@@ -611,3 +709,5 @@ spec:
             - name: canary
               persistentVolumeClaim:
                 claimName: longhorn-canary-handoff
+            - name: tmp
+              emptyDir: {}
