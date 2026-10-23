@@ -14,6 +14,9 @@ spec:
         name: external-dns
         namespace: flux-system
   values:
+    image:
+      repository: registry.k8s.io/external-dns/external-dns
+      tag: "v0.23.0@sha256:1854499e2b08cee47c40a08e356bff20dcb192dbcfde8378fc3f900f12cad5a3"
     policy: sync
     triggerLoopOnEvent: true
     sources:
@@ -26,11 +29,18 @@ spec:
         image:
           repository: ghcr.io/crutonjohn/external-dns-opnsense-webhook
           tag: main@sha256:92bc3f6cedbc964a15902117f25ef42d87f74742ee9c4ed4900085d3edc56857
+        # Image USER is 8675:8675 (distroless static); the webhook writes nothing outside /tmp.
         securityContext:
           runAsNonRoot: true
-          runAsUser: 1000
-          runAsGroup: 1000
+          runAsUser: 8675
+          runAsGroup: 8675
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+        extraVolumeMounts:
+          - name: tmp
+            mountPath: /tmp
         env:
           - name: OPNSENSE_API_SECRET
             valueFrom:
@@ -50,3 +60,25 @@ spec:
     managedRecordTypes:
       - A
       - AAAA
+    extraVolumes:
+      - name: tmp
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: tmp
+        mountPath: /tmp
+  # The chart has no hostUsers value; both containers run as UIDs <= 65535 and mount no PVCs.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: external-dns
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: external-dns
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
