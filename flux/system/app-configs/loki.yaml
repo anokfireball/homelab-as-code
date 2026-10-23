@@ -16,6 +16,13 @@ spec:
   values:
     deploymentMode: SingleBinary
     loki:
+      image:
+        registry: docker.io
+        repository: grafana/loki
+        tag: "3.6.16@sha256:79f3fbf2a3eca97dd735e2aa0871a2fc15365a81c68dea67f639b092c301f454"
+      podSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
       storage:
         type: filesystem
       commonConfig:
@@ -38,6 +45,14 @@ spec:
         enable_api: true
     gateway:
       enabled: true
+      hostUsers: false
+      image:
+        registry: docker.io
+        repository: nginxinc/nginx-unprivileged
+        tag: "1.29-alpine@sha256:0c79d56aee561a1d81c63f00eee5fb5fe29279560cdc55e91425133104c7fbe6"
+      podSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
       ingress:
         enabled: false
     singleBinary:
@@ -67,6 +82,47 @@ spec:
       replicas: 0
     bloomGateway:
       replicas: 0
+    lokiCanary:
+      hostUsers: false
+      image:
+        registry: docker.io
+        repository: grafana/loki-canary
+        tag: "3.6.16@sha256:6d53ce040b436e558936fe05514729c230e9e04edf1fe411d02701025e515924"
+    memcached:
+      image:
+        repository: memcached
+        tag: "1.6.39-alpine@sha256:c8503d4491edd3110cc07d0465089d3a41cf1daf8645e71149e39a51835e92cd"
+      podSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+    memcachedExporter:
+      image:
+        repository: prom/memcached-exporter
+        tag: "v0.15.4@sha256:b6763ecb3c47f2408e0398518851b7f8c5fc46232b2649f8c78a321130c54266"
+    chunksCache:
+      hostUsers: false
+    resultsCache:
+      hostUsers: false
+    sidecar:
+      image:
+        registry: docker.io
+        repository: kiwigrid/k8s-sidecar
+        tag: "2.5.0@sha256:a6b3f707f883108376514489a94d6629109a327b2978e1d826cd104c4ca436df"
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+              name: loki-canary
+            patch: |
+              apiVersion: apps/v1
+              kind: DaemonSet
+              metadata:
+                name: loki-canary
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
