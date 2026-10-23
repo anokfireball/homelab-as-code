@@ -264,3 +264,40 @@ spec:
         (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
         verifyImageSignatures(image, [attestors.k8up]) > 0)
       message: image is not signed by the k8up-io/k8up GitHub Actions release workflow
+---
+# goauthentik publishes no cosign signature, only a GitHub build-provenance attestation (Sigstore
+# bundle under the referrers fallback tag); verifyImageSignatures verifies that bundle's identity.
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-goauthentik
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "ghcr.io/goauthentik/*"
+  attestors:
+    - name: goauthentik
+      cosign:
+        keyless:
+          identities:
+            - issuer: https://token.actions.githubusercontent.com
+              subjectRegExp: ^https://github\.com/goauthentik/authentik/\.github/workflows/release-publish\.yml@refs/tags/version/.+$
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.goauthentik]) > 0)
+      message: image is not signed by the goauthentik release workflow

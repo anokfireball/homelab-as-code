@@ -14,6 +14,10 @@ spec:
         name: goauthentik
         namespace: flux-system
   values:
+    global:
+      image:
+        repository: ghcr.io/goauthentik/server
+        tag: "2026.8.5@sha256:602227a86455d6772e3d16b7d852713c4f864f40df5df894abd1285bb53979a5"
     authentik:
       existingSecret:
         secretName: authentik-secrets
@@ -24,6 +28,76 @@ spec:
         enabled: false
     postgresql:
       enabled: false
+  # The chart has no hostUsers value, so the pod hardening is patched in after rendering.
+  # No volume at /data: authentik only enables uploads when /data is a mount, and it is not one today.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: authentik-server
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: authentik-server
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    # runs as the default ServiceAccount, which has no RBAC bindings
+                    automountServiceAccountToken: false
+                    securityContext:
+                      runAsNonRoot: true
+                      runAsUser: 1000
+                      runAsGroup: 1000
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: server
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+          # The worker keeps its token: it manages outposts through the authentik ServiceAccount.
+          - target:
+              kind: Deployment
+              name: authentik-worker
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: authentik-worker
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      runAsNonRoot: true
+                      runAsUser: 1000
+                      runAsGroup: 1000
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: worker
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
