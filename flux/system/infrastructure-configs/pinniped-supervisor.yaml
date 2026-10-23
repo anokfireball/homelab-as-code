@@ -749,9 +749,13 @@ spec:
         app: pinniped-supervisor
         deployment.pinniped.dev: supervisor
     spec:
+      hostUsers: false
       securityContext:
+        runAsNonRoot: true
         runAsUser: 65532
         runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: pinniped-supervisor
       containers:
       - name: pinniped-supervisor
@@ -784,6 +788,8 @@ spec:
         - name: podinfo
           mountPath: /etc/podinfo
           readOnly: true
+        - name: tmp
+          mountPath: /tmp
         ports:
         - containerPort: 8443
           protocol: TCP
@@ -822,6 +828,8 @@ spec:
           - path: name
             fieldRef:
               fieldPath: metadata.name
+      - name: tmp
+        emptyDir: {}
       tolerations:
       - key: kubernetes.io/arch
         effect: NoSchedule
