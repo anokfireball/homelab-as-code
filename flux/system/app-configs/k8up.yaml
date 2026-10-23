@@ -14,6 +14,23 @@ spec:
         name: k8up-io
         namespace: flux-system
   values:
+    image:
+      registry: ghcr.io
+      repository: k8up-io/k8up
+      tag: "v2.16.1@sha256:f59bfa37c51511d5ad67e53816fb55c62d0e6411890e59bb6b965923129f30b5"
+    # Shared by the operator Deployment and the k8up-cleanup hook Job. The image runs as 65532
+    # and writes nothing outside /tmp.
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 65532
+      runAsGroup: 65532
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: ["ALL"]
     k8up:
       envVars:
         - name: BACKUP_GLOBALACCESSKEYID
@@ -32,3 +49,48 @@ spec:
               name: k8up-secrets
               key: s3-endpoint
       skipWithoutAnnotation: true
+  # The chart has no hostUsers or extra volume values. Hooks reach the post-renderer through
+  # helm-controller's default postRenderStrategy (combined).
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: k8up
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: k8up
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    containers:
+                      - name: k8up-operator
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+          - target:
+              kind: Job
+              name: k8up-cleanup
+            patch: |
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: k8up-cleanup
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    containers:
+                      - name: k8up-cleanup
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
