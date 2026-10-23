@@ -14,8 +14,32 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
     controllers:
       main:
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+        initContainers:
+          seed-conf:
+            image:
+              repository: excalidraw/excalidraw
+              tag: latest@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
+            command: ["sh"]
+            args: ["-c", "cp -a /etc/nginx/conf.d/. /seed/"]
         containers:
           main:
             image:
@@ -27,6 +51,28 @@ spec:
                 enabled: true
               readiness:
                 enabled: true
+    persistence:
+      run:
+        type: emptyDir
+        globalMounts:
+          - path: /run
+      nginx-cache:
+        type: emptyDir
+        globalMounts:
+          - path: /var/cache/nginx
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      # seeded from the image's conf.d by the seed-conf init container; the entrypoint rewrites default.conf in place
+      nginx-conf:
+        type: emptyDir
+        advancedMounts:
+          main:
+            main:
+              - path: /etc/nginx/conf.d
+            seed-conf:
+              - path: /seed
     service:
       main:
         controller: main
