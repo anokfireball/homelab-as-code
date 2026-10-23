@@ -33,6 +33,42 @@ spec:
       requests:
         cpu: 50m
         memory: 100Mi
+  # The chart has no hostUsers or readOnlyRootFilesystem knobs. The image stays root inside its user namespace (D2=yes, D4).
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: homepage
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: homepage
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: homepage
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                          - name: next-cache
+                            mountPath: /app/.next/cache
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+                      - name: next-cache
+                        emptyDir: {}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -71,6 +107,42 @@ spec:
       requests:
         cpu: 50m
         memory: 100Mi
+  # The chart has no hostUsers or readOnlyRootFilesystem knobs. The image stays root inside its user namespace (D2=yes, D4).
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: homepage-ext
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: homepage-ext
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: homepage-ext
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                          - name: next-cache
+                            mountPath: /app/.next/cache
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+                      - name: next-cache
+                        emptyDir: {}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
