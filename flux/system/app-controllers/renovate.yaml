@@ -14,6 +14,10 @@ spec:
         name: renovate
         namespace: flux-system
   values:
+    image:
+      registry: ghcr.io
+      repository: renovatebot/renovate
+      tag: 44.180.0@sha256:ad97d11f73542932f3615dcfd8bc9637d20f80ebf6cc97d0d12a885a19bf3412
     cronjob:
       schedule: "51 0/6 * * *"
       annotations:
@@ -36,6 +40,39 @@ spec:
           secretKeyRef:
             name: renovate-github-token
             key: RENOVATE_TOKEN
+  # The chart has no hostUsers or automountServiceAccountToken values; 12021:0 is the image's own user.
+  # The root filesystem stays writable: tools installed at runtime (binarySource=install) go to
+  # /opt/containerbase next to the shipped git and docker (see kyverno-exceptions.yaml).
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: CronJob
+              name: renovate
+            patch: |
+              apiVersion: batch/v1
+              kind: CronJob
+              metadata:
+                name: renovate
+              spec:
+                jobTemplate:
+                  spec:
+                    template:
+                      spec:
+                        hostUsers: false
+                        automountServiceAccountToken: false
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 12021
+                          runAsGroup: 0
+                          seccompProfile:
+                            type: RuntimeDefault
+                        containers:
+                          - name: renovate
+                            securityContext:
+                              allowPrivilegeEscalation: false
+                              capabilities:
+                                drop: ["ALL"]
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -57,6 +94,13 @@ spec:
       alwaysAppendIdentifierToResourceName: true
     defaultPodOptions:
       automountServiceAccountToken: true
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
     controllers:
       main:
         type: cronjob
@@ -78,9 +122,6 @@ spec:
             command: ["/bin/bash", "/scripts/token.sh"]
             args: ["$(CLIENT_ID)", "/key/private-key.pem", "$(INSTALLATION_ID)"]
             securityContext:
-              runAsUser: 65534
-              runAsGroup: 65534
-              runAsNonRoot: true
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities:
@@ -183,3 +224,7 @@ spec:
       key:
         type: secret
         name: renovate-github-token-key
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

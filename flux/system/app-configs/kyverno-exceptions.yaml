@@ -1,0 +1,23 @@
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-readonly-root-filesystem-renovate-system-renovate
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  # Background scans report the CronJob, its Jobs and their Pods separately.
+  matchConditions:
+    - name: renovate
+      expression: >-
+        object.metadata.namespace == 'renovate-system' &&
+        ((object.kind == 'CronJob' && object.metadata.name == 'renovate') ||
+        object.metadata.?ownerReferences.orValue([]).exists(o, (o.kind == 'CronJob' && o.name == 'renovate') ||
+        (o.kind == 'Job' && o.name.matches('^renovate-[0-9]+$'))))
+  properties:
+    reason: >-
+      Renovate's slim image installs tools at runtime (binarySource=install, e.g. flux for gotk-components.yaml)
+      into /opt/containerbase next to the git and docker it ships, and an init container seeding a writable copy
+      would run after renovate because add-healthcheck-to-cronjobs prepends the moved container to initContainers.
