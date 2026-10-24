@@ -22,22 +22,63 @@ spec:
       policyExceptions:
         enabled: true
         namespace: kyverno-system
+    # Images pinned to the chart appVersion (v1.19.2) by index digest; the digests are the
+    # ones the running pods report as imageID. The chart default registry reg.kyverno.io
+    # serves the same digests as ghcr.io; ghcr.io is set explicitly so the refs resolve as written.
+    crds:
+      migration:
+        image:
+          registry: ghcr.io
+          repository: kyverno/kyverno-cli
+          tag: "v1.19.2@sha256:322ec5044d600930cb3af0e56dc33154a2d1d1fba58f4cadad3f47be7e78b11c"
+    webhooksCleanup:
+      image:
+        registry: ghcr.io
+        repository: kyverno/readiness-checker
+        tag: "v1.19.2@sha256:02600428e7c956e222f4376413525866ed9fec28e6bcb1222774ce6bf5fc904a"
+    test:
+      image:
+        registry: ghcr.io
+        repository: kyverno/readiness-checker
+        tag: "v1.19.2@sha256:02600428e7c956e222f4376413525866ed9fec28e6bcb1222774ce6bf5fc904a"
     # TODO once a third worker is available again
     # https://kyverno.io/docs/installation/methods/#high-availability-installation
     admissionController:
       # replicas: 3
+      container:
+        image:
+          registry: ghcr.io
+          repository: kyverno/kyverno
+          tag: "v1.19.2@sha256:c8c4dd09e720d2cd7fd24ca73ac28e46651001372f988e0cba3f2f612f04b955"
+      initContainer:
+        image:
+          registry: ghcr.io
+          repository: kyverno/kyvernopre
+          tag: "v1.19.2@sha256:27f3cc52e628559b56d08363b85316819802086c9808606914f7805a244148f4"
       serviceMonitor: &service-monitor-config
         enabled: true
         additionalLabels:
           release: kube-prometheus-stack
     backgroundController:
       # replicas: 2
+      image:
+        registry: ghcr.io
+        repository: kyverno/background-controller
+        tag: "v1.19.2@sha256:c46e124f21ef8a6bb4b48de57106808b1007edcd5ddd4ff7df5d23b9efa60ce2"
       serviceMonitor: *service-monitor-config
     cleanupController:
       # replicas: 2
+      image:
+        registry: ghcr.io
+        repository: kyverno/cleanup-controller
+        tag: "v1.19.2@sha256:d7340aa7c9315080c3dafa7b765d090ced37353e89e5cd7a3f9ac69e8fb532b2"
       serviceMonitor: *service-monitor-config
     reportsController:
       # replicas: 2
+      image:
+        registry: ghcr.io
+        repository: kyverno/reports-controller
+        tag: "v1.19.2@sha256:5fb6d3e738050dbce84f60ecabaede7665fbe0578d07c1e8c912443b035e79c3"
       serviceMonitor: *service-monitor-config
       # audit-service-account-token lists (Cluster)RoleBindings during background scans
       rbac:
@@ -45,3 +86,70 @@ spec:
           extraResources:
             - apiGroups: [rbac.authorization.k8s.io]
               resources: [rolebindings, clusterrolebindings]
+  # The chart has no pod-level securityContext or hostUsers knob. Container securityContexts
+  # (non-root 65534, drop ALL, readOnlyRootFilesystem, allowPrivilegeEscalation false, seccomp)
+  # already come from the chart. Pods run in a user namespace: UID/GID 65534 only, no
+  # hostNetwork/hostPath/PVC/NFS, and the only volumes are emptyDir, projected and configMap/secret.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: kyverno-admission-controller
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: kyverno-admission-controller
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+          - target:
+              kind: Deployment
+              name: kyverno-background-controller
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: kyverno-background-controller
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+          - target:
+              kind: Deployment
+              name: kyverno-cleanup-controller
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: kyverno-cleanup-controller
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+          - target:
+              kind: Deployment
+              name: kyverno-reports-controller
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: kyverno-reports-controller
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
