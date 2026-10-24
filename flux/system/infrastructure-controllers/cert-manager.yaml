@@ -36,7 +36,7 @@ spec:
     acmesolver:
       image:
         repository: quay.io/jetstack/cert-manager-acmesolver
-        tag: "v1.21.2@sha256:699b40d622211ab7accad8a21b04c5fbaa1841ef7a12621e8de492dbe27b2503"
+        tag: "v1.21.3@sha256:c8c1225bb2fe8ab37a330b77f0d8c2ee6a41210fcb54fc07ca606ab9a022b8b7"
     startupapicheck:
       image:
         repository: quay.io/jetstack/cert-manager-startupapicheck
