@@ -14,6 +14,11 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    defaultPodOptions:
+      hostUsers: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
     controllers:
       main:
         type: cronjob
@@ -23,6 +28,12 @@ spec:
         annotations:
           healthcheckSecret: soundcloud-scraper-secrets
           healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:1935f05d3c7925f4557c6db57c7cd90dc59f01cb8984f18b67e78977c7e781e7
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
         containers:
           main:
             image:
@@ -39,3 +50,7 @@ spec:
         storageClass: cluster-replicated
         accessMode: ReadWriteOnce
         size: 500Mi
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
