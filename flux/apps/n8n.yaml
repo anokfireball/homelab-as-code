@@ -49,6 +49,10 @@ spec:
         name: truecharts
         namespace: flux-system
   values:
+    image:
+      repository: ghcr.io/n8n-io/n8n
+      tag: "2.45.3@sha256:bf88c3783fc4b2a90a007bb99b04ad2f6a9627f41499baf72ca67559c51c7f4c"
+      pullPolicy: IfNotPresent
     runnersImage:
       repository: n8nio/runners
       tag: "2.45.3@sha256:c57f7d17c37e89fc8128c165063874db788b599ed9c5d263c7adc6d3b59a0477"
@@ -78,15 +82,18 @@ spec:
         enabled: true
     securityContext:
       container:
-        readOnlyRootFilesystem: false
-        runAsNonRoot: false
-        runAsUser: 0
+        runAsUser: 1000
+        runAsGroup: 1000
+        readOnlyRootFilesystem: true
+      pod:
         fsGroup: 1000
     workload:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
         podSpec:
+          hostUsers: false
+          automountServiceAccountToken: false
           containers:
             main:
               probes:
@@ -188,12 +195,28 @@ spec:
   backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
   pod:
     spec:
+      automountServiceAccountToken: false
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 26
+        runAsGroup: 26
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: n8n-database-backup
           image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:1c80146a60cf8010042616c67370b2861a1877b9fcf9dd6dd2a9395aa406b568
           command:
             - "sleep"
             - "infinity"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           env:
             - name: POSTGRES_HOST
               value: n8n-postgresql-rw
@@ -207,6 +230,9 @@ spec:
                 secretKeyRef:
                   name: postgres-backup-user
                   key: password
+      volumes:
+        - name: tmp
+          emptyDir: {}
 ---
 apiVersion: k8up.io/v1
 kind: Schedule
@@ -226,12 +252,62 @@ spec:
           backup: n8n-database
     schedule: "53 4/6 * * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: n8n-database-backup
   prune:
     schedule: "23 0 1 * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: n8n-database-prune
     retention:
       keepHourly: 6
       keepDaily: 14
       keepWeekly: 12
       keepMonthly: 6
       keepYearly: 2
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: n8n-database-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: n8n-database-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
