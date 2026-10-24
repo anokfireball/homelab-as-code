@@ -18,3 +18,16 @@ spec:
       reloadOnCreate: true
       syncAfterRestart: true
       reloadStrategy: annotations
+      readOnlyRootFileSystem: true
+      deployment:
+        hostUsers: false
+        securityContext:
+          runAsGroup: 65534
+        containerSecurityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+    image:
+      repository: ghcr.io/stakater/reloader
+      tag: v1.4.22@sha256:def2480040adc164b3a57340e77674eadfd88fb7f0593df25e93297f29c7fd7c
