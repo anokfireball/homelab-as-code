@@ -66,3 +66,25 @@ spec:
     reason: >-
       Loki's single-binary StatefulSet mounts its 500Gi chunk PVC from storage class nas-replicated-hdd
       (provisioner nas-hdd, fsType nfs), which cannot be idmapped, so the pod must stay in the host user namespace.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-default-paperless-data-backup
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  # Background scans report the Job and its Pods separately.
+  matchConditions:
+    - name: paperless-data-backup
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        ((object.kind == 'Job' && object.metadata.name.matches('^backup-paperless-data-backup-[a-z0-9]+-[0-9]+$')) ||
+        object.metadata.?ownerReferences.orValue([]).exists(o, o.kind == 'Job' && o.name.matches('^backup-paperless-data-backup-[a-z0-9]+-[0-9]+$')))
+  properties:
+    reason: >-
+      k8up backup of the paperless-data Schedule mounts the static NFS PV nas-dokumente-export
+      (192.168.1.2:/mnt/tank/Dokumente/Paperless/export). NFS cannot be idmapped, so hostUsers cannot be set;
+      the Job runs as 1000:1000 with a read-only root filesystem, dropped capabilities and RuntimeDefault seccomp.
