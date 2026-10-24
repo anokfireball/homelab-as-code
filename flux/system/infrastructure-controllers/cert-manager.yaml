@@ -32,7 +32,7 @@ spec:
     cainjector:
       image:
         repository: quay.io/jetstack/cert-manager-cainjector
-        tag: "v1.21.2@sha256:c85268c64f2e0e76684bf5fe8906caff34b82523561c6affe0fae3546bd87562"
+        tag: "v1.21.3@sha256:083d0e906f8eb44e255fe4ff817ae54e49f9ed82e22f1011bb4e9e4f4b8a641f"
     acmesolver:
       image:
         repository: quay.io/jetstack/cert-manager-acmesolver
