@@ -29,9 +29,34 @@ spec:
       image:
         repository: registry.k8s.io/autoscaling/vpa-recommender
         tag: 1.8.1@sha256:edf874b830984d1df9d60f839874eba42de3465051922b929754edc42ea0f69b
+      podSecurityContext:
+        runAsGroup: 65534
     updater:
       enabled: false
     admissionController:
       enabled: false
     metrics-server:
       enabled: false
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: vertical-pod-autoscaler-vpa-recommender
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: vertical-pod-autoscaler-vpa-recommender
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    containers:
+                      - name: vpa
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
