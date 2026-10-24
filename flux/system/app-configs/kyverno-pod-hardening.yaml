@@ -421,3 +421,38 @@ spec:
         (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
         verifyImageSignatures(image, [attestors.metallb]) > 0)
       message: image is not signed by the metallb GitHub Actions publish workflow
+---
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-spegel-org
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "ghcr.io/spegel-org/*"
+  attestors:
+    - name: spegel
+      cosign:
+        keyless:
+          identities:
+            - issuer: https://token.actions.githubusercontent.com
+              subjectRegExp: ^https://github\.com/spegel-org/spegel/\.github/workflows/release\.yaml@refs/tags/v.+$
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.spegel]) > 0)
+      message: image is not signed by the spegel-org/spegel GitHub Actions release workflow
