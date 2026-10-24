@@ -39,6 +39,9 @@ spec:
         emptyDir: {}
     ingress:
       enabled: false
+    # The RWO PVC can only attach to one node; a rolling update deadlocks when the new pod lands elsewhere.
+    deploymentStrategy:
+      type: Recreate
     persistence:
       enabled: true
       storageClassName: cluster-scratch
