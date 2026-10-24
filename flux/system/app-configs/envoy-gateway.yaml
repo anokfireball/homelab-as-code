@@ -21,8 +21,47 @@ spec:
       # one the pinned gateway-helm release ships, so a gateway-helm minor bump must move this
       # tag to the new Envoy minor (or delete the override) in the same PR.
       envoyDeployment:
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            seccompProfile:
+              type: RuntimeDefault
+          volumes:
+            - name: tmp
+              emptyDir: {}
         container:
           image: docker.io/envoyproxy/envoy:distroless-v1.39.5@sha256:9d84a586119a27b50437dbb01eccd4722832741539b1ed53c8e9d6da6067a6e0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+        # No EnvoyProxy field for hostUsers; the patch sets it on the proxy Deployment and makes
+        # shutdown-manager (which writes /tmp/shutdown-ready) read-only-root with the same /tmp.
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              template:
+                spec:
+                  hostUsers: false
+                  containers:
+                    - name: shutdown-manager
+                      securityContext:
+                        readOnlyRootFilesystem: true
+                      volumeMounts:
+                        - name: tmp
+                          mountPath: /tmp
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass
