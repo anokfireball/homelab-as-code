@@ -598,3 +598,39 @@ spec:
         (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
         verifyImageSignatures(image, [attestors.cloudnativepg]) > 0)
       message: image is not signed by the cloudnative-pg postgres-containers GitHub Actions workflow
+---
+# One policy per signing publisher; identity from the publisher's release workflow.
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-n8n-io
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "ghcr.io/n8n-io/*"
+  attestors:
+    - name: n8nio
+      cosign:
+        keyless:
+          identities:
+            - issuer: https://token.actions.githubusercontent.com
+              subjectRegExp: ^https://github\.com/n8n-io/n8n/\.github/workflows/docker-build-push\.yml@refs/heads/release/.+$
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.n8nio]) > 0)
+      message: image is not signed by the n8n-io/n8n GitHub Actions release workflow
