@@ -66,3 +66,25 @@ spec:
     reason: >-
       Loki's single-binary StatefulSet mounts its 500Gi chunk PVC from storage class nas-replicated-hdd
       (provisioner nas-hdd, fsType nfs), which cannot be idmapped, so the pod must stay in the host user namespace.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-readonly-root-filesystem-default-pihole
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  # Background scans report the Deployment, its ReplicaSets and its Pods separately.
+  matchConditions:
+    - name: pihole
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.metadata.?labels[?'app'].orValue('') == 'pihole' &&
+        object.metadata.?labels[?'release'].orValue('') == 'pihole'
+  properties:
+    reason: >-
+      pihole's start.sh runs `sed -i` on /crontab.txt in the image root on every start (start_cron randomises the
+      gravity/updatechecker times), so / must stay writable; /etc/pihole, /run, /tmp, /var/tmp, /var/log/pihole and
+      /etc/crontabs are emptyDirs.
