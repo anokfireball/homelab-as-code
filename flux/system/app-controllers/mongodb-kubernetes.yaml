@@ -14,7 +14,60 @@ spec:
         name: mongodb
         namespace: flux-system
   values:
+    # The chart builds <registry>/<name>:<version>, so digests ride in the version keys. MongoDB key-signs the
+    # operator, hook, readiness probe and agent (cosign.mongodb.com key, E8). mongod (community.mongodb) is unsigned and
+    # the operator derives its tag from MongoDBCommunity spec.version, so it stays unpinned (Step 8 exception).
     operator:
       watchNamespace: default
       name: mongodb-kubernetes-operator
       replicas: 1
+      version: 1.14.0@sha256:47c6df5ec4615c554de9532929961589d02fffbe2dd3133460cc61f3e05d32fb
+      # Hardening (D2/D3, D5-D8): non-root uid 2000 from the image (E2/E4); user namespace via postRenderers (chart has no hostUsers knob)
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 2000
+        runAsGroup: 2000
+        fsGroup: 2000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      # Root filesystem is read-only: E6 shows no writes outside kubelet-managed mounts; the webhook cert dir is an emptyDir
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+    versionUpgradeHook:
+      version: 1.0.10@sha256:5d776a05cd8e2b897e441904126c198230294ebc3c03e6a8830b1c7d6c92af42
+    readinessProbe:
+      version: 1.0.24@sha256:75ff5bd1aebdb82776de008e96433ebe93a17b0a3a4be6cced270b76b67e0bb1
+    agent:
+      version: 109.0.1.9310-1@sha256:cad96df67cee50d9faf4d53bdf4b4b7333902a3fee824ad7be0cc6034f8a597b
+    community:
+      agent:
+        version: 109.0.1.9310-1@sha256:cad96df67cee50d9faf4d53bdf4b4b7333902a3fee824ad7be0cc6034f8a597b
+  # The chart has no hostUsers knob, so patch the operator Deployment (E1: no host namespaces, E3: no NFS/hostPath, E2: uid 2000).
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: mongodb-kubernetes-operator
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: mongodb-kubernetes-operator
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    containers:
+                      - name: mongodb-kubernetes-operator
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}

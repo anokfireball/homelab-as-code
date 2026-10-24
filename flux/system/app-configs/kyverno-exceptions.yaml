@@ -124,3 +124,23 @@ spec:
   properties:
     reason: >-
       Prometheus TSDB PVC is nas-replicated-hdd (StorageClass fsType nfs, NFS export), which cannot be idmapped for hostUsers: false.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-image-digest-default-unifi-mongodb
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-image-digest
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: unifi-mongodb
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.metadata.?labels[?'app'].orValue('') == 'unifi-mongodb-svc'
+  properties:
+    reason: >-
+      The operator derives the mongod image tag from MongoDBCommunity spec.version and imageType
+      (quay.io/mongodb/mongodb-community-server:9.0.4-ubi8), and that image is unsigned; a digest in the
+      operator values would pin every MongoDB version to one image. The operator-chosen hook, readiness probe and agent are digest-pinned in mongodb-kubernetes.yaml.
