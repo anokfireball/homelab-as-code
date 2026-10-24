@@ -124,3 +124,23 @@ spec:
   properties:
     reason: >-
       Prometheus TSDB PVC is nas-replicated-hdd (StorageClass fsType nfs, NFS export), which cannot be idmapped for hostUsers: false.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-readonly-root-filesystem-arrchive-qbittorrent
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: qbittorrent
+      expression: >-
+        object.metadata.namespace == 'arrchive' &&
+        object.metadata.?labels[?'app.kubernetes.io/instance'].orValue('') == 'qbittorrent' &&
+        object.metadata.?labels[?'app.kubernetes.io/controller'].orValue('') == 'main'
+  properties:
+    reason: >-
+      gluetun (root with NET_ADMIN, D1) writes /etc/passwd at start to add its nonrootuser (uid 1000) for openvpn (E6),
+      which is outside any dedicated directory, so its root filesystem must stay writable (D6); the other containers are read-only.
