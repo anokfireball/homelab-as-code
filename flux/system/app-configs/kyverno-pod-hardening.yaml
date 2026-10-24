@@ -301,3 +301,39 @@ spec:
         (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
         verifyImageSignatures(image, [attestors.goauthentik]) > 0)
       message: image is not signed by the goauthentik release workflow
+---
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-anokfireball
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  # Scoped to the one signed image: ghcr.io/anokfireball/base-image is unsigned and must not report.
+  matchImageReferences:
+    - glob: "ghcr.io/anokfireball/opnsense-ipv6-prefix-update*"
+  attestors:
+    - name: anokfireball
+      cosign:
+        keyless:
+          identities:
+            - issuer: https://token.actions.githubusercontent.com
+              subjectRegExp: ^https://github\.com/anokfireball/opnsense-ipv6-prefix-update/\.github/workflows/build-publish\.yaml@refs/tags/v.+$
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.anokfireball]) > 0)
+      message: image is not signed by the anokfireball/opnsense-ipv6-prefix-update release workflow
