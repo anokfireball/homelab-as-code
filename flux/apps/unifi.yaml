@@ -42,6 +42,10 @@ spec:
   statefulSet:
     spec:
       serviceName: unifi-mongodb-svc
+      # Pod hardening (D2): data/logs are Longhorn RWO PVCs and mongod runs as uid 2000 only.
+      template:
+        spec:
+          hostUsers: false
       volumeClaimTemplates:
         - metadata:
             name: data-volume
@@ -70,6 +74,13 @@ spec:
         namespace: flux-system
   values:
     defaultPodOptions:
+      # D2: no NFS/RWX/hostPath volumes; /config is Longhorn RWO and all its files are uid/gid 911 (<= 65535).
+      hostUsers: false
+      # D7: E5 empty (no RBAC bound to unifi-controller SA).
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
       annotations:
         k8up.io/backup: "true"
         k8up.io/backupcommand: sh -c 'cat "$(ls -t /config/data/backup/*.unf | head -n1)"'
@@ -115,6 +126,13 @@ spec:
               requests:
                 cpu: 20m
                 memory: 800Mi
+            # readOnlyRootFilesystem stays unset: LSIO init rewrites /etc/passwd and /etc/group and links /usr/lib/unifi/{data,logs,run} on every start (Step 8 exception).
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+                # Each add-back fails without it under drop ALL: CHOWN (init chown of /config, /app, /defaults), SETUID/SETGID (s6-applyuidgid: unable to set supplementary group list, java as 911), DAC_OVERRIDE (root init writes into 911-owned /config and /defaults).
+                add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
     service:
       external:
         controller: main
@@ -177,15 +195,68 @@ spec:
           backup: unifi-data
     schedule: "21 2 * * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: unifi-data-backup
   prune:
     schedule: "51 0 1 * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: unifi-data-prune
     retention:
       keepHourly: 6
       keepDaily: 14
       keepWeekly: 12
       keepMonthly: 6
       keepYearly: 2
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: unifi-data-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      # restic only streams what the unifi pod's backupcommand prints; it needs no volumes
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: unifi-data-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
