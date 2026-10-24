@@ -106,3 +106,21 @@ spec:
   properties:
     reason: >-
       The data PVC scrutiny-influxdb-influxdb2 is on the nas-replicated-hdd class (freenas-nfs NFS export), which cannot be idmapped, so hostUsers: false is not possible (D2).
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-monitoring-system-kube-prometheus-stack-prometheus
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: prometheus
+      expression: >-
+        object.metadata.namespace == 'monitoring-system' &&
+        object.metadata.?labels[?'operator.prometheus.io/name'].orValue('') == 'kube-prometheus-stack-prometheus'
+  properties:
+    reason: >-
+      Prometheus TSDB PVC is nas-replicated-hdd (StorageClass fsType nfs, NFS export), which cannot be idmapped for hostUsers: false.
