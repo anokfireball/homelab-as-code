@@ -11,3 +11,15 @@ patches:
       - op: add
         path: /metadata/labels/pod-security.kubernetes.io~1enforce
         value: restricted
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      namespace: flux-system
+    patch: |
+      - op: add
+        path: /spec/template/spec/hostUsers
+        value: false
+      - op: add
+        path: /spec/template/spec/securityContext/seccompProfile
+        value: {type: RuntimeDefault}
