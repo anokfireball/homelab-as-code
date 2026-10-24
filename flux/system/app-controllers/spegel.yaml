@@ -18,3 +18,47 @@ spec:
       enabled: true
       labels:
         release: kube-prometheus-stack
+    image:
+      repository: ghcr.io/spegel-org/spegel
+      # Chart default is digest-only; carry the same pin in tag form so Renovate can track it.
+      digest: ""
+      tag: "v0.8.0@sha256:b48194957bf9b5bdcea2700536a302ade23315082b05e5a44c0822f5c301850a"
+    # Root and hostPath access are required (D1: containerd socket, content store, mirror config).
+    # Everything else is restricted: seccomp, no privilege escalation, no caps, read-only root.
+    podSecurityContext:
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: ["ALL"]
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: DaemonSet
+              name: spegel
+            patch: |
+              apiVersion: apps/v1
+              kind: DaemonSet
+              metadata:
+                name: spegel
+              spec:
+                template:
+                  spec:
+                    # No RBAC is bound to the spegel ServiceAccount (E5), and spegel discovers peers via DNS.
+                    automountServiceAccountToken: false
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+                    initContainers:
+                      - name: configuration
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    containers:
+                      - name: registry
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
