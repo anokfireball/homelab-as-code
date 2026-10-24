@@ -19,3 +19,35 @@ spec:
   values:
     frrk8s:
       enabled: false
+    controller:
+      image:
+        tag: "v0.16.1@sha256:f51ab515de9ccd20dc3dccb093e48df8adddac019326c456f449e55ba91b6420"
+      # Pod-level values replace the chart default map, so the nobody UID stays explicit.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+    speaker:
+      image:
+        tag: "v0.16.1@sha256:16561e96531e1852d5c229ad7fae6e994dcfa983ff7f4de6b6208b34a4e2ddbc"
+      # Speaker stays root with hostNetwork and NET_RAW (L2 ARP, memberlist): D1 yes, so no userns and no runAsNonRoot.
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: metallb-controller
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: metallb-controller
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
