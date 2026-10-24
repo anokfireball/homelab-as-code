@@ -14,6 +14,11 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
     controllers:
       main:
         containers:
@@ -30,6 +35,15 @@ spec:
               requests:
                 cpu: 400m
                 memory: 500Mi
+            # Stays root: s6-overlay starts the app as uid 911 (LSIO default PUID). Non-root (`user: 911`) cannot run
+            # under drop ALL + no-new-privileges (s6 logutil setgroups, file caps). Capabilities are the minimum that
+            # passes V2 locally: CHOWN (lsiown on volumes), DAC_OVERRIDE (0600 sabnzbd.ini), SETUID/SETGID (drop to 911).
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+                add: ["CHOWN", "DAC_OVERRIDE", "SETUID", "SETGID"]
     service:
       main:
         controller: main
@@ -73,6 +87,15 @@ spec:
         type: nfs
         server: 192.168.1.2
         path: /mnt/tank/Scratch/NZB
+      # Only E6 paths written at runtime (readOnlyRootFilesystem). LSIO read-only mode skips /etc writes.
+      run:
+        type: emptyDir
+        globalMounts:
+          - path: /run
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
