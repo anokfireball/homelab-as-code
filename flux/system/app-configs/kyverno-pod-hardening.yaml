@@ -634,3 +634,55 @@ spec:
         (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
         verifyImageSignatures(image, [attestors.n8nio]) > 0)
       message: image is not signed by the n8n-io/n8n GitHub Actions release workflow
+---
+# MongoDB publishes its release key at cosign.mongodb.com; `cosign verify --key` passes for the operator, the version-upgrade
+# hook, the readiness probe and the agent. The signatures are not in the transparency log, hence insecureIgnoreTlog.
+# mongod (mongodb-community-server) is unsigned and deliberately not matched.
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-mongodb
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "quay.io/mongodb/mongodb-kubernetes*"
+    - glob: "quay.io/mongodb/mongodb-agent*"
+  attestors:
+    - name: mongodb
+      cosign:
+        key:
+          data: |
+            -----BEGIN RSA PUBLIC KEY-----
+            MIICCgKCAgEAuIC6wrhsXRVoQ/6lptZTnLocKdbkdVviJa6vTsdsTz245kt4q/pw
+            hpjk9Qw8t99OQHtXlSWNyXh0UDvXHfINBfkNEWEgBwXOAJ/Eub5S5/Lg9nANSJl3
+            iDUFEGsMDv6blbWXZC9qpMudsBC8H6GaTcZlwDxvxjwXB7PoABvDeEu8FbqlCdw0
+            2+xO/35u5JMBaX8oGovL8GEGupckV3Y/y0CC4E6uad5aAwtow8SFrn7oiL0o78GM
+            1v1kLRzxi4odWoTw7ohh4Z6EIr0688Bx+gJiMwCPH+liMcZ94KGKaeh3OGq26Zou
+            lxKTtLzePUVBHZ09z/74m1gpQcmhj0iMe9/V0lFpmYa6ZFVm29XqTcJFQ5HcQ0oV
+            GJbt9kmhtJBYn5E0sdfIWjPC5pR0i7A548zjy3nfxPLg3FwRt8aXH2N222OD+txk
+            IABH/GROPYTiVf8qPL+CSxq2rJURlxvPGPrWMtK0TFFIVVVPky+ySv0+zRY34vXW
+            Fqf+os7EzeEFc1xq/fLO+juCiL7PLhNyQaT/fqOrMnhk8HgEw61ZaO/CJYg6dU7f
+            3FJRBHuZFiwrJEus4bpd6teTP4uVhi+K0PLA+K9XYjZsb8sE+PTm1MYk3eHlq8EL
+            q/rwKEzGxUj06dn5udg/qKVvLYiihiGsapuUZ0Sw4GdRnEte9uOqhkMCAwEAAQ==
+            -----END RSA PUBLIC KEY-----
+        ctlog:
+          insecureIgnoreTlog: true
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.mongodb]) > 0)
+      message: image is not signed by the MongoDB release key
