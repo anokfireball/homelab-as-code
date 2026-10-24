@@ -14,12 +14,40 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      # D2 yes: configMap only (E3), every E2/E4 UID/GID is 0 or 33, no NFS/hostPath/devices. D4 no: no documented non-root mode (E7), root stays in the userns.
+      hostUsers: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
     global:
       alwaysAppendIdentifierToResourceName: true
     controllers:
       main:
+        initContainers:
+          # Copies the image's /app and /run into emptyDirs. cp -R (not -a); /app/cache is chowned to uid 33 for php-fpm writes.
+          seed:
+            image:
+              repository: ghcr.io/rss-bridge/rss-bridge
+              tag: latest@sha256:51c31a98c02be55bc7f1f1cc616c32189ffe93a010a765f8ff8c9ea40c8f55eb
+            command: ["sh", "-c", "cp -R /app/. /seed-app/ && cp -R /run/. /seed-run/ && chown -R 33:33 /seed-app/cache"]
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+                add: ["CHOWN"]
         containers:
           main:
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                # Root master (E2 uid 0) chowns /var/lib/nginx and the php-fpm socket, then setuid/setgid to workers (uid 33).
+                # Verified locally with --cap-drop ALL: chown fails without CHOWN; setgid(33) fails without SETGID.
+                drop: ["ALL"]
+                add: ["CHOWN", "SETUID", "SETGID"]
             image:
               repository: ghcr.io/rss-bridge/rss-bridge
               tag: latest@sha256:51c31a98c02be55bc7f1f1cc616c32189ffe93a010a765f8ff8c9ea40c8f55eb
@@ -69,6 +97,37 @@ spec:
       config:
         type: configMap
         name: rss-bridge-config
+      # /app and /run are seeded from the image by the seed init container: the entrypoint writes /app/config.ini.php,
+      # nginx writes /run/nginx.pid and php-fpm creates /run/php/php8.2-fpm.sock (E6).
+      app:
+        type: emptyDir
+        advancedMounts:
+          main:
+            main:
+              - path: /app
+            seed:
+              - path: /seed-app
+      run:
+        type: emptyDir
+        advancedMounts:
+          main:
+            main:
+              - path: /run
+            seed:
+              - path: /seed-run
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          main:
+            main:
+              - path: /tmp
+      # nginx creates its fastcgi/body/proxy temp trees here at start (E6).
+      nginx-lib:
+        type: emptyDir
+        advancedMounts:
+          main:
+            main:
+              - path: /var/lib/nginx
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
