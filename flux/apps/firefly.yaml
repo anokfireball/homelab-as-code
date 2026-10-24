@@ -64,8 +64,21 @@ spec:
       auth:
         existingSecret: firefly-cron
       image:
-        repository: ghcr.io/anokfireball/base-image
+        registry: ghcr.io
+        repository: anokfireball/base-image
         tag: 3.24.3@sha256:1935f05d3c7925f4557c6db57c7cd90dc59f01cb8984f18b67e78977c7e781e7
+      # the chart prefixes registry (default docker.io) to repository, so the registry is split out
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
     ingress:
       enabled: false
     httpRoute:
@@ -82,6 +95,99 @@ spec:
       requests:
         cpu: 20m
         memory: 200Mi
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 33
+      runAsGroup: 33
+      fsGroup: 33
+      fsGroupChangePolicy: OnRootMismatch
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: ["ALL"]
+    # Writable paths from the image (E6): seeded from the image where it ships files the app reads
+    extraVolumes:
+      - name: tmp
+        emptyDir: {}
+      - name: run
+        emptyDir: {}
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-conf
+        emptyDir: {}
+      - name: storage
+        emptyDir: {}
+      - name: upload
+        emptyDir: {}
+      - name: bootstrap-cache
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: tmp
+        mountPath: /tmp
+      - name: run
+        mountPath: /run
+      - name: nginx-cache
+        mountPath: /var/cache/nginx
+      - name: nginx-conf
+        mountPath: /etc/nginx
+      - name: storage
+        mountPath: /var/www/html/storage
+      - name: upload
+        mountPath: /var/www/html/storage/upload
+      - name: bootstrap-cache
+        mountPath: /var/www/html/bootstrap/cache
+  # The chart has no hostUsers, automountServiceAccountToken or initContainers values.
+  # The seed init container copies the image's storage, bootstrap/cache and /etc/nginx into the emptyDirs.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: firefly-firefly-iii
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: firefly-firefly-iii
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    automountServiceAccountToken: false
+                    initContainers:
+                      - name: seed
+                        image: docker.io/fireflyiii/core:version-6.7.9@sha256:4409f9f0f87378ba95d40811352f4f49338d276bb638c1e6d18a5579f332fbe8
+                        command: ["sh", "-c", "cp -R /var/www/html/storage/. /seed/storage/ && cp -R /var/www/html/bootstrap/cache/. /seed/bootstrap-cache/ && cp -R /etc/nginx/. /seed/nginx-conf/"]
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: storage
+                            mountPath: /seed/storage
+                          - name: bootstrap-cache
+                            mountPath: /seed/bootstrap-cache
+                          - name: nginx-conf
+                            mountPath: /seed/nginx-conf
+          - target:
+              kind: CronJob
+              name: firefly-firefly-iii-cronjob
+            patch: |
+              apiVersion: batch/v1
+              kind: CronJob
+              metadata:
+                name: firefly-firefly-iii-cronjob
+              spec:
+                jobTemplate:
+                  spec:
+                    template:
+                      spec:
+                        hostUsers: false
+                        automountServiceAccountToken: false
 ---
 apiVersion: k8up.io/v1
 kind: PreBackupPod
@@ -96,9 +202,22 @@ spec:
   backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
   pod:
     spec:
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 26
+        runAsGroup: 26
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: firefly-database-backup
           image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:1c80146a60cf8010042616c67370b2861a1877b9fcf9dd6dd2a9395aa406b568
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
           command:
             - "sleep"
             - "infinity"
@@ -115,6 +234,28 @@ spec:
                 secretKeyRef:
                   name: postgres-backup-user
                   key: password
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: firefly-database-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
 ---
 apiVersion: k8up.io/v1
 kind: Schedule
@@ -134,9 +275,13 @@ spec:
           backup: firefly-database
     schedule: "11 4/6 * * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: firefly-database-backup
   prune:
     schedule: "41 0 1 * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: firefly-database-backup
     retention:
       keepHourly: 6
       keepDaily: 14
@@ -186,6 +331,88 @@ spec:
           sectionName: https
       hostnames:
         - firefly-importer.${SERVICE_DOMAIN}
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 33
+      runAsGroup: 33
+      fsGroup: 33
+      fsGroupChangePolicy: OnRootMismatch
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop: ["ALL"]
+    # Writable paths from the image (E6): seeded from the image where it ships files the app reads
+    additionalVolumes:
+      - name: tmp
+        emptyDir: {}
+      - name: run
+        emptyDir: {}
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-conf
+        emptyDir: {}
+      - name: storage
+        emptyDir: {}
+      - name: upload
+        emptyDir: {}
+      - name: bootstrap-cache
+        emptyDir: {}
+      - name: composer
+        emptyDir: {}
+    additionalVolumeMounts:
+      - name: tmp
+        mountPath: /tmp
+      - name: run
+        mountPath: /run
+      - name: nginx-cache
+        mountPath: /var/cache/nginx
+      - name: nginx-conf
+        mountPath: /etc/nginx
+      - name: storage
+        mountPath: /var/www/html/storage
+      - name: upload
+        mountPath: /var/www/html/storage/upload
+      - name: bootstrap-cache
+        mountPath: /var/www/html/bootstrap/cache
+      - name: composer
+        mountPath: /composer
+  # The chart has no hostUsers, automountServiceAccountToken or initContainers values.
+  # The seed init container copies the image's storage, bootstrap/cache and /etc/nginx into the emptyDirs.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: firefly-importer
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: firefly-importer
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    automountServiceAccountToken: false
+                    initContainers:
+                      - name: seed
+                        image: fireflyiii/data-importer:version-2.3.5@sha256:59f2f26ddf6eb55e84ce0d571259c9aabd6ddfcc23dd4d3825ab01ad79e34930
+                        command: ["sh", "-c", "cp -R /var/www/html/storage/. /seed/storage/ && cp -R /var/www/html/bootstrap/cache/. /seed/bootstrap-cache/ && cp -R /etc/nginx/. /seed/nginx-conf/"]
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: storage
+                            mountPath: /seed/storage
+                          - name: bootstrap-cache
+                            mountPath: /seed/bootstrap-cache
+                          - name: nginx-conf
+                            mountPath: /seed/nginx-conf
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
