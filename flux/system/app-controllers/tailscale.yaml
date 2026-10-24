@@ -13,11 +13,154 @@ spec:
         kind: HelmRepository
         name: tailscale
         namespace: flux-system
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: operator
+              namespace: tailscale
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: operator
+                namespace: tailscale
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    volumes:
+                      - name: tsnet-state
+                        emptyDir: {}
+                      - name: tmp
+                        emptyDir: {}
+                    containers:
+                      - name: operator
+                        volumeMounts:
+                          - name: tsnet-state
+                            mountPath: /root/.config/tsnet-operator
+                          - name: tmp
+                            mountPath: /tmp
   values:
     operatorConfig:
       defaultTags:
         - "tag:k8s-operator"
         - "tag:k8s-homelab"
       hostname: "tailscale-operator-homelab"
+      image:
+        repository: "tailscale/k8s-operator"
+        tag: "v1.104.2@sha256:9cddfcbe75a7eab2b46d610966d519a28699a5e38235a2cb3aec960487c4aa48"
+      podSecurityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - "ALL"
     proxyConfig:
       defaultTags: "tag:k8s,tag:k8s-homelab"
+      defaultProxyClass: "default-proxy"
+      image:
+        repository: "tailscale/tailscale"
+        tag: "v1.104.2@sha256:b11583ad2e93e4671128538c88cf11f460444a5d7e449311dd1933a400ab849d"
+---
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: default-proxy
+spec:
+  statefulSet:
+    pod:
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      tailscaleContainer:
+        securityContext:
+          privileged: false
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - "ALL"
+            add:
+              - "NET_ADMIN"
+              - "NET_RAW"
+              - "MKNOD"
+      tailscaleInitContainer:
+        securityContext:
+          privileged: true
+          readOnlyRootFilesystem: true
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: harden-tailscale-proxies
+spec:
+  failurePolicy: Ignore
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  reinvocationPolicy: IfNeeded
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: |
+          Object{
+            spec: Object.spec{
+              volumes: [
+                Object.spec.volumes{
+                  name: "ts-run",
+                  emptyDir: Object.spec.volumes.emptyDir{}
+                },
+                Object.spec.volumes{
+                  name: "ts-var-lib",
+                  emptyDir: Object.spec.volumes.emptyDir{}
+                },
+                Object.spec.volumes{
+                  name: "ts-tmp",
+                  emptyDir: Object.spec.volumes.emptyDir{}
+                }
+              ],
+              containers: [
+                Object.spec.containers{
+                  name: "tailscale",
+                  securityContext: Object.spec.containers.securityContext{
+                    readOnlyRootFilesystem: true
+                  },
+                  volumeMounts: [
+                    Object.spec.containers.volumeMounts{
+                      name: "ts-run",
+                      mountPath: "/run"
+                    },
+                    Object.spec.containers.volumeMounts{
+                      name: "ts-var-lib",
+                      mountPath: "/var/lib/tailscale"
+                    },
+                    Object.spec.containers.volumeMounts{
+                      name: "ts-tmp",
+                      mountPath: "/tmp"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: harden-tailscale-proxies
+spec:
+  policyName: harden-tailscale-proxies
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: tailscale
+    objectSelector:
+      matchLabels:
+        tailscale.com/managed: "true"
