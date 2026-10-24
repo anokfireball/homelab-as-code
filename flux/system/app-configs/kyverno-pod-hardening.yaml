@@ -526,3 +526,75 @@ spec:
         (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
         verifyImageSignatures(image, [attestors.jkroepke]) > 0)
       message: image is not signed by the jkroepke/kube-webhook-certgen GitHub Actions CI workflow
+---
+# One policy per signing publisher; identity from the publisher's release workflow.
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-dani-garcia
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "ghcr.io/dani-garcia/*"
+  attestors:
+    - name: danigarcia
+      cosign:
+        keyless:
+          identities:
+            - issuer: https://token.actions.githubusercontent.com
+              subjectRegExp: ^https://github\.com/dani-garcia/vaultwarden/\.github/workflows/release\.yml@refs/tags/[0-9.]+$
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.danigarcia]) > 0)
+      message: image is not signed by the vaultwarden GitHub Actions release workflow
+---
+# Image is ghcr.io/cloudnative-pg/postgresql (postgres-containers bake workflow, not the operator's release-publish workflow).
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: audit-image-signature-cloudnative-pg
+spec:
+  validationActions: [Audit]
+  failurePolicy: Ignore
+  evaluation:
+    background:
+      enabled: true
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  matchImageReferences:
+    - glob: "ghcr.io/cloudnative-pg/postgresql*"
+  attestors:
+    - name: cloudnativepg
+      cosign:
+        keyless:
+          identities:
+            - issuer: https://token.actions.githubusercontent.com
+              subjectRegExp: ^https://github\.com/cloudnative-pg/postgres-containers/\.github/workflows/bake_targets\.yml@refs/heads/main$
+  validationConfigurations:
+    mutateDigest: false
+    verifyDigest: false
+    required: false
+  validations:
+    - expression: >-
+        (images.?containers.orValue([]) + images.?initContainers.orValue([])).all(image,
+        verifyImageSignatures(image, [attestors.cloudnativepg]) > 0)
+      message: image is not signed by the cloudnative-pg postgres-containers GitHub Actions workflow

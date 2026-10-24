@@ -155,6 +155,49 @@ spec:
                 name: vaultwarden-data-vaultwarden-0
                 annotations:
                   k8up.io/backup: "true"
+          # Hardening (D2/D4, D5-D8, D7): root inside a user namespace; no API token (E5 unbound SA); tmp is the only writable path (E6)
+          - target:
+              kind: Deployment
+              name: vaultwarden
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: vaultwarden
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    initContainers:
+                      - name: wait-for-postgresql
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 26
+                          runAsGroup: 26
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    containers:
+                      - name: vaultwarden
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
 ---
 apiVersion: k8up.io/v1
 kind: PreBackupPod
@@ -169,6 +212,15 @@ spec:
   backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
   pod:
     spec:
+      # Hardening: image is pinned by digest (E8); non-root uid 26 from the image (E4), user namespace (D2)
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 26
+        runAsGroup: 26
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: bitwarden-database-backup
           image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:d3c7416df846a21024cce4768c16d52220315521a1395b5f645ff1a0b36e08f1
@@ -188,6 +240,18 @@ spec:
                 secretKeyRef:
                   name: postgres-backup-user
                   key: password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
 ---
 apiVersion: k8up.io/v1
 kind: Schedule
@@ -207,6 +271,8 @@ spec:
           backup: bitwarden-database
     schedule: "23 4/6 * * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: bitwarden-database-backup
   prune:
     schedule: "53 0 1 * *"
     concurrentRunsAllowed: false
@@ -235,6 +301,8 @@ spec:
           backup: vaultwarden-data
     schedule: "29 5/6 * * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: bitwarden-data-backup
   # vaultwarden runs as root; some attachments are root-owned with mode 0600
   podSecurityContext:
     runAsUser: 0
@@ -265,3 +333,49 @@ spec:
   values:
     name: bitwarden
     hostname: bitwarden.${SERVICE_DOMAIN}
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: bitwarden-data-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      # vaultwarden runs as root inside its user namespace; its root-owned data (e.g. mode 0600 attachments) is only readable as that uid
+      hostUsers: false
+      securityContext:
+        runAsUser: 0
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: bitwarden-database-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
