@@ -124,6 +124,8 @@ spec:
         emptyDir: {}
       - name: bootstrap-cache
         emptyDir: {}
+      - name: nginx-log
+        emptyDir: {}
     extraVolumeMounts:
       - name: tmp
         mountPath: /tmp
@@ -139,6 +141,8 @@ spec:
         mountPath: /var/www/html/storage/upload
       - name: bootstrap-cache
         mountPath: /var/www/html/bootstrap/cache
+      - name: nginx-log
+        mountPath: /var/log/nginx
   # The chart has no hostUsers, automountServiceAccountToken or initContainers values.
   # The seed init container copies the image's storage, bootstrap/cache and /etc/nginx into the emptyDirs.
   postRenderers:
@@ -173,6 +177,12 @@ spec:
                             mountPath: /seed/bootstrap-cache
                           - name: nginx-conf
                             mountPath: /seed/nginx-conf
+                    # s6-overlay preinit refuses a /run it does not own; emptyDirs are root-owned and world-writable
+                    containers:
+                      - name: firefly-iii
+                        env:
+                          - name: S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES
+                            value: "1"
           - target:
               kind: CronJob
               name: firefly-firefly-iii-cronjob
@@ -362,6 +372,8 @@ spec:
         emptyDir: {}
       - name: composer
         emptyDir: {}
+      - name: nginx-log
+        emptyDir: {}
     additionalVolumeMounts:
       - name: tmp
         mountPath: /tmp
@@ -379,6 +391,8 @@ spec:
         mountPath: /var/www/html/bootstrap/cache
       - name: composer
         mountPath: /composer
+      - name: nginx-log
+        mountPath: /var/log/nginx
   # The chart has no hostUsers, automountServiceAccountToken or initContainers values.
   # The seed init container copies the image's storage, bootstrap/cache and /etc/nginx into the emptyDirs.
   postRenderers:
@@ -413,6 +427,12 @@ spec:
                             mountPath: /seed/bootstrap-cache
                           - name: nginx-conf
                             mountPath: /seed/nginx-conf
+                    # s6-overlay preinit refuses a /run it does not own; emptyDirs are root-owned and world-writable
+                    containers:
+                      - name: importer
+                        env:
+                          - name: S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES
+                            value: "1"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
