@@ -18,11 +18,25 @@ spec:
       repository: us-docker.pkg.dev/fairwinds-ops/oss/goldilocks
       tag: v4.16.2@sha256:c46d846d31190b034a76ca4b1191a9e1601ac3f32c3a086f23fb1f49662afc88
     controller:
+      deployment:
+        extraVolumes:
+          - name: tmp
+            emptyDir: {}
+        extraVolumeMounts:
+          - name: tmp
+            mountPath: /tmp
       rbac:
         enableArgoproj: false
       flags:
         on-by-default: true
     dashboard:
+      deployment:
+        extraVolumes:
+          - name: tmp
+            emptyDir: {}
+        extraVolumeMounts:
+          - name: tmp
+            mountPath: /tmp
       flags:
         on-by-default: true
       ingress:
@@ -37,6 +51,33 @@ spec:
             sectionName: https
         hostnames:
           - goldilocks.${SERVICE_DOMAIN}
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: goldilocks-controller
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: goldilocks-controller
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+          - target:
+              kind: Deployment
+              name: goldilocks-dashboard
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: goldilocks-dashboard
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
