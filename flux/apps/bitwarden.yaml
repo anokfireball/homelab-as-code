@@ -350,6 +350,10 @@ spec:
           type: RuntimeDefault
       containers:
         - name: backup
+          # as root, restic's cache defaults to /root/.cache on the read-only root; k8up mounts its cache emptyDir at /.cache
+          env:
+            - name: RESTIC_CACHE_DIR
+              value: /.cache
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
