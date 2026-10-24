@@ -14,6 +14,14 @@ spec:
         name: cloudnative-pg
         namespace: flux-system
   values:
+    image:
+      repository: ghcr.io/cloudnative-pg/cloudnative-pg
+      # Chart appVersion 1.30.1, pinned by digest. This also sets OPERATOR_IMAGE_NAME, the bootstrap-controller
+      # init image of every instance pod, so changing it restarts every Cluster once.
+      tag: "1.30.1@sha256:923c267ec29636db3bee20f993d0ec4973fa22998e1adad37da79e4d32b5bc07"
+    podSecurityContext:
+      fsGroup: 10001
+      fsGroupChangePolicy: OnRootMismatch
     monitoring:
       podMonitorEnabled: true
       grafanaDashboard:
@@ -23,3 +31,67 @@ spec:
           grafana_dashboard: "1"
         annotations:
           grafana_dashboard_folder: cloudnative-pg
+
+  # The chart has no hostUsers value, so the operator Deployment is patched: user namespaces map its uid 10001
+  # and its emptyDir, secret and projected volumes. The /tmp emptyDir keeps the read-only root filesystem usable.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: cloudnative-pg
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: cloudnative-pg
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    containers:
+                      - name: manager
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: harden-cnpg-instances
+spec:
+  # Mutates CREATE only. Existing instance pods get hostUsers when the operator recreates them.
+  failurePolicy: Ignore
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE]
+        resources: [pods]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >-
+          Object{
+            spec: Object.spec{
+              hostUsers: false
+            }
+          }
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: harden-cnpg-instances
+spec:
+  policyName: harden-cnpg-instances
+  matchResources:
+    # Instance and job pods (cnpg.io/jobRole) both carry cnpg.io/cluster. All 10 Clusters pass D2, so none is excluded.
+    # A Cluster that fails D2 goes into a NotIn entry here and gets an audit-user-namespaces PolicyException.
+    objectSelector:
+      matchExpressions:
+        - key: cnpg.io/cluster
+          operator: Exists
