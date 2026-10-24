@@ -46,6 +46,15 @@ spec:
   backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
   pod:
     spec:
+      # Hardening: pinned image (E8), uid 26 from the image (E4), user namespace (D2); unbound SA, no token (E5, D7)
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 26
+        runAsGroup: 26
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: tandoor-database-backup
           image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:1c80146a60cf8010042616c67370b2861a1877b9fcf9dd6dd2a9395aa406b568
@@ -65,6 +74,18 @@ spec:
                 secretKeyRef:
                   name: postgres-backup-user
                   key: password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
 ---
 apiVersion: k8up.io/v1
 kind: Schedule
@@ -84,9 +105,13 @@ spec:
           backup: tandoor-database
     schedule: "27 3/6 * * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: tandoor-database-backup
   prune:
     schedule: "57 0 1 * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: tandoor-prune
     retention:
       keepHourly: 6
       keepDaily: 14
@@ -112,15 +137,93 @@ spec:
           backup: tandoor-media
     schedule: "47 4/6 * * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: tandoor-media-backup
   prune:
     schedule: "17 1 1 * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: tandoor-prune
     retention:
       keepHourly: 6
       keepDaily: 14
       keepWeekly: 12
       keepMonthly: 6
       keepYearly: 2
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: tandoor-database-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      # Keeps the pod-executor SA token: the backup job execs the PreBackupPod's dump command (RoleBinding k8up-executor).
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: tandoor-media-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      # Media is root-owned 0644/0755 (E2, E3): uid 65532 reads it as the image already did. Longhorn RWO, no NFS (D2).
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: tandoor-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -155,15 +258,42 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      # D2 yes (E3: Longhorn RWO only, no NFS/RWX/hostPath; all E3 UIDs/GIDs are 0). D4 no: no documented non-root mode, so root stays inside the user namespace.
+      hostUsers: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
     controllers:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+        initContainers:
+          # Seeds the emptyDir with the image's http.d (nginx template + errorpages); boot.sh writes Recipes.conf into it.
+          seed-http:
+            image:
+              repository: ghcr.io/tandoorrecipes/recipes
+              tag: 2.6.15@sha256:2e759dd1478a2ed119ee474e28522079fb1cfa50b3fd25cba89f6b9a67abad72
+            command: ["sh", "-c", "cp -R /opt/recipes/http.d/. /seed/"]
         containers:
           main:
             image:
               repository: ghcr.io/tandoorrecipes/recipes
               tag: 2.6.15@sha256:2e759dd1478a2ed119ee474e28522079fb1cfa50b3fd25cba89f6b9a67abad72
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                # nginx master (root) chowns /tmp/*_temp to uid 100 and setuid/setgid for workers. No NET_BIND_SERVICE: port 8080 (TANDOOR_PORT) below.
+                drop: ["ALL"]
+                add: ["CHOWN", "SETUID", "SETGID"]
             probes:
               liveness:
                 enabled: true
@@ -188,6 +318,9 @@ spec:
                   failureThreshold: 30
             env:
               TZ: Europe/Berlin
+              TANDOOR_PORT: "8080"
+              # E6: Python would write 25 __pycache__ dirs into the read-only root; disabling bytecode writes avoids 25 mount points
+              PYTHONDONTWRITEBYTECODE: "1"
               SECRET_KEY:
                 valueFrom:
                   secretKeyRef:
@@ -234,6 +367,7 @@ spec:
         ports:
           http:
             port: 80
+            targetPort: 8080
     ingress:
       main:
         enabled: false
@@ -266,6 +400,22 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /opt/recipes/staticfiles
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      http-d:
+        type: emptyDir
+        advancedMounts:
+          main:
+            main:
+              - path: /opt/recipes/http.d
+            seed-http:
+              - path: /seed
+      gunicorn:
+        type: emptyDir
+        globalMounts:
+          - path: /root/.gunicorn
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
