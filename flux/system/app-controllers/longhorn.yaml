@@ -20,6 +20,32 @@ spec:
     global:
       tolerations:
         - operator: Exists
+    # Pinned by digest (E4, E8): UI and CSI controller sidecars. The manager image stays unpinned here: the
+    # longhorn-manager, engine and instance-manager DaemonSets render it, so a tag change would restart volumes.
+    # nodeDriverRegistrar and livenessProbe render into the longhorn-csi-plugin DaemonSet and stay as they are.
+    image:
+      longhorn:
+        ui:
+          registry: docker.io
+          repository: longhornio/longhorn-ui
+          tag: v1.13.0@sha256:f22fb0254ae50195c1635ce428dfae26375956b3d7bd39640fae8fe33a236023
+      csi:
+        attacher:
+          registry: docker.io
+          repository: longhornio/csi-attacher
+          tag: v4.13.0@sha256:fef34c2d823b78da7d6c29fdf0f80d236293b0ac06944d14e8c366add880a4c8
+        provisioner:
+          registry: docker.io
+          repository: longhornio/csi-provisioner
+          tag: v6.3.0@sha256:2d2694540109d2e8887f62a0bc711aca8d3033e52dddf1c39bb5c65600d9c5af
+        resizer:
+          registry: docker.io
+          repository: longhornio/csi-resizer
+          tag: v2.2.1@sha256:63d0aef25114d4a682b25afa6d9623a3cfcc19aca910269124408476bbe2c6fd
+        snapshotter:
+          registry: docker.io
+          repository: longhornio/csi-snapshotter
+          tag: v8.6.0@sha256:2bca9ac55170efa61dc50e5cc8d9550373db2e3e5161d82d3fdaac5c25150360
     persistence:
       defaultFsType: "xfs"
       recurringJobSelector:
@@ -30,3 +56,217 @@ spec:
       rwxVolumeFastFailover: true
       # move a volume's last healthy replica off a node before allowing its drain (upgrade.yaml relies on this)
       nodeDrainPolicy: block-for-eviction-if-contains-last-replica
+  # Hardening (D2, D4-D8, D7). The chart has no knobs for these, so the rendered objects are patched here.
+  # Root stays uid 0 inside a user namespace where the component needs it (D4). The CSI controller sidecars are
+  # covered by the MutatingAdmissionPolicy below. The data plane is not patched: its pins would restart volumes.
+  postRenderers:
+    - kustomize:
+        patches:
+          # longhorn-ui: nginx runs as uid 499 with gid 486 (E2, E4). Writes go to emptyDirs only (E6). No API access (E5).
+          - target:
+              kind: Deployment
+              name: longhorn-ui
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: longhorn-ui
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    hostUsers: false
+                    securityContext:
+                      runAsNonRoot: true
+                      runAsUser: 499
+                      runAsGroup: 486
+                      fsGroup: 486
+                      fsGroupChangePolicy: OnRootMismatch
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: longhorn-ui
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: nginx-log
+                            mountPath: /var/log/nginx
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: nginx-log
+                        emptyDir: {}
+                      - name: tmp
+                        emptyDir: {}
+          # longhorn-driver-deployer: uid 0 inside a user namespace (D4). API only, no host paths (E6).
+          - target:
+              kind: Deployment
+              name: longhorn-driver-deployer
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: longhorn-driver-deployer
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    initContainers:
+                      - name: wait-longhorn-manager
+                        image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                    containers:
+                      - name: longhorn-driver-deployer
+                        image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+          # Helm hooks: post-upgrade and uninstall call only the Kubernetes API (E6, read at v1.13.0); root stays in the user namespace (D4).
+          - target:
+              kind: Job
+              name: longhorn-post-upgrade
+            patch: |
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: longhorn-post-upgrade
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: longhorn-post-upgrade
+                        image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+          - target:
+              kind: Job
+              name: longhorn-uninstall
+            patch: |
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: longhorn-uninstall
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: longhorn-uninstall
+                        image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+          # pre-upgrade (every Helm upgrade): privileged with the host /proc for the host iscsiadm check (D1), so both stay.
+          # The root filesystem stays writable: the write set of environmentCheck is not verified (Step 8 exception).
+          - target:
+              kind: Job
+              name: longhorn-pre-upgrade
+            patch: |
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: longhorn-pre-upgrade
+              spec:
+                template:
+                  spec:
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    containers:
+                      - name: longhorn-pre-upgrade
+                        image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: harden-longhorn-csi-controllers
+spec:
+  # csi-attacher/-provisioner/-resizer/-snapshotter are created by longhorn-driver-deployer, which has no knob for their
+  # pod spec. Root stays (D4): the hostPath socket /var/lib/kubelet/plugins/driver.longhorn.io/csi.sock is root:root 0755 (E2, E6).
+  failurePolicy: Ignore
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >-
+          Object{
+            spec: Object.spec{
+              securityContext: Object.spec.securityContext{
+                seccompProfile: Object.spec.securityContext.seccompProfile{type: "RuntimeDefault"}
+              },
+              volumes: [Object.spec.volumes{name: "tmp", emptyDir: Object.spec.volumes.emptyDir{}}],
+              containers: object.spec.containers.map(c, Object.spec.containers{
+                name: c.name,
+                securityContext: Object.spec.containers.securityContext{
+                  allowPrivilegeEscalation: false,
+                  readOnlyRootFilesystem: true,
+                  capabilities: Object.spec.containers.securityContext.capabilities{drop: ["ALL"]}
+                },
+                volumeMounts: [Object.spec.containers.volumeMounts{name: "tmp", mountPath: "/tmp"}]
+              })
+            }
+          }
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: harden-longhorn-csi-controllers
+spec:
+  policyName: harden-longhorn-csi-controllers
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: longhorn-system
+    objectSelector:
+      matchExpressions:
+        - key: app
+          operator: In
+          values: ["csi-attacher", "csi-provisioner", "csi-resizer", "csi-snapshotter"]

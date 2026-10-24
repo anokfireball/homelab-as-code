@@ -124,3 +124,25 @@ spec:
   properties:
     reason: >-
       Prometheus TSDB PVC is nas-replicated-hdd (StorageClass fsType nfs, NFS export), which cannot be idmapped for hostUsers: false.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-readonly-root-filesystem-longhorn-system-longhorn-pre-upgrade
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  # Background scans report the Job and its Pod separately.
+  matchConditions:
+    - name: longhorn-pre-upgrade
+      expression: >-
+        object.metadata.namespace == 'longhorn-system' &&
+        ((object.kind == 'Job' && object.metadata.name == 'longhorn-pre-upgrade') ||
+        object.metadata.?ownerReferences.orValue([]).exists(o, o.kind == 'Job' && o.name == 'longhorn-pre-upgrade'))
+  properties:
+    reason: >-
+      The pre-upgrade hook runs on every Helm upgrade as a privileged pod with the host /proc (D1). Its root filesystem
+      stays writable because the write set of its environment check is not verified from source; a read-only root would
+      turn an unverified write into a failed upgrade (D6, Step 8).
