@@ -58,7 +58,7 @@ spec:
       image:
         registry: quay.io
         repository: kiwigrid/k8s-sidecar
-        tag: "2.5.0@sha256:a6b3f707f883108376514489a94d6629109a327b2978e1d826cd104c4ca436df"
+        tag: "2.14.1@sha256:092dbe0c335fba9af414a27630ca68f34df6185784fa847d9954187e69dbfdd7"
       securityContext:
         readOnlyRootFilesystem: true
         runAsNonRoot: true
