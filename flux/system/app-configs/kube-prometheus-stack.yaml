@@ -17,15 +17,41 @@ spec:
     crds: CreateReplace
   upgrade:
     crds: CreateReplace
+  # Helm hook Jobs (CRD upgrade, admission webhook create/patch) have no chart value for hostUsers.
+  # They run as non-root with no host access and only mount a ServiceAccount token and ConfigMap/emptyDir.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Job
+            patch: |
+              - op: add
+                path: /spec/template/spec/hostUsers
+                value: false
   values:
     crds:
       upgradeJob:
         enabled: true
+        image:
+          busybox:
+            # Pinned by digest through the tag: the chart only renders upgradeJob.image.busybox.sha when the
+            # unrelated upgradeJob.image.sha is set.
+            tag: "latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e"
+          kubectl:
+            tag: v1.37.1
+            sha: b7cab618e281b1ee7484e7b706a96e2135fbb6e072c2a573a7dab4e87d7f2385
     alertmanager:
       ingress:
         enabled: false
       alertmanagerSpec:
         retention: 168h
+        image:
+          tag: v0.34.1
+          sha: e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a
+        # The config-reloader watches a mounted directory and reloads over localhost; it never calls the API.
+        automountServiceAccountToken: false
+        # PVC is cluster-scratch (Longhorn RWO); uids 1000/2000 only.
+        hostUsers: false
         storage:
           volumeClaimTemplate:
             spec:
@@ -50,6 +76,11 @@ spec:
       prometheusSpec:
         retention: 90d
         retentionSize: 250GiB
+        image:
+          tag: v3.15.0-distroless
+          sha: b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01
+        # hostUsers stays unset: the TSDB PVC is nas-replicated-hdd (StorageClass fsType nfs), which cannot be
+        # idmapped. Covered by the audit-user-namespaces PolicyException.
         storageSpec:
           volumeClaimTemplate:
             spec:
@@ -60,6 +91,47 @@ spec:
         podMonitorSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
         scrapeConfigSelectorNilUsesHelmValues: false
+    prometheusOperator:
+      # No hostPath, NFS or host namespaces; uid 65534 only.
+      hostUsers: false
+      image:
+        tag: v0.94.1
+        sha: 7c88d4e7bae63bd8d0f8da986054337c23b4472fa8d3c6817f5bc4b8407a2d6a
+      # Operator-chosen image: injected into every Prometheus and Alertmanager pod as the config-reloader.
+      prometheusConfigReloader:
+        image:
+          tag: v0.94.1
+          sha: 06b52bd4dbe3ed6dd5905aadaf8b9987d9da4c31d37bb86deaadae68cee2d26b
+      # Operator-chosen default for ThanosRuler/Thanos sidecars (not deployed today).
+      thanosImage:
+        sha: b567818fe608067eb0f1d7c2c4fe361e7ad83c8a256234c97685f1d0bf670cc8
+      admissionWebhooks:
+        patch:
+          image:
+            sha: 778d97dc3986355625e14392419b3364c487a7c807d4d86ddad1df369129b082
+          # Pod-level securityContext of both admission Jobs (create secret, patch webhook).
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+    kube-state-metrics:
+      hostUsers: false
+      image:
+        tag: v2.20.0
+        sha: sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b
+    prometheus-node-exporter:
+      # Host network, host PID and hostPath mounts of / , /proc and /sys are required: infrastructure component (D1).
+      # hostUsers cannot be set with hostNetwork; the chart leaves it unset.
+      image:
+        tag: v1.12.1
+        digest: sha256:8c9bac11973b94b59be88d6e11fee4429aa743c8846cdc75d65b18db33f6a106
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
