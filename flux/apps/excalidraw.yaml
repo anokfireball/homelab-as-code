@@ -39,7 +39,7 @@ spec:
               repository: excalidraw/excalidraw
               tag: latest@sha256:f7ee194addd607bf831d2af0f0a34463dd4225e426cf35199ef0b12a803398e9
             command: ["sh"]
-            args: ["-c", "cp -a /etc/nginx/conf.d/. /seed/"]
+            args: ["-c", "cp -R /etc/nginx/conf.d/. /seed/"]
         containers:
           main:
             image:
