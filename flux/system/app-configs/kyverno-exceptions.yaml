@@ -66,3 +66,86 @@ spec:
     reason: >-
       Loki's single-binary StatefulSet mounts its 500Gi chunk PVC from storage class nas-replicated-hdd
       (provisioner nas-hdd, fsType nfs), which cannot be idmapped, so the pod must stay in the host user namespace.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-default-immich-server
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: immich-server
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.metadata.?labels[?'app.kubernetes.io/controller'].orValue('') == 'main' &&
+        object.metadata.?labels[?'app.kubernetes.io/instance'].orValue('') == 'immich' &&
+        object.metadata.?labels[?'app.kubernetes.io/name'].orValue('') == 'server'
+  properties:
+    reason: >-
+      Library volume immich-library is Longhorn ReadWriteMany (share-manager NFS) and the external library is the NFS PV
+      nas-photos (192.168.1.2:/mnt/tank/Bilder), so hostUsers=false is impossible (D2); the root-owned library also
+      rules out a non-root uid without a chown.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-default-immich-machine-learning
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: immich-machine-learning
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.metadata.?labels[?'app.kubernetes.io/controller'].orValue('') == 'main' &&
+        object.metadata.?labels[?'app.kubernetes.io/instance'].orValue('') == 'immich' &&
+        object.metadata.?labels[?'app.kubernetes.io/name'].orValue('') == 'machine-learning'
+  properties:
+    reason: >-
+      Model cache volume immich-machine-learning is Longhorn ReadWriteMany (share-manager NFS), so hostUsers=false is
+      impossible (D2); its root-owned contents rule out a non-root uid without a chown.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-default-immich-data-backup
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  # Backup jobs only. The prune jobs have their own PodConfig (immich-data-prune) with hostUsers=false and no NFS volume.
+  matchConditions:
+    - name: immich-data-backup
+      expression: >-
+        object.metadata.namespace == 'default' && object.metadata.?ownerReferences.orValue([]).exists(o,
+        o.kind == 'Job' && o.name.matches('^backup-immich-data-backup-[a-z0-9]+-[0-9]+$'))
+  properties:
+    reason: >-
+      The backup job mounts the NFS-backed PVC nas-photos (bound to the NFS PV, D2), where hostUsers=false is impossible;
+      PodConfig immich-data-backup leaves hostUsers unset.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-image-signature-cloudnative-pg-default-immich-database-backup
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-image-signature-cloudnative-pg
+      kind: ImageValidatingPolicy
+  matchConditions:
+    - name: immich-database-prebackup
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.spec.containers.exists(c, c.name == 'immich-database-backup' &&
+        c.image == 'ghcr.io/cloudnative-pg/postgresql:16.15-standard-trixie@sha256:2b6f4c13a459dcf9bb070b1286c85295f381b34114a85d8092cbdbdd88265f3a')
+  properties:
+    reason: >-
+      No cosign signature exists for this digest, and Kyverno CLI v1.19.2 fails the policy for it, while the same policy
+      passes for the bitwarden CNPG 15.19 digest; scoped to the immich PreBackupPod container only.
