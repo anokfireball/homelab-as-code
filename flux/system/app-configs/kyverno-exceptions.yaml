@@ -144,3 +144,23 @@ spec:
       The operator derives the mongod image tag from MongoDBCommunity spec.version and imageType
       (quay.io/mongodb/mongodb-community-server:9.0.4-ubi8), and that image is unsigned; a digest in the
       operator values would pin every MongoDB version to one image. The operator-chosen hook, readiness probe and agent are digest-pinned in mongodb-kubernetes.yaml.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-readonly-root-filesystem-default-unifi-controller
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: unifi-controller
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.metadata.?labels[?'app.kubernetes.io/controller'].orValue('') == 'main' &&
+        object.metadata.?labels[?'app.kubernetes.io/instance'].orValue('') == 'unifi-controller' &&
+        object.metadata.?labels[?'app.kubernetes.io/name'].orValue('') == 'unifi-controller'
+  properties:
+    reason: >-
+      The LinuxServer s6-overlay init runs as root (PID 1 uid 0) and rewrites /etc/passwd and /etc/group and links /usr/lib/unifi/{data,logs,run} on every start, and the image has no documented non-root mode, so the root filesystem must stay writable.
