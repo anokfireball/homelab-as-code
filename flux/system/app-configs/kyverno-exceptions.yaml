@@ -66,3 +66,43 @@ spec:
     reason: >-
       Loki's single-binary StatefulSet mounts its 500Gi chunk PVC from storage class nas-replicated-hdd
       (provisioner nas-hdd, fsType nfs), which cannot be idmapped, so the pod must stay in the host user namespace.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-readonly-root-filesystem-monitoring-system-scrutiny-collector
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: scrutiny-collector
+      expression: >-
+        object.metadata.namespace == 'monitoring-system' &&
+        object.metadata.?labels[?'app.kubernetes.io/controller'].orValue('') == 'spoke' &&
+        object.metadata.?labels[?'app.kubernetes.io/instance'].orValue('') == 'scrutiny-collector' &&
+        object.metadata.?labels[?'app.kubernetes.io/name'].orValue('') == 'scrutiny-collector'
+  properties:
+    reason: >-
+      The privileged collector writes /env.sh into / and /etc/cron.d/scrutiny at start, and cron, apt and the crond pid
+      write /run, /var/lib/apt and /var/backups (E6), so its root filesystem must stay writable (D6).
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-monitoring-system-scrutiny-influxdb-influxdb2
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: scrutiny-influxdb-influxdb2
+      expression: >-
+        object.metadata.namespace == 'monitoring-system' &&
+        object.metadata.?labels[?'app.kubernetes.io/instance'].orValue('') == 'scrutiny-influxdb' &&
+        object.metadata.?labels[?'app.kubernetes.io/name'].orValue('') == 'influxdb2'
+  properties:
+    reason: >-
+      The data PVC scrutiny-influxdb-influxdb2 is on the nas-replicated-hdd class (freenas-nfs NFS export), which cannot be idmapped, so hostUsers: false is not possible (D2).
