@@ -27,7 +27,7 @@ spec:
       size: 50Gi
     image:
       repository: influxdb
-      tag: 2.7.4-alpine@sha256:a10d46445d68b33fe16bb0a37532bd8b3bb288b625ae488cf13a0c093efc35e1
+      tag: 2.9.1-alpine@sha256:385d5fe4746f4c087d6468519f023b24b425c0848a63b3185de8681e0f94d285
     # The image entrypoint only chowns and su-execs when started as root; uid 1000 already owns the data.
     securityContext:
       runAsNonRoot: true
