@@ -124,3 +124,25 @@ spec:
   properties:
     reason: >-
       Prometheus TSDB PVC is nas-replicated-hdd (StorageClass fsType nfs, NFS export), which cannot be idmapped for hostUsers: false.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-readonly-root-filesystem-default-fresh-rss
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  # Background scans report the Deployment, its ReplicaSet and its Pods; all carry the same labels.
+  matchConditions:
+    - name: fresh-rss
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.metadata.?labels[?'app.kubernetes.io/controller'].orValue('') == 'main' &&
+        object.metadata.?labels[?'app.kubernetes.io/instance'].orValue('') == 'fresh-rss' &&
+        object.metadata.?labels[?'app.kubernetes.io/name'].orValue('') == 'fresh-rss'
+  properties:
+    reason: >-
+      fresh-rss entrypoint.sh writes /etc/localtime, /etc/timezone, /etc/php*/php.ini, the Apache LISTEN config and
+      Docker/env.txt on every start, and crond and httpd write /run (E6), so the root filesystem must stay writable (D6).
