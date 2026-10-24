@@ -849,6 +849,7 @@ metadata:
   labels:
     app: pinniped-concierge
     pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/warn: restricted
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -907,9 +908,12 @@ spec:
         app: pinniped-concierge
         deployment.pinniped.dev: concierge
     spec:
+      hostUsers: false
       securityContext:
         runAsUser: 65532
         runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: pinniped-concierge
       # Control-plane hosts' resolv.conf carries a trailing search entry
       # matching ${SERVICE_DOMAIN} with ndots:5, so the short issuer name
@@ -1532,3 +1536,58 @@ roleRef:
   kind: Role
   name: pinniped-concierge-cluster-info-lister-watcher
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicy
+metadata:
+  name: harden-pinniped-kube-cert-agent
+spec:
+  failurePolicy: Ignore
+  reinvocationPolicy: IfNeeded
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE]
+        resources: [pods]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >-
+          Object{
+            spec: Object.spec{
+              securityContext: Object.spec.securityContext{
+                seccompProfile: Object.spec.securityContext.seccompProfile{type: "RuntimeDefault"}
+              },
+              volumes: [Object.spec.volumes{
+                name: "tmp",
+                emptyDir: Object.spec.volumes.emptyDir{}
+              }],
+              containers: object.spec.containers.map(c, Object.spec.containers{
+                name: c.name,
+                securityContext: Object.spec.containers.securityContext{
+                  allowPrivilegeEscalation: false,
+                  readOnlyRootFilesystem: true,
+                  capabilities: Object.spec.containers.securityContext.capabilities{drop: ["ALL"]}
+                },
+                volumeMounts: [Object.spec.containers.volumeMounts{
+                  name: "tmp",
+                  mountPath: "/tmp"
+                }]
+              })
+            }
+          }
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingAdmissionPolicyBinding
+metadata:
+  name: harden-pinniped-kube-cert-agent
+spec:
+  policyName: harden-pinniped-kube-cert-agent
+  matchResources:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: pinniped-concierge
+    objectSelector:
+      matchLabels:
+        kube-cert-agent.pinniped.dev: v3
