@@ -40,4 +40,4 @@ spec:
     startupapicheck:
       image:
         repository: quay.io/jetstack/cert-manager-startupapicheck
-        tag: "v1.21.2@sha256:46e75b6866359ffb5d82624f41e3ed1c70b2994982702ced547ce5edb418a8f5"
+        tag: "v1.21.3@sha256:1c519d4afca1413d1e4ccd78bdc756184418ab55a34569a3b3de39d32f9974e1"
