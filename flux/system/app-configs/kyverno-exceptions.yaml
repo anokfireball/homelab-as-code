@@ -418,3 +418,26 @@ spec:
       Flux controllers (source, kustomize, helm, notification) run the bootstrap-generated gotk-components.yaml
       images ghcr.io/fluxcd/*:v1.9.6, v1.9.6, v1.6.5, v1.9.4 (signed by fluxcd GitHub Actions); a Git digest pin
       would be overwritten by flux bootstrap and Renovate's flux manager on version bumps.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-image-digest-flux-system-flux-controllers
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-image-digest
+      kind: ValidatingPolicy
+  # audit-image-digest-flux-system-flux matches Pods only (spec.containers). Kyverno also evaluates the Deployments and
+  # ReplicaSets, which carry the same Flux images under spec.template, so they need this exception too.
+  matchConditions:
+    - name: flux-controllers
+      expression: >-
+        object.metadata.namespace == 'flux-system' &&
+        object.metadata.?labels[?'app.kubernetes.io/part-of'].orValue('') == 'flux' &&
+        has(object.spec.template) &&
+        object.spec.template.spec.containers.all(c, c.image.startsWith('ghcr.io/fluxcd/'))
+  properties:
+    reason: >-
+      Same Flux controller images as audit-image-digest-flux-system-flux (not pinned in Git, see that exception),
+      on the Deployment and ReplicaSet objects that carry them under spec.template.
