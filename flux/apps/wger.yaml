@@ -259,7 +259,7 @@ spec:
         securityContext:
           fsGroup: 1000
           fsGroupChangePolicy: OnRootMismatch
-        initImage: docker.io/busybox:1.37@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+        initImage: docker.io/busybox:1.38@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
       jwt:
         keygenImage: docker.io/alpine:3.22@sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f
       persistence:
