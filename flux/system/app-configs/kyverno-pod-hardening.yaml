@@ -139,7 +139,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/fluxcd/*"
@@ -174,7 +174,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "registry.k8s.io/*"
@@ -209,7 +209,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/renovatebot/*"
@@ -244,7 +244,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/k8up-io/*"
@@ -281,7 +281,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/goauthentik/*"
@@ -316,7 +316,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   # Scoped to the one signed image: ghcr.io/anokfireball/base-image is unsigned and must not report.
   matchImageReferences:
@@ -352,7 +352,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "quay.io/jetstack/cert-manager-*"
@@ -401,7 +401,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "quay.io/metallb/*"
@@ -436,7 +436,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/spegel-org/*"
@@ -471,7 +471,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "quay.io/prometheus-operator/*"
@@ -506,7 +506,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/jkroepke/*"
@@ -542,7 +542,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/dani-garcia/*"
@@ -578,7 +578,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/cloudnative-pg/postgresql*"
@@ -614,7 +614,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "ghcr.io/n8n-io/*"
@@ -652,7 +652,7 @@ spec:
     resourceRules:
       - apiGroups: [""]
         apiVersions: [v1]
-        operations: [CREATE, UPDATE]
+        operations: [CREATE]
         resources: [pods]
   matchImageReferences:
     - glob: "quay.io/mongodb/mongodb-kubernetes*"
