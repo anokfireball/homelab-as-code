@@ -164,3 +164,25 @@ spec:
   properties:
     reason: >-
       The LinuxServer s6-overlay init runs as root (PID 1 uid 0) and rewrites /etc/passwd and /etc/group and links /usr/lib/unifi/{data,logs,run} on every start, and the image has no documented non-root mode, so the root filesystem must stay writable.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-readonly-root-filesystem-default-pihole
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  # Background scans report the Deployment, its ReplicaSets and its Pods separately.
+  matchConditions:
+    - name: pihole
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.metadata.?labels[?'app'].orValue('') == 'pihole' &&
+        object.metadata.?labels[?'release'].orValue('') == 'pihole'
+  properties:
+    reason: >-
+      pihole's start.sh runs `sed -i` on /crontab.txt in the image root on every start (start_cron randomises the
+      gravity/updatechecker times), so / must stay writable; /etc/pihole, /run, /tmp, /var/tmp, /var/log/pihole and
+      /etc/crontabs are emptyDirs.
