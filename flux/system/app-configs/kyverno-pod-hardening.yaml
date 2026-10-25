@@ -377,6 +377,8 @@ spec:
             sVcRHHDitVt8oO/x4Wus1c0CAwEAAQ==
             -----END PUBLIC KEY-----
           hashAlgorithm: sha512
+        ctlog:
+          insecureIgnoreTlog: true
   validationConfigurations:
     mutateDigest: false
     verifyDigest: false
