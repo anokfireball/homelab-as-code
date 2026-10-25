@@ -374,3 +374,23 @@ spec:
       The pre-upgrade hook runs on every Helm upgrade as a privileged pod with the host /proc (D1). Its root filesystem
       stays writable because the write set of its environment check is not verified from source; a read-only root would
       turn an unverified write into a failed upgrade (D6, Step 8).
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-default-immich-data-backup-job
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  # Background scans also report the backup Job object itself; its pod template carries the same unset hostUsers.
+  matchConditions:
+    - name: immich-data-backup-job
+      expression: >-
+        object.metadata.namespace == 'default' && object.kind == 'Job' &&
+        object.metadata.name.matches('^backup-immich-data-backup-[a-z0-9]+-[0-9]+$')
+  properties:
+    reason: >-
+      Job object of the immich data backup (see audit-user-namespaces-default-immich-data-backup): nas-photos is NFS-backed
+      (D2), so the pod template leaves hostUsers unset.
