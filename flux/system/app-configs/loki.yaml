@@ -98,7 +98,7 @@ spec:
     memcachedExporter:
       image:
         repository: prom/memcached-exporter
-        tag: "v0.15.4@sha256:b6763ecb3c47f2408e0398518851b7f8c5fc46232b2649f8c78a321130c54266"
+        tag: "v0.18.0@sha256:1458b31d4cae1a6618e85c8d31ecc49c4ebdcee3c8530be8d80d93e8792c4a58"
     chunksCache:
       hostUsers: false
     resultsCache:
