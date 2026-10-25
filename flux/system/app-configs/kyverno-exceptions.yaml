@@ -441,3 +441,112 @@ spec:
     reason: >-
       Same Flux controller images as audit-image-digest-flux-system-flux (not pinned in Git, see that exception),
       on the Deployment and ReplicaSet objects that carry them under spec.template.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-default-wger-deployments
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  # The Deployment objects carry the chart's app.kubernetes.io/name=wger label, so audit-user-namespaces-default-wger (pod labels) does not match them.
+  matchConditions:
+    - name: wger-deployments
+      expression: >-
+        object.kind == 'Deployment' && object.metadata.namespace == 'default' &&
+        object.metadata.name in ['wger-app', 'wger-celery', 'wger-celery-worker', 'wger-nginx']
+  properties:
+    reason: >-
+      Same workloads and reason as audit-user-namespaces-default-wger: the Deployments' pod templates leave hostUsers unset
+      because wger's Longhorn ReadWriteMany PVCs (media, static, celery-beat) are served over NFS by the share manager and
+      cannot be idmapped.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-image-digest-default-unifi-mongodb-statefulset
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-image-digest
+      kind: ValidatingPolicy
+  # The MongoDBCommunity operator generates these StatefulSets without labels, so the pod exception above (pod label app=unifi-mongodb-svc) does not match the StatefulSet objects.
+  matchConditions:
+    - name: unifi-mongodb-statefulset
+      expression: >-
+        object.kind == 'StatefulSet' && object.metadata.namespace == 'default' &&
+        object.metadata.name in ['unifi-mongodb', 'unifi-mongodb-arb']
+  properties:
+    reason: >-
+      Same operator-chosen mongod image as audit-image-digest-default-unifi-mongodb (quay.io/mongodb/mongodb-community-server:9.0.4-ubi8,
+      unsigned, and pinning it would pin every MongoDB version to one image). The StatefulSet objects inherit that image from the
+      MongoDBCommunity operator.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-default-unifi-mongodb-statefulset
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  # Only the StatefulSet objects. The pods are not excepted: unifi-mongodb-0 runs with hostUsers=false.
+  matchConditions:
+    - name: unifi-mongodb-statefulset
+      expression: >-
+        object.kind == 'StatefulSet' && object.metadata.namespace == 'default' &&
+        object.metadata.name in ['unifi-mongodb', 'unifi-mongodb-arb']
+  properties:
+    reason: >-
+      The MongoDBCommunity operator drops hostUsers from the StatefulSet pod template, so the StatefulSet objects fail even
+      though the pods are hardened: the MutatingAdmissionPolicy harden-unifi-mongodb sets hostUsers=false on pods with label
+      app=unifi-mongodb-svc at admission (live pod unifi-mongodb-0 reports hostUsers=false).
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-user-namespaces-kyverno-system-kyverno-migrate-resources
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-user-namespaces
+      kind: ValidatingPolicy
+  # Background scans report the hook Job and its Pod separately.
+  matchConditions:
+    - name: kyverno-migrate-resources
+      expression: >-
+        object.metadata.namespace == 'kyverno-system' &&
+        ((object.kind == 'Job' && object.metadata.name == 'kyverno-migrate-resources') ||
+        object.metadata.?ownerReferences.orValue([]).exists(o, o.kind == 'Job' && o.name == 'kyverno-migrate-resources'))
+  properties:
+    reason: >-
+      Helm post-upgrade hook Job kyverno-migrate-resources (kyverno chart 3.9.2, crds.migration) cannot take hostUsers: false.
+      The chart's hook template has no hostUsers setting, and Helm 3 does not run Flux postRenderers on hook manifests (checked
+      with helm v3.18.4: the four controller Deployments were patched, the hook Jobs were not). The pod runs as uid 65534 with a
+      read-only root filesystem, all capabilities dropped and RuntimeDefault seccomp.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-service-account-token-kyverno-system-kyverno-migrate-resources
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-service-account-token
+      kind: ValidatingPolicy
+  # Background scans report the hook Job and its Pod separately.
+  matchConditions:
+    - name: kyverno-migrate-resources
+      expression: >-
+        object.metadata.namespace == 'kyverno-system' &&
+        ((object.kind == 'Job' && object.metadata.name == 'kyverno-migrate-resources') ||
+        object.metadata.?ownerReferences.orValue([]).exists(o, o.kind == 'Job' && o.name == 'kyverno-migrate-resources'))
+  properties:
+    reason: >-
+      The hook Job needs its ServiceAccount token: it lists and updates kyverno.io and policies.kyverno.io CRs and CRDs
+      (crds.migration keeps automountServiceAccountToken true). The ClusterRole, ClusterRoleBinding and ServiceAccount are
+      post-upgrade hook resources deleted on hook success (hook-delete-policy hook-succeeded), so the RoleBinding the control
+      looks for is gone by the time background scans evaluate the completed pod.
