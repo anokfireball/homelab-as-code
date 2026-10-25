@@ -1567,8 +1567,7 @@ spec:
                 name: c.name,
                 securityContext: Object.spec.containers.securityContext{
                   allowPrivilegeEscalation: false,
-                  readOnlyRootFilesystem: true,
-                  capabilities: Object.spec.containers.securityContext.capabilities{drop: ["ALL"]}
+                  readOnlyRootFilesystem: true
                 },
                 volumeMounts: [Object.spec.containers.volumeMounts{
                   name: "tmp",
@@ -1577,6 +1576,14 @@ spec:
               })
             }
           }
+    # A non-empty `capabilities` list in an ApplyConfiguration expression is
+    # rejected by this apiserver (metric error_type=invalid_error; failurePolicy:
+    # Ignore hides it), so drop ALL is applied as a JSONPatch. The pod has a
+    # single container (sleeper) whose securityContext the mutation above creates.
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: >-
+          [JSONPatch{op: "add", path: "/spec/containers/0/securityContext/capabilities", value: {"drop": ["ALL"]}}]
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingAdmissionPolicyBinding
