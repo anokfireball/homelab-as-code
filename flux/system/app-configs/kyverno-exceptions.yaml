@@ -394,3 +394,27 @@ spec:
     reason: >-
       Job object of the immich data backup (see audit-user-namespaces-default-immich-data-backup): nas-photos is NFS-backed
       (D2), so the pod template leaves hostUsers unset.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: audit-image-digest-flux-system-flux
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-image-digest
+      kind: ValidatingPolicy
+  # Flux controller images are not pinned in Git: flux bootstrap regenerates gotk-components.yaml, and Renovate's
+  # flux manager regenerates it on version bumps. An images: digest override in kustomization.yaml would stay
+  # on the old digest after an upgrade (silent downgrade), and Renovate's kustomize manager would track it separately.
+  matchConditions:
+    - name: flux
+      expression: >-
+        object.metadata.namespace == 'flux-system' &&
+        object.metadata.?labels[?'app.kubernetes.io/part-of'].orValue('') == 'flux' &&
+        object.spec.containers.all(c, c.image.startsWith('ghcr.io/fluxcd/'))
+  properties:
+    reason: >-
+      Flux controllers (source, kustomize, helm, notification) run the bootstrap-generated gotk-components.yaml
+      images ghcr.io/fluxcd/*:v1.9.6, v1.9.6, v1.6.5, v1.9.4 (signed by fluxcd GitHub Actions); a Git digest pin
+      would be overwritten by flux bootstrap and Renovate's flux manager on version bumps.
