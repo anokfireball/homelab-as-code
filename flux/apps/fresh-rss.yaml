@@ -49,15 +49,24 @@ spec:
         name: bjw-s
         namespace: flux-system
   values:
+    # D2/D7/D8: user namespace (no node access; data PVC is Longhorn RWO), no API token (E5 unbound SA), seccomp RuntimeDefault
+    defaultPodOptions:
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
     controllers:
       main:
         containers:
           main:
             image:
-              repository: freshrss/freshrss
+              repository: docker.io/freshrss/freshrss
               tag: 1.30.4-alpine@sha256:840765ea01fbaa1ea5b59f298878d224f62a4e83f8bba74d1a192ccd1d13669a
             env:
               TZ: Europe/Berlin
+              # D5: no NET_BIND_SERVICE, so Apache listens on 8080 (service targetPort below)
+              LISTEN: "8080"
               BASE_URL: https://freshrss.${SERVICE_DOMAIN}
               INTERNAL_HOST_ALLOWLIST: "fd08:192:168:1::6/128 192.168.1.6/32"
               CRON_MIN: "*/12"
@@ -80,6 +89,16 @@ spec:
               requests:
                 cpu: 20m
                 memory: 100Mi
+            # readOnlyRootFilesystem stays unset: entrypoint.sh writes /etc/localtime, /etc/timezone, /etc/php*/php.ini,
+            # the Apache LISTEN config and Docker/env.txt on every start (E6). Exception: audit-readonly-root-filesystem-default-fresh-rss.
+            # Stays root (D3/D4): the image runs httpd and crond as root and upstream documents no non-root mode (E7).
+            # CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID: needed by apache worker setuid/setgid, cron's `su apache`, and
+            # access-permissions.sh on apache-owned data (local container test: each clears a permission error). No NET_BIND_SERVICE (D5).
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+                add: ["CHOWN", "DAC_OVERRIDE", "FOWNER", "SETGID", "SETUID"]
     service:
       main:
         controller: main
@@ -89,6 +108,7 @@ spec:
         ports:
           http:
             port: 80
+            targetPort: 8080
     ingress:
       main:
         enabled: false
@@ -112,6 +132,10 @@ spec:
             backendRefs:
               - identifier: main
     persistence:
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
       data:
         type: persistentVolumeClaim
         storageClass: cluster-replicated
@@ -133,6 +157,15 @@ spec:
   backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
   pod:
     spec:
+      # Hardening: image pinned by digest (E8), non-root uid 26 from the image (E4), user namespace (D2)
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 26
+        runAsGroup: 26
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: fresh-rss-database-backup
           image: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:1c80146a60cf8010042616c67370b2861a1877b9fcf9dd6dd2a9395aa406b568
@@ -152,6 +185,11 @@ spec:
                 secretKeyRef:
                   name: postgres-backup-user
                   key: password
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
 ---
 apiVersion: k8up.io/v1
 kind: Schedule
@@ -171,15 +209,68 @@ spec:
           backup: fresh-rss-database
     schedule: "17 4/6 * * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: fresh-rss-backup
   prune:
     schedule: "47 0 1 * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: fresh-rss-prune
     retention:
       keepHourly: 6
       keepDaily: 14
       keepWeekly: 12
       keepMonthly: 6
       keepYearly: 2
+---
+# k8up job pod for the backup Schedule above (D2, D5-D8). Runs in a user namespace as the image's uid 65532 (E4).
+# The restic container's writes go to k8up's own /k8up, /tmp and /.cache volumes, so its root filesystem is read-only.
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: fresh-rss-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+---
+# k8up job pod for the prune Schedule above; same settings as fresh-rss-backup (the prune container is named prune).
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: fresh-rss-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
