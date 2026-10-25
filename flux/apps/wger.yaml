@@ -289,6 +289,40 @@ spec:
       securityContext:
         fsGroup: 901
         fsGroupChangePolicy: OnRootMismatch
+    anubis:
+      # anubis.policy replaces the chart's default policy wholesale (there is no merge). The rules below are the
+      # wger chart 2.1.0 default (templates/configmap-anubis.yaml), unchanged, behind one leading ALLOW rule for the
+      # Gatus uptime probe. Re-diff against the chart default when bumping the wger chart.
+      policy: |
+        bots:
+          # Shared secret sent by the Gatus probe. Order matters: reading a header key that is absent is a CEL error,
+          # which Anubis answers with HTTP 500 for the whole request, so the presence check comes first. The length
+          # check keeps an unsubstituted (empty) token from matching a request that sends an empty header.
+          - name: allow-gatus-probe
+            action: ALLOW
+            expression:
+              all:
+                - '"X-Probe-Token" in headers'
+                - 'size(headers["X-Probe-Token"]) >= 32'
+                - 'headers["X-Probe-Token"] == "${WGER_GATUS_PROBE_TOKEN}"'
+          - name: allow-api-v2
+            expression: 'path.startsWith("/api/v2")'
+            action: ALLOW
+          - name: allow-allauth-api
+            expression: 'path.startsWith("/allauth")'
+            action: ALLOW
+          - name: allow-oauth-api
+            expression: 'path.startsWith("/identity/")'
+            action: ALLOW
+          - import: (data)/bots/_deny-pathological.yaml
+          - import: (data)/bots/aggressive-brazilian-scrapers.yaml
+          - import: (data)/meta/ai-block-moderate.yaml
+          - import: (data)/crawlers/xai.yaml
+          - import: (data)/crawlers/_allow-good.yaml
+          - import: (data)/clients/x-firefox-ai.yaml
+          - import: (data)/clients/small-internet-browsers/_permissive.yaml
+          - import: (data)/common/keep-internet-working.yaml
+          - import: (data)/common/acts-like-browser.yaml
     nginx:
       image: nginx:stable@sha256:a7675fcee220f59b4a99f7098c06a0d5d999c2c0ee37c0211efb780536e5cb20
     celery:
