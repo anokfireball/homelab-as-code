@@ -121,7 +121,7 @@ spec:
     image:
       repository: pihole/pihole
       # digest is the multi-arch index of 2026.07.2 (= chart appVersion)
-      tag: "2026.07.2@sha256:f7d1be836e3bc608b56d82fc9904f5a831cdfbc0dc9c6d58f94e4c985c70038b"
+      tag: "2026.10.0@sha256:d34134716fc32038b052a8674c7c6879e0ff21f0e6d8af345166fffa2c27c113"
     # D5: drop ALL, add back only what V2 showed failing (see PR body). NET_BIND_SERVICE is not
     # needed: pods set net.ipv4.ip_unprivileged_port_start=0, so FTL binds 53/80/443 unprivileged.
     capabilities:
