@@ -82,12 +82,30 @@ spec:
   backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
   pod:
     spec:
+      # Hardening: image pinned (E8); non-root uid 26 from the image (E4); user namespace (D2); no API token (E5 unbound SA)
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 26
+        runAsGroup: 26
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: wger-database-backup
           image: ghcr.io/cloudnative-pg/postgresql:15.19-standard-trixie@sha256:d3c7416df846a21024cce4768c16d52220315521a1395b5f645ff1a0b36e08f1
           command:
             - "sleep"
             - "infinity"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
           env:
             - name: POSTGRES_HOST
               value: wger-postgresql-rw
@@ -101,6 +119,58 @@ spec:
                 secretKeyRef:
                   name: postgres-backup-user
                   key: password
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: wger-database-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      # backup and prebackup job pods mount only k8up's emptyDirs (E1): user namespace (D2); image user 65532 (E4)
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: wger-database-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
 ---
 apiVersion: k8up.io/v1
 kind: Schedule
@@ -115,12 +185,16 @@ spec:
     s3:
       bucket: Habitat-Giggle9-Composer/wger
   backup:
+    podConfigRef:
+      name: wger-database-backup
     labelSelectors:
       - matchLabels:
           backup: wger-database
     schedule: "42 3/6 * * *"
     concurrentRunsAllowed: false
   prune:
+    podConfigRef:
+      name: wger-database-prune
     schedule: "12 0 1 * *"
     concurrentRunsAllowed: false
     retention:
@@ -182,6 +256,12 @@ spec:
       global:
         annotations:
           reloader.stakater.com/auto: "true"
+        securityContext:
+          fsGroup: 1000
+          fsGroupChangePolicy: OnRootMismatch
+        initImage: docker.io/busybox:1.37@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e
+      jwt:
+        keygenImage: docker.io/alpine:3.22@sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f
       persistence:
         storageClass: cluster-replicated
       django:
@@ -205,11 +285,402 @@ spec:
           key: smtp-password
     powersync:
       image:
-        tag: "1.27.2"
+        tag: "1.27.2@sha256:d7a99817057a42dae9e6d8fe0c70b49d99105dcac8b8ab0e9ed3cf1ff0978b8b"
+      securityContext:
+        fsGroup: 901
+        fsGroupChangePolicy: OnRootMismatch
+    nginx:
+      image: nginx:stable@sha256:a7675fcee220f59b4a99f7098c06a0d5d999c2c0ee37c0211efb780536e5cb20
+    celery:
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
     postgres:
       enabled: false
     redis:
       enabled: false
+  # Hardening (D2-D8, mechanism 4c). app, celery and nginx mount Longhorn RWX PVCs (D2 no): they stay in the host
+  # user namespace. Their containers run as the image's non-root user (D3); nginx switches to its documented uid 101 (D4)
+  # and listens on 8080 (its config is seeded from the chart ConfigMap by an init container). Helm hook Jobs are left
+  # alone: a postRenderer cannot safely target them.
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: wger-app
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: wger-app
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    initContainers:
+                      - name: init-container
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1000
+                          runAsGroup: 1000
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    containers:
+                      - name: wger
+                        image: docker.io/wger/server:2.7@sha256:1c5789b93bfe5eed0b7287255782d9177027b255de2b22b59f511a693a48db04
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1000
+                          runAsGroup: 1000
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                          - name: gunicorn
+                            mountPath: /home/wger/.gunicorn
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+                      - name: gunicorn
+                        emptyDir: {}
+          - target:
+              kind: Deployment
+              name: wger-celery
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: wger-celery
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    initContainers:
+                      - name: init-container
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1000
+                          runAsGroup: 1000
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    containers:
+                      - name: celery-beat
+                        image: docker.io/wger/server:2.7@sha256:1c5789b93bfe5eed0b7287255782d9177027b255de2b22b59f511a693a48db04
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1000
+                          runAsGroup: 1000
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+          - target:
+              kind: Deployment
+              name: wger-celery-worker
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: wger-celery-worker
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    initContainers:
+                      - name: init-container
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1000
+                          runAsGroup: 1000
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    containers:
+                      - name: celery-worker
+                        image: docker.io/wger/server:2.7@sha256:1c5789b93bfe5eed0b7287255782d9177027b255de2b22b59f511a693a48db04
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1000
+                          runAsGroup: 1000
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+          - target:
+              kind: Deployment
+              name: wger-nginx
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: wger-nginx
+              spec:
+                template:
+                  spec:
+                    automountServiceAccountToken: false
+                    securityContext:
+                      runAsNonRoot: true
+                      runAsUser: 101
+                      runAsGroup: 101
+                      seccompProfile:
+                        type: RuntimeDefault
+                    initContainers:
+                      # seeds the chart's ConfigMap into writable emptyDirs: pid moves off /var/run (root-owned),
+                      # and listen 80 becomes 8080 (non-root cannot bind 80 without NET_BIND_SERVICE)
+                      - name: nginx-config-seed
+                        image: nginx:stable@sha256:a7675fcee220f59b4a99f7098c06a0d5d999c2c0ee37c0211efb780536e5cb20
+                        command:
+                          - sh
+                          - -c
+                          - |
+                            cp /etc/nginx/nginx.conf /out/nginx.conf
+                            sed -i 's|^\( *pid \).*;|\1/tmp/nginx.pid;|' /out/nginx.conf
+                            cp /src/*.conf /conf/
+                            sed -i 's/listen 80;/listen 8080;/' /conf/*.conf
+                            grep -q 'listen 8080;' /conf/*.conf
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 101
+                          runAsGroup: 101
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: nginx-conf
+                            mountPath: /src
+                            readOnly: true
+                          - name: nginx-conf-d
+                            mountPath: /conf
+                          - name: nginx-main
+                            mountPath: /out
+                    containers:
+                      - name: nginx
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 101
+                          runAsGroup: 101
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        ports:
+                          - containerPort: 80
+                            protocol: TCP
+                            $patch: delete
+                          - name: http
+                            containerPort: 8080
+                            protocol: TCP
+                        volumeMounts:
+                          - name: nginx-conf-d
+                            mountPath: /etc/nginx/conf.d/
+                            readOnly: true
+                          - name: nginx-main
+                            mountPath: /etc/nginx/nginx.conf
+                            subPath: nginx.conf
+                            readOnly: true
+                          - name: tmp
+                            mountPath: /tmp
+                          - name: nginx-cache
+                            mountPath: /var/cache/nginx
+                    volumes:
+                      - name: nginx-conf-d
+                        emptyDir: {}
+                      - name: nginx-main
+                        emptyDir: {}
+                      - name: tmp
+                        emptyDir: {}
+                      - name: nginx-cache
+                        emptyDir: {}
+          - target:
+              kind: Service
+              name: wger-http
+            patch: |
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: wger-http
+              spec:
+                ports:
+                  - name: http
+                    port: 80
+                    protocol: TCP
+                    targetPort: 8080
+          - target:
+              kind: Deployment
+              name: wger-powersync
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: wger-powersync
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    automountServiceAccountToken: false
+                    securityContext:
+                      seccompProfile:
+                        type: RuntimeDefault
+                    initContainers:
+                      - name: init-container
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 901
+                          runAsGroup: 901
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    containers:
+                      - name: powersync
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 901
+                          runAsGroup: 901
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                          - name: probes
+                            mountPath: /app/.probes
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
+                      - name: probes
+                        emptyDir: {}
+          - target:
+              kind: CronJob
+              name: wger-powersync-compact
+            patch: |
+              apiVersion: batch/v1
+              kind: CronJob
+              metadata:
+                name: wger-powersync-compact
+              spec:
+                jobTemplate:
+                  spec:
+                    template:
+                      spec:
+                        hostUsers: false
+                        automountServiceAccountToken: false
+                        securityContext:
+                          seccompProfile:
+                            type: RuntimeDefault
+                        containers:
+                          - name: powersync-compact
+                            securityContext:
+                              runAsNonRoot: true
+                              runAsUser: 901
+                              runAsGroup: 901
+                              allowPrivilegeEscalation: false
+                              readOnlyRootFilesystem: true
+                              capabilities:
+                                drop: ["ALL"]
+                            volumeMounts:
+                              - name: tmp
+                                mountPath: /tmp
+                              - name: probes
+                                mountPath: /app/.probes
+                        volumes:
+                          - name: tmp
+                            emptyDir: {}
+                          - name: probes
+                            emptyDir: {}
+          - target:
+              kind: Job
+              name: wger-setup-powersync-storage
+            patch: |
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                name: wger-setup-powersync-storage
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
+                    automountServiceAccountToken: false
+                    securityContext:
+                      runAsNonRoot: true
+                      runAsUser: 1000
+                      runAsGroup: 1000
+                      seccompProfile:
+                        type: RuntimeDefault
+                    initContainers:
+                      - name: init-container
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1000
+                          runAsGroup: 1000
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    containers:
+                      - name: setup-powersync-storage
+                        image: docker.io/wger/server:2.7@sha256:1c5789b93bfe5eed0b7287255782d9177027b255de2b22b59f511a693a48db04
+                        securityContext:
+                          runAsNonRoot: true
+                          runAsUser: 1000
+                          runAsGroup: 1000
+                          allowPrivilegeEscalation: false
+                          readOnlyRootFilesystem: true
+                          capabilities:
+                            drop: ["ALL"]
+                        volumeMounts:
+                          - name: tmp
+                            mountPath: /tmp
+                    volumes:
+                      - name: tmp
+                        emptyDir: {}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -228,11 +699,32 @@ spec:
         namespace: flux-system
   values:
     fullnameOverride: wger-redis
+    image:
+      tag: "9.1.2@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd"
+    podSecurityContext:
+      runAsNonRoot: true
+      fsGroupChangePolicy: OnRootMismatch
     # Cache only; contents are reconstructible. An emptyDir keeps this off RWO
     # storage, whose single-node attachment deadlocks a rolling update when the
     # replacement pod is scheduled onto a different node.
     dataStorage:
       enabled: false
+  postRenderers:
+    - kustomize:
+        patches:
+          # D2 yes (emptyDir and ConfigMap only): user namespace. Image already non-root (E2 uid 1000).
+          - target:
+              kind: Deployment
+              name: wger-redis
+            patch: |
+              apiVersion: apps/v1
+              kind: Deployment
+              metadata:
+                name: wger-redis
+              spec:
+                template:
+                  spec:
+                    hostUsers: false
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
