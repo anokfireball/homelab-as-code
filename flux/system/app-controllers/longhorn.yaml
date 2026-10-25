@@ -247,13 +247,19 @@ spec:
                 name: c.name,
                 securityContext: Object.spec.containers.securityContext{
                   allowPrivilegeEscalation: false,
-                  readOnlyRootFilesystem: true,
-                  capabilities: Object.spec.containers.securityContext.capabilities{drop: ["ALL"]}
+                  readOnlyRootFilesystem: true
                 },
                 volumeMounts: [Object.spec.containers.volumeMounts{name: "tmp", mountPath: "/tmp"}]
               })
             }
           }
+    # capabilities.drop cannot go through ApplyConfiguration on this apiserver: the policy returns invalid_error and
+    # failurePolicy Ignore hides it (apiserver_mutating_admission_policy_check_duration_seconds, error_type). JSONPatch sets
+    # it on container 0, the only container of each sidecar pod.
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: >-
+          [JSONPatch{op: "add", path: "/spec/containers/0/securityContext/capabilities", value: {"drop": ["ALL"]}}]
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingAdmissionPolicyBinding
