@@ -401,6 +401,8 @@ spec:
                     key: password
               PAPERLESS_DBNAME: paperless-ngx
               PAPERLESS_REDIS: redis://paperless-ngx-redis-master:6379
+              # s6 preinit refuses a root-owned /run on an emptyDir when running as uid 1000; opt in to the world-writable /run
+              S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES: "1"
             probes:
               liveness:
                 enabled: true
