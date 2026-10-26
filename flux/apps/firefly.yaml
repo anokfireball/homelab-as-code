@@ -60,13 +60,13 @@ spec:
       enabled: true
       annotations:
         healthcheckSecret: firefly-cron
-        healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:3afac981717ee329d4efe0d907f84f1a47daedb1d58cae70e74a40fe8d733d3c
+        healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
       auth:
         existingSecret: firefly-cron
       image:
         registry: ghcr.io
         repository: anokfireball/base-image
-        tag: 3.24.3@sha256:3afac981717ee329d4efe0d907f84f1a47daedb1d58cae70e74a40fe8d733d3c
+        tag: 3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
       # the chart prefixes registry (default docker.io) to repository, so the registry is split out
       podSecurityContext:
         runAsNonRoot: true
