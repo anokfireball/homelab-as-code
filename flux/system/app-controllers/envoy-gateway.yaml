@@ -19,7 +19,7 @@ spec:
         envoyGateway:
           # Pinned at chart appVersion v1.9.2. One value sets the controller, certgen Job and
           # shutdown-manager images. Renovate does not track it: move it with the chart version.
-          image: docker.io/envoyproxy/gateway:v1.9.2@sha256:9d67017c442a70e6ae9f1a358e6c80eb653c67c2e40823d9a991e0daf37ba926
+          image: docker.io/envoyproxy/gateway:v1.9.3@sha256:192fc9bdadb6d2462e8cf7bd702ce3dd9648f3310c6038787448a1f509b7cd9f
     crds:
       enabled: false
     config:
