@@ -55,7 +55,7 @@ spec:
       pullPolicy: IfNotPresent
     runnersImage:
       repository: n8nio/runners
-      tag: "2.45.4@sha256:168fa154306a2b53436e30c1c7b386a37c880cbabd65f0d01e41d11e3c8ea3ce"
+      tag: "2.46.0@sha256:fde400db654ff3c0d3c11242e277abfd50bd9438d83feeb4c2c2307d083f1559"
       pullPolicy: IfNotPresent
     service:
       main:
