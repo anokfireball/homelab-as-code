@@ -67,6 +67,118 @@
       "matchPackageNames": ["ghcr.io/spegel-org/spegel", "ghcr.io/spegel-org/helm-charts/spegel"],
       "sourceUrl": "https://github.com/spegel-org/spegel"
     },
+    {
+      // Chart releases live in renovatebot/helm-charts as renovate-<version>;
+      // the chart metadata points at the app repo, which has no 46.x tags.
+      "description": "Release notes for the renovate chart.",
+      "matchPackageNames": ["ghcr.io/renovatebot/charts/renovate"],
+      "sourceUrl": "https://github.com/renovatebot/helm-charts"
+    },
+    {
+      // Chart releases carry a prefix that Renovate does not strip. The prefix
+      // is optional, so index versions pass through extractVersion unchanged.
+      "description": "Release notes for loki chart releases tagged helm-loki-<version>.",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["loki"],
+      "extractVersion": "^(?:helm-loki-)?(?<version>.+)$"
+    },
+    {
+      "description": "Release notes for reloader chart releases tagged chart-v<version>.",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["reloader"],
+      "extractVersion": "^(?:chart-v)?(?<version>.+)$"
+    },
+    {
+      "description": "Release notes for external-dns chart releases tagged external-dns-helm-chart-<version>.",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["external-dns"],
+      "extractVersion": "^(?:external-dns-helm-chart-)?(?<version>.+)$"
+    },
+    {
+      // No source label on the image; kubernetes/autoscaler tags VPA releases
+      // vertical-pod-autoscaler-<version>.
+      "description": "Release notes for vpa-recommender.",
+      "matchPackageNames": ["registry.k8s.io/autoscaling/vpa-recommender"],
+      "sourceUrl": "https://github.com/kubernetes/autoscaler",
+      "extractVersion": "^(?:vertical-pod-autoscaler-)?(?<version>.+)$"
+    },
+    {
+      // The image label points at linuxserver/docker-qbittorrent, whose tags
+      // carry -lsN suffixes; upstream tags releases release-<version>.
+      "description": "Release notes for the LinuxServer qBittorrent image.",
+      "matchPackageNames": ["ghcr.io/linuxserver/qbittorrent"],
+      "sourceUrl": "https://github.com/qbittorrent/qBittorrent",
+      "extractVersion": "^(?:release-)?(?<version>.+)$"
+    },
+    {
+      // These images have no usable source label; upstream releases are
+      // tagged exactly like the image (vX.Y.Z or X.Y.Z → vX.Y.Z).
+      "description": "Release notes for cert-manager images.",
+      "matchPackageNames": [
+        "quay.io/jetstack/cert-manager-controller",
+        "quay.io/jetstack/cert-manager-webhook",
+        "quay.io/jetstack/cert-manager-cainjector",
+        "quay.io/jetstack/cert-manager-acmesolver",
+        "quay.io/jetstack/cert-manager-startupapicheck"
+      ],
+      "sourceUrl": "https://github.com/cert-manager/cert-manager"
+    },
+    {
+      "description": "Release notes for the Envoy Gateway image.",
+      "matchPackageNames": ["docker.io/envoyproxy/gateway"],
+      "sourceUrl": "https://github.com/envoyproxy/gateway"
+    },
+    {
+      "description": "Release notes for the Loki and loki-canary images.",
+      "matchPackageNames": ["docker.io/grafana/loki", "docker.io/grafana/loki-canary"],
+      "sourceUrl": "https://github.com/grafana/loki"
+    },
+    {
+      "description": "Release notes for memcached-exporter.",
+      "matchPackageNames": ["prom/memcached-exporter"],
+      "sourceUrl": "https://github.com/prometheus/memcached_exporter"
+    },
+    {
+      // The deb datasource has no source URL.
+      "description": "Release notes for containerd.io.",
+      "matchPackageNames": ["containerd.io"],
+      "sourceUrl": "https://github.com/containerd/containerd"
+    },
+    {
+      // The image label points at influxdata/influxdata-docker, which has no releases.
+      "description": "Release notes for influxdb.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["influxdb"],
+      "sourceUrl": "https://github.com/influxdata/influxdb"
+    },
+    // Link only: these versions can never equal an upstream release tag.
+    {
+      // Chart versions are git tags kyverno-chart-<version> without GitHub Releases.
+      "description": "Changelog link for the kyverno chart.",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["kyverno"],
+      "changelogUrl": "https://github.com/kyverno/kyverno/compare/kyverno-chart-{{{currentVersion}}}...kyverno-chart-{{{newVersion}}}"
+    },
+    {
+      // distroless-vX.Y.Z image tags; upstream releases are vX.Y.Z.
+      "description": "Changelog link for the Envoy proxy image.",
+      "matchPackageNames": ["envoyproxy/envoy"],
+      "sourceUrl": "https://github.com/envoyproxy/envoy",
+      "changelogUrl": "https://github.com/envoyproxy/envoy/releases/tag/{{{replace 'distroless-' '' newVersion}}}"
+    },
+    {
+      // version-X.Y.Z image tags; upstream releases are vX.Y.Z.
+      "description": "Changelog link for the Firefly III image.",
+      "matchPackageNames": ["fireflyiii/core"],
+      "sourceUrl": "https://github.com/firefly-iii/firefly-iii",
+      "changelogUrl": "https://github.com/firefly-iii/firefly-iii/releases/tag/{{{replace 'version-' 'v' newVersion}}}"
+    },
+    {
+      "description": "Changelog link for the Firefly III data importer image.",
+      "matchPackageNames": ["fireflyiii/data-importer"],
+      "sourceUrl": "https://github.com/firefly-iii/data-importer",
+      "changelogUrl": "https://github.com/firefly-iii/data-importer/releases/tag/{{{replace 'version-' 'v' newVersion}}}"
+    },
 
     // ── Pinning and grouping ─────────────────────────────────────────────
     {
