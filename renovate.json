@@ -14,7 +14,7 @@
         "patch",
         "digest"
       ],
-      "matchCurrentVersion": "!/^0/",
+      "matchCurrentVersion": "!/^v?0\\./",
       "automerge": true,
       "ignoreTests": false
     },
@@ -127,8 +127,40 @@
     },
     {
       "description": "Automerge every non-major n8n update; majors stay grouped but need a manual merge.",
-      "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners"],
+      "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners", "n8n"],
       "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true,
+      "ignoreTests": false
+    },
+    {
+      "description": "Automerge minor, patch and digest updates for low-risk stateless apps.",
+      "matchPackageNames": [
+        "ghcr.io/starosdev/scrutiny",
+        "ghcr.io/gethomepage/homepage",
+        "jellyfin",
+        "goldilocks",
+        "us-docker.pkg.dev/fairwinds-ops/oss/goldilocks",
+        "stirling-pdf-chart",
+        "ghcr.io/stirling-tools/stirling-pdf",
+        "journeyapps/powersync-service",
+        "loki",
+        "docker.io/grafana/loki",
+        "docker.io/grafana/loki-canary",
+        "docker.io/grafana/grafana",
+        "docker.io/kiwigrid/k8s-sidecar",
+        "quay.io/kiwigrid/k8s-sidecar",
+        "prom/memcached-exporter",
+        "docker.io/nginxinc/nginx-unprivileged"
+      ],
+      "matchCurrentVersion": "!/^v?0\\./",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true,
+      "ignoreTests": false
+    },
+    {
+      "description": "Automerge Go and Caddy patch releases; minors and majors stay manual.",
+      "matchPackageNames": ["golang/go", "caddyserver/caddy"],
+      "matchUpdateTypes": ["patch"],
       "automerge": true,
       "ignoreTests": false
     }
