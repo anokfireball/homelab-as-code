@@ -62,7 +62,7 @@ jobs:
           {
             group flux '^(flux|charts)/|^\.github/workflows/validate\.yaml$|^\.github/scripts/retry-on-rate-limit\.sh$'
             group images '^flux/.*\.yaml$'
-            group renovate '^renovate\.jsonc$|^\.github/workflows/validate\.yaml$'
+            group renovate '^renovate\.jsonc$|^(flux|ansible)/|^\.github/workflows/|^\.github/scripts/renovate-rot-check\.mjs$'
             group ansible '^ansible/'
             group workflows '^\.github/workflows/'
             group scripts '^\.github/scripts/'
@@ -149,6 +149,20 @@ jobs:
       # global mode and fails repo mode). Both modes catch ordinary defects
       # such as a bogus customManager field identically.
       - run: renovate-config-validator --no-global renovate.jsonc
+      - name: Every customManager, annotation and package name still matches
+        # The validator checks the config on its own. Renovate silently skips a
+        # regex or package name that matches nothing, so extract the repository
+        # (no token needed) and check every reference against it. git refuses a
+        # repository owned by another user, and the workspace mount may not
+        # belong to root.
+        env:
+          GIT_CONFIG_COUNT: "1"
+          GIT_CONFIG_KEY_0: safe.directory
+          GIT_CONFIG_VALUE_0: "*"
+        run: |
+          renovate --platform=local --dry-run=extract --report-type=file \
+            --report-path=/tmp/renovate-report.json
+          node .github/scripts/renovate-rot-check.mjs renovate.jsonc /tmp/renovate-report.json
 
   ansible:
     name: Ansible Syntax
