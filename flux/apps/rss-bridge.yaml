@@ -30,7 +30,7 @@ spec:
           seed:
             image:
               repository: ghcr.io/rss-bridge/rss-bridge
-              tag: latest@sha256:bc60eac5df3ed08b655a519f6f313bf5f64045a0da5619c00fa3f0aacd7b7e06
+              tag: latest@sha256:e850828a43ded9d5084e7f443c26c6090a0c29e0a747f81499ef81924042d960
             command: ["sh", "-c", "cp -R /app/. /seed-app/ && cp -R /run/. /seed-run/ && chown -R 33:33 /seed-app/cache"]
             securityContext:
               allowPrivilegeEscalation: false
@@ -50,7 +50,7 @@ spec:
                 add: ["CHOWN", "SETUID", "SETGID"]
             image:
               repository: ghcr.io/rss-bridge/rss-bridge
-              tag: latest@sha256:bc60eac5df3ed08b655a519f6f313bf5f64045a0da5619c00fa3f0aacd7b7e06
+              tag: latest@sha256:e850828a43ded9d5084e7f443c26c6090a0c29e0a747f81499ef81924042d960
             probes:
               liveness:
                 enabled: true
