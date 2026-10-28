@@ -83,9 +83,9 @@ spec:
         retentionSize: 250GiB
         # The digest rides in image.tag, so the operator needs the bare version; Renovate rewrites both lines together.
         # renovate: datasource=docker depName=quay.io/prometheus/prometheus
-        version: v3.15.0-distroless
+        version: v3.15.1-distroless
         image:
-          tag: v3.15.0-distroless@sha256:b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01
+          tag: v3.15.1-distroless@sha256:451a845bae1d51622b41af1780eb2ad911bbb79a9855bc8e9bb67fabbc03f934
         # hostUsers stays unset: the TSDB PVC is nas-replicated-hdd (StorageClass fsType nfs), which cannot be
         # idmapped. Covered by the audit-user-namespaces PolicyException.
         storageSpec:
