@@ -134,12 +134,12 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-alert-rules-map
+  name: mutating-admission-policy-alerts
   namespace: monitoring-system
   labels:
     grafana_alert: "1"
 data:
-  map-alert-rules.yaml: |-
+  mutating-admission-policy.yaml: |-
     apiVersion: 1
     groups:
       - orgId: 1
@@ -148,7 +148,7 @@ data:
         interval: 1m
         rules:
           - uid: map-admission-errors
-            title: MAP admission policy errors
+            title: MutatingAdmissionPolicy errors
             condition: C
             data:
               - refId: A
@@ -206,7 +206,7 @@ data:
             labels:
               severity: warning
             annotations:
-              summary: 'MAP {{ $labels.policy }}: {{ $labels.error_type }} (binding {{ $labels.policy_binding }})'
+              summary: 'MutatingAdmissionPolicy {{ $labels.policy }}: {{ $labels.error_type }} (binding {{ $labels.policy_binding }})'
               description: >-
                 A MutatingAdmissionPolicy failed to evaluate. With failurePolicy Ignore the pod was admitted without
                 that mutation; check the newest pods matched by the binding.
@@ -219,7 +219,7 @@ data:
         interval: 1h
         rules:
           - uid: map-metric-missing
-            title: MAP admission metric missing for 14 days
+            title: MutatingAdmissionPolicy metric missing for 14 days
             condition: C
             data:
               - refId: A
@@ -269,7 +269,7 @@ data:
             annotations:
               summary: No apiserver has exported apiserver_mutating_admission_policy_check_total for 14 days
               description: >-
-                The metric is ALPHA: after a Kubernetes upgrade, check whether it was renamed and update both MAP alert
+                The metric is ALPHA: after a Kubernetes upgrade, check whether it was renamed and update both MutatingAdmissionPolicy alert
                 rules. Otherwise no pod matched any MutatingAdmissionPolicy binding for 14 days.
             notification_settings:
               receiver: Pushover
