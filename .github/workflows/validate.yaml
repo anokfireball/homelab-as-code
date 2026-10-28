@@ -62,7 +62,7 @@ jobs:
           {
             group flux '^(flux|charts)/|^\.github/workflows/validate\.yaml$|^\.github/scripts/retry-on-rate-limit\.sh$'
             group images '^flux/.*\.yaml$'
-            group renovate '^renovate\.json$|^\.github/workflows/validate\.yaml$'
+            group renovate '^renovate\.jsonc$|^\.github/workflows/validate\.yaml$'
             group ansible '^ansible/'
             group workflows '^\.github/workflows/'
             group scripts '^\.github/scripts/'
@@ -140,7 +140,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       # `--no-global` is a correctness requirement, not extra strictness.
-      # renovate.json is this repo's *repo* config. The cluster's self-hosted
+      # renovate.jsonc is this repo's *repo* config. The cluster's self-hosted
       # global config is a different file: flux/system/app-controllers/
       # renovate.yaml mounts `/config/config.json` from the `renovate-config`
       # Secret via extraVolumes. Given a filename the validator defaults to
@@ -148,7 +148,7 @@ jobs:
       # would reject in a repo config (verified: `binarySource` here passes
       # global mode and fails repo mode). Both modes catch ordinary defects
       # such as a bogus customManager field identically.
-      - run: renovate-config-validator --no-global renovate.json
+      - run: renovate-config-validator --no-global renovate.jsonc
 
   ansible:
     name: Ansible Syntax

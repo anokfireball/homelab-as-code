@@ -3,7 +3,7 @@
 # the stock CloudNativePG postgres image, so it gets its own (namespaced)
 # ImageCatalog, referenced by immich.yaml via spec.imageCatalogRef.
 #
-# Image version managed by Renovate (see renovate.json customManagers).
+# Image version managed by Renovate (see renovate.jsonc customManagers).
 apiVersion: postgresql.cnpg.io/v1
 kind: ImageCatalog
 metadata:
