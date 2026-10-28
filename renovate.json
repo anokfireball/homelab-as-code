@@ -25,7 +25,6 @@
         ".github/workflows/**"
       ],
       "matchPackageNames": [
-        "renovate",
         "ghcr.io/renovatebot/charts/renovate",
         "ghcr.io/renovatebot/renovate",
         "kube-prometheus-stack"
@@ -47,7 +46,6 @@
     },
     {
       "matchPackageNames": [
-        "ghcr.io/analogj/scrutiny",
         "longhorn/csi-snapshotter"
       ],
       "automerge": false
@@ -83,26 +81,6 @@
       "pinDigests": false
     },
     {
-      "description": "Do not digest-pin PowerSync service. The regex custom manager captures only the Helm values tag field, which cannot carry an @sha256: suffix.",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchPackageNames": [
-        "journeyapps/powersync-service"
-      ],
-      "pinDigests": false
-    },
-    {
-      "description": "Calico OCI Helm chart versions are prefixed with 'v'; coerce to semver so renovate's helm/flux managers bump them. CNI upgrades are signed-off manually.",
-      "matchPackageNames": [
-        "tigera-operator",
-        "crd.projectcalico.org.v1"
-      ],
-      "versioning": "semver-coerced",
-      "automerge": false,
-      "separateMultipleMinor": true
-    },
-    {
       "description": "Envoy Proxy image override: only distroless-vX.Y.Z tags; patch and digest only, because the minor must match the gateway-helm release; never automerge, because the data plane runs a single replica and each merge restarts it. Must stay after the flux/** automerge rule.",
       "matchPackageNames": ["envoyproxy/envoy"],
       "versioning": "regex:^distroless-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
@@ -116,7 +94,7 @@
     },
     {
       "description": "A gateway-helm minor or major bump changes the Envoy minor its controller expects, so the Envoy image override must move in the same PR.",
-      "matchPackageNames": ["gateway-helm"],
+      "matchPackageNames": ["docker.io/envoyproxy/gateway-helm"],
       "matchUpdateTypes": ["major", "minor"],
       "prBodyNotes": ["⚠️ This release ships a different Envoy minor. In this PR, update the `image:` override on `EnvoyProxy eg-shared` in `flux/system/app-configs/envoy-gateway.yaml` to the new Envoy minor (at least the release's `DefaultEnvoyProxyImage`), or delete it. The `Envoy Proxy Compat` check fails until then."]
     },
@@ -127,7 +105,7 @@
     },
     {
       "description": "Automerge non-major updates for the n8n images and Helm chart.",
-      "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners", "n8n"],
+      "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners", "oci.trueforge.org/truecharts/n8n"],
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true,
       "ignoreTests": false
@@ -342,7 +320,7 @@
         "/flux/apps/wger.yaml/"
       ],
       "matchStrings": [
-        "powersync:\\s*image:\\s*tag: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+        "powersync:\\s*image:\\s*tag: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?\""
       ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "journeyapps/powersync-service",
@@ -394,15 +372,9 @@
     },
     {
       "customType": "regex",
-      "description": "Update kyverno healthcheck base image (policy pin + CronJob annotations force helm re-apply, so the mutated healthcheck re-rolls)",
+      "description": "Update anokfireball/base-image pins outside HelmRelease image values: plain manifests, the Kyverno healthcheck policy and healthcheck annotations. The annotations force a Helm re-apply, so the mutated healthcheck re-rolls.",
       "managerFilePatterns": [
-        "/flux/system/app-configs/kyverno.yaml/",
-        "/flux/apps/firefly.yaml/",
-        "/flux/apps/nextcloud.yaml/",
-        "/flux/apps/opnsense-ipv6-prefix-update.yaml/",
-        "/flux/apps/paperless.yaml/",
-        "/flux/apps/soundcloud-scraper.yaml/",
-        "/flux/system/app-controllers/renovate.yaml/"
+        "/flux/.+\\.ya?ml$/"
       ],
       "matchStrings": [
         "image: ghcr\\.io/anokfireball/base-image:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)",
