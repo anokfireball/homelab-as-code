@@ -33,6 +33,8 @@ spec:
     crds: Skip
   upgrade:
     crds: Skip
+  # Hook Jobs are patched below; postRenderStrategy combined (helm-controller's default) is pinned so they stay reachable.
+  postRenderStrategy: combined
   postRenderers:
     - kustomize:
         patches:
