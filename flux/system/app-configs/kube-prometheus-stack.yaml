@@ -38,18 +38,21 @@ spec:
           busybox:
             # Pinned by digest through the tag: the chart only renders upgradeJob.image.busybox.sha when the
             # unrelated upgradeJob.image.sha is set.
-            tag: "latest@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e"
+            # renovate: datasource=docker depName=docker.io/busybox
+            tag: "1.38@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e"
           kubectl:
-            tag: v1.37.1
-            sha: b7cab618e281b1ee7484e7b706a96e2135fbb6e072c2a573a7dab4e87d7f2385
+            # renovate: datasource=docker depName=registry.k8s.io/kubectl
+            tag: v1.37.1@sha256:b7cab618e281b1ee7484e7b706a96e2135fbb6e072c2a573a7dab4e87d7f2385
     alertmanager:
       ingress:
         enabled: false
       alertmanagerSpec:
         retention: 168h
+        # The digest rides in image.tag, so the operator needs the bare version; Renovate rewrites both lines together.
+        # renovate: datasource=docker depName=quay.io/prometheus/alertmanager
+        version: v0.34.1
         image:
-          tag: v0.34.1
-          sha: e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a
+          tag: v0.34.1@sha256:e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a
         # The config-reloader watches a mounted directory and reloads over localhost; it never calls the API.
         automountServiceAccountToken: false
         # PVC is cluster-scratch (Longhorn RWO); uids 1000/2000 only.
@@ -78,9 +81,11 @@ spec:
       prometheusSpec:
         retention: 90d
         retentionSize: 250GiB
+        # The digest rides in image.tag, so the operator needs the bare version; Renovate rewrites both lines together.
+        # renovate: datasource=docker depName=quay.io/prometheus/prometheus
+        version: v3.15.0-distroless
         image:
-          tag: v3.15.0-distroless
-          sha: b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01
+          tag: v3.15.0-distroless@sha256:b2a413d5a03ea6a76782a508d1c7947440bba3b973931a25676e278431891b01
         # hostUsers stays unset: the TSDB PVC is nas-replicated-hdd (StorageClass fsType nfs), which cannot be
         # idmapped. Covered by the audit-user-namespaces PolicyException.
         storageSpec:
@@ -97,20 +102,22 @@ spec:
       # No hostPath, NFS or host namespaces; uid 65534 only.
       hostUsers: false
       image:
-        tag: v0.94.1
-        sha: 7c88d4e7bae63bd8d0f8da986054337c23b4472fa8d3c6817f5bc4b8407a2d6a
+        # renovate: datasource=docker depName=quay.io/prometheus-operator/prometheus-operator
+        tag: v0.94.1@sha256:7c88d4e7bae63bd8d0f8da986054337c23b4472fa8d3c6817f5bc4b8407a2d6a
       # Operator-chosen image: injected into every Prometheus and Alertmanager pod as the config-reloader.
       prometheusConfigReloader:
         image:
-          tag: v0.94.1
-          sha: 06b52bd4dbe3ed6dd5905aadaf8b9987d9da4c31d37bb86deaadae68cee2d26b
+          # renovate: datasource=docker depName=quay.io/prometheus-operator/prometheus-config-reloader
+          tag: v0.94.1@sha256:06b52bd4dbe3ed6dd5905aadaf8b9987d9da4c31d37bb86deaadae68cee2d26b
       # Operator-chosen default for ThanosRuler/Thanos sidecars (not deployed today).
       thanosImage:
-        sha: b567818fe608067eb0f1d7c2c4fe361e7ad83c8a256234c97685f1d0bf670cc8
+        # renovate: datasource=docker depName=quay.io/thanos/thanos
+        tag: v0.42.5@sha256:0a546b98a8dd47735456ab389983675ee363d68127e334937a9fceeea10da5e7
       admissionWebhooks:
         patch:
           image:
-            sha: 778d97dc3986355625e14392419b3364c487a7c807d4d86ddad1df369129b082
+            # renovate: datasource=docker depName=ghcr.io/jkroepke/kube-webhook-certgen
+            tag: 1.11.0@sha256:778d97dc3986355625e14392419b3364c487a7c807d4d86ddad1df369129b082
           # Pod-level securityContext of both admission Jobs (create secret, patch webhook).
           securityContext:
             seccompProfile:
@@ -118,14 +125,16 @@ spec:
     kube-state-metrics:
       hostUsers: false
       image:
-        tag: v2.20.0
-        sha: sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b
+        # renovate: datasource=docker depName=registry.k8s.io/kube-state-metrics/kube-state-metrics
+        tag: v2.20.0@sha256:42cfe3723a5f058171c627537fb57a3ea0f26e4380fa18555a95cb1a1b4cfc5b
     prometheus-node-exporter:
       # Host network, host PID and hostPath mounts of / , /proc and /sys are required: infrastructure component (D1).
       # hostUsers cannot be set with hostNetwork; the chart leaves it unset.
       image:
-        tag: v1.12.1
-        digest: sha256:8c9bac11973b94b59be88d6e11fee4429aa743c8846cdc75d65b18db33f6a106
+        # The digest rides in the tag, so the chart's distroless suffix is spelled out in it.
+        distroless: false
+        # renovate: datasource=docker depName=quay.io/prometheus/node-exporter
+        tag: v1.12.1-distroless@sha256:8c9bac11973b94b59be88d6e11fee4429aa743c8846cdc75d65b18db33f6a106
       securityContext:
         seccompProfile:
           type: RuntimeDefault

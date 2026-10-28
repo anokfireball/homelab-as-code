@@ -21,6 +21,7 @@ spec:
       watchNamespace: default
       name: mongodb-kubernetes-operator
       replicas: 1
+      # renovate: datasource=docker depName=quay.io/mongodb/mongodb-kubernetes-operator
       version: 1.14.0@sha256:47c6df5ec4615c554de9532929961589d02fffbe2dd3133460cc61f3e05d32fb
       # Hardening (D2/D3, D5-D8): non-root uid 2000 from the image (E2/E4); user namespace via postRenderers (chart has no hostUsers knob)
       podSecurityContext:
@@ -39,13 +40,17 @@ spec:
           drop:
             - ALL
     versionUpgradeHook:
+      # renovate: datasource=docker depName=quay.io/mongodb/mongodb-kubernetes-operator-version-upgrade-post-start-hook
       version: 1.0.10@sha256:5d776a05cd8e2b897e441904126c198230294ebc3c03e6a8830b1c7d6c92af42
     readinessProbe:
+      # renovate: datasource=docker depName=quay.io/mongodb/mongodb-kubernetes-readinessprobe
       version: 1.0.24@sha256:75ff5bd1aebdb82776de008e96433ebe93a17b0a3a4be6cced270b76b67e0bb1
     agent:
+      # renovate: datasource=docker depName=quay.io/mongodb/mongodb-agent
       version: 109.0.1.9310-1@sha256:cad96df67cee50d9faf4d53bdf4b4b7333902a3fee824ad7be0cc6034f8a597b
     community:
       agent:
+        # renovate: datasource=docker depName=quay.io/mongodb/mongodb-agent
         version: 109.0.1.9310-1@sha256:cad96df67cee50d9faf4d53bdf4b4b7333902a3fee824ad7be0cc6034f8a597b
   # The chart has no hostUsers knob, so patch the operator Deployment (E1: no host namespaces, E3: no NFS/hostPath, E2: uid 2000).
   postRenderers:

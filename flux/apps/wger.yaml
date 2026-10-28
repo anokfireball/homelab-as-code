@@ -285,6 +285,7 @@ spec:
           key: smtp-password
     powersync:
       image:
+        # renovate: datasource=docker depName=docker.io/journeyapps/powersync-service
         tag: "1.27.2@sha256:d7a99817057a42dae9e6d8fe0c70b49d99105dcac8b8ab0e9ed3cf1ff0978b8b"
       securityContext:
         fsGroup: 901
@@ -372,6 +373,7 @@ spec:
                             mountPath: /tmp
                     containers:
                       - name: wger
+                        # renovate: datasource=docker depName=wger/server
                         image: docker.io/wger/server:2.7@sha256:1c5789b93bfe5eed0b7287255782d9177027b255de2b22b59f511a693a48db04
                         securityContext:
                           runAsNonRoot: true
@@ -421,6 +423,7 @@ spec:
                             mountPath: /tmp
                     containers:
                       - name: celery-beat
+                        # renovate: datasource=docker depName=wger/server
                         image: docker.io/wger/server:2.7@sha256:1c5789b93bfe5eed0b7287255782d9177027b255de2b22b59f511a693a48db04
                         securityContext:
                           runAsNonRoot: true
@@ -466,6 +469,7 @@ spec:
                             mountPath: /tmp
                     containers:
                       - name: celery-worker
+                        # renovate: datasource=docker depName=wger/server
                         image: docker.io/wger/server:2.7@sha256:1c5789b93bfe5eed0b7287255782d9177027b255de2b22b59f511a693a48db04
                         securityContext:
                           runAsNonRoot: true
@@ -503,6 +507,7 @@ spec:
                       # seeds the chart's ConfigMap into writable emptyDirs: pid moves off /var/run (root-owned),
                       # and listen 80 becomes 8080 (non-root cannot bind 80 without NET_BIND_SERVICE)
                       - name: nginx-config-seed
+                        # renovate: datasource=docker depName=nginx
                         image: nginx:stable@sha256:a7675fcee220f59b4a99f7098c06a0d5d999c2c0ee37c0211efb780536e5cb20
                         command:
                           - sh
@@ -702,6 +707,7 @@ spec:
                             mountPath: /tmp
                     containers:
                       - name: setup-powersync-storage
+                        # renovate: datasource=docker depName=wger/server
                         image: docker.io/wger/server:2.7@sha256:1c5789b93bfe5eed0b7287255782d9177027b255de2b22b59f511a693a48db04
                         securityContext:
                           runAsNonRoot: true
@@ -736,6 +742,7 @@ spec:
   values:
     fullnameOverride: wger-redis
     image:
+      # renovate: datasource=docker depName=docker.io/valkey/valkey
       tag: "9.1.2@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd"
     podSecurityContext:
       runAsNonRoot: true
