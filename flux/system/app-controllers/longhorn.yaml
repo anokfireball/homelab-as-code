@@ -50,7 +50,7 @@ spec:
           registry: docker.io
           repository: longhornio/csi-snapshotter
           # renovate: datasource=docker depName=docker.io/longhornio/csi-snapshotter
-          tag: v8.6.0@sha256:2bca9ac55170efa61dc50e5cc8d9550373db2e3e5161d82d3fdaac5c25150360
+          tag: v8.7.0@sha256:540c1e04e5e0206015f0552fc86efb1f9e292b1f9892b8439a6f091255857148
     persistence:
       defaultFsType: "xfs"
       recurringJobSelector:
