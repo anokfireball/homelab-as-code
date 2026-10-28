@@ -45,7 +45,7 @@ spec:
           registry: docker.io
           repository: longhornio/csi-resizer
           # renovate: datasource=docker depName=docker.io/longhornio/csi-resizer
-          tag: v2.2.1@sha256:63d0aef25114d4a682b25afa6d9623a3cfcc19aca910269124408476bbe2c6fd
+          tag: v2.3.0@sha256:893d641494d809fe26688e2fbfe9e90d0061d6c111a1553e544c454aef5ccdb3
         snapshotter:
           registry: docker.io
           repository: longhornio/csi-snapshotter
