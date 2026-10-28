@@ -1884,6 +1884,7 @@ spec:
     dataStorage:
       enabled: false
     image:
+      # renovate: datasource=docker depName=docker.io/valkey/valkey
       tag: 9.1.2@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd
   postRenderers:
     - kustomize:

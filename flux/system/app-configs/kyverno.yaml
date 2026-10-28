@@ -47,6 +47,9 @@ spec:
         # - ${VAR} would cause substitution/failure by flux
         # - \$(VAR) would cause parsing failure ("found unknown escape character")
         # - $VAR does not actually evaluate in this case
+        # The healthcheck image below is the one that runs. The `healthcheckImage` annotation on each CronJob (or its
+        # HelmRelease values) carries the same reference only as a re-roll trigger: Renovate bumps this pin and every
+        # annotation in one PR, and the changed annotation makes Flux re-apply the CronJob so this rule mutates it again.
         patchesJson6902: |-
           - path: "/spec/jobTemplate/spec/template/spec/containers"
             op: replace

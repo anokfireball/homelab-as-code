@@ -18,22 +18,27 @@ spec:
       externalAttacher:
         image:
           registry: registry.k8s.io/sig-storage/csi-attacher
+          # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-attacher
           tag: v4.4.0@sha256:dbded4ebe299973e31d0ef55815eb07a990fc67872b14900a8e69232acae4f2d
       externalProvisioner:
         image:
           registry: registry.k8s.io/sig-storage/csi-provisioner
+          # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-provisioner
           tag: v3.6.0@sha256:6de50bacfd72627ffe4209e3db8ad7391d04ea6fb741bf51feab6c5dcfd80002
       externalResizer:
         image:
           registry: registry.k8s.io/sig-storage/csi-resizer
+          # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-resizer
           tag: v1.9.0@sha256:f1f352df97874442624fcef23eab04aa038f66cb0e361212f6ec09e92998184d
       externalSnapshotter:
         image:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
+          # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-snapshotter
           tag: v8.2.1@sha256:5f4bb469fec51147ce157329dab598c758da1b018bad6dad26f0ff469326d769
       driver:
         image:
           registry: ghcr.io/democratic-csi/democratic-csi
+          # renovate: datasource=docker depName=ghcr.io/democratic-csi/democratic-csi
           tag: latest@sha256:944d0e65077efbd9c1fdf23997eec8fac4b4bfb7c3de400f63e33a0a849c5ced
     csiDriver:
       name: nas-ssd
@@ -146,6 +151,7 @@ spec:
                           - name: tmp
                             mountPath: /tmp
                       - name: csi-proxy
+                        # renovate: datasource=docker depName=ghcr.io/democratic-csi/csi-grpc-proxy
                         image: ghcr.io/democratic-csi/csi-grpc-proxy:v0.5.7@sha256:0240d0fba3cedd598036766b1865e88aa2eac9c16822df03d5d912a81128ebb6
                         securityContext:
                           allowPrivilegeEscalation: false
@@ -179,22 +185,27 @@ spec:
       externalAttacher:
         image:
           registry: registry.k8s.io/sig-storage/csi-attacher
+          # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-attacher
           tag: v4.4.0@sha256:dbded4ebe299973e31d0ef55815eb07a990fc67872b14900a8e69232acae4f2d
       externalProvisioner:
         image:
           registry: registry.k8s.io/sig-storage/csi-provisioner
+          # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-provisioner
           tag: v3.6.0@sha256:6de50bacfd72627ffe4209e3db8ad7391d04ea6fb741bf51feab6c5dcfd80002
       externalResizer:
         image:
           registry: registry.k8s.io/sig-storage/csi-resizer
+          # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-resizer
           tag: v1.9.0@sha256:f1f352df97874442624fcef23eab04aa038f66cb0e361212f6ec09e92998184d
       externalSnapshotter:
         image:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
+          # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-snapshotter
           tag: v8.2.1@sha256:5f4bb469fec51147ce157329dab598c758da1b018bad6dad26f0ff469326d769
       driver:
         image:
           registry: ghcr.io/democratic-csi/democratic-csi
+          # renovate: datasource=docker depName=ghcr.io/democratic-csi/democratic-csi
           tag: latest@sha256:944d0e65077efbd9c1fdf23997eec8fac4b4bfb7c3de400f63e33a0a849c5ced
     csiDriver:
       name: nas-hdd
@@ -307,6 +318,7 @@ spec:
                           - name: tmp
                             mountPath: /tmp
                       - name: csi-proxy
+                        # renovate: datasource=docker depName=ghcr.io/democratic-csi/csi-grpc-proxy
                         image: ghcr.io/democratic-csi/csi-grpc-proxy:v0.5.7@sha256:0240d0fba3cedd598036766b1865e88aa2eac9c16822df03d5d912a81128ebb6
                         securityContext:
                           allowPrivilegeEscalation: false

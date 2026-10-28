@@ -198,8 +198,49 @@
     },
     {
       "description": "One PR per minor release, for components that upgrade one minor at a time.",
-      "matchPackageNames": ["kubernetes/kubernetes", "containerd.io", "longhorn"],
+      "matchPackageNames": [
+        "kubernetes/kubernetes",
+        "containerd.io",
+        "longhorn",
+        "docker.io/longhornio/longhorn-ui",
+        "longhornio/longhorn-manager"
+      ],
       "separateMultipleMinor": true
+    },
+    {
+      "description": "Group the Longhorn chart with the UI and manager images pinned at its appVersion.",
+      "matchPackageNames": [
+        "longhorn",
+        "docker.io/longhornio/longhorn-ui",
+        "longhornio/longhorn-manager"
+      ],
+      "groupName": "longhorn"
+    },
+    {
+      "description": "Group the MetalLB chart with the controller and speaker images pinned at its appVersion.",
+      "matchPackageNames": [
+        "metallb",
+        "quay.io/metallb/controller",
+        "quay.io/metallb/speaker"
+      ],
+      "groupName": "metallb"
+    },
+    {
+      "description": "Group the MongoDB operator chart with the operator image pinned at its appVersion.",
+      "matchPackageNames": [
+        "mongodb-kubernetes",
+        "quay.io/mongodb/mongodb-kubernetes-operator"
+      ],
+      "groupName": "mongodb-kubernetes"
+    },
+    {
+      "description": "Group kube-prometheus-stack with the operator and config-reloader images pinned at its appVersion.",
+      "matchPackageNames": [
+        "kube-prometheus-stack",
+        "quay.io/prometheus-operator/prometheus-operator",
+        "quay.io/prometheus-operator/prometheus-config-reloader"
+      ],
+      "groupName": "kube-prometheus-stack"
     },
 
     // ── Automerge ────────────────────────────────────────────────────────
@@ -223,6 +264,8 @@
         "n8nio/runners",
         // Monitoring and logging
         "kube-prometheus-stack",
+        "quay.io/prometheus-operator/prometheus-operator",
+        "quay.io/prometheus-operator/prometheus-config-reloader",
         "docker.io/grafana/grafana",
         "docker.io/kiwigrid/k8s-sidecar",
         "quay.io/kiwigrid/k8s-sidecar",
@@ -239,7 +282,7 @@
         "jellyfin",
         "stirling-pdf-chart",
         "ghcr.io/stirling-tools/stirling-pdf",
-        "journeyapps/powersync-service"
+        "docker.io/journeyapps/powersync-service"
       ],
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true
@@ -267,6 +310,8 @@
         // Storage
         "longhorn",
         "longhorn/csi-snapshotter",
+        "docker.io/longhornio/longhorn-ui",
+        "longhornio/longhorn-manager",
         // One chart version renders many HelmReleases at once.
         "app-template",
         // The data plane runs a single replica, so each merge restarts it.
@@ -298,9 +343,14 @@
       "customType": "regex",
       // pgMajor pins lookups to the major already in the file; a major
       // upgrade of a CNPG cluster is a migration, not a tag bump.
-      "description": "CNPG PostgreSQL images (image catalogs, backup and init containers).",
+      // The second pattern is the immich PreBackupPod image pinned in a
+      // kyverno-exceptions ImageValidatingPolicy exception.
+      "description": "CNPG PostgreSQL images (image catalogs, backup and init containers, Kyverno exceptions).",
       "managerFilePatterns": ["/flux/.+\\.ya?ml$/"],
-      "matchStrings": ["image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>(?<pgMajor>\\d+)\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"],
+      "matchStrings": [
+        "image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>(?<pgMajor>\\d+)\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)",
+        "c\\.image == 'ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>(?<pgMajor>\\d+)\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)'"
+      ],
       "datasourceTemplate": "docker",
       "packageNameTemplate": "ghcr.io/cloudnative-pg/postgresql",
       "versioningTemplate": "regex:^(?<major>{{{pgMajor}}})\\.(?<minor>\\d+)-standard-trixie$",
@@ -345,18 +395,6 @@
     },
     {
       "customType": "regex",
-      // The wger chart takes only a tag for PowerSync, so the flux manager
-      // cannot resolve the image.
-      "description": "PowerSync image tag in the wger chart values.",
-      "managerFilePatterns": ["/flux/apps/wger.yaml/"],
-      "matchStrings": ["powersync:\\s*image:\\s*tag: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?\""],
-      "datasourceTemplate": "docker",
-      "packageNameTemplate": "journeyapps/powersync-service",
-      "registryUrlTemplate": "https://index.docker.io",
-      "versioningTemplate": "docker"
-    },
-    {
-      "customType": "regex",
       "description": "MongoDB version of the UniFi MongoDBCommunity resource.",
       "managerFilePatterns": ["/flux/apps/unifi.yaml/"],
       "matchStrings": ["kind: MongoDBCommunity[\\s\\S]*?version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
@@ -364,6 +402,22 @@
       "packageNameTemplate": "mongodb/mongo",
       "versioningTemplate": "semver",
       "extractVersionTemplate": "^r(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      // Annotation fields as in the Ansible manager: datasource, then depName.
+      // The pin follows on the next line: `<key>: <version>@sha256:…` for Helm
+      // values the flux manager cannot resolve, `image: <ref>:<version>@…` in
+      // post-renderer patch strings. Above a Prometheus or Alertmanager CR
+      // `version:`, the digest is on the next image.tag; Renovate rewrites the
+      // version on both lines.
+      "description": "Flux image pins annotated with a `# renovate:` comment.",
+      "managerFilePatterns": ["/flux/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*[\\w-]+: \"?(?<currentValue>[^\"\\s@:]+)@(?<currentDigest>sha256:[a-f0-9]+)\"?",
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*image: \"?[^\"\\s@]+:(?<currentValue>[^\"\\s@:]+)@(?<currentDigest>sha256:[a-f0-9]+)\"?",
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*version: (?<currentValue>\\S+)\\n\\s*image:\\n\\s*tag: [^\\s@]+@(?<currentDigest>sha256:[a-f0-9]+)"
+      ]
     },
 
     // ── Flux: vendored manifests and CRD sources ─────────────────────────

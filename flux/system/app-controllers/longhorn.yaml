@@ -28,23 +28,28 @@ spec:
         ui:
           registry: docker.io
           repository: longhornio/longhorn-ui
+          # renovate: datasource=docker depName=docker.io/longhornio/longhorn-ui
           tag: v1.13.0@sha256:f22fb0254ae50195c1635ce428dfae26375956b3d7bd39640fae8fe33a236023
       csi:
         attacher:
           registry: docker.io
           repository: longhornio/csi-attacher
+          # renovate: datasource=docker depName=docker.io/longhornio/csi-attacher
           tag: v4.13.0@sha256:fef34c2d823b78da7d6c29fdf0f80d236293b0ac06944d14e8c366add880a4c8
         provisioner:
           registry: docker.io
           repository: longhornio/csi-provisioner
+          # renovate: datasource=docker depName=docker.io/longhornio/csi-provisioner
           tag: v6.3.0@sha256:2d2694540109d2e8887f62a0bc711aca8d3033e52dddf1c39bb5c65600d9c5af
         resizer:
           registry: docker.io
           repository: longhornio/csi-resizer
+          # renovate: datasource=docker depName=docker.io/longhornio/csi-resizer
           tag: v2.2.1@sha256:63d0aef25114d4a682b25afa6d9623a3cfcc19aca910269124408476bbe2c6fd
         snapshotter:
           registry: docker.io
           repository: longhornio/csi-snapshotter
+          # renovate: datasource=docker depName=docker.io/longhornio/csi-snapshotter
           tag: v8.6.0@sha256:2bca9ac55170efa61dc50e5cc8d9550373db2e3e5161d82d3fdaac5c25150360
     persistence:
       defaultFsType: "xfs"
@@ -121,6 +126,7 @@ spec:
                         type: RuntimeDefault
                     initContainers:
                       - name: wait-longhorn-manager
+                        # renovate: datasource=docker depName=longhornio/longhorn-manager
                         image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
                         securityContext:
                           allowPrivilegeEscalation: false
@@ -129,6 +135,7 @@ spec:
                             drop: ["ALL"]
                     containers:
                       - name: longhorn-driver-deployer
+                        # renovate: datasource=docker depName=longhornio/longhorn-manager
                         image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
                         securityContext:
                           allowPrivilegeEscalation: false
@@ -159,6 +166,7 @@ spec:
                         type: RuntimeDefault
                     containers:
                       - name: longhorn-post-upgrade
+                        # renovate: datasource=docker depName=longhornio/longhorn-manager
                         image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
                         securityContext:
                           allowPrivilegeEscalation: false
@@ -188,6 +196,7 @@ spec:
                         type: RuntimeDefault
                     containers:
                       - name: longhorn-uninstall
+                        # renovate: datasource=docker depName=longhornio/longhorn-manager
                         image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
                         securityContext:
                           allowPrivilegeEscalation: false
@@ -218,6 +227,7 @@ spec:
                         type: RuntimeDefault
                     containers:
                       - name: longhorn-pre-upgrade
+                        # renovate: datasource=docker depName=longhornio/longhorn-manager
                         image: docker.io/longhornio/longhorn-manager:v1.13.0@sha256:7372f3c59239e9a67c0017b3af32fabdf08c4dcc0631140161da9a47e3b142f0
 ---
 apiVersion: admissionregistration.k8s.io/v1

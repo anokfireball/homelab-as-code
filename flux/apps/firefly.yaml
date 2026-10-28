@@ -163,6 +163,7 @@ spec:
                     automountServiceAccountToken: false
                     initContainers:
                       - name: seed
+                        # renovate: datasource=docker depName=fireflyiii/core
                         image: docker.io/fireflyiii/core:version-6.7.9@sha256:4409f9f0f87378ba95d40811352f4f49338d276bb638c1e6d18a5579f332fbe8
                         command: ["sh", "-c", "cp -R /var/www/html/storage/. /seed/storage/ && cp -R /var/www/html/bootstrap/cache/. /seed/bootstrap-cache/ && cp -R /etc/nginx/. /seed/nginx-conf/"]
                         securityContext:
@@ -413,6 +414,7 @@ spec:
                     automountServiceAccountToken: false
                     initContainers:
                       - name: seed
+                        # renovate: datasource=docker depName=fireflyiii/data-importer
                         image: fireflyiii/data-importer:version-2.3.5@sha256:59f2f26ddf6eb55e84ce0d571259c9aabd6ddfcc23dd4d3825ab01ad79e34930
                         command: ["sh", "-c", "cp -R /var/www/html/storage/. /seed/storage/ && cp -R /var/www/html/bootstrap/cache/. /seed/bootstrap-cache/ && cp -R /etc/nginx/. /seed/nginx-conf/"]
                         securityContext:
