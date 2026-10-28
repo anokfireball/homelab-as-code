@@ -127,3 +127,149 @@ spec:
       backend:
         name: grafana
         port: 80
+---
+# Grafana-managed alerts for the MutatingAdmissionPolicies (failurePolicy Ignore admits a pod without the mutation and
+# reports the failure only in apiserver_mutating_admission_policy_check_total). Loaded by the alerts sidecar
+# (label grafana_alert); notifications go straight to the Pushover contact point, not the default email policy.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alert-rules-map
+  namespace: monitoring-system
+  labels:
+    grafana_alert: "1"
+data:
+  map-alert-rules.yaml: |-
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: mutating-admission-policy
+        folder: Kubernetes
+        interval: 1m
+        rules:
+          - uid: map-admission-errors
+            title: MAP admission policy errors
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 1200
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  refId: A
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  # Clause 1: more errors on an existing series. Clause 2: a series that first appeared in the last
+                  # 15m (the first error after an apiserver restart, which increase() cannot see), counted only while
+                  # that apiserver was scraped for the whole window, so a Prometheus or scrape gap cannot fake it.
+                  expr: |-
+                    (sum by (policy, policy_binding, error_type) (increase(apiserver_mutating_admission_policy_check_total{error_type!="no_error"}[15m])) > 0)
+                    or
+                    count by (policy, policy_binding, error_type) (
+                      (apiserver_mutating_admission_policy_check_total{error_type!="no_error"}
+                        unless apiserver_mutating_admission_policy_check_total{error_type!="no_error"} offset 15m)
+                      and on (instance) (sum_over_time(up{job="apiserver"}[20m]) > 30)
+                    )
+                  instant: true
+                  range: false
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  refId: C
+                  type: threshold
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  conditions:
+                    - evaluator:
+                        params: [0]
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: [C]
+                      reducer:
+                        type: last
+                        params: []
+                      type: query
+            noDataState: OK
+            execErrState: Alerting
+            for: 0s
+            labels:
+              severity: warning
+            annotations:
+              summary: 'MAP {{ $labels.policy }}: {{ $labels.error_type }} (binding {{ $labels.policy_binding }})'
+              description: >-
+                A MutatingAdmissionPolicy failed to evaluate. With failurePolicy Ignore the pod was admitted without
+                that mutation; check the newest pods matched by the binding.
+            notification_settings:
+              receiver: Pushover
+      - orgId: 1
+        name: mutating-admission-policy-metric
+        folder: Kubernetes
+        # 14 days of history per evaluation: hourly is enough for a check that only fires after two quiet weeks.
+        interval: 1h
+        rules:
+          - uid: map-metric-missing
+            title: MAP admission metric missing for 14 days
+            condition: C
+            data:
+              - refId: A
+                relativeTimeRange:
+                  from: 1209600
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  refId: A
+                  datasource:
+                    type: prometheus
+                    uid: prometheus
+                  expr: absent_over_time(apiserver_mutating_admission_policy_check_total[14d])
+                  instant: true
+                  range: false
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+              - refId: C
+                relativeTimeRange:
+                  from: 0
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  refId: C
+                  type: threshold
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  conditions:
+                    - evaluator:
+                        params: [0]
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params: [C]
+                      reducer:
+                        type: last
+                        params: []
+                      type: query
+            noDataState: OK
+            execErrState: Alerting
+            for: 0s
+            labels:
+              severity: warning
+            annotations:
+              summary: No apiserver has exported apiserver_mutating_admission_policy_check_total for 14 days
+              description: >-
+                The metric is ALPHA: after a Kubernetes upgrade, check whether it was renamed and update both MAP alert
+                rules. Otherwise no pod matched any MutatingAdmissionPolicy binding for 14 days.
+            notification_settings:
+              receiver: Pushover
