@@ -114,6 +114,18 @@
       "matchPackageNames": ["gateway-helm"],
       "matchUpdateTypes": ["major", "minor"],
       "prBodyNotes": ["⚠️ This release ships a different Envoy minor. In this PR, update the `image:` override on `EnvoyProxy eg-shared` in `flux/system/app-configs/envoy-gateway.yaml` to the new Envoy minor (at least the release's `DefaultEnvoyProxyImage`), or delete it. The `Envoy Proxy Compat` check fails until then."]
+    },
+    {
+      "description": "n8n main image and the external task-runner sidecar must stay on the same version (broker/runner mismatch otherwise), so bump them in one PR.",
+      "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners"],
+      "groupName": "n8n"
+    },
+    {
+      "description": "Automerge every non-major n8n update; majors stay grouped but need a manual merge.",
+      "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true,
+      "ignoreTests": false
     }
   ],
   "ignoreTests": true,
