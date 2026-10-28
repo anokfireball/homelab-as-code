@@ -40,6 +40,12 @@ spec:
           registry: ghcr.io/democratic-csi/democratic-csi
           # renovate: datasource=docker depName=ghcr.io/democratic-csi/democratic-csi
           tag: v1.9.5@sha256:fc3b7d7ed3a616714139525075312758e23a5d425ffb539ad12c9bd20fb6001f
+    node:
+      driver:
+        image:
+          registry: ghcr.io/democratic-csi/democratic-csi
+          # renovate: datasource=docker depName=ghcr.io/democratic-csi/democratic-csi
+          tag: v1.9.5@sha256:fc3b7d7ed3a616714139525075312758e23a5d425ffb539ad12c9bd20fb6001f
     csiDriver:
       name: nas-ssd
       fsGroupPolicy: File
@@ -202,6 +208,12 @@ spec:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-snapshotter
           tag: v8.2.1@sha256:5f4bb469fec51147ce157329dab598c758da1b018bad6dad26f0ff469326d769
+      driver:
+        image:
+          registry: ghcr.io/democratic-csi/democratic-csi
+          # renovate: datasource=docker depName=ghcr.io/democratic-csi/democratic-csi
+          tag: v1.9.5@sha256:fc3b7d7ed3a616714139525075312758e23a5d425ffb539ad12c9bd20fb6001f
+    node:
       driver:
         image:
           registry: ghcr.io/democratic-csi/democratic-csi
