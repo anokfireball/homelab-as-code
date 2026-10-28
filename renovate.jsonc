@@ -208,11 +208,15 @@
       "separateMultipleMinor": true
     },
     {
-      "description": "Group the Longhorn chart with the UI and manager images pinned at its appVersion.",
+      "description": "Group the Longhorn chart with the UI, manager and CSI sidecar images pinned at its appVersion.",
       "matchPackageNames": [
         "longhorn",
         "docker.io/longhornio/longhorn-ui",
-        "longhornio/longhorn-manager"
+        "longhornio/longhorn-manager",
+        "docker.io/longhornio/csi-attacher",
+        "docker.io/longhornio/csi-provisioner",
+        "docker.io/longhornio/csi-resizer",
+        "docker.io/longhornio/csi-snapshotter"
       ],
       "groupName": "longhorn"
     },
@@ -312,6 +316,10 @@
         "longhorn/csi-snapshotter",
         "docker.io/longhornio/longhorn-ui",
         "longhornio/longhorn-manager",
+        "docker.io/longhornio/csi-attacher",
+        "docker.io/longhornio/csi-provisioner",
+        "docker.io/longhornio/csi-resizer",
+        "docker.io/longhornio/csi-snapshotter",
         // One chart version renders many HelmReleases at once.
         "app-template",
         // The data plane runs a single replica, so each merge restarts it.
