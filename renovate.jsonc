@@ -1,0 +1,407 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices"],
+  // No PR rate limits.
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 0,
+
+  // Files the built-in managers read.
+  "ansible": {
+    "managerFilePatterns": ["/ansible/.+\\.ya?ml$/"]
+  },
+  "ansible-galaxy": {
+    "managerFilePatterns": ["/ansible/.+/requirements\\.ya?ml$/"]
+  },
+  "flux": {
+    "managerFilePatterns": [
+      "/flux/clusters/.+gotk-components\\.ya?ml$/",
+      "/flux/namespaces/.+\\.ya?ml$/",
+      "/flux/repositories/.+\\.ya?ml$/",
+      "/flux/system/.+\\.ya?ml$/",
+      "/flux/apps/.+\\.ya?ml$/"
+    ]
+  },
+  "kustomize": {
+    "managerFilePatterns": ["/flux/.+kustomization\\.ya?ml$/"]
+  },
+
+  // Every matching rule applies, top to bottom; a later rule overrides an
+  // earlier one. Sections set different options, except that the "never
+  // automerge" rules at the end override any automerge rule above them.
+  "packageRules": [
+    // ── Versioning ───────────────────────────────────────────────────────
+    {
+      "description": "Firefly III tags are prefixed with `version-`.",
+      "matchPackageNames": ["fireflyiii/core", "fireflyiii/data-importer"],
+      "versioning": "regex:^version-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+
+    // ── Envoy proxy image override ───────────────────────────────────────
+    // The override must stay on the Envoy minor that gateway-helm ships, so
+    // only its patches and digests update on their own.
+    {
+      "description": "Envoy proxy override: track distroless-vX.Y.Z tags.",
+      "matchPackageNames": ["envoyproxy/envoy"],
+      "versioning": "regex:^distroless-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      // Keeps patches coming while a newer minor exists but is blocked.
+      "separateMinorPatch": true
+    },
+    {
+      "description": "Envoy proxy override: no major or minor updates.",
+      "matchPackageNames": ["envoyproxy/envoy"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "description": "A gateway-helm minor or major bump changes the Envoy minor its controller expects, so the Envoy image override must move in the same PR.",
+      "matchPackageNames": ["docker.io/envoyproxy/gateway-helm"],
+      "matchUpdateTypes": ["major", "minor"],
+      "prBodyNotes": ["⚠️ This release ships a different Envoy minor. In this PR, update the `image:` override on `EnvoyProxy eg-shared` in `flux/system/app-configs/envoy-gateway.yaml` to the new Envoy minor (at least the release's `DefaultEnvoyProxyImage`), or delete it. The `Envoy Proxy Compat` check fails until then."]
+    },
+
+    // ── Release notes ────────────────────────────────────────────────────
+    {
+      // OCI Helm charts on ghcr.io carry no source metadata Renovate can use.
+      // Chart and app share the vX.Y.Z release.
+      "description": "Point spegel PRs at the spegel repo for release notes.",
+      "matchPackageNames": ["ghcr.io/spegel-org/spegel", "ghcr.io/spegel-org/helm-charts/spegel"],
+      "sourceUrl": "https://github.com/spegel-org/spegel"
+    },
+
+    // ── Pinning and grouping ─────────────────────────────────────────────
+    {
+      // The flux manager reports charts from `type: oci` HelmRepositories as
+      // docker deps, and a chart tag has no digest to pin. Images in
+      // HelmRelease values are covered too: no new pins, but existing
+      // digests still update.
+      "description": "No new digest pins on docker deps found by the flux manager.",
+      "matchManagers": ["flux"],
+      "matchDatasources": ["docker"],
+      "pinDigests": false
+    },
+    {
+      "description": "Group the n8n main image and task-runner sidecar so they update together.",
+      "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners"],
+      "groupName": "n8n"
+    },
+    {
+      "description": "One PR per minor release, for components that upgrade one minor at a time.",
+      "matchPackageNames": ["kubernetes/kubernetes", "containerd.io", "longhorn"],
+      "separateMultipleMinor": true
+    },
+
+    // ── Automerge ────────────────────────────────────────────────────────
+    // Renovate turns on GitHub auto-merge (platformAutomerge, on by default);
+    // GitHub merges once the required "CI - Success" check passes.
+    {
+      "description": "Automerge patch and digest updates under flux/.",
+      "matchFileNames": ["flux/**"],
+      "matchUpdateTypes": ["patch", "digest"],
+      "automerge": true
+    },
+    {
+      "description": "Automerge minor, patch and digest updates for low-risk packages.",
+      "matchPackageNames": [
+        // Renovate. A validator image bump is tested by the CI job it updates.
+        "ghcr.io/renovatebot/charts/renovate",
+        "ghcr.io/renovatebot/renovate",
+        // n8n
+        "oci.trueforge.org/truecharts/n8n",
+        "ghcr.io/n8n-io/n8n",
+        "n8nio/runners",
+        // Monitoring and logging
+        "kube-prometheus-stack",
+        "docker.io/grafana/grafana",
+        "docker.io/kiwigrid/k8s-sidecar",
+        "quay.io/kiwigrid/k8s-sidecar",
+        "loki",
+        "docker.io/grafana/loki",
+        "docker.io/grafana/loki-canary",
+        "docker.io/nginxinc/nginx-unprivileged",
+        "prom/memcached-exporter",
+        "ghcr.io/starosdev/scrutiny",
+        "goldilocks",
+        "us-docker.pkg.dev/fairwinds-ops/oss/goldilocks",
+        // Apps
+        "ghcr.io/gethomepage/homepage",
+        "jellyfin",
+        "stirling-pdf-chart",
+        "ghcr.io/stirling-tools/stirling-pdf",
+        "journeyapps/powersync-service"
+      ],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    },
+    {
+      "description": "Automerge Go and Caddy patch releases; minors and majors stay manual.",
+      "matchPackageNames": ["golang/go", "caddyserver/caddy"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+
+    // ── Never automerge (keep last) ──────────────────────────────────────
+    {
+      "description": "Never automerge 0.x versions.",
+      "matchCurrentVersion": "/^v?0\\./",
+      "automerge": false
+    },
+    {
+      "description": "Never automerge these packages.",
+      "matchPackageNames": [
+        // Cluster runtime and networking
+        "kubernetes/kubernetes",
+        "containerd.io",
+        "external-dns",
+        // Storage
+        "longhorn",
+        "longhorn/csi-snapshotter",
+        // The data plane runs a single replica, so each merge restarts it.
+        "envoyproxy/envoy"
+      ],
+      "automerge": false
+    }
+  ],
+
+  // Versions the built-in managers cannot see.
+  "customManagers": [
+    // ── Ansible: cluster nodes ───────────────────────────────────────────
+    {
+      "customType": "regex",
+      "description": "Kubernetes version of the cluster nodes.",
+      "managerFilePatterns": ["/ansible/cluster/group_vars/all/versions.yaml/"],
+      "matchStrings": ["k8s_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "kubernetes/kubernetes",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      // Nodes install containerd.io from Docker's apt repo, which does not
+      // publish every upstream release, so look the package up there.
+      "description": "containerd version of the cluster nodes.",
+      "managerFilePatterns": ["/ansible/cluster/group_vars/all/versions.yaml/"],
+      "matchStrings": ["containerd_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
+      "datasourceTemplate": "deb",
+      "packageNameTemplate": "containerd.io",
+      "registryUrlTemplate": "https://download.docker.com/linux/ubuntu?suite=noble&components=stable&binaryArch=amd64",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)-"
+    },
+    {
+      "customType": "regex",
+      "description": "kube-vip version of the cluster nodes.",
+      "managerFilePatterns": ["/ansible/cluster/group_vars/all/versions.yaml/"],
+      "matchStrings": ["kube_vip_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "kube-vip/kube-vip",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Calico version of the cluster.",
+      "managerFilePatterns": ["/ansible/cluster/roles/k8s_cluster/vars/main.yaml/"],
+      "matchStrings": ["calico_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "projectcalico/calico",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Flux version bootstrapped onto the cluster.",
+      "managerFilePatterns": ["/ansible/cluster/roles/k8s_flux/vars/main.yaml/"],
+      "matchStrings": ["flux_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "fluxcd/flux2",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+
+    // ── Ansible: gateway host ────────────────────────────────────────────
+    {
+      "customType": "regex",
+      "description": "sops version of the gateway host.",
+      "managerFilePatterns": ["/ansible/gateway/roles/ansible-pull/vars/main.yaml/"],
+      "matchStrings": ["sops_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "getsops/sops",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Go toolchain that builds Caddy on the gateway host.",
+      "managerFilePatterns": ["/ansible/gateway/roles/caddy/vars/main.yaml/"],
+      "matchStrings": ["go_version: (?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "golang/go",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^go(?<version>\\d+\\.\\d+\\.\\d+)(rc\\d+)?$"
+    },
+    {
+      "customType": "regex",
+      "description": "Caddy version of the gateway host.",
+      "managerFilePatterns": ["/ansible/gateway/roles/caddy/vars/main.yaml/"],
+      "matchStrings": ["caddy_version: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "caddyserver/caddy",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Caddy DNS plugins: caddy_<provider>_version tracks github.com/caddy-dns/<provider>.",
+      "managerFilePatterns": ["/ansible/gateway/roles/caddy/vars/main.yaml/"],
+      "matchStrings": ["caddy_(?<provider>[a-z0-9]+)_version: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "caddy-dns/{{{provider}}}",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+
+    // ── Flux: images the flux manager does not read ──────────────────────
+    {
+      "customType": "regex",
+      // pgMajor pins lookups to the major already in the file; a major
+      // upgrade of a CNPG cluster is a migration, not a tag bump.
+      "description": "CNPG PostgreSQL images (image catalogs, backup and init containers).",
+      "managerFilePatterns": ["/flux/.+\\.ya?ml$/"],
+      "matchStrings": ["image: ghcr\\.io/cloudnative-pg/postgresql:(?<currentValue>(?<pgMajor>\\d+)\\.\\d+-standard-trixie)@(?<currentDigest>sha256:[a-f0-9]+)"],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/cloudnative-pg/postgresql",
+      "versioningTemplate": "regex:^(?<major>{{{pgMajor}}})\\.(?<minor>\\d+)-standard-trixie$",
+      "extractVersionTemplate": "^(?<version>{{{pgMajor}}}\\.\\d+-standard-trixie)$"
+    },
+    {
+      "customType": "regex",
+      "description": "VectorChord image in the immich CNPG image catalog.",
+      "managerFilePatterns": ["/flux/apps/vectorchord-catalog.yaml/"],
+      "matchStrings": ["image: ghcr\\.io/tensorchord/cloudnative-vectorchord:(?<currentValue>\\d+\\.?\\d*-\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "tensorchord/cloudnative-vectorchord",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "regex:^16(?:\\.\\d+)?-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      "autoReplaceStringTemplate": "image: ghcr.io/tensorchord/cloudnative-vectorchord:{{newValue}}{{#if newDigest}}@{{newDigest}}{{/if}}"
+    },
+    {
+      "customType": "regex",
+      // Covers plain manifests, the Kyverno healthcheck policy and the
+      // healthcheck annotations. Bumping an annotation forces a Helm re-apply,
+      // so the mutated healthcheck re-rolls.
+      "description": "anokfireball/base-image pins outside HelmRelease image values.",
+      "managerFilePatterns": ["/flux/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "image: ghcr\\.io/anokfireball/base-image:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)",
+        "healthcheckImage: ghcr\\.io/anokfireball/base-image:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/anokfireball/base-image",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      // The flux manager does not read images inside custom resource specs. The
+      // digest group is optional so docker:pinDigests can add the pin and keep
+      // refreshing it.
+      "description": "Envoy proxy image pinned on EnvoyProxy eg-shared.",
+      "managerFilePatterns": ["/flux/system/app-configs/envoy-gateway.yaml/"],
+      "matchStrings": ["image: docker\\.io/envoyproxy/envoy:(?<currentValue>distroless-v\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"],
+      "depNameTemplate": "envoyproxy/envoy",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      // The wger chart takes only a tag for PowerSync, so the flux manager
+      // cannot resolve the image.
+      "description": "PowerSync image tag in the wger chart values.",
+      "managerFilePatterns": ["/flux/apps/wger.yaml/"],
+      "matchStrings": ["powersync:\\s*image:\\s*tag: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?\""],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "journeyapps/powersync-service",
+      "registryUrlTemplate": "https://index.docker.io",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "MongoDB version of the UniFi MongoDBCommunity resource.",
+      "managerFilePatterns": ["/flux/apps/unifi.yaml/"],
+      "matchStrings": ["kind: MongoDBCommunity[\\s\\S]*?version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "mongodb/mongo",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^r(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+
+    // ── Flux: vendored manifests and CRD sources ─────────────────────────
+    {
+      "customType": "regex",
+      "description": "Pinniped server image in the vendored Pinniped manifests.",
+      "managerFilePatterns": [
+        "/flux/system/infrastructure-configs/pinniped-supervisor.yaml/",
+        "/flux/system/infrastructure-configs/pinniped-concierge.yaml/"
+      ],
+      "matchStrings": ["image: ghcr\\.io/vmware/pinniped/pinniped-server:(?<currentValue>v\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]+)"],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "vmware/pinniped/pinniped-server",
+      "registryUrlTemplate": "https://ghcr.io",
+      "versioningTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Pinniped release of the vendored manifests (`# pinniped-version:` header).",
+      "managerFilePatterns": [
+        "/flux/system/infrastructure-configs/pinniped-supervisor.yaml/",
+        "/flux/system/infrastructure-configs/pinniped-concierge.yaml/"
+      ],
+      "matchStrings": ["# pinniped-version: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "vmware-tanzu/pinniped",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "k8up release the CRDs come from.",
+      "managerFilePatterns": ["/flux/repositories/k8up-io.yaml/"],
+      "matchStrings": ["tag: k8up-(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "k8up-io/k8up",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^k8up-(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "customType": "regex",
+      // depName matches the flux manager's GitRepository dep, so both land in
+      // one PR.
+      "description": "csi-snapshotter release the CRDs come from.",
+      "managerFilePatterns": ["/flux/repositories/csi-snapshotter.yaml/"],
+      "matchStrings": ["tag: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "longhorn/csi-snapshotter",
+      "depNameTemplate": "csi-snapshotter",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
+    },
+
+    // ── GitHub workflows ─────────────────────────────────────────────────
+    {
+      "customType": "regex",
+      "description": "Go tools installed with `go install` in workflows.",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": ["go install (?<depName>github\\.com/[^/\\s]+/[^/\\s]+)(?:/[^@\\s]+)*@(?<currentValue>v[^\\s\"']+)"],
+      "datasourceTemplate": "go"
+    },
+    {
+      "customType": "regex",
+      // The digest group is optional so docker:pinDigests can add the pin and
+      // keep refreshing it.
+      "description": "shellcheck image used by workflow lint.",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": ["koalaman/shellcheck:(?<currentValue>v[\\d.]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?"],
+      "depNameTemplate": "koalaman/shellcheck",
+      "datasourceTemplate": "docker"
+    }
+  ]
+}

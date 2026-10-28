@@ -4,7 +4,7 @@
 # no longer pin spec.imageName. Updating an entry here rolls out the new image
 # to every Cluster on that major.
 #
-# Image versions are managed by Renovate (see renovate.json customManagers).
+# Image versions are managed by Renovate (see renovate.jsonc customManagers).
 apiVersion: postgresql.cnpg.io/v1
 kind: ClusterImageCatalog
 metadata:
