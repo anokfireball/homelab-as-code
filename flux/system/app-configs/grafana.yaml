@@ -201,7 +201,8 @@ data:
                         params: []
                       type: query
             noDataState: OK
-            execErrState: Alerting
+            # Prometheus is a single replica; a restart must not re-fire past alerts.
+            execErrState: KeepLast
             for: 0s
             labels:
               severity: warning
@@ -262,7 +263,7 @@ data:
                         params: []
                       type: query
             noDataState: OK
-            execErrState: Alerting
+            execErrState: KeepLast
             for: 0s
             labels:
               severity: warning
