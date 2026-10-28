@@ -34,7 +34,7 @@ spec:
         image:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-snapshotter
-          tag: v8.2.1@sha256:5f4bb469fec51147ce157329dab598c758da1b018bad6dad26f0ff469326d769
+          tag: v8.7.0@sha256:b03d3334f8035fa42660b166f6eb819a659a14774da020eb1b6c52cd422eaadb
       driver:
         image:
           registry: ghcr.io/democratic-csi/democratic-csi
@@ -220,7 +220,7 @@ spec:
         image:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-snapshotter
-          tag: v8.2.1@sha256:5f4bb469fec51147ce157329dab598c758da1b018bad6dad26f0ff469326d769
+          tag: v8.7.0@sha256:b03d3334f8035fa42660b166f6eb819a659a14774da020eb1b6c52cd422eaadb
       driver:
         image:
           registry: ghcr.io/democratic-csi/democratic-csi
