@@ -19,7 +19,7 @@ spec:
         image:
           registry: registry.k8s.io/sig-storage/csi-attacher
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-attacher
-          tag: v4.4.0@sha256:dbded4ebe299973e31d0ef55815eb07a990fc67872b14900a8e69232acae4f2d
+          tag: v4.13.0@sha256:d1a26170efed45491074ca4545c81844eee2b9043fb885ac01fb4aed6f8b72d2
       externalProvisioner:
         image:
           registry: registry.k8s.io/sig-storage/csi-provisioner
@@ -205,7 +205,7 @@ spec:
         image:
           registry: registry.k8s.io/sig-storage/csi-attacher
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-attacher
-          tag: v4.4.0@sha256:dbded4ebe299973e31d0ef55815eb07a990fc67872b14900a8e69232acae4f2d
+          tag: v4.13.0@sha256:d1a26170efed45491074ca4545c81844eee2b9043fb885ac01fb4aed6f8b72d2
       externalProvisioner:
         image:
           registry: registry.k8s.io/sig-storage/csi-provisioner
