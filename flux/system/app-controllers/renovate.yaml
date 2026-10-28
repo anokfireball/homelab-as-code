@@ -17,7 +17,7 @@ spec:
     image:
       registry: ghcr.io
       repository: renovatebot/renovate
-      tag: 44.190.2@sha256:a1fa316d623c6a48a366ad84a8513777706ba5b471f27b531a547bffa13e424b
+      tag: 44.192.0@sha256:20f0903127aef0ce838410be939680ced244bb42f00ce2e4bd793ad231a35419
     cronjob:
       schedule: "51 0/6 * * *"
       annotations:
