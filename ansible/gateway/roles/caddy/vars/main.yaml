@@ -1,7 +1,12 @@
+# renovate: datasource=github-tags depName=golang/go extractVersion=^go(?<version>\d+\.\d+\.\d+)(rc\d+)?$
 go_version: 1.27.3
+# renovate: datasource=github-releases depName=caddyserver/caddy extractVersion=^(?<version>v\d+\.\d+\.\d+)$
 caddy_version: v2.11.7
+# renovate: datasource=github-tags depName=caddy-dns/cloudflare extractVersion=^(?<version>v\d+\.\d+\.\d+)$
 caddy_cloudflare_version: v0.2.4
+# renovate: datasource=github-tags depName=caddy-dns/netcup extractVersion=^(?<version>v\d+\.\d+\.\d+)$
 caddy_netcup_version: v1.0.0
+# renovate: datasource=github-tags depName=caddy-dns/porkbun extractVersion=^(?<version>v\d+\.\d+\.\d+)$
 caddy_porkbun_version: v0.3.1
 
 # DNS provider secrets are passed to Caddy via systemd LoadCredential= so they

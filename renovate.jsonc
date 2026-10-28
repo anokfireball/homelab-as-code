@@ -166,101 +166,19 @@
 
   // Versions the built-in managers cannot see.
   "customManagers": [
-    // ── Ansible: cluster nodes ───────────────────────────────────────────
+    // ── Ansible ──────────────────────────────────────────────────────────
     {
       "customType": "regex",
-      "description": "Kubernetes version of the cluster nodes.",
-      "managerFilePatterns": ["/ansible/cluster/group_vars/all/versions.yaml/"],
-      "matchStrings": ["k8s_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "kubernetes/kubernetes",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
-    },
-    {
-      "customType": "regex",
-      // Nodes install containerd.io from Docker's apt repo, which does not
-      // publish every upstream release, so look the package up there.
-      "description": "containerd version of the cluster nodes.",
-      "managerFilePatterns": ["/ansible/cluster/group_vars/all/versions.yaml/"],
-      "matchStrings": ["containerd_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
-      "datasourceTemplate": "deb",
-      "packageNameTemplate": "containerd.io",
-      "registryUrlTemplate": "https://download.docker.com/linux/ubuntu?suite=noble&components=stable&binaryArch=amd64",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)-"
-    },
-    {
-      "customType": "regex",
-      "description": "kube-vip version of the cluster nodes.",
-      "managerFilePatterns": ["/ansible/cluster/group_vars/all/versions.yaml/"],
-      "matchStrings": ["kube_vip_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "kube-vip/kube-vip",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Calico version of the cluster.",
-      "managerFilePatterns": ["/ansible/cluster/roles/k8s_cluster/vars/main.yaml/"],
-      "matchStrings": ["calico_version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "projectcalico/calico",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^(?<version>v\\d+\\.\\d+\\.\\d+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Flux version bootstrapped onto the cluster.",
-      "managerFilePatterns": ["/ansible/cluster/roles/k8s_flux/vars/main.yaml/"],
-      "matchStrings": ["flux_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "fluxcd/flux2",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
-    },
-
-    // ── Ansible: gateway host ────────────────────────────────────────────
-    {
-      "customType": "regex",
-      "description": "sops version of the gateway host.",
-      "managerFilePatterns": ["/ansible/gateway/roles/ansible-pull/vars/main.yaml/"],
-      "matchStrings": ["sops_version: \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "getsops/sops",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v?(?<version>\\d+\\.\\d+\\.\\d+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Go toolchain that builds Caddy on the gateway host.",
-      "managerFilePatterns": ["/ansible/gateway/roles/caddy/vars/main.yaml/"],
-      "matchStrings": ["go_version: (?<currentValue>\\d+\\.\\d+\\.\\d+)"],
-      "datasourceTemplate": "github-tags",
-      "packageNameTemplate": "golang/go",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^go(?<version>\\d+\\.\\d+\\.\\d+)(rc\\d+)?$"
-    },
-    {
-      "customType": "regex",
-      "description": "Caddy version of the gateway host.",
-      "managerFilePatterns": ["/ansible/gateway/roles/caddy/vars/main.yaml/"],
-      "matchStrings": ["caddy_version: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
-      "datasourceTemplate": "github-releases",
-      "packageNameTemplate": "caddyserver/caddy",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Caddy DNS plugins: caddy_<provider>_version tracks github.com/caddy-dns/<provider>.",
-      "managerFilePatterns": ["/ansible/gateway/roles/caddy/vars/main.yaml/"],
-      "matchStrings": ["caddy_(?<provider>[a-z0-9]+)_version: v(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
-      "datasourceTemplate": "github-tags",
-      "packageNameTemplate": "caddy-dns/{{{provider}}}",
-      "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+      // Annotation fields, in this order: datasource, depName, then optionally
+      // registryUrl and extractVersion. The variable follows on the next line;
+      // its value is the version as written, `v` prefix included, and is
+      // compared as semver.
+      "description": "Ansible variables annotated with a `# renovate:` comment.",
+      "managerFilePatterns": ["/ansible/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: registryUrl=(?<registryUrl>\\S+))?(?: extractVersion=(?<extractVersion>\\S+))?\\n\\s*[\\w-]+: \"?(?<currentValue>[^\"\\s]+)\"?"
+      ],
+      "versioningTemplate": "semver"
     },
 
     // ── Flux: images the flux manager does not read ──────────────────────
