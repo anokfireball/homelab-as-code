@@ -50,7 +50,7 @@ spec:
         image:
           registry: registry.k8s.io/sig-storage/csi-node-driver-registrar
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-node-driver-registrar
-          tag: v2.9.0@sha256:cd21e19cd8bbd5bc56f1b4f1398a436e7897da2995d6d036c9729be3f4e456e6
+          tag: v2.18.0@sha256:b7fefd08651f00ac4df1a196ed4c621c2451fbb899297fe9fad9e36c667af0c0
       cleanup:
         image:
           registry: docker.io/busybox
@@ -236,7 +236,7 @@ spec:
         image:
           registry: registry.k8s.io/sig-storage/csi-node-driver-registrar
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-node-driver-registrar
-          tag: v2.9.0@sha256:cd21e19cd8bbd5bc56f1b4f1398a436e7897da2995d6d036c9729be3f4e456e6
+          tag: v2.18.0@sha256:b7fefd08651f00ac4df1a196ed4c621c2451fbb899297fe9fad9e36c667af0c0
       cleanup:
         image:
           registry: docker.io/busybox
