@@ -155,6 +155,8 @@
         // Storage
         "longhorn",
         "longhorn/csi-snapshotter",
+        // One chart version renders many HelmReleases at once.
+        "app-template",
         // The data plane runs a single replica, so each merge restarts it.
         "envoyproxy/envoy"
       ],
