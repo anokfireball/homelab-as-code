@@ -1,1 +1,2 @@
+# renovate: datasource=github-releases depName=getsops/sops extractVersion=^v?(?<version>\d+\.\d+\.\d+)$
 sops_version: "3.13.3"
