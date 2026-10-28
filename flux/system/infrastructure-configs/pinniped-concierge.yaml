@@ -1578,12 +1578,13 @@ spec:
           }
     # A non-empty `capabilities` list in an ApplyConfiguration expression is
     # rejected by this apiserver (metric error_type=invalid_error; failurePolicy:
-    # Ignore hides it), so drop ALL is applied as a JSONPatch. The pod has a
-    # single container (sleeper) whose securityContext the mutation above creates.
+    # Ignore hides it; Grafana alert map-admission-errors), so drop ALL is applied
+    # as a JSONPatch to every container, addressed by index. The mutation above
+    # creates each container's securityContext.
     - patchType: JSONPatch
       jsonPatch:
         expression: >-
-          [JSONPatch{op: "add", path: "/spec/containers/0/securityContext/capabilities", value: {"drop": ["ALL"]}}]
+          object.spec.containers.transformList(i, c, JSONPatch{op: "add", path: "/spec/containers/" + string(i) + "/securityContext/capabilities", value: {"drop": ["ALL"]}})
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingAdmissionPolicyBinding
