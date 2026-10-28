@@ -114,7 +114,6 @@ spec:
     name: postgresql
     major: 18
   enableSuperuserAccess: false
-  # Read-only login for the k8up pg_dumpall PreBackupPod below (same role as every other CNPG app).
   managed:
     roles:
       - name: stashbackup
@@ -137,8 +136,6 @@ spec:
     size: 10Gi
     storageClass: cluster-scratch
 ---
-# k8up backup of the authentik database (R-01). Same pattern as fresh-rss: a PreBackupPod runs pg_dumpall as the
-# read-only stashbackup role and k8up streams its stdout into restic. The namespace enforces PSA restricted.
 apiVersion: k8up.io/v1
 kind: PreBackupPod
 metadata:
@@ -205,12 +202,12 @@ spec:
     schedule: "41 4/6 * * *"
     concurrentRunsAllowed: false
     podConfigRef:
-      name: authentik-backup
+      name: authentik-database-backup
   prune:
     schedule: "31 0 1 * *"
     concurrentRunsAllowed: false
     podConfigRef:
-      name: authentik-prune
+      name: authentik-database-prune
     retention:
       keepHourly: 6
       keepDaily: 14
@@ -224,7 +221,7 @@ spec:
 apiVersion: k8up.io/v1
 kind: PodConfig
 metadata:
-  name: authentik-backup
+  name: authentik-database-backup
   namespace: authentik
 spec:
   template:
@@ -250,7 +247,7 @@ spec:
 apiVersion: k8up.io/v1
 kind: PodConfig
 metadata:
-  name: authentik-prune
+  name: authentik-database-prune
   namespace: authentik
 spec:
   template:
