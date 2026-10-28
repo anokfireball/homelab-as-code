@@ -59,6 +59,8 @@ spec:
   # Hardening (D2, D4-D8, D7). The chart has no knobs for these, so the rendered objects are patched here.
   # Root stays uid 0 inside a user namespace where the component needs it (D4). The CSI controller sidecars are
   # covered by the MutatingAdmissionPolicy below. The data plane is not patched: its pins would restart volumes.
+  # Hook Jobs are patched below; postRenderStrategy combined (helm-controller's default) is pinned so they stay reachable.
+  postRenderStrategy: combined
   postRenderers:
     - kustomize:
         patches:

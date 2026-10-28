@@ -49,8 +49,9 @@ spec:
               name: k8up-secrets
               key: s3-endpoint
       skipWithoutAnnotation: true
-  # The chart has no hostUsers or extra volume values. Hooks reach the post-renderer through
-  # helm-controller's default postRenderStrategy (combined).
+  # The chart has no hostUsers or extra volume values. Hook Jobs (k8up-cleanup) are patched below;
+  # postRenderStrategy combined (helm-controller's default) is pinned so they stay reachable.
+  postRenderStrategy: combined
   postRenderers:
     - kustomize:
         patches:

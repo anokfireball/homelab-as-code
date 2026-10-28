@@ -335,8 +335,10 @@ spec:
       enabled: false
   # Hardening (D2-D8, mechanism 4c). app, celery and nginx mount Longhorn RWX PVCs (D2 no): they stay in the host
   # user namespace. Their containers run as the image's non-root user (D3); nginx switches to its documented uid 101 (D4)
-  # and listens on 8080 (its config is seeded from the chart ConfigMap by an init container). Helm hook Jobs are left
-  # alone: a postRenderer cannot safely target them.
+  # and listens on 8080 (its config is seeded from the chart ConfigMap by an init container). The post-install hook Job
+  # wger-setup-powersync-storage is patched below; postRenderStrategy combined (helm-controller's default) is pinned so
+  # it stays reachable.
+  postRenderStrategy: combined
   postRenderers:
     - kustomize:
         patches:

@@ -19,6 +19,8 @@ spec:
     crds: CreateReplace
   # Helm hook Jobs (CRD upgrade, admission webhook create/patch) have no chart value for hostUsers.
   # They run as non-root with no host access and only mount a ServiceAccount token and ConfigMap/emptyDir.
+  # Hook Jobs are patched below; postRenderStrategy combined (helm-controller's default) is pinned so they stay reachable.
+  postRenderStrategy: combined
   postRenderers:
     - kustomize:
         patches:
