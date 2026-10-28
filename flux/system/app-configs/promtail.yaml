@@ -17,7 +17,7 @@ spec:
     # promtail stays uid 0: D1 hostPath /var/log/pods and /var/lib/docker/containers (root-owned node logs). Namespace stays privileged.
     image:
       # renovate: datasource=docker depName=docker.io/grafana/promtail
-      tag: "3.5.1@sha256:65bfae480b572854180c78f7dc567a4ad2ba548b0c410e696baa1e0fa6381299"
+      tag: "3.6.11@sha256:a761cb834cfaeee29745440d4884d6748f0a08d8f68928db1d707018c1dcfbe9"
     config:
       clients:
         - url: http://loki.monitoring-system:3100/loki/api/v1/push
