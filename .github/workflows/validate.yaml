@@ -60,7 +60,7 @@ jobs:
             fi
           }
           {
-            group flux '^(flux|charts)/|^\.github/workflows/validate\.yaml$|^\.github/scripts/retry-on-rate-limit\.sh$'
+            group flux '^(flux|charts)/|^\.github/workflows/validate\.yaml$|^\.github/scripts/(retry-on-rate-limit|postrender-target-check|chart-version-bump)\.sh$'
             group images '^flux/.*\.yaml$'
             group renovate '^renovate\.jsonc$|^(flux|ansible)/|^\.github/workflows/|^\.github/scripts/renovate-rot-check\.mjs$'
             group ansible '^ansible/'
@@ -76,6 +76,9 @@ jobs:
     if: ${{ needs.changes.outputs.flux == 'true' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # chart-version-bump.sh diffs against the PR base commit.
+          fetch-depth: 0
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
         with:
           go-version: stable
@@ -123,6 +126,16 @@ jobs:
             grep -A3 "values not used by the chart" /tmp/flate.log
             exit 1
           fi
+      - name: Fail on postRenderer targets that match nothing
+        # Kustomize accepts a patch whose target selects nothing, so the patch
+        # silently does nothing. Check each targeted patch against the objects
+        # its HelmRelease renders without postRenderers. Runs after the render
+        # step, so every chart is already in flate's cache.
+        run: .github/scripts/postrender-target-check.sh "$(go env GOPATH)/bin/flate" .
+      - name: Require a chart version bump for changed charts
+        # Flux's default ChartVersion strategy publishes no new artifact from a
+        # GitRepository unless the chart's version changes.
+        run: .github/scripts/chart-version-bump.sh "${{ github.event.pull_request.base.sha }}"
 
   renovate-config:
     name: Renovate Config
