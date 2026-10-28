@@ -19,7 +19,7 @@
       "ignoreTests": false
     },
     {
-      "description": "Renovate itself (cluster chart and the validate.yaml CI image) plus kube-prometheus-stack: automerge minor/patch/digest. The CI image bump gates itself, since renovate-config runs the new image against this file before CI - Success reports.",
+      "description": "Automerge minor, patch and digest updates for Renovate, the CI validator image, and kube-prometheus-stack. The validator image checks itself before CI reports success.",
       "matchFileNames": [
         "flux/**",
         ".github/workflows/**"
@@ -103,7 +103,7 @@
       "separateMultipleMinor": true
     },
     {
-      "description": "Envoy Proxy image override: only distroless-vX.Y.Z tags; patch and digest only, because the minor must match the pinned gateway-helm release (CI's envoy-proxy-compat check enforces that on the gateway-helm bump PR); never automerge, because the data plane has a single replica and every merge restarts it. Must stay after the flux/** automerge rule.",
+      "description": "Envoy Proxy image override: only distroless-vX.Y.Z tags; patch and digest only, because the minor must match the gateway-helm release; never automerge, because the data plane runs a single replica and each merge restarts it. Must stay after the flux/** automerge rule.",
       "matchPackageNames": ["envoyproxy/envoy"],
       "versioning": "regex:^distroless-v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
       "separateMinorPatch": true,
@@ -115,18 +115,18 @@
       "enabled": false
     },
     {
-      "description": "A gateway-helm minor/major bump changes the Envoy minor its controller expects. CI fails the PR until the EnvoyProxy eg-shared image override is moved to that minor or deleted.",
+      "description": "A gateway-helm minor or major bump changes the Envoy minor its controller expects, so the Envoy image override must move in the same PR.",
       "matchPackageNames": ["gateway-helm"],
       "matchUpdateTypes": ["major", "minor"],
       "prBodyNotes": ["⚠️ This release ships a different Envoy minor. In this PR, update the `image:` override on `EnvoyProxy eg-shared` in `flux/system/app-configs/envoy-gateway.yaml` to the new Envoy minor (at least the release's `DefaultEnvoyProxyImage`), or delete it. The `Envoy Proxy Compat` check fails until then."]
     },
     {
-      "description": "n8n main image and the external task-runner sidecar must stay on the same version (broker/runner mismatch otherwise), so bump them in one PR.",
+      "description": "Group the n8n main image and task-runner sidecar so they update together.",
       "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners"],
       "groupName": "n8n"
     },
     {
-      "description": "Automerge every non-major n8n update; majors stay grouped but need a manual merge.",
+      "description": "Automerge non-major updates for the n8n images and Helm chart.",
       "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners", "n8n"],
       "matchUpdateTypes": ["minor", "patch", "digest"],
       "automerge": true,
