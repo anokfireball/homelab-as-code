@@ -68,6 +68,11 @@
       "automerge": false
     },
     {
+      "description": "OCI Helm charts on ghcr.io carry no source metadata Renovate can use, so the PR has no release notes. Point Renovate at the spegel repo (chart and app share the vX.Y.Z release).",
+      "matchPackageNames": ["spegel", "ghcr.io/spegel-org/spegel", "ghcr.io/spegel-org/helm-charts/spegel"],
+      "sourceUrl": "https://github.com/spegel-org/spegel"
+    },
+    {
       "description": "Do not digest-pin OCI Helm charts. Flux marks charts from `type: oci` HelmRepositories as docker-datasource deps, so docker:pinDigests tries to resolve a digest for a chart tag (none exists) and the pin-dependencies branch fails.",
       "matchManagers": [
         "flux"
