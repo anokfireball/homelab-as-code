@@ -276,6 +276,8 @@ spec:
   prune:
     schedule: "53 0 1 * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: bitwarden-database-prune
     retention:
       keepHourly: 6
       keepDaily: 14
@@ -303,12 +305,11 @@ spec:
     concurrentRunsAllowed: false
     podConfigRef:
       name: bitwarden-data-backup
-  # vaultwarden runs as root; some attachments are root-owned with mode 0600
-  podSecurityContext:
-    runAsUser: 0
   prune:
     schedule: "59 0 1 * *"
     concurrentRunsAllowed: false
+    podConfigRef:
+      name: bitwarden-data-prune
     retention:
       keepHourly: 6
       keepDaily: 14
@@ -381,5 +382,58 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+# k8up job pod for the bitwarden-data prune Schedule above (the prune container is named prune). Unlike
+# bitwarden-data-backup it runs non-root: prune only rewrites the restic repository and never reads vaultwarden's
+# files. It gets no API token; its Snapshot sync logs "cannot sync snapshots to the cluster" and the next backup
+# re-syncs the list.
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: bitwarden-data-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+---
+# k8up job pod for the bitwarden-database prune Schedule above; same settings as bitwarden-data-prune.
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: bitwarden-database-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
