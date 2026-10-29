@@ -67,7 +67,7 @@ data:
     fi
   crossnode.sh: |
     set -euo pipefail
-    claim="${CLAIM_PREFIX}$(date +%s)"
+    claim="$CLAIM_PREFIX$(date +%s)"
     trap 'kubectl delete pod -l canary-run="$claim" --ignore-not-found --wait=false >/dev/null 2>&1 || true
           kubectl delete pvc "$claim" --ignore-not-found --wait=false >/dev/null 2>&1 || true' EXIT
     # Owned by this pod so GC removes the PVC even if the trap never runs.
@@ -87,7 +87,7 @@ data:
     EOF
     # step <script> <node>: run a pod on <node> mounting the PVC and wait for it to finish.
     step() {
-      local script=$1 node=$2 name="$claim-${1%.sh}" phase=""
+      local script=$1 node=$2 name="$claim-$(basename "$1" .sh)" phase=""
       kubectl create -f - <<EOF
     apiVersion: v1
     kind: Pod
