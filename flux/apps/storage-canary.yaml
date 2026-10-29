@@ -544,7 +544,6 @@ spec:
             - name: tmp
               emptyDir: {}
 ---
-apiVersion: batch/v1
 # Cross-node canaries: crossnode.sh creates a fresh PVC per run, writes on WRITER_NODE, verifies on READER_NODE.
 apiVersion: batch/v1
 kind: CronJob
