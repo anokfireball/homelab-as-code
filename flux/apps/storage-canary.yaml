@@ -1,6 +1,7 @@
 # Storage canaries; heartbeat via Kyverno healthcheckSecret.
-# check.sh: fresh ephemeral volume per run. write.sh/verify.sh: persistent volume, written on
-# worker2 and verified on worker3, so the reader proves cross-node attach/mount and data.
+# check.sh: fresh ephemeral volume per run. crossnode.sh: fresh PVC per run, written on
+# worker2 (write.sh) and verified on worker3 (verify.sh), so the reader proves provisioning,
+# cross-node attach/mount and data end to end.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -25,14 +26,7 @@ data:
       exit 1
     fi
     echo "ok: wrote and verified 16MiB on $src"
-    cutoff=$(( $(date +%s) - 1800 ))
-    leaked=$(kubectl get pv -o json | jq -r --arg p "$CLAIM_PREFIX" --argjson cutoff "$cutoff" \
-      '.items[] | select(.spec.claimRef.namespace == "default" and (.spec.claimRef.name | startswith($p))
-        and (.metadata.creationTimestamp | fromdateiso8601) < $cutoff) | .metadata.name')
-    if [ -n "$leaked" ]; then
-      echo "canary volumes older than 30m were not cleaned up:" $leaked >&2
-      exit 1
-    fi
+    . /scripts/leak.sh
   write.sh: |
     set -euo pipefail
     . /scripts/mount.sh
@@ -62,6 +56,109 @@ data:
       exit 1
     fi
     echo "ok: verified data written $age seconds ago on $writer, read on $NODE_NAME via $src"
+  leak.sh: |
+    cutoff=$(( $(date +%s) - 1800 ))
+    leaked=$(kubectl get pv -o json | jq -r --arg p "$CLAIM_PREFIX" --argjson cutoff "$cutoff" \
+      '.items[] | select(.spec.claimRef.namespace == "default" and (.spec.claimRef.name | startswith($p))
+        and (.metadata.creationTimestamp | fromdateiso8601) < $cutoff) | .metadata.name')
+    if [ -n "$leaked" ]; then
+      echo "canary volumes older than 30m were not cleaned up:" $leaked >&2
+      exit 1
+    fi
+  crossnode.sh: |
+    set -euo pipefail
+    claim="${CLAIM_PREFIX}$(date +%s)"
+    trap 'kubectl delete pod -l canary-run="$claim" --ignore-not-found --wait=false >/dev/null 2>&1 || true
+          kubectl delete pvc "$claim" --ignore-not-found --wait=false >/dev/null 2>&1 || true' EXIT
+    # Owned by this pod so GC removes the PVC even if the trap never runs.
+    kubectl create -f - <<EOF
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: $claim
+      ownerReferences:
+        - {apiVersion: v1, kind: Pod, name: $POD_NAME, uid: $POD_UID}
+    spec:
+      accessModes: [$ACCESS_MODE]
+      storageClassName: $STORAGE_CLASS
+      resources:
+        requests:
+          storage: 1Gi
+    EOF
+    # step <script> <node>: run a pod on <node> mounting the PVC and wait for it to finish.
+    step() {
+      local script=$1 node=$2 name="$claim-${1%.sh}" phase=""
+      kubectl create -f - <<EOF
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: $name
+      labels:
+        canary-run: $claim
+      ownerReferences:
+        - {apiVersion: v1, kind: Pod, name: $POD_NAME, uid: $POD_UID}
+    spec:
+      restartPolicy: Never
+      hostUsers: $HOST_USERS
+      nodeSelector:
+        kubernetes.io/hostname: $node
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: canary
+          image: $IMAGE
+          command: ["bash", "/scripts/$script"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - {name: MOUNT_PATTERN, value: "$MOUNT_PATTERN"}
+            - {name: MAX_AGE, value: "$MAX_AGE"}
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+          volumeMounts:
+            - {name: canary, mountPath: /canary}
+            - {name: scripts, mountPath: /scripts}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: scripts
+          configMap:
+            name: storage-canary
+        - name: canary
+          persistentVolumeClaim:
+            claimName: $claim
+        - name: tmp
+          emptyDir: {}
+    EOF
+      for _ in $(seq 120); do
+        phase=$(kubectl get pod "$name" -o jsonpath='{.status.phase}')
+        if [ "$phase" = Succeeded ] || [ "$phase" = Failed ]; then break; fi
+        sleep 2
+      done
+      kubectl logs "$name" || true
+      # Release the volume before the next step attaches it elsewhere (matters for RWO).
+      kubectl delete pod "$name" --wait=true >/dev/null
+      [ "$phase" = Succeeded ] || { echo "$script on $node ended in phase '$phase'" >&2; exit 1; }
+    }
+    step write.sh "$WRITER_NODE"
+    step verify.sh "$READER_NODE"
+    . /scripts/leak.sh
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -90,6 +187,45 @@ subjects:
   - kind: ServiceAccount
     name: storage-canary
     namespace: default
+  - kind: ServiceAccount
+    name: storage-canary-crossnode
+    namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: storage-canary-crossnode
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: storage-canary-crossnode
+  namespace: default
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["create", "get", "list", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["create", "get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: storage-canary-crossnode
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: storage-canary-crossnode
+subjects:
+  - kind: ServiceAccount
+    name: storage-canary-crossnode
+    namespace: default
 ---
 # nas-replicated-hdd itself is Retain.
 apiVersion: storage.k8s.io/v1
@@ -105,30 +241,6 @@ parameters:
 mountOptions:
   - noatime
   - nfsvers=3
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: longhorn-canary-rwx
-  namespace: default
-spec:
-  accessModes: ["ReadWriteMany"]
-  storageClassName: cluster-replicated-canary
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: longhorn-canary-handoff
-  namespace: default
-spec:
-  accessModes: ["ReadWriteOnce"]
-  storageClassName: cluster-replicated-canary
-  resources:
-    requests:
-      storage: 1Gi
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -433,72 +545,7 @@ spec:
               emptyDir: {}
 ---
 apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: longhorn-canary-rwx-write
-  namespace: default
-spec:
-  schedule: "*/15 * * * *"
-  concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 1
-  failedJobsHistoryLimit: 1
-  jobTemplate:
-    spec:
-      backoffLimit: 0
-      activeDeadlineSeconds: 300
-      ttlSecondsAfterFinished: 600
-      template:
-        spec:
-          restartPolicy: Never
-          nodeSelector:
-            kubernetes.io/hostname: worker2
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 65534
-            runAsGroup: 65534
-            fsGroup: 65534
-            fsGroupChangePolicy: OnRootMismatch
-            seccompProfile:
-              type: RuntimeDefault
-          containers:
-            - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
-              securityContext:
-                allowPrivilegeEscalation: false
-                readOnlyRootFilesystem: true
-                capabilities:
-                  drop: ["ALL"]
-              command: ["bash", "/scripts/write.sh"]
-              env:
-                - name: MOUNT_PATTERN
-                  value: "*:/pvc-*"
-                - name: NODE_NAME
-                  valueFrom:
-                    fieldRef:
-                      fieldPath: spec.nodeName
-              resources:
-                requests:
-                  cpu: 10m
-                  memory: 32Mi
-                limits:
-                  memory: 64Mi
-              volumeMounts:
-                - name: canary
-                  mountPath: /canary
-                - name: scripts
-                  mountPath: /scripts
-                - name: tmp
-                  mountPath: /tmp
-          volumes:
-            - name: scripts
-              configMap:
-                name: storage-canary
-            - name: canary
-              persistentVolumeClaim:
-                claimName: longhorn-canary-rwx
-            - name: tmp
-              emptyDir: {}
----
+# Cross-node canaries: crossnode.sh creates a fresh PVC per run, writes on WRITER_NODE, verifies on READER_NODE.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -508,75 +555,6 @@ metadata:
     healthcheckSecret: longhorn-canary-rwx
     healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
 spec:
-  schedule: "7-59/15 * * * *"
-  concurrencyPolicy: Forbid
-  successfulJobsHistoryLimit: 1
-  failedJobsHistoryLimit: 1
-  jobTemplate:
-    spec:
-      backoffLimit: 0
-      activeDeadlineSeconds: 300
-      ttlSecondsAfterFinished: 600
-      template:
-        spec:
-          restartPolicy: Never
-          nodeSelector:
-            kubernetes.io/hostname: worker3
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 65534
-            runAsGroup: 65534
-            fsGroup: 65534
-            fsGroupChangePolicy: OnRootMismatch
-            seccompProfile:
-              type: RuntimeDefault
-          containers:
-            - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
-              securityContext:
-                allowPrivilegeEscalation: false
-                readOnlyRootFilesystem: true
-                capabilities:
-                  drop: ["ALL"]
-              command: ["bash", "/scripts/verify.sh"]
-              env:
-                - name: MOUNT_PATTERN
-                  value: "*:/pvc-*"
-                - name: MAX_AGE
-                  value: "720"
-                - name: NODE_NAME
-                  valueFrom:
-                    fieldRef:
-                      fieldPath: spec.nodeName
-              resources:
-                requests:
-                  cpu: 10m
-                  memory: 32Mi
-                limits:
-                  memory: 64Mi
-              volumeMounts:
-                - name: canary
-                  mountPath: /canary
-                - name: scripts
-                  mountPath: /scripts
-                - name: tmp
-                  mountPath: /tmp
-          volumes:
-            - name: scripts
-              configMap:
-                name: storage-canary
-            - name: canary
-              persistentVolumeClaim:
-                claimName: longhorn-canary-rwx
-            - name: tmp
-              emptyDir: {}
----
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: longhorn-canary-handoff-write
-  namespace: default
-spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
@@ -584,20 +562,16 @@ spec:
   jobTemplate:
     spec:
       backoffLimit: 0
-      activeDeadlineSeconds: 300
+      activeDeadlineSeconds: 600
       ttlSecondsAfterFinished: 600
       template:
         spec:
           restartPolicy: Never
-          hostUsers: false
-          nodeSelector:
-            kubernetes.io/hostname: worker2
+          serviceAccountName: storage-canary-crossnode
           securityContext:
             runAsNonRoot: true
             runAsUser: 65534
             runAsGroup: 65534
-            fsGroup: 65534
-            fsGroupChangePolicy: OnRootMismatch
             seccompProfile:
               type: RuntimeDefault
           containers:
@@ -608,23 +582,43 @@ spec:
                 readOnlyRootFilesystem: true
                 capabilities:
                   drop: ["ALL"]
-              command: ["bash", "/scripts/write.sh"]
+              command: ["bash", "/scripts/crossnode.sh"]
               env:
+                - name: CLAIM_PREFIX
+                  value: longhorn-canary-rwx-
+                - name: STORAGE_CLASS
+                  value: cluster-replicated-canary
+                - name: ACCESS_MODE
+                  value: ReadWriteMany
                 - name: MOUNT_PATTERN
-                  value: /dev/longhorn/*
-                - name: NODE_NAME
+                  value: "*:/pvc-*"
+                - name: HOST_USERS
+                  value: "true"
+                - name: IMAGE
+                  value: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+                - name: WRITER_NODE
+                  value: worker2
+                - name: READER_NODE
+                  value: worker3
+                - name: MAX_AGE
+                  value: "300"
+                - name: POD_NAME
                   valueFrom:
                     fieldRef:
-                      fieldPath: spec.nodeName
+                      fieldPath: metadata.name
+                - name: POD_UID
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.uid
+                - name: HOME
+                  value: /tmp
               resources:
                 requests:
                   cpu: 10m
-                  memory: 32Mi
-                limits:
                   memory: 64Mi
+                limits:
+                  memory: 128Mi
               volumeMounts:
-                - name: canary
-                  mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
                 - name: tmp
@@ -633,9 +627,6 @@ spec:
             - name: scripts
               configMap:
                 name: storage-canary
-            - name: canary
-              persistentVolumeClaim:
-                claimName: longhorn-canary-handoff
             - name: tmp
               emptyDir: {}
 ---
@@ -648,27 +639,23 @@ metadata:
     healthcheckSecret: longhorn-canary-handoff
     healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
 spec:
-  schedule: "7-59/15 * * * *"
+  schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       backoffLimit: 0
-      activeDeadlineSeconds: 300
+      activeDeadlineSeconds: 600
       ttlSecondsAfterFinished: 600
       template:
         spec:
           restartPolicy: Never
-          hostUsers: false
-          nodeSelector:
-            kubernetes.io/hostname: worker3
+          serviceAccountName: storage-canary-crossnode
           securityContext:
             runAsNonRoot: true
             runAsUser: 65534
             runAsGroup: 65534
-            fsGroup: 65534
-            fsGroupChangePolicy: OnRootMismatch
             seccompProfile:
               type: RuntimeDefault
           containers:
@@ -679,25 +666,43 @@ spec:
                 readOnlyRootFilesystem: true
                 capabilities:
                   drop: ["ALL"]
-              command: ["bash", "/scripts/verify.sh"]
+              command: ["bash", "/scripts/crossnode.sh"]
               env:
+                - name: CLAIM_PREFIX
+                  value: longhorn-canary-handoff-
+                - name: STORAGE_CLASS
+                  value: cluster-replicated-canary
+                - name: ACCESS_MODE
+                  value: ReadWriteOnce
                 - name: MOUNT_PATTERN
-                  value: /dev/longhorn/*
+                  value: "/dev/longhorn/*"
+                - name: HOST_USERS
+                  value: "false"
+                - name: IMAGE
+                  value: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+                - name: WRITER_NODE
+                  value: worker2
+                - name: READER_NODE
+                  value: worker3
                 - name: MAX_AGE
-                  value: "720"
-                - name: NODE_NAME
+                  value: "300"
+                - name: POD_NAME
                   valueFrom:
                     fieldRef:
-                      fieldPath: spec.nodeName
+                      fieldPath: metadata.name
+                - name: POD_UID
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.uid
+                - name: HOME
+                  value: /tmp
               resources:
                 requests:
                   cpu: 10m
-                  memory: 32Mi
-                limits:
                   memory: 64Mi
+                limits:
+                  memory: 128Mi
               volumeMounts:
-                - name: canary
-                  mountPath: /canary
                 - name: scripts
                   mountPath: /scripts
                 - name: tmp
@@ -706,8 +711,89 @@ spec:
             - name: scripts
               configMap:
                 name: storage-canary
+            - name: tmp
+              emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nas-canary-rwx
+  namespace: default
+  annotations:
+    healthcheckSecret: nas-canary-rwx
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 600
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: storage-canary-crossnode
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
             - name: canary
-              persistentVolumeClaim:
-                claimName: longhorn-canary-handoff
+              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              command: ["bash", "/scripts/crossnode.sh"]
+              env:
+                - name: CLAIM_PREFIX
+                  value: nas-canary-rwx-
+                - name: STORAGE_CLASS
+                  value: nas-replicated-hdd-canary
+                - name: ACCESS_MODE
+                  value: ReadWriteMany
+                - name: MOUNT_PATTERN
+                  value: "192.168.1.2:/mnt/tank/Scratch/k8s/*"
+                - name: HOST_USERS
+                  value: "true"
+                - name: IMAGE
+                  value: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+                - name: WRITER_NODE
+                  value: worker2
+                - name: READER_NODE
+                  value: worker3
+                - name: MAX_AGE
+                  value: "300"
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: POD_UID
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.uid
+                - name: HOME
+                  value: /tmp
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 64Mi
+                limits:
+                  memory: 128Mi
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: scripts
+              configMap:
+                name: storage-canary
             - name: tmp
               emptyDir: {}
