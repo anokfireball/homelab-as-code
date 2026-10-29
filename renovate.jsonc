@@ -192,8 +192,8 @@
       "pinDigests": false
     },
     {
-      "description": "Group the n8n main image and task-runner sidecar so they update together.",
-      "matchPackageNames": ["ghcr.io/n8n-io/n8n", "n8nio/runners"],
+      "description": "Group the n8n chart, main image and task-runner sidecar so they update together.",
+      "matchPackageNames": ["oci.trueforge.org/truecharts/n8n", "ghcr.io/n8n-io/n8n", "n8nio/runners"],
       "groupName": "n8n"
     },
     {
