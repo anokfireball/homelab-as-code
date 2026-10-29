@@ -29,7 +29,7 @@ spec:
         image:
           registry: registry.k8s.io/sig-storage/csi-resizer
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-resizer
-          tag: v1.14.0@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474
+          tag: v2.3.0@sha256:48fb3deb93cd848e3c8998b6368f4322c93bb5ce4a90d1307b6dda0dbefb9a0e
       externalSnapshotter:
         image:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
@@ -215,7 +215,7 @@ spec:
         image:
           registry: registry.k8s.io/sig-storage/csi-resizer
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-resizer
-          tag: v1.14.0@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474
+          tag: v2.3.0@sha256:48fb3deb93cd848e3c8998b6368f4322c93bb5ce4a90d1307b6dda0dbefb9a0e
       externalSnapshotter:
         image:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
