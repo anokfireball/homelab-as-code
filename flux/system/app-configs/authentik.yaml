@@ -146,7 +146,8 @@ metadata:
   annotations:
     k8up.io/backup: "true"
 spec:
-  backupCommand: sh -c 'PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
+  # Hold the dump until restic reads stdin; pending output kills the exec stream.
+  backupCommand: sh -c 'sleep 60 && PGHOST="$POSTGRES_HOST" PGUSER="$POSTGRES_USER" PGPASSWORD="$POSTGRES_PASSWORD" pg_dumpall --clean'
   pod:
     spec:
       # Hardening: image pinned by digest (E8), non-root uid 26 from the image (E4), user namespace (D2)
