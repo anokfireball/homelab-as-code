@@ -39,7 +39,7 @@ spec:
             # Pinned by digest through the tag: the chart only renders upgradeJob.image.busybox.sha when the
             # unrelated upgradeJob.image.sha is set.
             # renovate: datasource=docker depName=docker.io/busybox
-            tag: "1.38@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e"
+            tag: "1.38@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4"
           kubectl:
             # renovate: datasource=docker depName=registry.k8s.io/kubectl
             tag: v1.37.2@sha256:fe049faa65ae483ac200009a949a68fa4c9985daea12c9cb1195c9c7965301fc
