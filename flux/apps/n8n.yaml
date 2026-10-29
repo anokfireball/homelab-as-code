@@ -143,6 +143,8 @@ spec:
               imageSelector: runnersImage
               env:
                 N8N_RUNNERS_TASK_BROKER_URI: "http://localhost:5679"
+                # n8n 3.0 cuts the default from 300s to 60s; keep the 2.x limit.
+                N8N_RUNNERS_TASK_TIMEOUT: "300"
                 N8N_RUNNERS_AUTH_TOKEN:
                   secretKeyRef:
                     name: n8n-runners-auth
