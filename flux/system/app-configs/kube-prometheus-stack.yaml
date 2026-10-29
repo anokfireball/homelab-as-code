@@ -50,9 +50,9 @@ spec:
         retention: 168h
         # The digest rides in image.tag, so the operator needs the bare version; Renovate rewrites both lines together.
         # renovate: datasource=docker depName=quay.io/prometheus/alertmanager
-        version: v0.34.1
+        version: v0.34.2
         image:
-          tag: v0.34.1@sha256:e9733bafb1bdef9b00e25a21f8f99dc26a22224bf16641ad754d1649f4c3357a
+          tag: v0.34.2@sha256:39d8bb3966c694a124428a3a88fbcffd40bd069129ecd47c059f8a3f17c55f3b
         # The config-reloader watches a mounted directory and reloads over localhost; it never calls the API.
         automountServiceAccountToken: false
         # PVC is cluster-scratch (Longhorn RWO); uids 1000/2000 only.
