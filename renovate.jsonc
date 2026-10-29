@@ -221,6 +221,40 @@
       "groupName": "longhorn"
     },
     {
+      "description": "Chart-owned images: no standalone version PRs. Their chart update sets the pins; digest refreshes of the same tag still come in.",
+      "matchPackageNames": [
+        "docker.io/longhornio/longhorn-ui",
+        "longhornio/longhorn-manager",
+        "docker.io/longhornio/csi-attacher",
+        "docker.io/longhornio/csi-provisioner",
+        "docker.io/longhornio/csi-resizer",
+        "docker.io/longhornio/csi-snapshotter",
+        "pihole/pihole"
+      ],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "enabled": false
+    },
+    {
+      "description": "Longhorn chart update: rewrite the chart-owned image pins in the same PR.",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["longhorn"],
+      "postUpgradeTasks": {
+        "commands": ["node .github/scripts/renovate-chart-images.mjs longhorn"],
+        "fileFilters": ["flux/system/app-controllers/longhorn.yaml"],
+        "executionMode": "update"
+      }
+    },
+    {
+      "description": "Pi-hole chart update: move the image pin to the chart's appVersion in the same PR.",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["pihole"],
+      "postUpgradeTasks": {
+        "commands": ["node .github/scripts/renovate-chart-images.mjs pihole"],
+        "fileFilters": ["flux/apps/pihole.yaml"],
+        "executionMode": "update"
+      }
+    },
+    {
       "description": "Group the MetalLB chart with the controller and speaker images pinned at its appVersion.",
       "matchPackageNames": [
         "metallb",
@@ -320,6 +354,8 @@
         "docker.io/longhornio/csi-provisioner",
         "docker.io/longhornio/csi-resizer",
         "docker.io/longhornio/csi-snapshotter",
+        // A Pi-hole chart update also moves the image pin to its appVersion.
+        "pihole",
         // One chart version renders many HelmReleases at once.
         "app-template",
         // The data plane runs a single replica, so each merge restarts it.
