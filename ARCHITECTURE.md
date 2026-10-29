@@ -616,7 +616,11 @@ labels:
 
 ### Always-manual packages
 
-`longhorn`, `kubernetes`, `containerd`, `external-dns`, `scrutiny`, `longhorn/csi-snapshotter`
+`longhorn`, `kubernetes`, `containerd`, `external-dns`, `scrutiny`, `longhorn/csi-snapshotter`, `pihole`
+
+### Chart-owned images
+
+Longhorn's UI, manager and CSI sidecar images, and the Pi-hole image, are set by their Helm chart, so they move only with it. Renovate disables standalone PRs for their major, minor and patch versions; digest refreshes of the same tag still arrive. A chart update runs `node .github/scripts/renovate-chart-images.mjs <chart>` as a post-upgrade task. It reads the tags the new chart ships (values defaults, or appVersion for Pi-hole), looks up each digest in the registry, and rewrites the pins in the same PR. The commands a post-upgrade task may run are the global `allowedCommands` in `flux/secrets/renovate-config.sops.yaml`. A new chart-owned image needs a `CHARTS` entry in the script, a `postUpgradeTasks` rule in `renovate.jsonc`, and its command in `allowedCommands`.
 
 ### Custom version tracking
 
