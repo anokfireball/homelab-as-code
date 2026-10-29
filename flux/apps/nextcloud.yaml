@@ -358,7 +358,7 @@ spec:
         - IPv6
       image:
         repository: docker.io/library/nginx
-        tag: alpine@sha256:a3554c0d0b48177b1413c26e01f695334428020d9df01243fbae3e11cfd17417
+        tag: alpine@sha256:785835ea65db4bba6f021acc0f3be91b0fef76a53fe41f8588c6698d2aed0606
       # Hardening: uid 101 is the image's nginx user (E4); read-only root (D6); drop ALL (D5); no privilege escalation (D8)
       securityContext:
         runAsNonRoot: true
