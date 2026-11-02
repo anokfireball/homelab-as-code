@@ -52,6 +52,8 @@ spec:
         name: guerzon
         namespace: flux-system
   values:
+    strategy:
+      type: Recreate
     commonAnnotations:
       reloader.stakater.com/auto: "true"
     image:
