@@ -21,7 +21,7 @@ spec:
       watchNamespace: default
       name: mongodb-kubernetes-operator
       replicas: 1
-      # renovate: datasource=docker depName=quay.io/mongodb/mongodb-kubernetes-operator
+      # renovate: datasource=docker depName=quay.io/mongodb/mongodb-kubernetes
       version: 1.14.0@sha256:47c6df5ec4615c554de9532929961589d02fffbe2dd3133460cc61f3e05d32fb
       # Hardening (D2/D3, D5-D8): non-root uid 2000 from the image (E2/E4); user namespace via postRenderers (chart has no hostUsers knob)
       podSecurityContext:
