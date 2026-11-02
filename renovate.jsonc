@@ -35,6 +35,15 @@
       "matchPackageNames": ["fireflyiii/core", "fireflyiii/data-importer"],
       "versioning": "regex:^version-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
+    {
+      // 12.x tags have two components (12.4), which docker versioning treats as
+      // incompatible with 10.11.11. Missing groups compare as 0. Bare date tags,
+      // dash-suffixed builds (-amd64, -rc1, timestamps) and latest/unstable/preview
+      // fail the anchored pattern.
+      "description": "Jellyfin image tags: X.Y and X.Y.Z releases only.",
+      "matchPackageNames": ["ghcr.io/jellyfin/jellyfin"],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?$"
+    },
 
     // ── Envoy proxy image override ───────────────────────────────────────
     // The override must stay on the Envoy minor that gateway-helm ships, so
@@ -336,6 +345,12 @@
     {
       "description": "Never automerge 0.x versions.",
       "matchCurrentVersion": "/^v?0\\./",
+      "automerge": false
+    },
+    {
+      "description": "Jellyfin major releases stay manual.",
+      "matchPackageNames": ["ghcr.io/jellyfin/jellyfin"],
+      "matchUpdateTypes": ["major"],
       "automerge": false
     },
     {
