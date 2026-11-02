@@ -31,6 +31,8 @@ spec:
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-resizer
           tag: v1.14.0@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474
       externalSnapshotter:
+        # Group snapshots are unused and the chart grants no groupsnapshot.storage.k8s.io access.
+        extraArgs: ["--feature-gates=CSIVolumeGroupSnapshot=false"]
         image:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-snapshotter
@@ -217,6 +219,8 @@ spec:
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-resizer
           tag: v1.14.0@sha256:5e7cbb63fd497fa913caa21fee1a69f727c220c6fa83c5f8bb0995e2ad73a474
       externalSnapshotter:
+        # Group snapshots are unused and the chart grants no groupsnapshot.storage.k8s.io access.
+        extraArgs: ["--feature-gates=CSIVolumeGroupSnapshot=false"]
         image:
           registry: registry.k8s.io/sig-storage/csi-snapshotter
           # renovate: datasource=docker depName=registry.k8s.io/sig-storage/csi-snapshotter
