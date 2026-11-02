@@ -160,6 +160,12 @@
       "matchPackageNames": ["influxdb"],
       "sourceUrl": "https://github.com/influxdata/influxdb"
     },
+    {
+      // The image label points at jellyfin/jellyfin-packaging, whose tags carry a build stamp (v12.4-202610261649).
+      "description": "Release notes for the Jellyfin image.",
+      "matchPackageNames": ["ghcr.io/jellyfin/jellyfin"],
+      "sourceUrl": "https://github.com/jellyfin/jellyfin"
+    },
     // Link only: these versions can never equal an upstream release tag.
     {
       // Chart versions are git tags kyverno-chart-<version> without GitHub Releases.
