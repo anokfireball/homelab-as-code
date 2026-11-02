@@ -2,6 +2,7 @@
 # check.sh: fresh ephemeral volume per run. crossnode.sh: fresh PVC per run, written on
 # worker2 (write.sh) and verified on worker3 (verify.sh), so the reader proves provisioning,
 # cross-node attach/mount and data end to end.
+# features.sh: hourly per backend; fresh PVC, offline expansion to 2Gi, then a clone, each verified on another node.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -65,36 +66,19 @@ data:
       echo "canary volumes older than 30m were not cleaned up:" $leaked >&2
       exit 1
     fi
-  crossnode.sh: |
-    set -euo pipefail
-    claim="$CLAIM_PREFIX$(date +%s)"
-    trap 'kubectl delete pod -l canary-run="$claim" --ignore-not-found --wait=false >/dev/null 2>&1 || true
-          kubectl delete pvc "$claim" --ignore-not-found --wait=false >/dev/null 2>&1 || true' EXIT
-    # Owned by this pod so GC removes the PVC even if the trap never runs.
-    kubectl create -f - <<EOF
-    apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      name: $claim
-      ownerReferences:
-        - {apiVersion: v1, kind: Pod, name: $POD_NAME, uid: $POD_UID}
-    spec:
-      accessModes: [$ACCESS_MODE]
-      storageClassName: $STORAGE_CLASS
-      resources:
-        requests:
-          storage: 1Gi
-    EOF
-    # step <script> <node>: run a pod on <node> mounting the PVC and wait for it to finish.
+  step.sh: |
+    # step <script> <node> <claim>: run a pod on <node> mounting <claim> and wait for it to finish.
+    # RUN labels the pods so the caller's trap can delete them.
     step() {
-      local script=$1 node=$2 name="$claim-$(basename "$1" .sh)" phase=""
+      local script=$1 node=$2 claim=$3
+      local name="$claim-$(basename "$script" .sh)" phase=""
       kubectl create -f - <<EOF
     apiVersion: v1
     kind: Pod
     metadata:
       name: $name
       labels:
-        canary-run: $claim
+        canary-run: $RUN
       ownerReferences:
         - {apiVersion: v1, kind: Pod, name: $POD_NAME, uid: $POD_UID}
     spec:
@@ -156,9 +140,107 @@ data:
       kubectl delete pod "$name" --wait=true >/dev/null
       [ "$phase" = Succeeded ] || { echo "$script on $node ended in phase '$phase'" >&2; exit 1; }
     }
-    step write.sh "$WRITER_NODE"
-    step verify.sh "$READER_NODE"
+  crossnode.sh: |
+    set -euo pipefail
+    . /scripts/step.sh
+    claim="$CLAIM_PREFIX$(date +%s)"
+    RUN=$claim
+    trap 'kubectl delete pod -l canary-run="$RUN" --ignore-not-found --wait=false >/dev/null 2>&1 || true
+          kubectl delete pvc "$claim" --ignore-not-found --wait=false >/dev/null 2>&1 || true' EXIT
+    # Owned by this pod so GC removes the PVC even if the trap never runs.
+    kubectl create -f - <<EOF
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: $claim
+      ownerReferences:
+        - {apiVersion: v1, kind: Pod, name: $POD_NAME, uid: $POD_UID}
+    spec:
+      accessModes: [$ACCESS_MODE]
+      storageClassName: $STORAGE_CLASS
+      resources:
+        requests:
+          storage: 1Gi
+    EOF
+    step write.sh "$WRITER_NODE" "$claim"
+    step verify.sh "$READER_NODE" "$claim"
     . /scripts/leak.sh
+  grown.sh: |
+    set -euo pipefail
+    . /scripts/mount.sh
+    total=$(df -kP /canary | awk 'NR==2 {print $2}')
+    if [ "$total" -lt 1800000 ] || [ "$total" -gt 2300000 ]; then
+      echo "/canary is $total KiB, expected about 2GiB after expansion" >&2
+      exit 1
+    fi
+    . /scripts/verify.sh
+  features.sh: |
+    set -euo pipefail
+    . /scripts/step.sh
+    claim="$CLAIM_PREFIX$(date +%s)"
+    RUN=$claim
+    trap 'kubectl delete pod -l canary-run="$RUN" --ignore-not-found --wait=false >/dev/null 2>&1 || true
+          kubectl delete pvc "$claim-clone" --ignore-not-found --wait=true --timeout=120s >/dev/null 2>&1 || true
+          kubectl delete pvc "$claim" --ignore-not-found --wait=false >/dev/null 2>&1 || true' EXIT
+    # Owned by this pod so GC removes the PVCs even if the trap never runs.
+    kubectl create -f - <<EOF
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: $claim
+      ownerReferences:
+        - {apiVersion: v1, kind: Pod, name: $POD_NAME, uid: $POD_UID}
+    spec:
+      accessModes: [$ACCESS_MODE]
+      storageClassName: $STORAGE_CLASS
+      resources:
+        requests:
+          storage: 1Gi
+    EOF
+    step write.sh "$WRITER_NODE" "$claim"
+
+    # Expand while no pod mounts the volume.
+    kubectl patch pvc "$claim" --type=merge -p '{"spec":{"resources":{"requests":{"storage":"2Gi"}}}}'
+    expanded=
+    for _ in $(seq 60); do
+      pv=$(kubectl get pvc "$claim" -o jsonpath='{.spec.volumeName}')
+      if [ -n "$pv" ] && [ "$(kubectl get pv "$pv" -o jsonpath='{.spec.capacity.storage}')" = 2Gi ]; then
+        expanded=1
+        break
+      fi
+      sleep 5
+    done
+    [ -n "$expanded" ] || { echo "controller expansion of $claim did not reach 2Gi in 300s" >&2; exit 1; }
+
+    # Mounting on the reader grows the Longhorn filesystem; the NAS quota needs no mount.
+    step grown.sh "$READER_NODE" "$claim"
+    cap=
+    for _ in $(seq 12); do
+      cap=$(kubectl get pvc "$claim" -o jsonpath='{.status.capacity.storage}')
+      if [ "$cap" = 2Gi ]; then break; fi
+      sleep 5
+    done
+    [ "$cap" = 2Gi ] || { echo "PVC $claim status capacity is $cap, expected 2Gi" >&2; exit 1; }
+
+    # Clone the grown volume and verify the clone on another node.
+    kubectl create -f - <<EOF
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: $claim-clone
+      ownerReferences:
+        - {apiVersion: v1, kind: Pod, name: $POD_NAME, uid: $POD_UID}
+    spec:
+      accessModes: [$ACCESS_MODE]
+      storageClassName: $STORAGE_CLASS
+      dataSource: {kind: PersistentVolumeClaim, name: $claim}
+      resources:
+        requests:
+          storage: 2Gi
+    EOF
+    step verify.sh "$READER_NODE" "$claim-clone"
+    . /scripts/leak.sh
+    echo "ok: expansion and clone verified on $STORAGE_CLASS"
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -173,7 +255,7 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["persistentvolumes"]
-    verbs: ["list"]
+    verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -211,7 +293,7 @@ rules:
     verbs: ["get"]
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
-    verbs: ["create", "get", "list", "delete"]
+    verbs: ["create", "get", "list", "delete", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -769,6 +851,174 @@ spec:
                   value: worker3
                 - name: MAX_AGE
                   value: "300"
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: POD_UID
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.uid
+                - name: HOME
+                  value: /tmp
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 64Mi
+                limits:
+                  memory: 128Mi
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: scripts
+              configMap:
+                name: storage-canary
+            - name: tmp
+              emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nas-canary-features
+  namespace: default
+  annotations:
+    healthcheckSecret: nas-canary-features
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+spec:
+  schedule: "7 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 1200
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: storage-canary-crossnode
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: canary
+              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              command: ["bash", "/scripts/features.sh"]
+              env:
+                - name: CLAIM_PREFIX
+                  value: nas-canary-features-
+                - name: STORAGE_CLASS
+                  value: nas-replicated-hdd-canary
+                - name: ACCESS_MODE
+                  value: ReadWriteOnce
+                - name: MOUNT_PATTERN
+                  value: "192.168.1.2:/mnt/tank/Scratch/k8s/*"
+                - name: HOST_USERS
+                  value: "true"
+                - name: IMAGE
+                  value: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+                - name: WRITER_NODE
+                  value: worker2
+                - name: READER_NODE
+                  value: worker3
+                - name: MAX_AGE
+                  value: "1200"
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: POD_UID
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.uid
+                - name: HOME
+                  value: /tmp
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 64Mi
+                limits:
+                  memory: 128Mi
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: scripts
+              configMap:
+                name: storage-canary
+            - name: tmp
+              emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: longhorn-canary-features
+  namespace: default
+  annotations:
+    healthcheckSecret: longhorn-canary-features
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+spec:
+  schedule: "37 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 1200
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: storage-canary-crossnode
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: canary
+              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              command: ["bash", "/scripts/features.sh"]
+              env:
+                - name: CLAIM_PREFIX
+                  value: longhorn-canary-features-
+                - name: STORAGE_CLASS
+                  value: cluster-replicated-canary
+                - name: ACCESS_MODE
+                  value: ReadWriteOnce
+                - name: MOUNT_PATTERN
+                  value: "/dev/longhorn/*"
+                - name: HOST_USERS
+                  value: "false"
+                - name: IMAGE
+                  value: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+                - name: WRITER_NODE
+                  value: worker2
+                - name: READER_NODE
+                  value: worker3
+                - name: MAX_AGE
+                  value: "1200"
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
