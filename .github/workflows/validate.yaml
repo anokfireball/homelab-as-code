@@ -30,6 +30,7 @@ jobs:
       workflows: ${{ steps.groups.outputs.workflows }}
       scripts: ${{ steps.groups.outputs.scripts }}
       envoy: ${{ steps.groups.outputs.envoy }}
+      csi: ${{ steps.groups.outputs.csi }}
     steps:
       - uses: bjw-s-labs/action-changed-files@147be9638332cf68fd60714a610509d7a9360d60 # v0.7.0
         id: changed-files
@@ -67,6 +68,7 @@ jobs:
             group workflows '^\.github/workflows/'
             group scripts '^\.github/scripts/'
             group envoy '^flux/system/(app-controllers|app-configs)/envoy-gateway\.yaml$|^\.github/scripts/envoy-proxy-compat\.sh$'
+            group csi '^flux/(system/app-controllers/democratic-csi|repositories/democratic-csi)\.yaml$|^\.github/scripts/csi-sidecar-compat\.sh$'
           } | tee -a "$GITHUB_OUTPUT"
 
   flux:
@@ -274,11 +276,24 @@ jobs:
         # override moves to that release's Envoy minor (or is deleted).
         run: .github/scripts/envoy-proxy-compat.sh
 
+  csi-sidecar-compat:
+    name: CSI Sidecar Compat
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.csi == 'true' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # The feature-gate diff reads the PR base commit.
+          fetch-depth: 0
+      - name: democratic-csi sidecars match the chart's flags and RBAC
+        run: .github/scripts/csi-sidecar-compat.sh "${{ github.event.pull_request.base.sha }}"
+
   success:
     name: CI - Success
     runs-on: ubuntu-latest
     if: ${{ always() }}
-    needs: [changes, flux, renovate-config, ansible, workflow-lint, images, envoy-proxy]
+    needs: [changes, flux, renovate-config, ansible, workflow-lint, images, envoy-proxy, csi-sidecar-compat]
     steps:
       - name: Fail on changes not success
         # Dependents of a failed `changes` are skipped, which the checks below
@@ -302,5 +317,8 @@ jobs:
         run: exit 1
       - name: Fail on envoy-proxy not success or skipped
         if: ${{ !(needs.envoy-proxy.result == 'success' || needs.envoy-proxy.result == 'skipped') }}
+        run: exit 1
+      - name: Fail on csi-sidecar-compat not success or skipped
+        if: ${{ !(needs.csi-sidecar-compat.result == 'success' || needs.csi-sidecar-compat.result == 'skipped') }}
         run: exit 1
       - run: echo "All checks passed or skipped"
