@@ -192,6 +192,16 @@
       "pinDigests": false
     },
     {
+      // The CNPG custom manager pins its lookups to each file's pgMajor, so it
+      // never sees a new major. The flux manager also reads the HelmRelease-values
+      // image in bitwarden.yaml with docker versioning and would propose the next
+      // major. A major is a per-cluster migration, so no manager may propose one.
+      "description": "No PostgreSQL major updates for CNPG images, from any manager.",
+      "matchPackageNames": ["ghcr.io/cloudnative-pg/postgresql"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
       "description": "Group the n8n chart, main image and task-runner sidecar so they update together.",
       "matchPackageNames": ["oci.trueforge.org/truecharts/n8n", "ghcr.io/n8n-io/n8n", "n8nio/runners"],
       "groupName": "n8n"
