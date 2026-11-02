@@ -16,7 +16,7 @@ spec:
   values:
     image:
       repository: ghcr.io/jellyfin/jellyfin
-      tag: 10.11.11@sha256:45f648c382a0c8b552582fcea40e95cb17c5d475473a891cba0eb7523fb92112
+      tag: 12.4@sha256:fea863d0cd9ec445985d9c75fc6ed64e38a1d2766cf0c250a33d553f4fc1b771
     serviceAccount:
       # no RBAC bindings for this ServiceAccount (Step 2 E5); no API token needed
       automount: false
