@@ -267,7 +267,7 @@
       "description": "Group the MongoDB operator chart with the operator image pinned at its appVersion.",
       "matchPackageNames": [
         "mongodb-kubernetes",
-        "quay.io/mongodb/mongodb-kubernetes-operator"
+        "quay.io/mongodb/mongodb-kubernetes"
       ],
       "groupName": "mongodb-kubernetes"
     },
