@@ -3,6 +3,17 @@
     name: "{{ inventory_hostname }}"
   notify: reboot
 
+- name: force apt over IPv4
+  # Cloudsmith/CloudFront intermittently answers neti's IPv6 requests with 403,
+  # which apt reports as an unsigned repo. Must precede the first apt update.
+  copy:
+    dest: /etc/apt/apt.conf.d/99force-ipv4
+    content: |
+      Acquire::ForceIPv4 "true";
+    owner: root
+    group: root
+    mode: "0644"
+
 - name: update APT packages
   apt:
     update_cache: true
