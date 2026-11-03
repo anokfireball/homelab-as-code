@@ -43,7 +43,7 @@ spec:
   chart:
     spec:
       chart: n8n
-      version: 24.0.3
+      version: 24.1.0
       sourceRef:
         kind: HelmRepository
         name: truecharts
@@ -51,11 +51,11 @@ spec:
   values:
     image:
       repository: ghcr.io/n8n-io/n8n
-      tag: "3.0.1@sha256:4ebd866ae91d222ffa6dd3731eade80ba71b4d13f7470172a7e66a81fe31faa0"
+      tag: "3.1.0@sha256:6e9f220e9cf0d2f17d3c2371c8d8a6fe6720f99b82a9672afb96bf068cfd04a5"
       pullPolicy: IfNotPresent
     runnersImage:
       repository: n8nio/runners
-      tag: "3.0.1@sha256:646753ac617c9b796dc92440206ff369df7508e87257eb85dae1f29bf8cb465f"
+      tag: "3.1.0@sha256:730c78a31b9d5711319fff053a18e98ba5265f11769c88d1917506e9b33d2616"
       pullPolicy: IfNotPresent
     service:
       main:
