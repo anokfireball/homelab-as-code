@@ -99,7 +99,7 @@ spec:
           web:
             image:
               repository: ghcr.io/starosdev/scrutiny
-              tag: 1.79.0-web@sha256:2a2cf05ccc0717be9c09437f12611746070fdd272f7bf21af52e6c4cf07ed1c3
+              tag: 1.79.2-web@sha256:77aa5f565f9ae61e075d84fb899b2edee64cc86568060f6b9f4482c5ce96ce46
             env:
               - name: SCRUTINY_WEB_INFLUXDB_HOST
                 value: scrutiny-influxdb-influxdb2
@@ -188,7 +188,7 @@ spec:
           collector:
             image:
               repository: ghcr.io/starosdev/scrutiny
-              tag: 1.79.0-collector@sha256:d80245ef9d132654dfd64cb8f535dc306a9b84680ddd38094f87691207af162f
+              tag: 1.79.2-collector@sha256:800225755a69cec9ff5419fade9d606591b7b4db56dd2d6d2c55ef6927de47fc
             env:
               - name: COLLECTOR_API_ENDPOINT
                 value: http://scrutiny-web:8080
