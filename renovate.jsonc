@@ -293,7 +293,7 @@
       "matchPackageNames": [
         "docker.io/envoyproxy/gateway-helm",
         "docker.io/envoyproxy/gateway",
-        "envoy-gateway-upstream"
+        "envoyproxy/gateway"
       ],
       "groupName": "envoy-gateway"
     },
