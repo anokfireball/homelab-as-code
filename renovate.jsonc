@@ -47,7 +47,8 @@
 
     // ── Envoy proxy image override ───────────────────────────────────────
     // The override must stay on the Envoy minor that gateway-helm ships, so
-    // only its patches and digests update on their own.
+    // only its patches and digests update on their own. A gateway-helm minor
+    // or major update moves it across the minor in the same PR (see below).
     {
       "description": "Envoy proxy override: track distroless-vX.Y.Z tags.",
       "matchPackageNames": ["envoyproxy/envoy"],
@@ -62,10 +63,15 @@
       "enabled": false
     },
     {
-      "description": "A gateway-helm minor or major bump changes the Envoy minor its controller expects, so the Envoy image override must move in the same PR.",
+      "description": "A gateway-helm minor or major bump changes the Envoy minor its controller expects: move the Envoy image override onto the chart's default in the same PR.",
       "matchPackageNames": ["docker.io/envoyproxy/gateway-helm"],
       "matchUpdateTypes": ["major", "minor"],
-      "prBodyNotes": ["⚠️ This release ships a different Envoy minor. In this PR, update the `image:` override on `EnvoyProxy eg-shared` in `flux/system/app-configs/envoy-gateway.yaml` to the new Envoy minor (at least the release's `DefaultEnvoyProxyImage`), or delete it. The `Envoy Proxy Compat` check fails until then."]
+      "postUpgradeTasks": {
+        "commands": ["node .github/scripts/renovate-envoy-override.mjs"],
+        "fileFilters": ["flux/system/app-configs/envoy-gateway.yaml"],
+        "executionMode": "update"
+      },
+      "prBodyNotes": ["ℹ️ This release ships a different Envoy minor. A post-upgrade task moves the `image:` override on `EnvoyProxy eg-shared` in `flux/system/app-configs/envoy-gateway.yaml` to the release's `DefaultEnvoyProxyImage`. If the `Envoy Proxy Compat` check still fails, the task did not run or find the release: set the override by hand to the new Envoy minor, or delete it."]
     },
 
     // ── Release notes ────────────────────────────────────────────────────
