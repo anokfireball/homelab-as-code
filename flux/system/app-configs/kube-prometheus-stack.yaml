@@ -117,7 +117,7 @@ spec:
         patch:
           image:
             # renovate: datasource=docker depName=ghcr.io/jkroepke/kube-webhook-certgen
-            tag: 1.11.0@sha256:778d97dc3986355625e14392419b3364c487a7c807d4d86ddad1df369129b082
+            tag: 1.11.1@sha256:8009b04f9873f7279b5adee37fdd03b6a9aa7b6751d4f69fde2683010e41cd1f
           # Pod-level securityContext of both admission Jobs (create secret, patch webhook).
           securityContext:
             seccompProfile:
