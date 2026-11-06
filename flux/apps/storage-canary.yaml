@@ -331,7 +331,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: longhorn-canary-replicated
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
@@ -357,7 +357,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -407,7 +407,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: longhorn-canary-scratch
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
@@ -433,7 +433,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -483,7 +483,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: nas-canary-replicated
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
@@ -508,7 +508,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -558,7 +558,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: nas-canary-scratch
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
@@ -583,7 +583,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -634,7 +634,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: longhorn-canary-rwx
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
@@ -657,7 +657,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -718,7 +718,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: longhorn-canary-handoff
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
@@ -741,7 +741,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -802,7 +802,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: nas-canary-rwx
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "*/15 * * * *"
   concurrencyPolicy: Forbid
@@ -825,7 +825,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -886,7 +886,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: nas-canary-features
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "7 * * * *"
   concurrencyPolicy: Forbid
@@ -909,7 +909,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -970,7 +970,7 @@ metadata:
   namespace: default
   annotations:
     healthcheckSecret: longhorn-canary-features
-    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+    healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
 spec:
   schedule: "37 * * * *"
   concurrencyPolicy: Forbid
@@ -993,7 +993,7 @@ spec:
               type: RuntimeDefault
           containers:
             - name: canary
-              image: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+              image: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true

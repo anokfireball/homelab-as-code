@@ -385,7 +385,7 @@ spec:
       cronjob:
         annotations:
           healthcheckSecret: nextcloud-cron
-          healthcheckImage: ghcr.io/anokfireball/base-image:3.24.3@sha256:5b9f5d72791bc19e943e8632ab617624c89b7d0fdb3d32be070a3e09a7bca03c
+          healthcheckImage: ghcr.io/anokfireball/base-image:3.24.4@sha256:30906adc94ef01a589be706372a170ed17cdf09bfb1a823eb565848297fd8d12
         affinity:
           podAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
