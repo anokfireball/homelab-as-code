@@ -4,7 +4,7 @@ name: Advisory
 on:
   pull_request:
     branches: ["main"]
-    # Both scripts diff only flux/**/*.yaml against the base; anything else
+    # The scripts diff only flux/**/*.yaml against the base; anything else
     # yields no comment. Not a required check, so a skipped run is harmless.
     paths: ["flux/**/*.yaml"]
 
@@ -45,16 +45,18 @@ jobs:
           export PATH="$gopath/bin:$PATH"
           .github/scripts/image-config-diff.sh \
             "${{ github.event.pull_request.base.sha }}" /tmp/image-config.md
+      - name: Compute Envoy override change
+        run: .github/scripts/envoy-override-diff.sh "${{ github.event.pull_request.base.sha }}" /tmp/envoy-override.md
       - name: Comment or skip
-        # Both sections share one comment: `--edit-last` edits this user's last
+        # All sections share one comment: `--edit-last` edits this user's last
         # comment and is not marker-aware, so two sticky comments posted by
         # this workflow would overwrite each other.
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          if [ ! -s /tmp/chart-values.md ] && [ ! -s /tmp/image-config.md ]; then
-            echo "No chart or image changes; no comment."
+          if [ ! -s /tmp/chart-values.md ] && [ ! -s /tmp/image-config.md ] && [ ! -s /tmp/envoy-override.md ]; then
+            echo "No chart, image or Envoy override changes; no comment."
             exit 0
           fi
           {
@@ -64,6 +66,9 @@ jobs:
             fi
             if [ -s /tmp/image-config.md ]; then
               echo "### Container contract changes"; echo; cat /tmp/image-config.md; echo
+            fi
+            if [ -s /tmp/envoy-override.md ]; then
+              echo "### Envoy proxy override"; echo; cat /tmp/envoy-override.md; echo
             fi
           } >/tmp/comment.md
           gh pr comment "$PR" --body-file /tmp/comment.md --edit-last --create-if-none
