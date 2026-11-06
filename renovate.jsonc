@@ -289,6 +289,15 @@
       "groupName": "metallb"
     },
     {
+      "description": "Group the Envoy Gateway chart with the controller image and upstream git tag pinned at its appVersion.",
+      "matchPackageNames": [
+        "docker.io/envoyproxy/gateway-helm",
+        "docker.io/envoyproxy/gateway",
+        "envoy-gateway-upstream"
+      ],
+      "groupName": "envoy-gateway"
+    },
+    {
       "description": "Group the MongoDB operator chart with the operator image pinned at its appVersion.",
       "matchPackageNames": [
         "mongodb-kubernetes",
