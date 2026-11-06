@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: gateway-helm
-      version: 1.9.3
+      version: 1.10.0
       sourceRef:
         kind: HelmRepository
         name: envoy-gateway
@@ -20,7 +20,7 @@ spec:
           # Pinned at the chart's appVersion. One value sets the controller, certgen Job and
           # shutdown-manager images. Renovate groups it with the chart (renovate.jsonc, group
           # "envoy-gateway"), so both always move in the same PR.
-          image: docker.io/envoyproxy/gateway:v1.9.3@sha256:192fc9bdadb6d2462e8cf7bd702ce3dd9648f3310c6038787448a1f509b7cd9f
+          image: docker.io/envoyproxy/gateway:v1.10.0@sha256:c2243d43518bed91d3ed8c2db849a4b7a14ac9b96eb019f2ab104bb1ca8572b1
     crds:
       enabled: false
     config:
