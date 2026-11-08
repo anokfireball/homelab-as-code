@@ -23,6 +23,12 @@ spec:
         superuser: false
         inRoles:
           - pg_read_all_data
+      # Owns schema distro_feeds (distro torrent feed store); no access to n8n's own tables.
+      - name: distro_feeds
+        passwordSecret:
+          name: n8n-distro-feeds-db
+        login: true
+        superuser: false
   bootstrap:
     initdb:
       database: n8n
