@@ -44,6 +44,66 @@ spec:
               capabilities:
                 drop: ["ALL"]
                 add: ["CHOWN"]
+          # Native sidecar (restartPolicy: Always): the kubelet starts it before every app container and holds them
+          # until its startup probe passes. gluetun's healthcheck only passes once the tunnel is up, and its kill
+          # switch is installed before the tunnel, so qBittorrent can never send traffic outside the VPN. As a
+          # regular container started after qBittorrent, it left a few seconds at each pod start in which
+          # qBittorrent reached trackers from the home IPv4/IPv6 addresses.
+          gluetun:
+            dependsOn: run-permissions
+            restartPolicy: Always
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.41.3@sha256:fa19cc76b2af13d57a8d3dc3066f2ada061b1c761b8aecf989b3877c0486e027
+            env:
+              HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH: /config-auth
+            envFrom:
+              - secret: gluetun-secrets
+            securityContext:
+              allowPrivilegeEscalation: false
+              # D6 exception (PolicyException audit-readonly-root-filesystem): gluetun writes /etc/passwd at start.
+              readOnlyRootFilesystem: false
+              capabilities:
+                drop: ["ALL"]
+                # NET_ADMIN is D1 (tun device, iptables kill switch). The rest are needed by gluetun's root-side
+                # setup and openvpn's drop to uid 1000; see the PR body for evidence.
+                add:
+                  - NET_ADMIN
+                  - MKNOD
+                  - CHOWN
+                  - DAC_OVERRIDE
+                  - SETUID
+                  - SETGID
+                  - KILL
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - /gluetun-entrypoint
+                      - healthcheck
+                  periodSeconds: 2
+                  timeoutSeconds: 5
+                  # Up to 10 minutes for the tunnel to come up before the kubelet restarts gluetun.
+                  failureThreshold: 300
+              liveness: &gluetun-probe
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - /gluetun-entrypoint
+                      - healthcheck
+                  periodSeconds: 60
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness: *gluetun-probe
+            resources:
+              requests:
+                cpu: 10m
+                memory: 100Mi
         containers:
           main:
             image:
@@ -82,50 +142,7 @@ spec:
               requests:
                 cpu: 400m
                 memory: 400Mi
-          gluetun:
-            dependsOn: main
-            image:
-              repository: ghcr.io/qdm12/gluetun
-              tag: v3.41.3@sha256:fa19cc76b2af13d57a8d3dc3066f2ada061b1c761b8aecf989b3877c0486e027
-            env:
-              HTTP_CONTROL_SERVER_AUTH_CONFIG_FILEPATH: /config-auth
-            envFrom:
-              - secret: gluetun-secrets
-            securityContext:
-              allowPrivilegeEscalation: false
-              # D6 exception (PolicyException audit-readonly-root-filesystem): gluetun writes /etc/passwd at start.
-              readOnlyRootFilesystem: false
-              capabilities:
-                drop: ["ALL"]
-                # NET_ADMIN is D1 (tun device, iptables kill switch). The rest are needed by gluetun's root-side
-                # setup and openvpn's drop to uid 1000; see the PR body for evidence.
-                add:
-                  - NET_ADMIN
-                  - MKNOD
-                  - CHOWN
-                  - DAC_OVERRIDE
-                  - SETUID
-                  - SETGID
-                  - KILL
-            probes:
-              liveness: &gluetun-probe
-                enabled: true
-                custom: true
-                spec:
-                  exec:
-                    command:
-                      - /gluetun-entrypoint
-                      - healthcheck
-                  periodSeconds: 60
-                  timeoutSeconds: 5
-                  failureThreshold: 5
-              readiness: *gluetun-probe
-            resources:
-              requests:
-                cpu: 10m
-                memory: 100Mi
           port-forward:
-            dependsOn: gluetun
             image:
               repository: snoringdragon/gluetun-qbittorrent-port-manager
               tag: 1.3@sha256:679b7a92c494f93b78ad37ef24f3a261e73d0a1a52505ad4f1e39580eedfa14f
