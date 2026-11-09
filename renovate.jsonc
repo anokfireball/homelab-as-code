@@ -571,6 +571,17 @@
     },
     {
       "customType": "regex",
+      // Same annotation shape as the Ansible manager: datasource, depName,
+      // then the variable on the next line. flate is downloaded as a release
+      // binary because `go install` of it is broken upstream
+      // (home-operations/flate#1492).
+      "description": "Release binaries downloaded in workflows, annotated with a `# renovate:` comment.",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
+      "matchStrings": ["# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*[\\w-]+: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
       // The digest group is optional so docker:pinDigests can add the pin and
       // keep refreshing it.
       "description": "shellcheck image used by workflow lint.",
