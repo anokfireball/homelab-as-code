@@ -81,11 +81,32 @@ jobs:
         with:
           # chart-version-bump.sh diffs against the PR base commit.
           fetch-depth: 0
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
-        with:
-          go-version: stable
       - name: Install flate
-        run: go install github.com/home-operations/flate/cmd/flate@v0.6.5
+        # A release binary rather than `go install`: since v0.7.0 flate's module
+        # zip cannot be built (testdata directories named `${ENV:=prod}`), and
+        # the toolchain's deprecation check against that version fails the
+        # install of every flate version, pinned or not
+        # (https://github.com/home-operations/flate/issues/1492). `gh` goes
+        # through the API, which github.com/.../releases/download is not
+        # always reachable through. The release's .sha256 holds the bare hash.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # renovate: datasource=github-releases depName=home-operations/flate
+          FLATE_VERSION: v0.6.5
+        run: |
+          archive="flate_${FLATE_VERSION#v}_linux_amd64.tar.gz"
+          bindir="$RUNNER_TEMP/flate-bin"
+          cd "$(mktemp -d)"
+          for attempt in 1 2 3 4 5; do
+            gh release download "$FLATE_VERSION" --repo home-operations/flate --clobber \
+              --pattern "$archive" --pattern "$archive.sha256" && break
+            [ "$attempt" -lt 5 ] || { echo "::error::flate $FLATE_VERSION download failed"; exit 1; }
+            sleep $((attempt * 5))
+          done
+          echo "$(cat "$archive.sha256")  $archive" | sha256sum --check
+          mkdir -p "$bindir"
+          tar -xzf "$archive" -C "$bindir" flate
+          echo "$bindir" >> "$GITHUB_PATH"
       - name: Render and validate the Flux graph
         # ghcr.io intermittently answers a chart pull with HTTP 429 (the header
         # of the script has the details) and flate does not retry that status.
@@ -94,7 +115,7 @@ jobs:
         # which is what the drift gate below greps.
         run: |
           .github/scripts/retry-on-rate-limit.sh /tmp/flate.log -- \
-            "$(go env GOPATH)/bin/flate" test all --path . \
+            flate test all --path . \
               --allow-missing-secrets --no-progress
       - name: Canary the values-drift warning
         # The drift gate greps flate's output for a human-readable warning and
@@ -112,7 +133,7 @@ jobs:
           assert "    ingress:" in s, f"canary anchor missing in {p}"
           open(p, "w").write(s.replace("    ingress:", "    canaryUnusedKey: 1\n    ingress:", 1))
           PY
-          if "$(go env GOPATH)/bin/flate" test all --path "$canary" -n arrchive \
+          if flate test all --path "$canary" -n arrchive \
                --allow-missing-secrets --no-progress 2>&1 \
              | grep -q "values not used by the chart"; then
             echo "Canary OK: the drift gate's warning string is still emitted."
@@ -133,7 +154,7 @@ jobs:
         # silently does nothing. Check each targeted patch against the objects
         # its HelmRelease renders without postRenderers. Runs after the render
         # step, so every chart is already in flate's cache.
-        run: .github/scripts/postrender-target-check.sh "$(go env GOPATH)/bin/flate" .
+        run: .github/scripts/postrender-target-check.sh "$(command -v flate)" .
       - name: Require a chart version bump for changed charts
         # Flux's default ChartVersion strategy publishes no new artifact from a
         # GitRepository unless the chart's version changes.
