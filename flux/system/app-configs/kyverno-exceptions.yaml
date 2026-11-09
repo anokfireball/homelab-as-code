@@ -347,7 +347,7 @@ spec:
       expression: >-
         object.metadata.namespace == 'default' &&
         object.spec.containers.exists(c, c.name == 'immich-database-backup' &&
-        c.image == 'ghcr.io/cloudnative-pg/postgresql:16.15-standard-trixie@sha256:81b32640b83c423ecf1dc96a3ff43e6f9cfddf399140836ef28c50ab796d91da')
+        c.image == 'ghcr.io/cloudnative-pg/postgresql:16.15-standard-trixie@sha256:fa3ec068a28a4d835a24f8f6561f2d318c45367e726dd796a87526928b094c03')
   properties:
     reason: >-
       No cosign signature exists for this digest, and Kyverno CLI v1.19.2 fails the policy for it, while the same policy
