@@ -116,7 +116,8 @@ jobs:
         run: |
           .github/scripts/retry-on-rate-limit.sh /tmp/flate.log -- \
             flate test all --path . \
-              --allow-missing-secrets --no-progress
+              --allow-missing-kinds Secret,ConfigMap \
+              --supply .github/scripts/flate-ci-supply.yaml --no-progress
       - name: Canary the values-drift warning
         # The drift gate greps flate's output for a human-readable warning and
         # flate exits 0 when it emits it, so a reworded warning would disable
@@ -134,7 +135,8 @@ jobs:
           open(p, "w").write(s.replace("    ingress:", "    canaryUnusedKey: 1\n    ingress:", 1))
           PY
           if flate test all --path "$canary" -n arrchive \
-               --allow-missing-secrets --no-progress 2>&1 \
+               --allow-missing-kinds Secret,ConfigMap \
+               --supply "$GITHUB_WORKSPACE/.github/scripts/flate-ci-supply.yaml" --no-progress 2>&1 \
              | grep -q "values not used by the chart"; then
             echo "Canary OK: the drift gate's warning string is still emitted."
           else
