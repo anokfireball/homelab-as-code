@@ -1,0 +1,12 @@
+# Dummy values for SOPS-encrypted Secret keys that flate cannot read offline.
+# Keep this file out of flux/ so it is never applied to the cluster.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: wger-secrets
+  namespace: default
+stringData:
+  SECRET_KEY: ci-placeholder
+  SIGNING_KEY: ci-placeholder
+  smtp-password: ci-placeholder
+  smtp-username: ci-placeholder

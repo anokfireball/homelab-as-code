@@ -69,7 +69,8 @@ def objects(key, file):
         ns, name = key.split("/", 1)
         run = subprocess.run(
             [flate, "build", "hr", name, "-n", ns, "--path", tree, "-o", "json",
-             "--allow-missing-secrets", "--skip-crds=false", "--skip-secrets=false", "--no-progress"],
+             "--skip-kinds=", "--allow-missing-kinds", "Secret,ConfigMap",
+             "--supply", ".github/scripts/flate-ci-supply.yaml", "--no-progress"],
             capture_output=True, text=True)
         own_failure = re.search(rf"✗\s+HelmRelease\s+{re.escape(key)}\s", run.stderr)
         try:
