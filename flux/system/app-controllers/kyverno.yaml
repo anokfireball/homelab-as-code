@@ -54,7 +54,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kyverno/kyvernopre
-          tag: "v1.19.2@sha256:27f3cc52e628559b56d08363b85316819802086c9808606914f7805a244148f4"
+          tag: "v1.20.0@sha256:339067e083430e0c97007541bef9cfdbac89bee13f7228772c77ae8aead14b8b"
       serviceMonitor: &service-monitor-config
         enabled: true
         additionalLabels:
