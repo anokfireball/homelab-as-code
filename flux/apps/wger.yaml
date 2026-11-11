@@ -287,7 +287,7 @@ spec:
     powersync:
       image:
         # renovate: datasource=docker depName=docker.io/journeyapps/powersync-service
-        tag: "1.28.1@sha256:4955ebd8218d076f23296750f658c2973ce1dcd2ba49a6c7a7c3320acf97325c"
+        tag: "1.28.2@sha256:2f156289e30f3da496ba604f279929ae1bb9a0fffb930ce925633072a1a44512"
       securityContext:
         fsGroup: 901
         fsGroupChangePolicy: OnRootMismatch
