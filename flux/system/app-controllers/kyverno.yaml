@@ -30,7 +30,7 @@ spec:
         image:
           registry: ghcr.io
           repository: kyverno/kyverno-cli
-          tag: "v1.19.2@sha256:322ec5044d600930cb3af0e56dc33154a2d1d1fba58f4cadad3f47be7e78b11c"
+          tag: "v1.20.0@sha256:bd2b8b7c9d550ecf04e0bacaf351adce2f82ce67fd3f291075edcee7f8ab4ab4"
     webhooksCleanup:
       image:
         registry: ghcr.io
