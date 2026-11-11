@@ -8,7 +8,7 @@ spec:
   chart:
     spec:
       chart: kube-prometheus-stack
-      version: 93.1.1
+      version: 93.1.2
       sourceRef:
         kind: HelmRepository
         name: prometheus-community
@@ -103,12 +103,12 @@ spec:
       hostUsers: false
       image:
         # renovate: datasource=docker depName=quay.io/prometheus-operator/prometheus-operator
-        tag: v0.95.1@sha256:9c2490af910d58ec2abd77642d340e30bd5e2de5c80fd19ab4b49e28dc7bbb83
+        tag: v0.95.2@sha256:7986c2afa118c9dea07d01c5e1a29555824582e92f6ee8607591d1a7178acf29
       # Operator-chosen image: injected into every Prometheus and Alertmanager pod as the config-reloader.
       prometheusConfigReloader:
         image:
           # renovate: datasource=docker depName=quay.io/prometheus-operator/prometheus-config-reloader
-          tag: v0.95.1@sha256:39bdbade0c64f7c38bb6d18d6f602b14ad489bc189b709dc9266b49e6647aac1
+          tag: v0.95.2@sha256:cc74ddedad4ab1c49446971f6d51302ad4303d8660a2018af925c7f62c114304
       # Operator-chosen default for ThanosRuler/Thanos sidecars (not deployed today).
       thanosImage:
         # renovate: datasource=docker depName=quay.io/thanos/thanos
