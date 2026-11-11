@@ -78,7 +78,7 @@ spec:
       image:
         registry: ghcr.io
         repository: kyverno/reports-controller
-        tag: "v1.19.2@sha256:5fb6d3e738050dbce84f60ecabaede7665fbe0578d07c1e8c912443b035e79c3"
+        tag: "v1.20.0@sha256:f54e3cc106fadb1a615d0ec11c42f741f51d3580a5f70dfbe7bd7ec58864ef03"
       serviceMonitor: *service-monitor-config
       # audit-service-account-token lists (Cluster)RoleBindings during background scans
       rbac:
