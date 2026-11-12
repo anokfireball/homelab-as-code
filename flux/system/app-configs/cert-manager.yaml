@@ -1,20 +1,26 @@
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
 metadata:
   name: mutate-tls-certificate-size
 spec:
   failurePolicy: Fail
-  rules:
-    - name: set-privateKey-details
-      match:
-        any:
-          - resources:
-              kinds:
-                - cert-manager.io/v1/Certificate
-      mutate:
-        patchStrategicMerge:
-          spec:
-            privateKey:
-              +(algorithm): ECDSA
-              +(size): 256
-              +(rotationPolicy): Always
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["cert-manager.io"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["certificates"]
+  # Defaults only: privateKey fields a Certificate sets itself are kept.
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: |
+          Object{
+            spec: Object.spec{
+              privateKey: Object.spec.privateKey{
+                algorithm: object.spec.?privateKey.?algorithm.orValue('ECDSA'),
+                size: object.spec.?privateKey.?size.orValue(256),
+                rotationPolicy: object.spec.?privateKey.?rotationPolicy.orValue('Always')
+              }
+            }
+          }
