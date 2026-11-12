@@ -114,33 +114,40 @@ spec:
 # pods of RWX volumes get rescheduled onto the node being drained and its drain never finishes.
 # upgrade.yaml labels the node homelab.io/draining while it is cordoned; keep share-managers off it.
 # failurePolicy Ignore: storage must not depend on Kyverno being up.
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
 metadata:
   name: longhorn-share-manager-avoid-draining-nodes
 spec:
   failurePolicy: Ignore
-  rules:
-    - name: avoid-draining-nodes
-      match:
-        any:
-          - resources:
-              kinds:
-                - Pod
-              namespaces:
-                - longhorn-system
-              selector:
-                matchLabels:
-                  longhorn.io/component: share-manager
-              operations:
-                - CREATE
-      mutate:
-        patchStrategicMerge:
-          spec:
-            affinity:
-              nodeAffinity:
-                requiredDuringSchedulingIgnoredDuringExecution:
-                  nodeSelectorTerms:
-                    - matchExpressions:
-                        - key: homelab.io/draining
-                          operator: DoesNotExist
+  matchConstraints:
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: longhorn-system
+    objectSelector:
+      matchLabels:
+        longhorn.io/component: share-manager
+  mutations:
+    # JSONPatch rather than ApplyConfiguration: the required node selector is an atomic field.
+    # Intermediate objects are created only when missing; an existing required selector is replaced.
+    - patchType: JSONPatch
+      jsonPatch:
+        expression: |
+          (object.spec.?affinity.hasValue() ? [] :
+            [JSONPatch{op: 'add', path: '/spec/affinity', value: dyn({})}]) +
+          (object.spec.?affinity.?nodeAffinity.hasValue() ? [] :
+            [JSONPatch{op: 'add', path: '/spec/affinity/nodeAffinity', value: dyn({})}]) +
+          [JSONPatch{
+            op: 'add',
+            path: '/spec/affinity/nodeAffinity/requiredDuringSchedulingIgnoredDuringExecution',
+            value: dyn({
+              'nodeSelectorTerms': [{
+                'matchExpressions': [{'key': 'homelab.io/draining', 'operator': 'DoesNotExist'}]
+              }]
+            })
+          }]

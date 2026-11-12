@@ -1,114 +1,81 @@
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
+# CronJobs annotated with healthcheckSecret get their containers moved to initContainers (first, in
+# their original order) and a single `healthcheck` container that pings the URL from that secret with
+# the elapsed runtime once all of them succeeded. A memory-backed volume carries the start timestamp.
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
 metadata:
   name: add-healthcheck-to-cronjobs
 spec:
   failurePolicy: Fail
-  rules:
-    - name: make-containers-into-init-containers
-      match:
-        resources:
-          kinds:
-            - batch/v1/CronJob
-      preconditions:
-        all:
-          - key: "{{ request.object.metadata.annotations.healthcheckSecret || '' }}"
-            operator: NotEquals
-            value: ""
-      mutate:
-        foreach:
-          - list: request.object.spec.jobTemplate.spec.template.spec.containers
-            preconditions:
-              all:
-                - key: "{{ element.name }}"
-                  operator: NotEquals
-                  value: "healthcheck"
-            patchStrategicMerge:
-              spec:
-                jobTemplate:
-                  spec:
-                    template:
-                      spec:
-                        initContainers:
-                          - "{{ element }}"
-    - name: replace-containers-with-healthcheck
-      match:
-        resources:
-          kinds:
-            - batch/v1/CronJob
-      preconditions:
-        all:
-          - key: "{{ request.object.metadata.annotations.healthcheckSecret || '' }}"
-            operator: NotEquals
-            value: ""
-      mutate:
-        # have to rely on ASCII escape (\x24) for the shell evaluation
-        # - $(VAR) would cause substitution/failure by kyverno
-        # - ${VAR} would cause substitution/failure by flux
-        # - \$(VAR) would cause parsing failure ("found unknown escape character")
-        # - $VAR does not actually evaluate in this case
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["cronjobs"]
+  matchConditions:
+    - name: has-healthcheck-secret
+      expression: object.metadata.?annotations[?'healthcheckSecret'].orValue('') != ''
+  variables:
+    - name: podSpec
+      expression: object.spec.jobTemplate.spec.template.spec
+    # Skipping `healthcheck` keeps the mutation idempotent when it is re-invoked on its own output.
+    - name: moved
+      expression: variables.podSpec.containers.filter(c, c.name != 'healthcheck')
+    - name: secret
+      expression: string(object.metadata.annotations['healthcheckSecret'])
+  mutations:
+    - patchType: JSONPatch
+      jsonPatch:
+        # The shell script writes `\x24` (CEL hex escape for a dollar sign) so that neither Flux
+        # variable substitution nor anything else rewrites it; `$(HEALTHCHECK)` and `$(TOKEN)` are
+        # expanded by the kubelet from the container env, the other `$(...)` / `${...}` by bash.
         # The healthcheck image below is the one that runs. The `healthcheckImage` annotation on each CronJob (or its
         # HelmRelease values) carries the same reference only as a re-roll trigger: Renovate bumps this pin and every
-        # annotation in one PR, and the changed annotation makes Flux re-apply the CronJob so this rule mutates it again.
-        patchesJson6902: |-
-          - path: "/spec/jobTemplate/spec/template/spec/containers"
-            op: replace
-            value:
-              - name: healthcheck
-                image: ghcr.io/anokfireball/base-image:3.24.4@sha256:cb0ec79a5183ad6fae8a73766dbd9cf2a69628dc9c966c0eed9a6ea217fa0f2c
-                command: ["bash", "-c"]
-                args:
-                  - "set -euo pipefail;
-                     start=\"\x24(stat -c %Y /rt)\";
-                     runtime=\x24(( \x24(date +%s) - start ));
-                     url=\"\x24(HEALTHCHECK)\";
-                     sep=\"?\";
-                     if [[ \"\x24url\" == *\"?\"* ]]; then sep=\"&\"; fi;
-                     curl -fs --globoff -X POST \"\x24{url}\x24{sep}duration=\x24{runtime}s\" -H \"Authorization: Bearer \x24(TOKEN)\""
-                securityContext:
-                  runAsNonRoot: true
-                  runAsUser: 65534
-                  runAsGroup: 65534
-                  allowPrivilegeEscalation: false
-                  readOnlyRootFilesystem: true
-                  capabilities:
-                    drop: ["ALL"]
-                  seccompProfile:
-                    type: RuntimeDefault
-                volumeMounts:
-                  - name: healthcheck-runtime
-                    mountPath: /rt
-                env:
-                  - name: HEALTHCHECK
-                    valueFrom:
-                      secretKeyRef:
-                        name: "{{ request.object.metadata.annotations.healthcheckSecret }}"
-                        key: healthcheckUrl
-                  - name: TOKEN
-                    valueFrom:
-                      secretKeyRef:
-                        name: "{{ request.object.metadata.annotations.healthcheckSecret }}"
-                        key: healthcheckToken
-
-    - name: add-runtime-volume
-      match:
-        resources:
-          kinds:
-            - batch/v1/CronJob
-      preconditions:
-        all:
-          - key: "{{ request.object.metadata.annotations.healthcheckSecret || '' }}"
-            operator: NotEquals
-            value: ""
-      mutate:
-        patchStrategicMerge:
-          spec:
-            jobTemplate:
-              spec:
-                template:
-                  spec:
-                    volumes:
-                      - name: healthcheck-runtime
-                        emptyDir:
-                          medium: Memory
-                          sizeLimit: 1Mi
+        # annotation in one PR, and the changed annotation makes Flux re-apply the CronJob so this policy mutates it again.
+        expression: |
+          [
+            JSONPatch{
+              op: 'add',
+              path: '/spec/jobTemplate/spec/template/spec/initContainers',
+              value: variables.moved + variables.podSpec.?initContainers.orValue([]).filter(i, !variables.moved.exists(m, m.name == i.name))
+            },
+            JSONPatch{
+              op: 'replace',
+              path: '/spec/jobTemplate/spec/template/spec/containers',
+              value: [{
+                'name': dyn('healthcheck'),
+                'image': dyn('ghcr.io/anokfireball/base-image:3.24.4@sha256:cb0ec79a5183ad6fae8a73766dbd9cf2a69628dc9c966c0eed9a6ea217fa0f2c'),
+                'command': dyn(['bash', '-c']),
+                'args': dyn([
+                  'set -euo pipefail; ' +
+                  'start="\x24(stat -c %Y /rt)"; ' +
+                  'runtime=\x24(( \x24(date +%s) - start )); ' +
+                  'url="\x24(HEALTHCHECK)"; ' +
+                  'sep="?"; ' +
+                  'if [[ "\x24url" == *"?"* ]]; then sep="&"; fi; ' +
+                  'curl -fs --globoff -X POST "\x24{url}\x24{sep}duration=\x24{runtime}s" -H "Authorization: Bearer \x24(TOKEN)"'
+                ]),
+                'securityContext': dyn({
+                  'runAsNonRoot': dyn(true),
+                  'runAsUser': dyn(65534),
+                  'runAsGroup': dyn(65534),
+                  'allowPrivilegeEscalation': dyn(false),
+                  'readOnlyRootFilesystem': dyn(true),
+                  'capabilities': dyn({'drop': ['ALL']}),
+                  'seccompProfile': dyn({'type': 'RuntimeDefault'})
+                }),
+                'volumeMounts': dyn([{'name': 'healthcheck-runtime', 'mountPath': '/rt'}]),
+                'env': dyn([
+                  {'name': dyn('HEALTHCHECK'), 'valueFrom': dyn({'secretKeyRef': {'name': variables.secret, 'key': 'healthcheckUrl'}})},
+                  {'name': dyn('TOKEN'), 'valueFrom': dyn({'secretKeyRef': {'name': variables.secret, 'key': 'healthcheckToken'}})}
+                ])
+              }]
+            },
+            JSONPatch{
+              op: 'add',
+              path: '/spec/jobTemplate/spec/template/spec/volumes',
+              value: [{'name': dyn('healthcheck-runtime'), 'emptyDir': dyn({'medium': 'Memory', 'sizeLimit': '1Mi'})}] +
+                variables.podSpec.?volumes.orValue([]).filter(v, v.name != 'healthcheck-runtime')
+            }
+          ]
