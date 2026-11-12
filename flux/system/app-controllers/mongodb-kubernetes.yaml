@@ -47,11 +47,11 @@ spec:
       version: 1.0.24@sha256:a2d5d0a2ed0c106a06c720adae116c1585ba380bba49000f21b923752c70c902
     agent:
       # renovate: datasource=docker depName=quay.io/mongodb/mongodb-agent
-      version: 109.0.1.9310-1@sha256:cad96df67cee50d9faf4d53bdf4b4b7333902a3fee824ad7be0cc6034f8a597b
+      version: 109.0.2.9380-1@sha256:d01b8724705fa15966a926e92756320088691a2d1aac86e62f2b48f7a4036d41
     community:
       agent:
         # renovate: datasource=docker depName=quay.io/mongodb/mongodb-agent
-        version: 109.0.1.9310-1@sha256:cad96df67cee50d9faf4d53bdf4b4b7333902a3fee824ad7be0cc6034f8a597b
+        version: 109.0.2.9380-1@sha256:d01b8724705fa15966a926e92756320088691a2d1aac86e62f2b48f7a4036d41
   # The chart has no hostUsers knob, so patch the operator Deployment (E1: no host namespaces, E3: no NFS/hostPath, E2: uid 2000).
   postRenderers:
     - kustomize:
