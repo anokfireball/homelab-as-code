@@ -751,8 +751,11 @@ spec:
     # Cache only; contents are reconstructible. An emptyDir keeps this off RWO
     # storage, whose single-node attachment deadlocks a rolling update when the
     # replacement pod is scheduled onto a different node.
-    dataStorage:
+    persistence:
       enabled: false
+    # Required: chart 1.0 defaults to Recreate, which SSA rejects against the
+    # live rollingUpdate block. RollingUpdate is safe on an emptyDir.
+    deploymentStrategy: RollingUpdate
   postRenderers:
     - kustomize:
         patches:
