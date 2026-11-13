@@ -50,7 +50,7 @@ spec:
       hostname: "tailscale-operator-homelab"
       image:
         repository: "tailscale/k8s-operator"
-        tag: "v1.104.4@sha256:68fc0aa4e1c3d7ba19ca41c0bc27f17b2a5a8dca6c10efcdd18020a6bf97768d"
+        tag: "v1.104.7@sha256:51ba104ff02afcc39f93189415c8b2f44fb6037e8592d626bfa52c3c8afc02f6"
       podSecurityContext:
         seccompProfile:
           type: RuntimeDefault
