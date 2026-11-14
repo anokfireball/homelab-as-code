@@ -97,9 +97,10 @@ spec:
     whitelist:
       - ${SMTP_HOST}
       - jnn-pa.googleapis.com
-      # QR-code shortener: phishdestroy lists the whole domain
       - qrco.de
-      - (\.|^)idealo\.de$
+      - idealo.de
+      - www.idealo.de
+      - flug.idealo.de
     deploymentAnnotations:
       reloader.stakater.com/auto: "true"
     podDnsConfig:
