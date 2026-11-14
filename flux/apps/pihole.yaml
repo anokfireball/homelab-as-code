@@ -49,22 +49,16 @@ spec:
       - https://big.oisd.nl
       - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/pro.txt
       - https://raw.githubusercontent.com/RooneyMcNibNug/pihole-stuff/master/SNAFU.txt
-      - https://someonewhocares.org/hosts/zero/hosts
       - https://v.firebog.net/hosts/static/w3kbl.txt
       # ads
-      - https://adaway.org/hosts.txt
-      - https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext
       - https://raw.githubusercontent.com/anudeepND/blacklist/master/adservers.txt
       - https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts
-      - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/popupads.txt
-      - https://v.firebog.net/hosts/Admiral.txt
       - https://v.firebog.net/hosts/Easylist.txt
       - https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
       - https://raw.githubusercontent.com/badmojr/1Hosts/master/Lite/hosts.txt
       - https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-domains.txt
       # tracking
       - https://gitlab.com/quidsup/notrack-blocklists/raw/master/notrack-blocklist.txt
-      - https://hostfiles.frogeye.fr/firstparty-trackers-hosts.txt
       - https://hostfiles.frogeye.fr/multiparty-trackers-hosts.txt
       - https://v.firebog.net/hosts/Easyprivacy.txt
       - https://v.firebog.net/hosts/Prigent-Ads.txt
@@ -81,7 +75,6 @@ spec:
       - https://raw.githubusercontent.com/DandelionSprout/adfilt/master/Alternate%20versions%20Anti-Malware%20List/AntiMalwareHosts.txt
       - https://raw.githubusercontent.com/durablenapkin/scamblocklist/master/hosts.txt
       - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/tif.txt
-      - https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts.txt
       - https://raw.githubusercontent.com/RPiList/specials/master/Blocklisten/Phishing-Angriffe
       - https://raw.githubusercontent.com/RPiList/specials/refs/heads/master/Blocklisten/notserious
       - https://v.firebog.net/hosts/Prigent-Crypto.txt
@@ -99,7 +92,6 @@ spec:
       - https://raw.githubusercontent.com/Perflyst/PiHoleBlocklist/master/SmartTV.txt
       - https://a.dove.isdumb.one/pihole.txt
       # DOH (DNS is totalitarian in this network!)
-      - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/doh.txt
       - https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH/DOHadb.txt
       - https://raw.githubusercontent.com/dibdot/DoH-IP-blocklists/master/doh-domains_overall.txt
     whitelist:
