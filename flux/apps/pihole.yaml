@@ -34,6 +34,10 @@ spec:
       enabled: false
     extraEnvVars:
       FTLCONF_dns_cache_size: 0
+      # No password is set (admin.enabled: false), so FTL >= v6.8 (GHSA-322h-f873-hp54) serves the
+      # dashboard only under an IP, localhost, pi.hole, its hostname or webserver.domain; any other
+      # Host, such as the gateway route below, gets a 403.
+      FTLCONF_webserver_domain: pihole.${SERVICE_DOMAIN}
     DNS1: 192.168.1.1
     DNS2: fe80::1
     dnsmasq:
