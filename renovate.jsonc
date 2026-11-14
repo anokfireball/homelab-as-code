@@ -295,6 +295,14 @@
       "groupName": "metallb"
     },
     {
+      "description": "Group the vendored Pinniped manifests (`# pinniped-version:` header) with the server image pinned in them.",
+      "matchPackageNames": [
+        "vmware-tanzu/pinniped",
+        "vmware/pinniped/pinniped-server"
+      ],
+      "groupName": "pinniped"
+    },
+    {
       "description": "Group the Envoy Gateway chart with the controller image and upstream git tag pinned at its appVersion.",
       "matchPackageNames": [
         "docker.io/envoyproxy/gateway-helm",
