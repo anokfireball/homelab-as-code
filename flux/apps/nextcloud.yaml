@@ -165,7 +165,7 @@ spec:
       flavor: fpm-alpine
       registry: docker.io
       repository: library/nextcloud
-      tag: 35.0.2-fpm-alpine@sha256:94ac3e2b538dbf165e7c1751c7287107e2b93c4c8cd8335cfccb88aaae4d739d
+      tag: 35.0.3-fpm-alpine@sha256:fc8c645a813efedda402eb3983f75aa26a0df32bce9f19c7ad1344766c85891b
     resources:
       requests:
         cpu: 50m
@@ -289,7 +289,7 @@ spec:
       # D6: entrypoint.sh configure_redis_session rewrites conf.d/redis-session.ini on every start (line 129); this creates that file in the php-confd emptyDir, which the fpm container mounts as a single file
       extraInitContainers:
         - name: init-redis-session-ini
-          image: docker.io/library/nextcloud:35.0.2-fpm-alpine@sha256:94ac3e2b538dbf165e7c1751c7287107e2b93c4c8cd8335cfccb88aaae4d739d
+          image: docker.io/library/nextcloud:35.0.3-fpm-alpine@sha256:fc8c645a813efedda402eb3983f75aa26a0df32bce9f19c7ad1344766c85891b
           command: ["touch", "/usr/local/etc/php/conf.d/redis-session.ini"]
           securityContext:
             runAsNonRoot: true
