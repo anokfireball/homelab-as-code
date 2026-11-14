@@ -1,4 +1,4 @@
-# pinniped-version: v0.47.0
+# pinniped-version: v0.48.0
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
@@ -759,7 +759,7 @@ spec:
       serviceAccountName: pinniped-supervisor
       containers:
       - name: pinniped-supervisor
-        image: ghcr.io/vmware/pinniped/pinniped-server:v0.47.0@sha256:3a46e1ea8b874281698dd27e60d6f9b46738cb10483baa9dc78a0023cc17e29d
+        image: ghcr.io/vmware/pinniped/pinniped-server:v0.48.0@sha256:c98ed3977081d7e18be6a5176656371621a1deea1a67b5a42f8b152b856ce4c8
         imagePullPolicy: IfNotPresent
         command:
         - pinniped-supervisor
