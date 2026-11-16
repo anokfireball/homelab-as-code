@@ -37,7 +37,7 @@ spec:
               OPNSENSE_PORT: 80
               OPNSENSE_SSL: "false"
               OPNSENSE_VERIFY_SSL: "true"
-              IPV6_PREFIX_LENGTH: 57
+              IPV6_PREFIX_LENGTH: 56
             envFrom:
               - secret: opnsense-ipv6-prefix-update-secrets
             securityContext:
