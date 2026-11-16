@@ -15,7 +15,7 @@ spec:
         namespace: flux-system
   values:
     dualStack:
-      enabled: false
+      enabled: true
     serviceDns:
       mixedService: true
       type: LoadBalancer
@@ -39,7 +39,8 @@ spec:
       # Host, such as the gateway route below, gets a 403.
       FTLCONF_webserver_domain: pihole.${SERVICE_DOMAIN}
     DNS1: 192.168.1.1
-    DNS2: fe80::1
+    # Empty disables the second upstream (the chart default would be 8.8.4.4); fe80::1 had no zone and was unreachable from the pod.
+    DNS2: ""
     dnsmasq:
       customSettings:
         # https://docs.pi-hole.net/ftldns/interfaces/#all
