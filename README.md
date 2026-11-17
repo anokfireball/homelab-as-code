@@ -238,12 +238,6 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <th>Notes</th>
     </tr>
     <tr>
-        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/emqx.svg"></td>
-        <td><a href="https://www.emqx.com/">EMQX</a></td>
-        <td>MQTT broker</td>
-        <td></td>
-    </tr>
-    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/pi-hole/docs/refs/heads/master/docs/images/logo.svg"></td>
         <td><a href="https://pi-hole.net/">Pi-hole</a></td>
         <td>Filtering DNS Proxy</td>
@@ -260,6 +254,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://github.com/dani-garcia/vaultwarden">Vaultwarden</a></td>
         <td>API-compatible Password Manager</td>
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_bitwarden-[http---public]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_bitwarden-[http---public]/uptimes/30d/badge.svg" alt="Vaultwarden Uptime"></a></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/home-assistant.svg"></td>
+        <td><a href="https://www.home-assistant.io/">Home Assistant</a></td>
+        <td>Home automation</td>
+        <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/immich-app/immich/refs/heads/main/web/static/favicon.ico"></td>
@@ -286,22 +286,10 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_tandoor-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_tandoor-[http]/uptimes/30d/badge.svg" alt="Tandoor Uptime"></a></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tasmoadmin.svg"></td>
-        <td><a href="https://github.com/TasmoAdmin/TasmoAdmin">TasmoAdmin</a></td>
-        <td>Tasmota device admin and OTA server</td>
-        <td></td>
-    </tr>
-    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/wger-project/wger/refs/heads/master/wger/core/static/images/logos/logo-bg-white.svg"></td>
         <td><a href="https://wger.de/">wger</a></td>
         <td>Fitness and Workout Tracker</td>
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_wger-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_wger-[http]/uptimes/30d/badge.svg" alt="wger Uptime"></a></td>
-    </tr>
-    <tr>
-        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/home-assistant.svg"></td>
-        <td><a href="https://www.home-assistant.io/">Home Assistant</a></td>
-        <td>Home automation</td>
-        <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/gethomepage/homepage/refs/heads/dev/public/homepage.ico"></td>
@@ -350,6 +338,18 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://ui.com/consoles">UniFi Network Application</a></td>
         <td>AP Administration and Management</td>
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_unifi-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_unifi-[http]/uptimes/30d/badge.svg" alt="UniFi Uptime"></a></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tasmoadmin.svg"></td>
+        <td><a href="https://github.com/TasmoAdmin/TasmoAdmin">TasmoAdmin</a></td>
+        <td>Tasmota device admin and OTA server</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/emqx.svg"></td>
+        <td><a href="https://www.emqx.com/">EMQX</a></td>
+        <td>MQTT broker</td>
+        <td></td>
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opnsense-v1.svg"></td>

@@ -192,6 +192,26 @@ spec:
           http:
             port: 18083
             protocol: HTTP
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: ListenerSet
+            name: emqx
+            namespace: default
+            sectionName: https
+        hostnames:
+          - emqx.${SERVICE_DOMAIN}
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - identifier: dashboard
+                port: 18083
     persistence:
       data:
         type: persistentVolumeClaim
@@ -221,3 +241,21 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: emqx-gateway
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: ./charts/gateway-route
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    name: emqx
+    hostname: emqx.${SERVICE_DOMAIN}
