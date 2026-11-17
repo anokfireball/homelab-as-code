@@ -280,9 +280,11 @@ spec:
         capabilities:
           drop: ["ALL"]
       # Pod level: fsGroup keeps the PVCs writable for uid 82; OnRootMismatch avoids a recursive chown of the 100Gi data volume on every start (E3)
+      # supplementalGroups 1000: shared group with paperless on the consume NFS share (NAS ACL group:1000 inherits rw), so Nextcloud can delete files written by uid 1000
       podSecurityContext:
         runAsNonRoot: true
         fsGroup: 82
+        supplementalGroups: [1000]
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
           type: RuntimeDefault
@@ -483,6 +485,14 @@ spec:
                     template:
                       spec:
                         automountServiceAccountToken: false
+                        initContainers:
+                          # paperless deletes consumed files behind Nextcloud's back; rescan the bind mount so the filecache drops them
+                          - name: nextcloud-cron
+                            command:
+                              - sh
+                              - -c
+                              # the scan is best-effort: cron.php's exit code alone decides the job result
+                              - php -f /var/www/html/cron.php -- --verbose; rc=$?; php /var/www/html/occ files:scan --path=/ntauthority/files/consumption || true; exit $rc
           - target:
               kind: Deployment
               name: nextcloud-imaginary
