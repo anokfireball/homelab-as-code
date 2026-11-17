@@ -23,6 +23,7 @@ resources:
   - sabnzbd.yaml
   - soundcloud-scraper.yaml
   - stirling-pdf.yaml
+  - tasmoadmin.yaml
   - unifi.yaml
   - vectorchord-catalog.yaml
   - vert.yaml

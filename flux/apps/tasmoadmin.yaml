@@ -1,0 +1,181 @@
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: tasmoadmin-data
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: ${TASMOADMIN_BACKUP_BUCKET}
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: tasmoadmin-data
+    schedule: "47 3 * * *"
+    concurrentRunsAllowed: false
+    podConfigRef:
+      name: tasmoadmin-data-backup
+  prune:
+    schedule: "17 1 1 * *"
+    concurrentRunsAllowed: false
+    podConfigRef:
+      name: tasmoadmin-data-prune
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: tasmoadmin-data-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      # restic only streams what the tasmoadmin pod's backupcommand prints; it needs no volumes
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: tasmoadmin-data-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tasmoadmin
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    defaultPodOptions:
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      annotations:
+        k8up.io/backup: "true"
+        k8up.io/backupcommand: tar -cf - -C /data tasmoadmin
+        k8up.io/file-extension: .tar
+        k8up.io/backupcommand-container: app
+      labels:
+        backup: tasmoadmin-data
+    controllers:
+      tasmoadmin:
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: ghcr.io/tasmoadmin/tasmoadmin
+              tag: v5.0.0@sha256:459df5a79b7d4fbef52dc5aa04884ad917bcd6d94e359dfc5c6fd69205c2f471
+            env:
+              TZ: Europe/Berlin
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /login
+                    port: 80
+                  periodSeconds: 2
+                  failureThreshold: 60
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /login
+                    port: 80
+                  periodSeconds: 10
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /login
+                    port: 80
+                  periodSeconds: 30
+                  failureThreshold: 6
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+            # readOnlyRootFilesystem stays unset: the s6 init symlinks /var/www/tasmoadmin/data and replaces /etc/nginx/nginx.conf on every start
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+                # root s6 init chowns /data/tasmoadmin to nginx (CHOWN, FOWNER), writes nginx-owned paths (DAC_OVERRIDE), nginx/php-fpm drop to nginx (SETUID, SETGID)
+                add: ["CHOWN", "DAC_OVERRIDE", "FOWNER", "SETGID", "SETUID"]
+    service:
+      web:
+        controller: tasmoadmin
+        type: LoadBalancer
+        annotations:
+          metallb.io/address-pool: http-vip
+          metallb.io/allow-shared-ip: http-vip
+        ports:
+          http:
+            port: 9541
+            targetPort: 80
+            protocol: HTTP
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        globalMounts:
+          - path: /data

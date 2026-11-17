@@ -168,6 +168,26 @@ spec:
 apiVersion: policies.kyverno.io/v1
 kind: PolicyException
 metadata:
+  name: audit-readonly-root-filesystem-default-tasmoadmin
+  namespace: kyverno-system
+spec:
+  policyRefs:
+    - name: audit-readonly-root-filesystem
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: tasmoadmin
+      expression: >-
+        object.metadata.namespace == 'default' &&
+        object.metadata.?labels[?'app.kubernetes.io/controller'].orValue('') == 'tasmoadmin' &&
+        object.metadata.?labels[?'app.kubernetes.io/instance'].orValue('') == 'tasmoadmin' &&
+        object.metadata.?labels[?'app.kubernetes.io/name'].orValue('') == 'tasmoadmin'
+  properties:
+    reason: >-
+      TasmoAdmin's s6 init runs as root and replaces /etc/nginx/nginx.conf and the /var/www/tasmoadmin/data symlink on every start; the image has no read-only mode.
+---
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
   name: audit-readonly-root-filesystem-default-pihole
   namespace: kyverno-system
 spec:

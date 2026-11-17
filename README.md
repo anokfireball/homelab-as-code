@@ -286,6 +286,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_tandoor-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_tandoor-[http]/uptimes/30d/badge.svg" alt="Tandoor Uptime"></a></td>
     </tr>
     <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tasmoadmin.svg"></td>
+        <td><a href="https://github.com/TasmoAdmin/TasmoAdmin">TasmoAdmin</a></td>
+        <td>Tasmota device admin and OTA server</td>
+        <td></td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/wger-project/wger/refs/heads/master/wger/core/static/images/logos/logo-bg-white.svg"></td>
         <td><a href="https://wger.de/">wger</a></td>
         <td>Fitness and Workout Tracker</td>
