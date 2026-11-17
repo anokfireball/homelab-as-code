@@ -10,3 +10,12 @@ stringData:
   SIGNING_KEY: ci-placeholder
   smtp-password: ci-placeholder
   smtp-username: ci-placeholder
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: home-assistant-values
+  namespace: default
+stringData:
+  # the real values merge in private, integration-specific settings only
+  values.yaml: "{}"

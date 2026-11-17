@@ -8,6 +8,7 @@ resources:
   - fresh-rss.yaml
   - gatus-monitoring
   - homepage.yaml
+  - home-assistant.yaml
   - scrutiny-monitoring
   - immich.yaml
   - jellyfin.yaml

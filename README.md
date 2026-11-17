@@ -298,6 +298,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_wger-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_wger-[http]/uptimes/30d/badge.svg" alt="wger Uptime"></a></td>
     </tr>
     <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/home-assistant.svg"></td>
+        <td><a href="https://www.home-assistant.io/">Home Assistant</a></td>
+        <td>Home automation</td>
+        <td></td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/gethomepage/homepage/refs/heads/dev/public/homepage.ico"></td>
         <td><a href="https://gethomepage.dev/">Homepage</a></td>
         <td>Application Dashboard</td>
