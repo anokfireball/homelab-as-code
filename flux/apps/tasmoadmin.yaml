@@ -160,6 +160,7 @@ spec:
                 # root s6 init chowns /data/tasmoadmin to nginx (CHOWN, FOWNER), writes nginx-owned paths (DAC_OVERRIDE), nginx/php-fpm drop to nginx (SETUID, SETGID)
                 add: ["CHOWN", "DAC_OVERRIDE", "FOWNER", "SETGID", "SETUID"]
     service:
+      # stays a LoadBalancer on the VIP: Tasmotas fetch OTA firmware over plain HTTP via OPNsense's port forward to 192.168.1.4:9541
       web:
         controller: tasmoadmin
         type: LoadBalancer
@@ -171,6 +172,38 @@ spec:
             port: 9541
             targetPort: 80
             protocol: HTTP
+    route:
+      main:
+        enabled: true
+        kind: HTTPRoute
+        parentRefs:
+          - group: gateway.networking.k8s.io
+            kind: ListenerSet
+            name: tasmoadmin
+            namespace: default
+            sectionName: https
+        hostnames:
+          - tasmoadmin.${SERVICE_DOMAIN}
+        rules:
+          # upstream nginx serves /data unauthenticated; the Tasmotas fetch firmware over the 9541 VIP, so the hostname redirects it to the UI
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /data/
+            filters:
+              - type: RequestRedirect
+                requestRedirect:
+                  statusCode: 302
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - identifier: web
+                port: 9541
     persistence:
       data:
         type: persistentVolumeClaim
@@ -179,3 +212,21 @@ spec:
         size: 1Gi
         globalMounts:
           - path: /data
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: tasmoadmin-gateway
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: ./charts/gateway-route
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  values:
+    name: tasmoadmin
+    hostname: tasmoadmin.${SERVICE_DOMAIN}
