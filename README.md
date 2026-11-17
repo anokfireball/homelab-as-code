@@ -259,7 +259,7 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/home-assistant.svg"></td>
         <td><a href="https://www.home-assistant.io/">Home Assistant</a></td>
         <td>Home automation</td>
-        <td></td>
+        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_home-assistant-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_home-assistant-[http]/uptimes/30d/badge.svg" alt="Home Assistant Uptime"></a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/immich-app/immich/refs/heads/main/web/static/favicon.ico"></td>
@@ -343,13 +343,13 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tasmoadmin.svg"></td>
         <td><a href="https://github.com/TasmoAdmin/TasmoAdmin">TasmoAdmin</a></td>
         <td>Tasmota device admin and OTA server</td>
-        <td></td>
+        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_tasmoadmin-[http]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_tasmoadmin-[http]/uptimes/30d/badge.svg" alt="TasmoAdmin Uptime"></a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/emqx.svg"></td>
         <td><a href="https://www.emqx.com/">EMQX</a></td>
         <td>MQTT broker</td>
-        <td></td>
+        <td><a href="https://gatus.kthxbye.cyou/endpoints/services_emqx-[mqtt]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_emqx-[mqtt]/uptimes/30d/badge.svg" alt="EMQX Uptime"></a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opnsense-v1.svg"></td>
