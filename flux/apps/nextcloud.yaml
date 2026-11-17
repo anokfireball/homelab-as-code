@@ -485,7 +485,8 @@ spec:
                     template:
                       spec:
                         automountServiceAccountToken: false
-                        initContainers:
+                        # the chart renders cron.php as a regular container; Kyverno's add-healthcheck-to-cronjobs moves it to initContainers at admission
+                        containers:
                           # paperless deletes consumed files behind Nextcloud's back; rescan the bind mount so the filecache drops them
                           - name: nextcloud-cron
                             command:
