@@ -134,8 +134,6 @@ spec:
         backup: home-assistant-config
     controllers:
       home-assistant:
-        # flipped to 1 by the cutover PR (Phase 5)
-        replicas: 0
         # single writer on an RWO volume: a surge pod on the other node deadlocks (issue #16)
         strategy: Recreate
         containers:
