@@ -1,0 +1,223 @@
+---
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: emqx-data
+  namespace: default
+spec:
+  backend:
+    repoPasswordSecretRef:
+      name: k8up-restic-secrets
+      key: restic-password
+    s3:
+      bucket: ${EMQX_BACKUP_BUCKET}
+  backup:
+    labelSelectors:
+      - matchLabels:
+          backup: emqx-data
+    schedule: "17 3 * * *"
+    concurrentRunsAllowed: false
+    podConfigRef:
+      name: emqx-data-backup
+  prune:
+    schedule: "47 0 1 * *"
+    concurrentRunsAllowed: false
+    podConfigRef:
+      name: emqx-data-prune
+    retention:
+      keepHourly: 6
+      keepDaily: 14
+      keepWeekly: 12
+      keepMonthly: 6
+      keepYearly: 2
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: emqx-data-backup
+  namespace: default
+spec:
+  template:
+    spec:
+      # unlike unifi, EMQX is backed up at PVC level: the data PVC carries k8up.io/backup, so the backup pod reads its files directly. They are uid/gid 1000, hence uid 1000
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backup
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: k8up.io/v1
+kind: PodConfig
+metadata:
+  name: emqx-data-prune
+  namespace: default
+spec:
+  template:
+    spec:
+      # Prune jobs only talk to the S3 repository, not the PVC, so a fixed uid is fine
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: prune
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: emqx
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    defaultPodOptions:
+      # no hostPath/NFS volumes and every file on /opt/emqx/data is uid/gid 1000 (the image's own user)
+      hostUsers: false
+      automountServiceAccountToken: false
+      # the image runs as uid 1000 with no capabilities, so the pod and the volume follow it
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      emqx:
+        # single writer on an RWO volume: a surge pod on the other node deadlocks (issue #16)
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: emqx/emqx
+              # same major.minor as the HAOS add-on (EMQX 6.3.1), required by data import
+              tag: 6.3.1@sha256:5ecbf93d04e34aaf4096af074e93b773d0838c8ea668cfabdec7976b272d9606
+            env:
+              TZ: Europe/Berlin
+              EMQX_NODE__NAME: emqx@127.0.0.1
+              EMQX_NODE__COOKIE:
+                valueFrom:
+                  secretKeyRef:
+                    name: emqx-secrets
+                    key: node-cookie
+              EMQX_NODE__DATA_DIR: /opt/emqx/data
+              EMQX_NODE__ETC_DIR: /opt/emqx/etc-runtime
+              EMQX_PLUGINS__INSTALL_DIR: /opt/emqx/plugins-runtime
+              EMQX_RPC__PORT_DISCOVERY: manual
+              EMQX_DASHBOARD__DEFAULT_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: emqx-secrets
+                    key: dashboard-password
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v5/status
+                    port: 18083
+                  periodSeconds: 2
+                  failureThreshold: 60
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v5/status
+                    port: 18083
+                  periodSeconds: 10
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v5/status
+                    port: 18083
+                  periodSeconds: 20
+                  failureThreshold: 6
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 768Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+    service:
+      mqtt:
+        controller: emqx
+        type: LoadBalancer
+        annotations:
+          metallb.io/address-pool: http-vip
+          metallb.io/allow-shared-ip: http-vip
+        ports:
+          mqtt:
+            port: 1883
+            protocol: TCP
+      dashboard:
+        controller: emqx
+        ports:
+          http:
+            port: 18083
+            protocol: HTTP
+    persistence:
+      data:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        annotations:
+          k8up.io/backup: "true"
+        labels:
+          backup: emqx-data
+        globalMounts:
+          - path: /opt/emqx/data
+      # the add-on keeps ETC_DIR/PLUGINS_DIR empty too: EMQX generates config and installs plugins under them at boot, which a read-only rootfs forbids
+      etc-runtime:
+        type: emptyDir
+        globalMounts:
+          - path: /opt/emqx/etc-runtime
+      plugins-runtime:
+        type: emptyDir
+        globalMounts:
+          - path: /opt/emqx/plugins-runtime
+      log:
+        type: emptyDir
+        globalMounts:
+          - path: /opt/emqx/log
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

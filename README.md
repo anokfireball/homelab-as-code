@@ -238,6 +238,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <th>Notes</th>
     </tr>
     <tr>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/emqx.svg"></td>
+        <td><a href="https://www.emqx.com/">EMQX</a></td>
+        <td>MQTT broker</td>
+        <td></td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/pi-hole/docs/refs/heads/master/docs/images/logo.svg"></td>
         <td><a href="https://pi-hole.net/">Pi-hole</a></td>
         <td>Filtering DNS Proxy</td>

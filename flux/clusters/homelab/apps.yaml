@@ -28,6 +28,9 @@ spec:
     substituteFrom:
       - kind: Secret
         name: cluster-secrets
+      # private values of the home-automation stack (EMQX, TasmoAdmin, Home Assistant backup bucket names)
+      - kind: Secret
+        name: home-automation-vars
   patches:
     # Helm's default timeout is shorter than a cold image pull takes on this
     # cluster. Exceeding it fails the upgrade and leaves the release stalled
