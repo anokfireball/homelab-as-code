@@ -367,6 +367,9 @@ spec:
           type: RuntimeDefault
     controllers:
       main:
+        annotations:
+          # roll the pod when paperless-ai-secrets (endpoint, models, key) changes
+          reloader.stakater.com/auto: "true"
         containers:
           main:
             image:
@@ -407,6 +410,36 @@ spec:
                     key: password
               PAPERLESS_DBNAME: paperless-ngx
               PAPERLESS_REDIS: redis://paperless-ngx-redis-master:6379
+              # AI suggestions, chat and the RAG index via an OpenAI-compatible provider.
+              # Endpoint, models and API key live only in flux/secrets/paperless-ai-secrets.sops.yaml (sops edit).
+              # Embeddings: the endpoint and key fall back to the LLM ones; changing the embedding model forces an index rebuild.
+              PAPERLESS_AI_ENABLED: "true"
+              PAPERLESS_AI_LLM_BACKEND: openai-like
+              PAPERLESS_AI_LLM_ENDPOINT:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-ai-secrets
+                    key: llm-endpoint
+              PAPERLESS_AI_LLM_MODEL:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-ai-secrets
+                    key: llm-model
+              PAPERLESS_AI_LLM_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-ai-secrets
+                    key: llm-api-key
+              # reasoning adds latency and output tokens without helping title/type extraction
+              PAPERLESS_AI_LLM_EXTRA_PARAMS: '{"reasoning_effort":"none"}'
+              # German titles/tags regardless of the document owner's UI language
+              PAPERLESS_AI_LLM_OUTPUT_LANGUAGE: de-de
+              PAPERLESS_AI_LLM_EMBEDDING_BACKEND: openai-like
+              PAPERLESS_AI_LLM_EMBEDDING_MODEL:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-ai-secrets
+                    key: llm-embedding-model
               # s6 preinit refuses a root-owned /run on an emptyDir when running as uid 1000; opt in to the world-writable /run
               S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES: "1"
             probes:
