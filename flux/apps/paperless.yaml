@@ -368,7 +368,6 @@ spec:
     controllers:
       main:
         annotations:
-          # roll the pod when paperless-ai-secrets (endpoint, models, key) changes
           reloader.stakater.com/auto: "true"
         containers:
           main:
@@ -410,9 +409,6 @@ spec:
                     key: password
               PAPERLESS_DBNAME: paperless-ngx
               PAPERLESS_REDIS: redis://paperless-ngx-redis-master:6379
-              # AI suggestions, chat and the RAG index via an OpenAI-compatible provider.
-              # Endpoint, models and API key live only in flux/secrets/paperless-ai-secrets.sops.yaml (sops edit).
-              # Embeddings: the endpoint and key fall back to the LLM ones; changing the embedding model forces an index rebuild.
               PAPERLESS_AI_ENABLED: "true"
               PAPERLESS_AI_LLM_BACKEND: openai-like
               PAPERLESS_AI_LLM_ENDPOINT:
@@ -430,10 +426,10 @@ spec:
                   secretKeyRef:
                     name: paperless-ai-secrets
                     key: llm-api-key
-              # reasoning adds latency and output tokens without helping title/type extraction
+              # reasoning only adds latency and tokens for title/type extraction
               PAPERLESS_AI_LLM_EXTRA_PARAMS: '{"reasoning_effort":"none"}'
-              # German titles/tags regardless of the document owner's UI language
               PAPERLESS_AI_LLM_OUTPUT_LANGUAGE: de-de
+              # endpoint and key fall back to the LLM ones; changing the embedding model requires an index rebuild
               PAPERLESS_AI_LLM_EMBEDDING_BACKEND: openai-like
               PAPERLESS_AI_LLM_EMBEDDING_MODEL:
                 valueFrom:
