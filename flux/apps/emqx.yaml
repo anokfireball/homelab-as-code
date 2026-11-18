@@ -119,7 +119,7 @@ spec:
             image:
               repository: emqx/emqx
               # same major.minor as the HAOS add-on (EMQX 6.3.1), required by data import
-              tag: 6.3.1@sha256:5ecbf93d04e34aaf4096af074e93b773d0838c8ea668cfabdec7976b272d9606
+              tag: 6.3.3@sha256:54778dba62a5cbcb03ca381c9bceb3d8a87cab9e3da155ed3607d994454df900
             env:
               TZ: Europe/Berlin
               EMQX_NODE__NAME: emqx@127.0.0.1
