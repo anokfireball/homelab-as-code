@@ -436,6 +436,24 @@ spec:
                   secretKeyRef:
                     name: paperless-ai-secrets
                     key: llm-embedding-model
+              PYTHONPATH: /usr/src/paperless/vlm-ocr
+              PAPERLESS_VLM_OCR_ENABLED: "true"
+              PAPERLESS_VLM_OCR_GATE_MODE: shadow
+              PAPERLESS_VLM_OCR_ENDPOINT:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-ai-secrets
+                    key: llm-endpoint
+              PAPERLESS_VLM_OCR_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-ai-secrets
+                    key: llm-api-key
+              PAPERLESS_VLM_OCR_MODEL:
+                valueFrom:
+                  secretKeyRef:
+                    name: paperless-ai-secrets
+                    key: vlm-ocr-model
               # s6 preinit refuses a root-owned /run on an emptyDir when running as uid 1000; opt in to the world-writable /run
               S6_YES_I_WANT_A_WORLD_WRITABLE_RUN_BECAUSE_KUBERNETES: "1"
             probes:
@@ -457,6 +475,1040 @@ spec:
           touch.sh: |
             #!/usr/bin/env bash
             touch /usr/src/paperless/export/.paperless-dirty
+      vlmocr:
+        data:
+          paperless_vlm_ocr-0.1.1.dist-info--METADATA: |
+            Metadata-Version: 2.1
+            Name: paperless-vlm-ocr
+            Version: 0.1.1
+          paperless_vlm_ocr-0.1.1.dist-info--entry_points.txt: |
+            [paperless_ngx.parsers]
+            vlm_ocr = paperless_vlm_ocr.parser:VlmOcrParser
+          paperless_vlm_ocr--__init__.py: |
+            """Paperless-ngx parser plugin: per-page text-layer gate plus VLM transcription."""
+
+            __version__ = "0.1.1"
+
+            # Paperless (major, minor) versions this plugin was verified against.
+            SUPPORTED_PAPERLESS = {(3, 5)}
+          paperless_vlm_ocr--config.py: |
+            """Runtime configuration, read from the environment at call time."""
+
+            from __future__ import annotations
+
+            import os
+            from dataclasses import dataclass
+            from dataclasses import field
+            from pathlib import Path
+            from typing import Literal
+
+            _PREFIX = "PAPERLESS_VLM_OCR_"
+
+
+            def _env(name: str, default: str = "") -> str:
+                return os.environ.get(_PREFIX + name, default).strip()
+
+
+            def _env_bool(name: str) -> bool:
+                return _env(name).lower() in ("true", "1")
+
+
+            def _default_decision_log() -> Path:
+                from django.conf import settings
+
+                return Path(settings.DATA_DIR) / "vlm-ocr" / "decisions.jsonl"
+
+
+            @dataclass(frozen=True)
+            class VlmOcrConfig:
+                enabled: bool = False
+                endpoint: str = ""
+                api_key: str = field(default="", repr=False)
+                model: str = ""
+                gate_mode: Literal["shadow", "enforce"] = "shadow"
+                threshold: float = 0.9
+                min_tokens: int = 15
+                timeout_s: float = 120.0
+                concurrency: int = 4
+                max_pages: int = 50
+                image_px: int = 1800
+                decision_log: Path = Path("decisions.jsonl")
+
+                @classmethod
+                def from_env(cls) -> VlmOcrConfig:
+                    mode = _env("GATE_MODE", "shadow").lower()
+                    log = _env("DECISION_LOG")
+                    return cls(
+                        enabled=_env_bool("ENABLED"),
+                        endpoint=_env("ENDPOINT"),
+                        api_key=_env("API_KEY"),
+                        model=_env("MODEL"),
+                        gate_mode="enforce" if mode == "enforce" else "shadow",
+                        threshold=float(_env("GATE_THRESHOLD", "0.9")),
+                        min_tokens=int(_env("GATE_MIN_TOKENS", "15")),
+                        timeout_s=float(_env("TIMEOUT_S", "120")),
+                        concurrency=int(_env("CONCURRENCY", "4")),
+                        max_pages=int(_env("MAX_PAGES", "50")),
+                        image_px=int(_env("IMAGE_PX", "1800")),
+                        decision_log=Path(log) if log else _default_decision_log(),
+                    )
+          paperless_vlm_ocr--decisions.py: |
+            """Append-only JSONL decision log; never raises."""
+
+            from __future__ import annotations
+
+            import json
+            import logging
+            from pathlib import Path
+
+            log = logging.getLogger("paperless.parsing.vlm_ocr")
+
+
+            def append(path: Path, record: dict) -> None:
+                """Append one JSON line to ``path``, warning instead of failing."""
+                try:
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    with path.open("a", encoding="utf-8") as fh:
+                        fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+                except OSError:
+                    log.warning("vlm_ocr: cannot write decision log %s", path, exc_info=True)
+          paperless_vlm_ocr--gate.py: |
+            """Text-layer gate: does a born-digital layer agree with a Tesseract read?"""
+
+            from __future__ import annotations
+
+            import re
+            import unicodedata
+            from collections import Counter
+            from dataclasses import dataclass
+            from typing import TYPE_CHECKING
+            from typing import Literal
+
+            if TYPE_CHECKING:
+                from paperless_vlm_ocr.config import VlmOcrConfig
+
+            _WORD = re.compile(r"[^\W_]+")
+
+
+            def tokenize(text: str) -> list[str]:
+                """Casefolded alphanumeric tokens.
+
+                Runs of three or more single-character tokens separated by exactly one
+                character are joined (letter-spaced text such as "K a r l" becomes
+                "karl"); a wider gap ends the run. All other boundaries are kept, so
+                wrongly split words ("Ko nto inha ber") stay split.
+                """
+                norm = unicodedata.normalize("NFKC", text).casefold()
+                out: list[str] = []
+                run: list[str] = []
+
+                def flush() -> None:
+                    if len(run) >= 3:
+                        out.append("".join(run))
+                    else:
+                        out.extend(run)
+                    run.clear()
+
+                prev_end = -1
+                for m in _WORD.finditer(norm):
+                    tok = m.group()
+                    if len(tok) == 1:
+                        if run and m.start() - prev_end != 1:
+                            flush()
+                        run.append(tok)
+                    else:
+                        flush()
+                        out.append(tok)
+                    prev_end = m.end()
+                flush()
+                return out
+
+
+            def agreement(layer: list[str], ref: list[str]) -> tuple[float, float]:
+                """Return (coverage, support): shared tokens over ref, and over layer."""
+                common = sum((Counter(layer) & Counter(ref)).values())
+                coverage = common / len(ref) if ref else 0.0
+                support = common / len(layer) if layer else 0.0
+                return coverage, support
+
+
+            def passes(coverage: float, support: float, threshold: float) -> bool:
+                """Keep a layer that covers the reference, or nearly covers it and is confirmed.
+
+                Coverage is the primary signal: split, letter-spaced, garbled or missing
+                layer text lowers it. Low support alone mostly means Tesseract missed
+                light or small print, so support only counts within 0.1 below threshold.
+                """
+                if coverage >= threshold:
+                    return True
+                return coverage >= threshold - 0.1 and support >= threshold
+
+
+            @dataclass
+            class PageVerdict:
+                kind: Literal["empty_layer", "gated"]
+                decision: Literal["keep", "vlm", "would_vlm", "no_signal"]
+                coverage: float | None
+                support: float | None
+                layer_tokens: int
+                ref_tokens: int | None
+
+
+            def classify(layer_text: str, ref_text: str | None, cfg: VlmOcrConfig) -> PageVerdict:
+                """Decide what to do with one page. ``ref_text`` None means not computed."""
+                layer = tokenize(layer_text)
+                if len(layer) < cfg.min_tokens:
+                    return PageVerdict("empty_layer", "vlm", None, None, len(layer), None)
+                ref = tokenize(ref_text or "")
+                if len(ref) < cfg.min_tokens:
+                    return PageVerdict("gated", "no_signal", None, None, len(layer), len(ref))
+                coverage, support = agreement(layer, ref)
+                if passes(coverage, support, cfg.threshold):
+                    decision = "keep"
+                elif cfg.gate_mode == "enforce":
+                    decision = "vlm"
+                else:
+                    decision = "would_vlm"
+                return PageVerdict("gated", decision, coverage, support, len(layer), len(ref))
+          paperless_vlm_ocr--pages.py: |
+            """Poppler/Tesseract/Pillow helpers for single pages."""
+
+            from __future__ import annotations
+
+            import os
+            import re
+            import subprocess
+            from pathlib import Path
+
+            _TIMEOUT_S = 180
+
+
+            def _post_process(text: str | None) -> str | None:
+                """Same normalisation as paperless.parsers.utils.post_process_text."""
+                if not text:
+                    return None
+                collapsed_spaces = re.sub(r"([^\S\r\n]+)", " ", text)
+                no_leading_whitespace = re.sub(r"([\n\r]+)([^\S\n\r]+)", "\\1", collapsed_spaces)
+                no_trailing_whitespace = re.sub(r"([^\S\n\r]+)(?=\n?\Z)", "", no_leading_whitespace)
+                result = no_trailing_whitespace.strip().replace("\0", " ")
+                return result or None
+
+
+            def _run(cmd: list[str], env: dict[str, str] | None = None) -> bytes:
+                return subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    timeout=_TIMEOUT_S,
+                    check=True,
+                    env=env,
+                ).stdout
+
+
+            def page_count(pdf: Path) -> int:
+                out = _run(["pdfinfo", str(pdf)]).decode("utf-8", "replace")
+                for line in out.splitlines():
+                    if line.startswith("Pages:"):
+                        return int(line.split(":", 1)[1].strip())
+                raise ValueError(f"pdfinfo reported no page count for {pdf}")
+
+
+            def layer_text(pdf: Path, n: int) -> str:
+                out = _run(
+                    ["pdftotext", "-q", "-layout", "-enc", "UTF-8", "-f", str(n), "-l", str(n), str(pdf), "-"],
+                )
+                return _post_process(out.decode("utf-8", "replace")) or ""
+
+
+            def render_png(pdf: Path, n: int, out: Path, *, scale_to: int | None, gray: bool) -> Path:
+                stem = out.with_suffix("")
+                cmd = ["pdftoppm", "-r", "300", "-png", "-singlefile", "-f", str(n), "-l", str(n)]
+                if gray:
+                    cmd.append("-gray")
+                if scale_to:
+                    cmd += ["-scale-to", str(scale_to)]
+                cmd += [str(pdf), str(stem)]
+                _run(cmd)
+                return stem.with_suffix(".png")
+
+
+            def tesseract_text(png: Path, lang: str) -> str:
+                env = {**os.environ, "OMP_THREAD_LIMIT": "1"}
+                out = _run(["tesseract", str(png), "stdout", "-l", lang], env=env)
+                return out.decode("utf-8", "replace")
+
+
+            def image_to_png(image: Path, out: Path, long_side: int) -> Path:
+                from PIL import Image
+                from PIL import ImageOps
+
+                with Image.open(image) as im:
+                    im.seek(0)
+                    img = ImageOps.exif_transpose(im).convert("RGB")
+                if max(img.size) > long_side:
+                    scale = long_side / max(img.size)
+                    size = (max(1, round(img.width * scale)), max(1, round(img.height * scale)))
+                    img = img.resize(size, Image.Resampling.LANCZOS)
+                img.save(out, format="PNG")
+                return out
+          paperless_vlm_ocr--parser.py: |
+            """Paperless-ngx parser: per-page text-layer gate plus VLM transcription."""
+
+            from __future__ import annotations
+
+            import hashlib
+            import logging
+            import time
+            from concurrent.futures import ThreadPoolExecutor
+            from concurrent.futures import as_completed
+            from dataclasses import dataclass
+            from datetime import datetime
+            from datetime import timezone
+            from pathlib import Path
+            from typing import Literal
+
+            from django.conf import settings
+            from paperless.parsers.tesseract import RasterisedDocumentParser
+            from paperless.parsers.utils import post_process_text
+            from paperless.version import __version__ as paperless_version
+
+            from paperless_vlm_ocr import SUPPORTED_PAPERLESS
+            from paperless_vlm_ocr import __version__
+            from paperless_vlm_ocr.config import VlmOcrConfig
+            from paperless_vlm_ocr.decisions import append as append_decision
+            from paperless_vlm_ocr.gate import agreement
+            from paperless_vlm_ocr.gate import passes
+            from paperless_vlm_ocr.gate import classify
+            from paperless_vlm_ocr.gate import tokenize
+            from paperless_vlm_ocr.pages import image_to_png
+            from paperless_vlm_ocr.pages import layer_text
+            from paperless_vlm_ocr.pages import page_count
+            from paperless_vlm_ocr.pages import render_png
+            from paperless_vlm_ocr.pages import tesseract_text
+            from paperless_vlm_ocr.vlm import VlmClient
+            from paperless_vlm_ocr.vlm import VlmResult
+            from paperless_vlm_ocr.vlm import clean
+            from paperless_vlm_ocr.vlm import reject_reason
+
+            LOGGER_NAME = "paperless.parsing.vlm_ocr"
+            logger = logging.getLogger(LOGGER_NAME)
+
+            Source = Literal["layer", "vlm", "tesseract"]
+
+            _warned: set[str] = set()
+
+
+            def _warn_once(key: str, message: str, *args: object) -> None:
+                if key in _warned:
+                    return
+                _warned.add(key)
+                logger.warning(message, *args)
+
+
+            @dataclass
+            class _Page:
+                """Mutable per-page state carried through the parse phases."""
+
+                number: int
+                layer: str = ""
+                layer_tokens: int = 0
+                ref: str | None = None
+                ref_tokens: int | None = None
+                ref_attempted: bool = False
+                ref_error: bool = False
+                kind: str = "gated"
+                decision: str = "keep"
+                coverage: float | None = None
+                support: float | None = None
+                text: str = ""
+                source: Source = "layer"
+                fallback_reason: str | None = None
+                vlm_seconds: float | None = None
+                input_tokens: int | None = None
+                output_tokens: int | None = None
+
+
+            class VlmOcrParser(RasterisedDocumentParser):
+                """Tesseract parser whose text layer is gated and repaired by a VLM."""
+
+                name = "Paperless VLM OCR"
+                version = __version__
+                author = "anokfireball"
+                url = "https://github.com/anokfireball/homelab-as-code"
+                uses_remote_service = True
+
+                # ------------------------------------------------------------------
+                # Selection
+                # ------------------------------------------------------------------
+
+                @classmethod
+                def score(
+                    cls,
+                    mime_type: str,
+                    filename: str,
+                    path: Path | None = None,
+                ) -> int | None:
+                    try:
+                        cfg = VlmOcrConfig.from_env()
+                    except Exception as exc:
+                        _warn_once(
+                            "config-unreadable",
+                            "vlm_ocr disabled: cannot read configuration (%s)",
+                            type(exc).__name__,
+                        )
+                        return None
+                    if not cfg.enabled:
+                        return None
+                    if not cfg.endpoint or not cfg.api_key or not cfg.model:
+                        _warn_once(
+                            "config-incomplete",
+                            "vlm_ocr disabled: PAPERLESS_VLM_OCR_ENDPOINT, "
+                            "PAPERLESS_VLM_OCR_API_KEY and PAPERLESS_VLM_OCR_MODEL "
+                            "must all be set",
+                        )
+                        return None
+                    if paperless_version[:2] not in SUPPORTED_PAPERLESS:
+                        _warn_once(
+                            "paperless-version",
+                            "vlm_ocr disabled: Paperless %s is not one of the supported "
+                            "versions %s",
+                            ".".join(str(part) for part in paperless_version),
+                            sorted(SUPPORTED_PAPERLESS),
+                        )
+                        return None
+                    if mime_type not in cls.supported_mime_types():
+                        return None
+                    return 15
+
+                # ------------------------------------------------------------------
+                # Lifecycle
+                # ------------------------------------------------------------------
+
+                def __init__(self, logging_group: object | None = None) -> None:
+                    super().__init__(logging_group)
+                    self.log = logging.getLogger(LOGGER_NAME)
+                    self.cfg = VlmOcrConfig.from_env()
+
+                def parse(
+                    self,
+                    document_path: Path,
+                    mime_type: str,
+                    *,
+                    produce_archive: bool = True,
+                ) -> None:
+                    document_path = Path(document_path)
+                    super().parse(document_path, mime_type, produce_archive=produce_archive)
+                    parent_text = self.text
+                    try:
+                        self._process(document_path, mime_type)
+                    except Exception:
+                        self.text = parent_text
+                        self.log.exception(
+                            "vlm_ocr failed, keeping Tesseract/layer result",
+                        )
+
+                # ------------------------------------------------------------------
+                # Pipeline
+                # ------------------------------------------------------------------
+
+                def _process(self, document_path: Path, mime_type: str) -> None:
+                    cfg = self.cfg
+                    started = time.monotonic()
+
+                    orig_pdf = document_path if mime_type == "application/pdf" else None
+                    render_pdf = (
+                        self.archive_path if self.archive_path is not None else orig_pdf
+                    )
+                    pages_total = page_count(render_pdf) if render_pdf is not None else 1
+                    if pages_total > cfg.max_pages:
+                        self.log.warning(
+                            "vlm_ocr skipped: %d pages > max_pages=%d",
+                            pages_total,
+                            cfg.max_pages,
+                        )
+                        return
+
+                    sha256 = hashlib.sha256(document_path.read_bytes()).hexdigest()
+                    pages = [_Page(number=number) for number in range(1, pages_total + 1)]
+
+                    self._read_layers(pages, orig_pdf)
+                    self._reference_ocr(pages, orig_pdf)
+                    self._classify(pages)
+                    self._transcribe(pages, document_path, render_pdf)
+                    self._apply_text(pages)
+                    self._write_decisions(pages, pages_total, mime_type, sha256)
+
+                    elapsed = time.monotonic() - started
+                    self._log_summary(pages, elapsed)
+
+                # ------------------------------------------------------------------
+                # Phase A: layer text, reference OCR, gate verdict
+                # ------------------------------------------------------------------
+
+                def _read_layers(
+                    self,
+                    pages: list[_Page],
+                    orig_pdf: Path | None,
+                ) -> None:
+                    if orig_pdf is None:
+                        return
+                    for page in pages:
+                        try:
+                            page.layer = layer_text(orig_pdf, page.number)
+                        except Exception as exc:
+                            self.log.warning(
+                                "vlm_ocr page %d: cannot read text layer (%s)",
+                                page.number,
+                                type(exc).__name__,
+                            )
+                            page.layer = ""
+                        page.layer_tokens = len(tokenize(page.layer))
+                        page.text = page.layer
+
+                def _reference_ocr(
+                    self,
+                    pages: list[_Page],
+                    orig_pdf: Path | None,
+                ) -> None:
+                    if orig_pdf is None:
+                        return
+                    targets = [
+                        page for page in pages if page.layer_tokens >= self.cfg.min_tokens
+                    ]
+                    if not targets:
+                        return
+                    workers = max(1, int(getattr(settings, "THREADS_PER_WORKER", 1)))
+                    with ThreadPoolExecutor(max_workers=workers) as pool:
+                        futures = {
+                            pool.submit(self._reference_text, orig_pdf, page.number): page
+                            for page in targets
+                        }
+                        for future in as_completed(futures):
+                            page = futures[future]
+                            page.ref_attempted = True
+                            try:
+                                page.ref = future.result()
+                            except Exception as exc:
+                                page.ref_error = True
+                                self.log.warning(
+                                    "vlm_ocr page %d: reference OCR failed (%s)",
+                                    page.number,
+                                    type(exc).__name__,
+                                )
+
+                def _reference_text(self, pdf: Path, number: int) -> str:
+                    png = render_png(
+                        pdf,
+                        number,
+                        self.tempdir / f"vlmocr-ref-{number}.png",
+                        scale_to=None,
+                        gray=True,
+                    )
+                    return tesseract_text(png, self.settings.language)
+
+                def _classify(self, pages: list[_Page]) -> None:
+                    for page in pages:
+                        if page.ref_error:
+                            page.kind = "gated"
+                            page.decision = "keep"
+                            page.fallback_reason = "ref_error"
+                            continue
+                        ref_text = page.ref if page.ref_attempted else None
+                        verdict = classify(page.layer, ref_text, self.cfg)
+                        page.kind = verdict.kind
+                        page.decision = verdict.decision
+                        page.coverage = verdict.coverage
+                        page.support = verdict.support
+                        page.layer_tokens = verdict.layer_tokens
+                        page.ref_tokens = verdict.ref_tokens
+
+                # ------------------------------------------------------------------
+                # Phase B: VLM transcription
+                # ------------------------------------------------------------------
+
+                def _needs_vlm(self, page: _Page) -> bool:
+                    if page.kind == "empty_layer":
+                        return True
+                    if self.cfg.gate_mode != "enforce":
+                        return False
+                    return page.decision in ("vlm", "no_signal")
+
+                def _transcribe(
+                    self,
+                    pages: list[_Page],
+                    document_path: Path,
+                    render_pdf: Path | None,
+                ) -> None:
+                    targets = [page for page in pages if self._needs_vlm(page)]
+                    if not targets:
+                        return
+
+                    try:
+                        client: VlmClient | None = VlmClient(self.cfg)
+                    except Exception as exc:
+                        client = None
+                        error: str | None = type(exc).__name__
+                        self.log.warning(
+                            "vlm_ocr: cannot create VLM client (%s)",
+                            error,
+                        )
+                    if client is None:
+                        for page in targets:
+                            fallback = self._fallback_text(page, document_path, render_pdf)
+                            self._apply_vlm(page, None, fallback, error)
+                        return
+
+                    workers = max(1, self.cfg.concurrency)
+                    with ThreadPoolExecutor(max_workers=workers) as pool:
+                        futures = {
+                            pool.submit(
+                                self._vlm_page,
+                                client,
+                                document_path,
+                                render_pdf,
+                                page,
+                            ): page
+                            for page in targets
+                        }
+                        for future in as_completed(futures):
+                            page = futures[future]
+                            try:
+                                result, fallback, failure = future.result()
+                            except Exception as exc:
+                                result = None
+                                fallback = ""
+                                failure = type(exc).__name__
+                            self._apply_vlm(page, result, fallback, failure)
+
+                def _vlm_page(
+                    self,
+                    client: VlmClient,
+                    document_path: Path,
+                    render_pdf: Path | None,
+                    page: _Page,
+                ) -> tuple[VlmResult | None, str, str | None]:
+                    fallback = self._fallback_text(page, document_path, render_pdf)
+                    try:
+                        png = self._render_vlm_page(document_path, render_pdf, page.number)
+                        result = client.transcribe(png.read_bytes())
+                    except Exception as exc:
+                        return None, fallback, type(exc).__name__
+                    return result, fallback, None
+
+                def _render_vlm_page(
+                    self,
+                    document_path: Path,
+                    render_pdf: Path | None,
+                    number: int,
+                ) -> Path:
+                    out = self.tempdir / f"vlmocr-vlm-{number}.png"
+                    if render_pdf is not None:
+                        return render_png(
+                            render_pdf,
+                            number,
+                            out,
+                            scale_to=self.cfg.image_px,
+                            gray=False,
+                        )
+                    return image_to_png(document_path, out, self.cfg.image_px)
+
+                def _fallback_text(
+                    self,
+                    page: _Page,
+                    document_path: Path,
+                    render_pdf: Path | None,
+                ) -> str:
+                    try:
+                        if page.kind == "empty_layer":
+                            if self.archive_path is not None:
+                                return layer_text(self.archive_path, page.number)
+                            return self._tesseract_page(
+                                document_path,
+                                render_pdf,
+                                page.number,
+                            )
+                        if page.decision == "no_signal":
+                            return page.layer
+                        return page.ref or ""
+                    except Exception as exc:
+                        self.log.warning(
+                            "vlm_ocr page %d: fallback text failed (%s)",
+                            page.number,
+                            type(exc).__name__,
+                        )
+                        return ""
+
+                def _tesseract_page(
+                    self,
+                    document_path: Path,
+                    render_pdf: Path | None,
+                    number: int,
+                ) -> str:
+                    out = self.tempdir / f"vlmocr-fallback-{number}.png"
+                    if render_pdf is not None:
+                        png = render_png(
+                            render_pdf,
+                            number,
+                            out,
+                            scale_to=None,
+                            gray=True,
+                        )
+                    else:
+                        png = image_to_png(document_path, out, self.cfg.image_px)
+                    return tesseract_text(png, self.settings.language)
+
+                def _apply_vlm(
+                    self,
+                    page: _Page,
+                    result: VlmResult | None,
+                    fallback: str,
+                    error: str | None,
+                ) -> None:
+                    if result is not None:
+                        page.vlm_seconds = result.seconds
+                        page.input_tokens = result.input_tokens
+                        page.output_tokens = result.output_tokens
+
+                    reason = error if result is None else reject_reason(result, fallback)
+                    if result is None or reason is not None:
+                        page.text = fallback
+                        page.fallback_reason = reason
+                        page.source = (
+                            "layer" if page.decision == "no_signal" else "tesseract"
+                        )
+                        return
+
+                    text = clean(result.text)
+                    if page.decision == "no_signal":
+                        coverage, support = agreement(
+                            tokenize(page.layer),
+                            tokenize(text),
+                        )
+                        page.coverage = coverage
+                        page.support = support
+                        if passes(coverage, support, self.cfg.threshold):
+                            page.text = page.layer
+                            page.source = "layer"
+                            return
+                    page.text = text
+                    page.source = "vlm"
+
+                # ------------------------------------------------------------------
+                # Result assembly, decision log, summary
+                # ------------------------------------------------------------------
+
+                def _apply_text(self, pages: list[_Page]) -> None:
+                    if not any(page.source == "vlm" for page in pages):
+                        return
+                    self.text = post_process_text(
+                        "\n\n".join(page.text for page in pages),
+                    ) or ""
+
+                def _write_decisions(
+                    self,
+                    pages: list[_Page],
+                    pages_total: int,
+                    mime_type: str,
+                    sha256: str,
+                ) -> None:
+                    ts = datetime.now(timezone.utc).isoformat()
+                    gate_mode = self.cfg.gate_mode
+                    for page in pages:
+                        append_decision(
+                            self.cfg.decision_log,
+                            {
+                                "ts": ts,
+                                "sha256": sha256,
+                                "mime": mime_type,
+                                "page": page.number,
+                                "pages": pages_total,
+                                "kind": page.kind,
+                                "decision": page.decision,
+                                "coverage": page.coverage,
+                                "support": page.support,
+                                "layer_tokens": page.layer_tokens,
+                                "ref_tokens": page.ref_tokens,
+                                "source": page.source,
+                                "fallback_reason": page.fallback_reason,
+                                "vlm_seconds": page.vlm_seconds,
+                                "input_tokens": page.input_tokens,
+                                "output_tokens": page.output_tokens,
+                                "gate_mode": gate_mode,
+                                "plugin_version": __version__,
+                            },
+                        )
+
+                def _log_summary(self, pages: list[_Page], elapsed: float) -> None:
+                    keep = sum(1 for page in pages if page.source == "layer")
+                    vlm = sum(1 for page in pages if page.source == "vlm")
+                    fallback = sum(1 for page in pages if page.source == "tesseract")
+                    would_vlm = sum(1 for page in pages if page.decision == "would_vlm")
+                    no_signal = sum(1 for page in pages if page.decision == "no_signal")
+                    tokens_in = sum(page.input_tokens or 0 for page in pages)
+                    tokens_out = sum(page.output_tokens or 0 for page in pages)
+                    self.log.info(
+                        "vlm_ocr pages=%d keep=%d vlm=%d fallback=%d would_vlm=%d "
+                        "no_signal=%d tokens_in=%d tokens_out=%d seconds=%.1f",
+                        len(pages),
+                        keep,
+                        vlm,
+                        fallback,
+                        would_vlm,
+                        no_signal,
+                        tokens_in,
+                        tokens_out,
+                        elapsed,
+                    )
+          paperless_vlm_ocr--scan.py: |
+            """Offline text-layer gate scan: one decision record per PDF page.
+
+            No Django and no VLM here: the gate is always evaluated in enforce mode so the
+            report shows which pages would be routed to the vision model.
+
+            Usage:
+                python3 -m paperless_vlm_ocr.scan --lang deu+eng --jobs 8 \
+                    --threshold 0.9 --min-tokens 15 --out results.jsonl PDF...
+            """
+
+            from __future__ import annotations
+
+            import argparse
+            import json
+            import os
+            import sys
+            import tempfile
+            from concurrent.futures import ProcessPoolExecutor
+            from concurrent.futures import as_completed
+            from pathlib import Path
+
+            from paperless_vlm_ocr.config import VlmOcrConfig
+            from paperless_vlm_ocr.gate import classify
+            from paperless_vlm_ocr.gate import tokenize
+            from paperless_vlm_ocr.pages import layer_text
+            from paperless_vlm_ocr.pages import page_count
+            from paperless_vlm_ocr.pages import render_png
+            from paperless_vlm_ocr.pages import tesseract_text
+
+            _PROGRESS_EVERY = 500
+
+
+            def _error(file: str, page: int | None, exc: BaseException) -> dict:
+                return {
+                    "file": file,
+                    "page": page,
+                    "decision": "error",
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
+
+
+            def scan_page(file: str, page: int, lang: str, threshold: float, min_tokens: int) -> dict:
+                """Classify one page: born-digital layer against a Tesseract read of it."""
+                cfg = VlmOcrConfig(
+                    gate_mode="enforce",
+                    threshold=threshold,
+                    min_tokens=min_tokens,
+                    decision_log=Path(os.devnull),
+                )
+                try:
+                    path = Path(file)
+                    layer = layer_text(path, page)
+                    ref: str | None = None
+                    if len(tokenize(layer)) >= cfg.min_tokens:
+                        with tempfile.TemporaryDirectory() as tmp:
+                            png = render_png(path, page, Path(tmp) / "page.png", scale_to=None, gray=True)
+                            ref = tesseract_text(png, lang)
+                except Exception as exc:  # a page we cannot read is reported, never fatal
+                    return _error(file, page, exc)
+
+                verdict = classify(layer, ref, cfg)
+                decision = "empty_layer" if verdict.kind == "empty_layer" else verdict.decision
+                return {
+                    "file": file,
+                    "page": page,
+                    "layer_tokens": verdict.layer_tokens,
+                    "ref_tokens": verdict.ref_tokens,
+                    "coverage": verdict.coverage,
+                    "support": verdict.support,
+                    "decision": decision,
+                }
+
+
+            def main(argv: list[str] | None = None) -> int:
+                parser = argparse.ArgumentParser(description="Text-layer gate scan for PDF pages.")
+                parser.add_argument("--lang", default="deu+eng", help="Tesseract language(s)")
+                parser.add_argument("--jobs", type=int, default=1, help="worker processes")
+                parser.add_argument("--threshold", type=float, default=0.9, help="agreement threshold")
+                parser.add_argument("--min-tokens", type=int, default=15, help="minimum token count")
+                parser.add_argument("--out", default="results.jsonl", help="output JSONL path")
+                parser.add_argument("pdfs", nargs="+", help="PDF files")
+                args = parser.parse_args(argv)
+
+                out_path = Path(args.out)
+                jobs = max(1, args.jobs)
+                pages_done = 0
+
+                with out_path.open("w", encoding="utf-8") as out:
+                    def emit(record: dict) -> None:
+                        nonlocal pages_done
+                        out.write(json.dumps(record, ensure_ascii=False) + "\n")
+                        out.flush()
+                        pages_done += 1
+                        if pages_done % _PROGRESS_EVERY == 0:
+                            print(f"scanned {pages_done} pages", file=sys.stderr, flush=True)
+
+                    with ProcessPoolExecutor(max_workers=jobs) as pool:
+                        futures = {}
+                        for pdf in args.pdfs:
+                            file = str(pdf)
+                            try:
+                                count = page_count(Path(pdf))
+                            except Exception as exc:
+                                emit(_error(file, None, exc))
+                                continue
+                            for page in range(1, count + 1):
+                                future = pool.submit(
+                                    scan_page,
+                                    file,
+                                    page,
+                                    args.lang,
+                                    args.threshold,
+                                    args.min_tokens,
+                                )
+                                futures[future] = (file, page)
+                        for future in as_completed(futures):
+                            file, page = futures[future]
+                            try:
+                                record = future.result()
+                            except Exception as exc:  # worker died (MemoryError, crash, ...)
+                                record = _error(file, page, exc)
+                            emit(record)
+
+                print(f"scanned {pages_done} pages into {out_path}", file=sys.stderr, flush=True)
+                return 0
+
+
+            if __name__ == "__main__":
+                sys.exit(main())
+          paperless_vlm_ocr--vlm.py: |
+            """Vision-model transcription over an OpenAI-compatible endpoint."""
+
+            from __future__ import annotations
+
+            import base64
+            import time
+            from dataclasses import dataclass
+            from typing import TYPE_CHECKING
+
+            if TYPE_CHECKING:
+                from paperless_vlm_ocr.config import VlmOcrConfig
+
+            PROMPT = (
+                "Transcribe all text on this page exactly as written, in natural reading order. "
+                "Output plain text only. Do not translate, correct, summarize, or add anything. "
+                "Keep line breaks. For tables, output one row per line with cells separated by ' | '. "
+                "Write [?] for illegible words."
+            )
+            USER_TEXT = "Transcribe this page."
+
+
+            @dataclass
+            class VlmResult:
+                text: str
+                finish_reason: str | None
+                input_tokens: int
+                output_tokens: int
+                seconds: float
+
+
+            class VlmClient:
+                """Thin wrapper around one chat-completions endpoint."""
+
+                def __init__(self, cfg: VlmOcrConfig) -> None:
+                    import openai
+
+                    self._cfg = cfg
+                    self._client = openai.OpenAI(
+                        base_url=cfg.endpoint,
+                        api_key=cfg.api_key,
+                        timeout=cfg.timeout_s,
+                        max_retries=2,
+                    )
+
+                def transcribe(self, png_bytes: bytes) -> VlmResult:
+                    data = base64.b64encode(png_bytes).decode("ascii")
+                    started = time.monotonic()
+                    response = self._client.chat.completions.create(
+                        model=self._cfg.model,
+                        temperature=0,
+                        max_tokens=8192,
+                        messages=[
+                            {"role": "system", "content": PROMPT},
+                            {
+                                "role": "user",
+                                "content": [
+                                    {"type": "text", "text": USER_TEXT},
+                                    {
+                                        "type": "image_url",
+                                        "image_url": {"url": "data:image/png;base64," + data},
+                                    },
+                                ],
+                            },
+                        ],
+                        extra_body={"reasoning_effort": "none"},
+                    )
+                    seconds = time.monotonic() - started
+                    choice = response.choices[0]
+                    message = choice.message
+                    usage = response.usage
+                    return VlmResult(
+                        text=message.content or "",
+                        finish_reason=choice.finish_reason,
+                        input_tokens=usage.prompt_tokens if usage is not None else 0,
+                        output_tokens=usage.completion_tokens if usage is not None else 0,
+                        seconds=seconds,
+                    )
+
+
+            def clean(text: str) -> str:
+                """Strip one leading and one trailing Markdown code fence."""
+                lines = text.strip().splitlines()
+                if lines and lines[0].strip().startswith("```"):
+                    lines = lines[1:]
+                if lines and lines[-1].strip().startswith("```"):
+                    lines = lines[:-1]
+                return "\n".join(lines).strip()
+
+
+            def _has_repetition(text: str) -> bool:
+                last = ""
+                run = 0
+                for raw_line in text.splitlines():
+                    line = raw_line.strip()
+                    if not line or len(line) < 4:
+                        last = ""
+                        run = 0
+                        continue
+                    if line == last:
+                        run += 1
+                    else:
+                        last = line
+                        run = 1
+                    if run >= 8:
+                        return True
+                return False
+
+
+            def reject_reason(result: VlmResult, fallback_text: str) -> str | None:
+                """Return why a VLM transcription is unusable, or None if it is fine."""
+                text = clean(result.text)
+                if result.finish_reason == "length":
+                    return "truncated"
+                if len(text) < 20 and len(fallback_text) >= 50:
+                    return "empty"
+                if _has_repetition(text):
+                    return "repetition"
+                if len(fallback_text) >= 200 and len(text) > 4 * len(fallback_text) + 2000:
+                    return "runaway"
+                return None
     service:
       main:
         controller: main
@@ -493,6 +1545,34 @@ spec:
         type: configMap
         name: paperless-ngx-postconsumptionscript
         defaultMode: 0755
+      vlmocr:
+        type: configMap
+        name: paperless-ngx-vlmocr
+        defaultMode: 0444
+        items:
+          - key: paperless_vlm_ocr-0.1.1.dist-info--METADATA
+            path: paperless_vlm_ocr-0.1.1.dist-info/METADATA
+          - key: paperless_vlm_ocr-0.1.1.dist-info--entry_points.txt
+            path: paperless_vlm_ocr-0.1.1.dist-info/entry_points.txt
+          - key: paperless_vlm_ocr--__init__.py
+            path: paperless_vlm_ocr/__init__.py
+          - key: paperless_vlm_ocr--config.py
+            path: paperless_vlm_ocr/config.py
+          - key: paperless_vlm_ocr--decisions.py
+            path: paperless_vlm_ocr/decisions.py
+          - key: paperless_vlm_ocr--gate.py
+            path: paperless_vlm_ocr/gate.py
+          - key: paperless_vlm_ocr--pages.py
+            path: paperless_vlm_ocr/pages.py
+          - key: paperless_vlm_ocr--parser.py
+            path: paperless_vlm_ocr/parser.py
+          - key: paperless_vlm_ocr--scan.py
+            path: paperless_vlm_ocr/scan.py
+          - key: paperless_vlm_ocr--vlm.py
+            path: paperless_vlm_ocr/vlm.py
+        globalMounts:
+          - path: /usr/src/paperless/vlm-ocr
+            readOnly: true
       data:
         type: persistentVolumeClaim
         storageClass: cluster-replicated
