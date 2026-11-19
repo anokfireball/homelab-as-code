@@ -17,7 +17,7 @@ spec:
     image:
       registry: ghcr.io
       repository: stirling-tools/stirling-pdf
-      tag: 3.3.0-fat@sha256:c91c53c8cdb68a230e3d710538a2bbcefcd4f6a32d4aa8f93fb1fc726141d5ad
+      tag: 3.4.0-fat@sha256:0bc9e784a2345acecb3f5cbc52b3fc331427be45c98e6f5455bb20273374ba5d
     # https://docs.stirlingpdf.com/Configuration/
     envs:
       - name: SYSTEM_DEFAULTLOCALE
