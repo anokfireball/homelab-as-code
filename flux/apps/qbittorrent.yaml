@@ -35,7 +35,7 @@ spec:
           run-permissions:
             image:
               repository: ghcr.io/anokfireball/base-image
-              tag: 3.24.4@sha256:cb0ec79a5183ad6fae8a73766dbd9cf2a69628dc9c966c0eed9a6ea217fa0f2c
+              tag: 3.24.4@sha256:b20f348d6e11ca59a350ca7cb6e7c99df691dbfb74f9615bc5d83d624ed0d9e8
             command: ["chown"]
             args: ["1000:1000", "/run"]
             securityContext:
@@ -164,7 +164,7 @@ spec:
           logs:
             image:
               repository: ghcr.io/anokfireball/base-image
-              tag: 3.24.4@sha256:cb0ec79a5183ad6fae8a73766dbd9cf2a69628dc9c966c0eed9a6ea217fa0f2c
+              tag: 3.24.4@sha256:b20f348d6e11ca59a350ca7cb6e7c99df691dbfb74f9615bc5d83d624ed0d9e8
             command: ["tail"]
             args: ["-F", "/config/qBittorrent/logs/qbittorrent.log"]
             securityContext:
