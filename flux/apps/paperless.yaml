@@ -195,14 +195,20 @@ spec:
       repository: valkey/valkey
       # index digest from docker buildx imagetools inspect
       tag: 9.1.4@sha256:3ab0eca823ebbf0fe352476ebac330ac9e5f14b592b9a954eab296d341e81b0e
-    # Celery broker only; contents are reconstructible. An emptyDir keeps this
-    # off RWO storage, whose single-node attachment deadlocks a rolling update
-    # when the replacement pod is scheduled onto a different node.
+    # Celery broker. AOF on a small PVC, so queued tasks survive a pod restart
+    # instead of dying with an emptyDir.
     persistence:
-      enabled: false
-    # Required: chart 1.0 defaults to Recreate, which SSA rejects against the
-    # live rollingUpdate block. RollingUpdate is safe on an emptyDir.
+      enabled: true
+      size: 1Gi
+      storageClass: cluster-replicated
+    # RollingUpdate, but with maxSurge 0 (postRenderer): the RWO volume must
+    # not need two pods at once. Recreate is not an option, its stale
+    # rollingUpdate block is owned by an old kubectl-patch SSA cannot clear.
     deploymentStrategy: RollingUpdate
+    # fsync once a second: a restart loses at most the last second of tasks.
+    extraConfig: |
+      appendonly yes
+      appendfsync everysec
   postRenderers:
     - kustomize:
         patches:
@@ -215,9 +221,14 @@ spec:
               metadata:
                 name: paperless-ngx-redis-master
               spec:
+                strategy:
+                  # maxSurge 0: delete the old pod before the RWO volume is reattached
+                  rollingUpdate:
+                    maxSurge: 0
+                    maxUnavailable: 1
                 template:
                   spec:
-                    # the valkey chart has no hostUsers value; this pod has only configMap and emptyDir volumes
+                    # the valkey chart has no hostUsers value; no NFS, the data PVC is Longhorn RWO
                     hostUsers: false
 ---
 apiVersion: v1
