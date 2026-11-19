@@ -441,7 +441,7 @@ spec:
                     key: llm-embedding-model
               PYTHONPATH: /usr/src/paperless/vlm-ocr
               PAPERLESS_VLM_OCR_ENABLED: "true"
-              PAPERLESS_VLM_OCR_GATE_MODE: shadow
+              PAPERLESS_VLM_OCR_GATE_MODE: enforce
               PAPERLESS_VLM_OCR_ENDPOINT:
                 valueFrom:
                   secretKeyRef:
