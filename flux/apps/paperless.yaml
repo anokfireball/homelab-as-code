@@ -192,8 +192,7 @@ spec:
   values:
     fullnameOverride: paperless-ngx-redis-master
     image:
-      repository: valkey/valkey
-      # index digest from docker buildx imagetools inspect
+      # renovate: datasource=docker depName=docker.io/valkey/valkey
       tag: 9.1.4@sha256:3ab0eca823ebbf0fe352476ebac330ac9e5f14b592b9a954eab296d341e81b0e
     # Celery broker. AOF on a small PVC, so queued tasks survive a pod restart
     # instead of dying with an emptyDir.
