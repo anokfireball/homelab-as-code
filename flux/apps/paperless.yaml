@@ -194,7 +194,7 @@ spec:
     image:
       repository: valkey/valkey
       # index digest from docker buildx imagetools inspect
-      tag: 9.1.3@sha256:3add1a336a920ea54770a001ab6feb3da5fceea96a40373a3a2cd469b815f0b7
+      tag: 9.1.4@sha256:3ab0eca823ebbf0fe352476ebac330ac9e5f14b592b9a954eab296d341e81b0e
     # Celery broker only; contents are reconstructible. An emptyDir keeps this
     # off RWO storage, whose single-node attachment deadlocks a rolling update
     # when the replacement pod is scheduled onto a different node.
