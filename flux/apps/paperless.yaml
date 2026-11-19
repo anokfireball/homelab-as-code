@@ -201,10 +201,8 @@ spec:
       enabled: true
       size: 1Gi
       storageClass: cluster-replicated
-    # RollingUpdate, but with maxSurge 0 (postRenderer): the RWO volume must
-    # not need two pods at once. Recreate is not an option, its stale
-    # rollingUpdate block is owned by an old kubectl-patch SSA cannot clear.
-    deploymentStrategy: RollingUpdate
+    # Recreate: the RWO volume must never need two pods at once.
+    deploymentStrategy: Recreate
     # fsync once a second: a restart loses at most the last second of tasks.
     extraConfig: |
       appendonly yes
@@ -221,11 +219,6 @@ spec:
               metadata:
                 name: paperless-ngx-redis-master
               spec:
-                strategy:
-                  # maxSurge 0: delete the old pod before the RWO volume is reattached
-                  rollingUpdate:
-                    maxSurge: 0
-                    maxUnavailable: 1
                 template:
                   spec:
                     # the valkey chart has no hostUsers value; no NFS, the data PVC is Longhorn RWO
