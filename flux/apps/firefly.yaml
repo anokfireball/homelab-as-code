@@ -319,7 +319,7 @@ spec:
   values:
     image:
       repository: fireflyiii/data-importer
-      tag: version-2.3.5@sha256:59f2f26ddf6eb55e84ce0d571259c9aabd6ddfcc23dd4d3825ab01ad79e34930
+      tag: version-2.3.5@sha256:ed964a235ed215d3b7f314d73122e2bb9adb9577889face56b72c1f5ddbd67eb
     fireflyiii:
       url: http://firefly-firefly-iii
       vanityUrl: https://firefly.${SERVICE_DOMAIN}
@@ -416,7 +416,7 @@ spec:
                     initContainers:
                       - name: seed
                         # renovate: datasource=docker depName=fireflyiii/data-importer
-                        image: fireflyiii/data-importer:version-2.3.5@sha256:59f2f26ddf6eb55e84ce0d571259c9aabd6ddfcc23dd4d3825ab01ad79e34930
+                        image: fireflyiii/data-importer:version-2.3.5@sha256:ed964a235ed215d3b7f314d73122e2bb9adb9577889face56b72c1f5ddbd67eb
                         command: ["sh", "-c", "cp -R /var/www/html/storage/. /seed/storage/ && cp -R /var/www/html/bootstrap/cache/. /seed/bootstrap-cache/ && cp -R /etc/nginx/. /seed/nginx-conf/"]
                         securityContext:
                           allowPrivilegeEscalation: false
