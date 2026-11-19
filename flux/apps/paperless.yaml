@@ -519,7 +519,7 @@ spec:
         type: image
         image:
           repository: ghcr.io/anokfireball/paperless-vlm-ocr
-          tag: 0.2.0@sha256:52593bbbac3c68e54af3bdd8a0c8ae2059b0b765266d6d2ea47591ca623fe121
+          tag: 0.3.0@sha256:77d51eb0d43f4bab8608bdf3f2a8938965245e87b63b10b461167ecf398c1127
         pullPolicy: IfNotPresent
         globalMounts:
           - path: /usr/src/paperless/vlm-ocr
