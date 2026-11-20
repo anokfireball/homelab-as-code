@@ -450,6 +450,18 @@ spec:
                 capabilities:
                   drop: ["ALL"]
           pod:
+            # Inference is CPU-bound (ONNX Runtime sizes its thread pool from the cores it
+            # sees); worker1 has 20 threads against worker2/3's 4. Preferred, not required,
+            # so the pod still lands somewhere during a drain or if worker1 loses capacity.
+            affinity:
+              nodeAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    preference:
+                      matchExpressions:
+                        - key: kubernetes.io/hostname
+                          operator: In
+                          values: ["worker1"]
             securityContext:
               seccompProfile:
                 type: RuntimeDefault
