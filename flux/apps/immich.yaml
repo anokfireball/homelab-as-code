@@ -358,6 +358,18 @@ spec:
       controllers:
         main:
           pod:
+            # The cache is a latency dependency of the server; keep it on the database
+            # node so the server's two anchors are the same node.
+            affinity:
+              podAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    podAffinityTerm:
+                      topologyKey: kubernetes.io/hostname
+                      labelSelector:
+                        matchLabels:
+                          cnpg.io/cluster: immich-postgresql
+                          role: primary
             hostUsers: false
             securityContext:
               runAsNonRoot: true
@@ -419,6 +431,26 @@ spec:
                 capabilities:
                   drop: ["ALL"]
           pod:
+            # Request latency here is database and cache round-trips: metadata reads,
+            # thumbnails, search. Follow the CNPG primary, then prefer the node that
+            # also runs this stack's valkey so both anchors converge on one node.
+            affinity:
+              podAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    podAffinityTerm:
+                      topologyKey: kubernetes.io/hostname
+                      labelSelector:
+                        matchLabels:
+                          cnpg.io/cluster: immich-postgresql
+                          role: primary
+                  - weight: 100
+                    podAffinityTerm:
+                      topologyKey: kubernetes.io/hostname
+                      labelSelector:
+                        matchLabels:
+                          app.kubernetes.io/name: valkey
+                          app.kubernetes.io/instance: immich
             securityContext:
               seccompProfile:
                 type: RuntimeDefault
