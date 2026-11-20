@@ -39,9 +39,9 @@ k8s_longhorn → prerequisites for Longhorn (open-iscsi, disk prep)
 k8s_flux     → Flux bootstrap + SOPS key injection
 ```
 
-`cluster.yaml` installs the versions pinned in `group_vars/all/versions.yaml` on new nodes only. On nodes that are already part of the cluster it fails if kubelet, kubeadm, containerd, the containerd config or kube-vip differ from the pins, instead of changing them.
+`cluster.yaml` installs the versions pinned in `group_vars/all/versions.yaml` on new nodes only. On nodes that are already part of the cluster it fails if kubelet, kubeadm, containerd, the containerd config or kube-vip differ from the pins, instead of changing them. A new node is added by putting it in `inventory.ini` and running `cluster.yaml --limit <node>`; see [Onboarding a node](ansible/cluster/RUNBOOK.md#onboarding-a-node-clusteryaml).
 
-Step-by-step instructions for running `upgrade.yaml` and `maintenance.yaml` by hand: [ansible/cluster/RUNBOOK.md](ansible/cluster/RUNBOOK.md).
+Step-by-step instructions for onboarding a node, running `upgrade.yaml` and `maintenance.yaml` by hand: [ansible/cluster/RUNBOOK.md](ansible/cluster/RUNBOOK.md).
 
 #### Node upgrades (`ansible/cluster/upgrade.yaml`)
 
@@ -62,7 +62,7 @@ ansible-playbook -i inventory.ini upgrade.yaml --tags restore     # scale shed w
 
 #### OS maintenance (`ansible/cluster/maintenance.yaml`)
 
-Unattended-upgrades installs security updates but never reboots a node (`Unattended-Upgrade::Automatic-Reboot "false"`). `apt-daily-upgrade.timer` fires at a fixed slot per node, 03:00 plus one hour per position in the `cluster` group (controlplane1 03:00 … worker3 07:00, `unattended_upgrade_base_hour`/`unattended_upgrade_hour_spacing`), and neither apt timer catches up on missed runs (`Persistent=false`). `apt-daily.service` (download only) is stopped after `TimeoutStartSec=1h`, so a hung download cannot block `apt-daily-upgrade.service` indefinitely; the upgrade service itself has no timeout, killing dpkg is unsafe. Apply only that part with `ansible-playbook -i inventory.ini cluster.yaml --tags unattended_upgrades`.
+Unattended-upgrades installs security updates but never reboots a node (`Unattended-Upgrade::Automatic-Reboot "false"`). `apt-daily-upgrade.timer` fires at a fixed slot per node, 03:00 plus one hour per position in the `cluster` group (controlplane1 03:00 … worker3 08:00, `unattended_upgrade_base_hour`/`unattended_upgrade_hour_spacing`), and neither apt timer catches up on missed runs (`Persistent=false`). `apt-daily.service` (download only) is stopped after `TimeoutStartSec=1h`, so a hung download cannot block `apt-daily-upgrade.service` indefinitely; the upgrade service itself has no timeout, killing dpkg is unsafe. Apply only that part with `ansible-playbook -i inventory.ini cluster.yaml --tags unattended_upgrades`.
 
 Pending reboots and full OS updates go through `maintenance.yaml`, one node at a time:
 

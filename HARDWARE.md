@@ -19,3 +19,9 @@
 - **SSD**: 1TB Samsung 870 QVO (SATA) + 1TB KIOXIA Exceria G2 (NVMe)
 - **NIC**: Realtek RTL8111GN (r8169)
 - **BIOS**: [02.58](https://ftp.hp.com/pub/softpaq/sp141501-142000/sp141723.exe)
+## 1x [Dell OptiPlex Micro 7010](https://www.dell.com/support/product-details/en-in/product/optiplex-7010-micro/drivers)
+- **CPU**: Intel Core i5-13500T 14C/20T x86 @1.6GHz (4.6GHz boost)
+- **RAM**: 2x8GB DDR4 @3200MHz
+- **SSD**: 256GB KIOXIA KBG50ZNS256G (NVMe, temporary OS disk; to be replaced by a SATA SSD) + 1TB KIOXIA Exceria G2 (NVMe, planned for Longhorn at `/mnt/k8s-data`)
+- **NIC**: Intel I219-LM (e1000e)
+- **BIOS**: [1.40.1](https://www.dell.com/support/product-details/en-in/product/optiplex-7010-micro/drivers)

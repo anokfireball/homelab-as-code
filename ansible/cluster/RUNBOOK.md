@@ -1,9 +1,10 @@
 # Cluster operations runbook
 
-Step-by-step procedures for the two manual node workflows:
+Step-by-step procedures for the three manual node workflows:
 
 - [Kubernetes / containerd / kube-vip upgrade](#kubernetes-upgrade-upgradeyaml) (`upgrade.yaml`)
 - [OS maintenance: apt updates and reboots](#os-maintenance-maintenanceyaml) (`maintenance.yaml`)
+- [Onboarding a node](#onboarding-a-node-clusteryaml) (`cluster.yaml`, `--limit <node>`)
 
 [ARCHITECTURE.md](../../ARCHITECTURE.md#stage-2-cluster-ansible-ansiblecluster) describes what the playbooks do internally. This file covers how to run them.
 
@@ -60,6 +61,43 @@ export KUBECONFIG=~/.kube/homelab-admin.conf
    scp -i ~/.ssh/id_ed25519_ansible ansible@192.168.1.211:/var/backups/etcd/etcd-<timestamp>.db ~/.kube/
    ```
 
+## Onboarding a node (`cluster.yaml`)
+
+Joins a freshly installed Ubuntu 24.04 node: base OS, pinned runtime and Kubernetes packages, `kubeadm join`, and the Longhorn prerequisites. Longhorn data disks are configured on the node, not in this repo.
+
+1. **Prepare the host.** Use the cloud-init netboot in [`cloud-init/`](../cloud-init): users `admin` and `ansible` with key auth and passwordless sudo, DHCP with DNS `192.168.1.1`, and a DHCP reservation for the node's MAC. Apply pending firmware before joining:
+
+   ```sh
+   sudo fwupdmgr refresh --force
+   sudo fwupdmgr update
+   ```
+
+2. **Add it to the inventory** in name order. The node's index in `groups['cluster']` also sets its unattended-upgrades slot:
+
+   ```ini
+   worker1 ansible_host=192.168.1.221
+   ```
+
+3. **Do the checks before every run**, including the etcd snapshot. Do not leave the inventory line in place before the node is ready to join: both `upgrade.yaml` and `maintenance.yaml` preflights check every inventory host.
+
+4. **Run it for that node:**
+
+   ```sh
+   ansible-playbook -i inventory.ini cluster.yaml --limit worker1
+   ```
+
+   Expect one or two reboots (hostname, kernel, GRUB command line) and several minutes of apt and image pulls. The run is resumable; fix the cause and re-run the same command.
+
+5. **Re-stagger the apt timers.** Adding a node shifts every later worker's slot. Re-apply the drop-ins on all nodes:
+
+   ```sh
+   ansible-playbook -i inventory.ini cluster.yaml --tags unattended_upgrades
+   ```
+
+   Check the new slots with `systemctl list-timers apt-daily-upgrade.timer` on each node.
+
+6. **Verify.** `kubectl get nodes` shows the node `Ready` at the pinned versions with the worker role; `kubectl -n longhorn-system get nodes.longhorn.io` lists it. Then do the checks after every run.
+
 ## Kubernetes upgrade (`upgrade.yaml`)
 
 Upgrades kubelet/kubeadm/kubectl, containerd, the containerd config and kube-vip on existing nodes to the versions pinned in [`group_vars/all/versions.yaml`](group_vars/all/versions.yaml).
@@ -99,7 +137,7 @@ Installs all pending apt updates (`apt-get dist-upgrade`; the held kubernetes an
 2. **See what is pending** (read-only):
 
    ```sh
-   for ip in 211 212 213 222 223; do
+   for ip in 211 212 213 221 222 223; do
      printf '192.168.1.%s pending=%s reboot-required=%s\n' $ip \
        "$(ssh -i ~/.ssh/id_ed25519_ansible ansible@192.168.1.$ip 'apt-get -s -o Debug::NoLocking=1 dist-upgrade 2>/dev/null | grep -c ^Inst')" \
        "$(ssh -i ~/.ssh/id_ed25519_ansible ansible@192.168.1.$ip 'test -f /var/run/reboot-required && echo yes || echo no')"
@@ -124,6 +162,7 @@ Installs all pending apt updates (`apt-get dist-upgrade`; the held kubernetes an
    ansible-playbook -i inventory.ini maintenance.yaml --limit controlplane1
    ansible-playbook -i inventory.ini maintenance.yaml --limit controlplane2
    ansible-playbook -i inventory.ini maintenance.yaml --limit controlplane3
+   ansible-playbook -i inventory.ini maintenance.yaml --limit worker1
    ansible-playbook -i inventory.ini maintenance.yaml --limit worker2
    ansible-playbook -i inventory.ini maintenance.yaml --limit worker3
    ```
@@ -177,7 +216,7 @@ Timeouts and retries are set in [`group_vars/all/upgrade.yaml`](group_vars/all/u
 
 ## Unattended-upgrades
 
-Unattended-upgrades installs security updates daily, one node per hour (controlplane1 at 03:00 … worker3 at 07:00), and never reboots. Reboots it leaves pending are done with `maintenance.yaml`. Missed runs are not caught up.
+Unattended-upgrades installs security updates daily, one node per hour (controlplane1 at 03:00, worker1 at 06:00 … worker3 at 08:00), and never reboots. Reboots it leaves pending are done with `maintenance.yaml`. Missed runs are not caught up.
 
 If the apt timers were stopped or masked for a while, the nodes build up a backlog. Unmask the timers only **after** running `maintenance.yaml` over all nodes, otherwise the backlog installs on live nodes:
 

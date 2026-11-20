@@ -54,13 +54,6 @@
             --control-plane
             --certificate-key {{ certificate_key.stdout_lines | last }}
 
-    - name: construct the kubeadm join command for worker nodes
-      set_fact:
-        kubeadm_join_command_worker: >
-          kubeadm join {{ vip }}:6443
-            --token {{ kubeadm_token.stdout }}
-            --discovery-token-ca-cert-hash sha256:{{ ca_cert_hash.stdout }}
-
 # https://github.com/kube-vip/kube-vip/issues/684
 - name: fetch super-admin.conf from initial control plane node
   fetch:
@@ -84,10 +77,46 @@
 
 - when: "'worker' in group_names"
   block:
+    - name: create new kubeadm token
+      command: kubeadm token create --ttl 2h
+      delegate_to: "{{ groups['controlplane'][0] }}"
+      register: worker_kubeadm_token
+      changed_when: true
+      when: k8s_join
+
+    - name: retrieve CA certificate hash
+      shell: >
+        set -o pipefail &&
+        openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt
+        | openssl rsa -pubin -outform der 2>/dev/null
+        | openssl dgst -sha256 -hex
+        | sed 's/^.* //'
+      args:
+        executable: /bin/bash
+      delegate_to: "{{ groups['controlplane'][0] }}"
+      register: worker_ca_cert_hash
+      changed_when: false
+      when: k8s_join
+
     - name: kubeadm join
-      command: "{{ hostvars['controlplane1'].kubeadm_join_command_worker }}"
+      command: >
+        kubeadm join {{ vip }}:6443
+        --token {{ worker_kubeadm_token.stdout }}
+        --discovery-token-ca-cert-hash sha256:{{ worker_ca_cert_hash.stdout }}
       when: k8s_join
       changed_when: true
+
+    - name: wait for the node to register
+      command: kubectl get node {{ inventory_hostname }}
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      delegate_to: "{{ groups['controlplane'][0] }}"
+      register: worker_node_registered
+      until: worker_node_registered.rc == 0
+      retries: 30
+      delay: 5
+      changed_when: false
+      when: k8s_join
 
 - name: add worker node-role labels
   command: "kubectl label node {{ inventory_hostname }} node-role.kubernetes.io/worker= --overwrite"
