@@ -134,7 +134,7 @@ spec:
         # The digest rides in the tag, so the chart's distroless suffix is spelled out in it.
         distroless: false
         # renovate: datasource=docker depName=quay.io/prometheus/node-exporter
-        tag: v1.12.1-distroless@sha256:8c9bac11973b94b59be88d6e11fee4429aa743c8846cdc75d65b18db33f6a106
+        tag: v1.13.1-distroless@sha256:dbc46b5381ae47c5634a6ad16d7b4862191979b0ba4f4cfbdee85e5aa2fcd1e3
       securityContext:
         seccompProfile:
           type: RuntimeDefault
