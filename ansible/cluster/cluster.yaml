@@ -6,7 +6,7 @@
   any_errors_fatal: true
   roles:
     - { role: os_base, tags: [os_base] }
-    - { role: os_power }
+    - { role: os_power, tags: [os_power] }
     - { role: k8s_cluster }
     - { role: k8s_longhorn }
     - { role: k8s_flux }
