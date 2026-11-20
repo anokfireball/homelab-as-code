@@ -45,11 +45,6 @@ spec:
         emptyDir: {}
       - name: dictionaries
         emptyDir: {}
-      # iGPU: /dev/dri is card1/renderD128 on worker1, there is no card0
-      - name: dri
-        hostPath:
-          path: /dev/dri
-          type: Directory
     volumeMounts:
       - name: nas-filme
         mountPath: /mnt/tank/Filme
@@ -59,19 +54,19 @@ spec:
         mountPath: /tmp
       - name: dictionaries
         mountPath: /jellyfin/Dictionaries
-      - name: dri
-        mountPath: /dev/dri
     nodeSelector:
       kubernetes.io/hostname: worker1
     resources:
       requests:
         cpu: 500m
         memory: 1Gi
+      limits:
+        gpu.intel.com/i915: 1
     podSecurityContext:
       runAsNonRoot: true
       runAsUser: 1000
       runAsGroup: 1000
-      # render(993)/video(44) on worker1: renderD128 is root:render 0660, the app is uid 1000
+      # render(993)/video(44) on worker1: the injected renderD128 is root:render 0660, the app is uid 1000
       supplementalGroups: [44, 993]
       # one-time recursive chgrp of /config (group 993 today); OnRootMismatch keeps later starts cheap
       fsGroup: 1000
