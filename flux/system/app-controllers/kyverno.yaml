@@ -80,6 +80,15 @@ spec:
         repository: kyverno/reports-controller
         tag: "v1.20.0@sha256:f54e3cc106fadb1a615d0ec11c42f741f51d3580a5f70dfbe7bd7ec58864ef03"
       serviceMonitor: *service-monitor-config
+      # The chart default cap (128Mi) is below this controller's steady-state working set:
+      # with ~1.1k PolicyReports and hourly background scans it plateaus at ~127Mi and is
+      # OOMKilled once per scan cycle. 512Mi keeps a 4x margin over the observed peak.
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          memory: 512Mi
       # audit-service-account-token lists (Cluster)RoleBindings during background scans
       rbac:
         clusterRole:
