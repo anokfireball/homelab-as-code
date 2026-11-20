@@ -62,6 +62,29 @@
   set_fact:
     aspm_policy: "{{ aspm_policies['content'] | b64decode | split | last | replace('[', '') | replace(']', '') }}"
 
+- name: work around the e1000e TX unit hang on the OptiPlex I219-LM
+  when: product_name.stdout == "OptiPlex Micro 7010"
+  # BIOS 1.40.1, kernel 6.8.0-151 and this i219 revision (firmware 2.3-4) log
+  # "Detected Hardware Unit Hang" every 2s from ~17 min after boot: the TX
+  # descriptor ring stalls (TDH/TDT wedge, next_to_watch set), the link stops
+  # passing traffic and the node leaves the network until it is power-cycled.
+  # The NIC exposes no PCIe capability, so the pcie_aspm policy never applied to
+  # it and turning ASPM off does not help; disabling TSO/GSO is the documented
+  # workaround for this signature. EEE and runtime suspend are turned off too.
+  block:
+    - cron:
+        name: disable TSO and GSO on the Ethernet controller
+        special_time: reboot
+        job: /usr/sbin/ethtool -K {{ ansible_default_ipv4.interface }} tso off gso off
+    - cron:
+        name: disable EEE on the Ethernet controller
+        special_time: reboot
+        job: /usr/sbin/ethtool --set-eee {{ ansible_default_ipv4.interface }} eee off
+    - cron:
+        name: keep the Ethernet controller out of runtime suspend
+        special_time: reboot
+        job: echo on > '/sys/class/net/{{ ansible_default_ipv4.interface }}/device/power/control'
+
 - name: setup kernel parameters
   lineinfile:
     path: /etc/default/grub
