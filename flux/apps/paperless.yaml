@@ -360,6 +360,16 @@ spec:
       alwaysAppendIdentifierToResourceName: true
     defaultPodOptions:
       automountServiceAccountToken: false
+      # preferred, not required: a worker1 drain must not leave paperless Pending
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: ["worker1"]
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
