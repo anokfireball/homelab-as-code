@@ -179,6 +179,12 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td>via SMART</td>
     </tr>
     <tr>
+        <td></td>
+        <td><a href="https://github.com/intel/intel-device-plugins-for-kubernetes">Intel GPU Device Plugin</a></td>
+        <td>iGPU Access for Workloads</td>
+        <td>worker1 only, exposes <code>gpu.intel.com/i915</code> so the device cgroup allows <code>/dev/dri</code>; used by Jellyfin VA-API</td>
+    </tr>
+    <tr>
         <td><img height="32" width="32" src="https://raw.githubusercontent.com/kubernetes-sigs/descheduler/refs/heads/master/assets/logo/descheduler-stacked-color.png"></td>
         <td><a href="https://sigs.k8s.io/descheduler">descheduler</a></td>
         <td>Pod Eviction for Node Balancing</td>
