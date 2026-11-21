@@ -2,7 +2,7 @@
 # Single source of truth for node-level versions, bumped by Renovate.
 # cluster.yaml installs these on new nodes only; upgrade.yaml rolls existing nodes to them.
 # renovate: datasource=github-releases depName=kubernetes/kubernetes extractVersion=^v(?<version>\d+\.\d+\.\d+)$
-k8s_version: "1.37.1"
+k8s_version: "1.37.2"
 # Docker's apt repo does not publish every upstream release; track the package the nodes install.
 # renovate: datasource=deb depName=containerd.io registryUrl=https://download.docker.com/linux/ubuntu?suite=noble&components=stable&binaryArch=amd64 extractVersion=^(?<version>\d+\.\d+\.\d+)-
 containerd_version: "2.4.1"
