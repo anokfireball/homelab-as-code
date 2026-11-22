@@ -4,6 +4,7 @@ resources:
   - bitwarden.yaml
   - emqx.yaml
   - esp-firmware.yaml
+  - esphome-build.yaml
   - excalidraw.yaml
   - firefly.yaml
   - fresh-rss.yaml
