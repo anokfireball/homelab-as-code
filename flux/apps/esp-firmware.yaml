@@ -1,0 +1,166 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: esp-firmware
+  namespace: default
+spec:
+  interval: 1m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  values:
+    defaultPodOptions:
+      hostUsers: false
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        # uploads land through `kubectl exec -i deploy/esp-firmware -c app -- tar -xf - -C /srv/firmware`,
+        # i.e. as uid 101, so the claim has to belong to that group
+        fsGroup: 101
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+    controllers:
+      esp-firmware:
+        # single writer on an RWO volume: a surge pod on the other node deadlocks (issue #16)
+        strategy: Recreate
+        containers:
+          app:
+            image:
+              repository: nginxinc/nginx-unprivileged
+              tag: 1.29-alpine@sha256:0c79d56aee561a1d81c63f00eee5fb5fe29279560cdc55e91425133104c7fbe6
+            env:
+              TZ: Europe/Berlin
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  periodSeconds: 2
+                  failureThreshold: 30
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  periodSeconds: 10
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 8080
+                  periodSeconds: 30
+                  failureThreshold: 6
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+    configMaps:
+      nginx:
+        data:
+          # serves GET/HEAD of the PVC tree behind basic auth only; the artifacts themselves are not secret
+          default.conf: |
+            server {
+                listen 8080;
+                server_name _;
+                root /srv/firmware;
+
+                # only these extensions are ever served; everything else is a binary blob
+                types {
+                    application/json json;
+                    application/octet-stream bin ota;
+                    text/plain txt md5;
+                }
+                default_type application/octet-stream;
+
+                # the manifest is re-fetched on every check; firmware artifacts never change in place
+                add_header Cache-Control "no-store" always;
+
+                # probes need no credentials
+                location = /healthz {
+                    auth_basic off;
+                    access_log off;
+                    default_type text/plain;
+                    return 200 "ok\n";
+                }
+
+                location ~ /\. {
+                    deny all;
+                }
+
+                location / {
+                    limit_except GET HEAD {
+                        deny all;
+                    }
+                    auth_basic "ESPHome firmware";
+                    auth_basic_user_file /etc/nginx/auth/htpasswd;
+                    autoindex off;
+                    try_files $uri =404;
+                }
+            }
+    service:
+      # plain HTTP on the VIP: devices on the IoT VLAN reach it through OPNsense's port forward to 192.168.1.4:8080
+      web:
+        controller: esp-firmware
+        type: LoadBalancer
+        annotations:
+          metallb.io/address-pool: http-vip
+          metallb.io/allow-shared-ip: http-vip
+        ports:
+          http:
+            port: 8080
+            targetPort: 8080
+            protocol: HTTP
+    persistence:
+      firmware:
+        type: persistentVolumeClaim
+        storageClass: cluster-replicated
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        # no k8up backup: every artifact is rebuilt from the ESPHome YAML and re-uploaded
+        globalMounts:
+          - path: /srv/firmware
+      nginx-conf:
+        type: configMap
+        name: esp-firmware-nginx
+        globalMounts:
+          - path: /etc/nginx/conf.d
+            readOnly: true
+      auth:
+        type: secret
+        name: esp-firmware-secrets
+        defaultMode: 0440
+        globalMounts:
+          - path: /etc/nginx/auth
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      log:
+        # nginx writes /var/log/nginx/{error,access}.log
+        type: emptyDir
+        globalMounts:
+          - path: /var/log/nginx

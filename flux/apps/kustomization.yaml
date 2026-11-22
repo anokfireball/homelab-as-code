@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - bitwarden.yaml
   - emqx.yaml
+  - esp-firmware.yaml
   - excalidraw.yaml
   - firefly.yaml
   - fresh-rss.yaml
