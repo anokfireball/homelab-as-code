@@ -1,5 +1,0 @@
-# flate cannot render this file offline: it authenticates to the private
-# esphome-devices repo and CI holds no credential for it. The source repo
-# validates its Job and ConfigMap with `kubectl apply --dry-run=server`.
-# Scoped to this directory: Flux reads .sourceignore only at the repo root.
-esphome-build.yaml

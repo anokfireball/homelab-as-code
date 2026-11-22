@@ -12,7 +12,8 @@ spec:
   # toolchains and build dirs are reproducible: losing the claim only costs one
   # slow rebuild, so it is scratch and is not backed up
   storageClassName: cluster-scratch
-  accessMode: ReadWriteOnce
+  accessModes:
+    - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
