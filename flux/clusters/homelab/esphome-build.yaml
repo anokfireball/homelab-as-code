@@ -1,0 +1,44 @@
+---
+# ESPHome firmware builds: the private esphome-devices repo holds the device
+# YAML plus build/build.sh; every commit there changes the Job's generated
+# ConfigMap hash, so this Kustomization rebuilds only what changed.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: esphome-devices
+  namespace: flux-system
+spec:
+  interval: 5m
+  url: ssh://git@github.com/anokfireball/esphome-devices
+  ref:
+    branch: main
+  secretRef:
+    name: esphome-devices-deploy-key
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: esphome-build
+  namespace: flux-system
+spec:
+  interval: 10m
+  retryInterval: 1m
+  # the Job itself may run for an hour; the Kustomization only applies it
+  timeout: 5m
+  sourceRef:
+    kind: GitRepository
+    name: esphome-devices
+  path: ./
+  prune: true
+  # A Kubernetes Job is immutable: when the rendered Job spec changes (new
+  # config hash, image bump) a plain apply fails forever, so Flux has to delete
+  # and recreate it. Unchanged specs are left alone, and a completed Job stays
+  # completed until the next commit.
+  force: true
+  # never wait for the build: it can take an hour and a failure is reported by
+  # the Job, not by this Kustomization
+  wait: false
+  dependsOn:
+    # the build secrets and the esphome-build-cache claim
+    - name: secrets
+    - name: apps

@@ -1,0 +1,18 @@
+---
+# Only the build cache is declared here. The build Job lives in the private
+# esphome-devices repo and is applied by the `esphome-build` Flux Kustomization
+# (flux/clusters/homelab/esphome-build.yaml), so every commit to that repo
+# recreates the Job from the new sources.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: esphome-build-cache
+  namespace: default
+spec:
+  # toolchains and build dirs are reproducible: losing the claim only costs one
+  # slow rebuild, so it is scratch and is not backed up
+  storageClassName: cluster-scratch
+  accessMode: ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

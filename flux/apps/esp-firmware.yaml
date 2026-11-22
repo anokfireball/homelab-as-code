@@ -82,7 +82,9 @@ spec:
         # the chart names a lone configMap after the release; pin it so the mount path is stable
         forceRename: esp-firmware-nginx
         data:
-          # serves GET/HEAD of the PVC tree behind basic auth only; the artifacts themselves are not secret
+          # serves read-only GET/HEAD to devices behind the esphome account and
+          # WebDAV PUT to the build Job behind the uploader account; the
+          # artifacts themselves are not secret
           default.conf: |
             server {
                 listen 8080;
@@ -113,13 +115,23 @@ spec:
                 }
 
                 location / {
-                    limit_except GET HEAD {
-                        deny all;
-                    }
+                    # devices pull manifest and firmware with the esphome account
                     auth_basic "ESPHome firmware";
                     auth_basic_user_file /etc/nginx/auth/htpasswd;
+                    # every other method authenticates against the uploader-only
+                    # file: auth_basic replaces the inherited file for these
+                    # methods, so the esphome account cannot write
+                    limit_except GET HEAD {
+                        auth_basic "ESPHome firmware upload";
+                        auth_basic_user_file /etc/nginx/auth/htpasswd-upload;
+                    }
+                    # WebDAV PUT is how the in-cluster build Job publishes;
+                    # create_full_put_path creates <project>/ on first upload
+                    dav_methods PUT;
+                    create_full_put_path on;
+                    client_body_temp_path /tmp/client-body;
+                    client_max_body_size 8m;
                     autoindex off;
-                    try_files $uri =404;
                 }
             }
     service:
