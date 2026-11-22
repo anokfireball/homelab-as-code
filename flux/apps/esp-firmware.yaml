@@ -79,6 +79,8 @@ spec:
                 drop: ["ALL"]
     configMaps:
       nginx:
+        # the chart names a lone configMap after the release; pin it so the mount path is stable
+        forceRename: esp-firmware-nginx
         data:
           # serves GET/HEAD of the PVC tree behind basic auth only; the artifacts themselves are not secret
           default.conf: |
