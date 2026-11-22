@@ -358,10 +358,10 @@ In addition to the core homelab IaC, there is one more loosely related stage:
         <td><a href="https://gatus.kthxbye.cyou/endpoints/services_emqx-[mqtt]"><img src="https://gatus.kthxbye.cyou/api/v1/endpoints/services_emqx-[mqtt]/uptimes/30d/badge.svg" alt="EMQX Uptime"></a></td>
     </tr>
     <tr>
-        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/esphome.svg"></td>
-        <td><a href="https://esphome.io/components/update/http_request/">ESPHome Firmware Server</a></td>
-        <td>OTA firmware for ESPHome devices</td>
-        <td></td>
+        <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/nginx.svg"></td>
+        <td><a href="https://nginx.org/">nginx</a></td>
+        <td>Static File Server</td>
+        <td>hosts firmware for <a href="https://esphome.io/components/update/http_request/">ESPHome pull-based OTA</a></td>
     </tr>
     <tr>
         <td><img width="32" src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opnsense-v1.svg"></td>
