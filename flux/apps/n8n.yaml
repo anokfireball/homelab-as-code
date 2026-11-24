@@ -57,11 +57,11 @@ spec:
   values:
     image:
       repository: ghcr.io/n8n-io/n8n
-      tag: "3.3.0@sha256:e06707c78ef5adb302b47909f8fee5caf8d389a7e5f3f0e03165214f6178565e"
+      tag: "3.4.0@sha256:623e766dd0548ee8246376de1d5f3d4d1a65e0a2f645844833bd3d91b2200fae"
       pullPolicy: IfNotPresent
     runnersImage:
       repository: n8nio/runners
-      tag: "3.3.0@sha256:7d6bf76088a08962b812a39dcb8c5ef7b038253a21f69fc4a2bfc1b6e9e486b9"
+      tag: "3.4.0@sha256:1da0628b09ef5cc03f68186b128f54f41ad982c2935e41f1132ad967e03a29bf"
       pullPolicy: IfNotPresent
     service:
       main:
