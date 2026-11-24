@@ -41,7 +41,7 @@ spec:
             - ALL
     versionUpgradeHook:
       # renovate: datasource=docker depName=quay.io/mongodb/mongodb-kubernetes-operator-version-upgrade-post-start-hook
-      version: 1.0.10@sha256:3744901d095c6cc7392ed079c7a4ec01feeb67dd73145935068f41ad6bc81c28
+      version: 1.0.10@sha256:cbd372226037d6dade08015c48177faa14b22b4d5980c873cb71035e52157903
     readinessProbe:
       # renovate: datasource=docker depName=quay.io/mongodb/mongodb-kubernetes-readinessprobe
       version: 1.0.24@sha256:a2d5d0a2ed0c106a06c720adae116c1585ba380bba49000f21b923752c70c902
