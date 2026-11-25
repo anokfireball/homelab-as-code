@@ -326,7 +326,7 @@ spec:
           - import: (data)/common/keep-internet-working.yaml
           - import: (data)/common/acts-like-browser.yaml
     nginx:
-      image: nginx:stable@sha256:c2c7e8370da496dc7283497fcd3a0cbe648d7f18b6c62ee1d0675f474d499aeb
+      image: nginx:stable@sha256:755983e0e0e568e4c86297cc91485d7a6f9fb73e42d8a19cdba3eac9e8b8cfc9
     celery:
       securityContext:
         fsGroup: 1000
@@ -509,7 +509,7 @@ spec:
                       # and listen 80 becomes 8080 (non-root cannot bind 80 without NET_BIND_SERVICE)
                       - name: nginx-config-seed
                         # renovate: datasource=docker depName=nginx
-                        image: nginx:stable@sha256:c2c7e8370da496dc7283497fcd3a0cbe648d7f18b6c62ee1d0675f474d499aeb
+                        image: nginx:stable@sha256:755983e0e0e568e4c86297cc91485d7a6f9fb73e42d8a19cdba3eac9e8b8cfc9
                         command:
                           - sh
                           - -c
