@@ -44,13 +44,45 @@ spec:
               capabilities:
                 drop: ["ALL"]
                 add: ["CHOWN"]
+          # gluetun only knows the VPN servers baked into its image and rebuilds /gluetun/servers.json from them on
+          # every start. Providers retire server IPs; once every server matching our filters had stopped answering, the
+          # tunnel never came up. This fetches the provider's current list (provider name from gluetun-secrets) into the
+          # shared /gluetun before the sidecar starts; gluetun prefers it over the baked-in data. It runs before the kill
+          # switch, but only talks to the provider's public server-list API and DoH resolvers, and qBittorrent still
+          # waits for the tunnel. A failed fetch fails the init container, so the kubelet retries instead of dialing
+          # dead servers.
+          gluetun-servers:
+            dependsOn: run-permissions
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.41.3@sha256:fa19cc76b2af13d57a8d3dc3066f2ada061b1c761b8aecf989b3877c0486e027
+            # the kubelet expands $(VAR) from the container env, so the provider stays in the SOPS secret
+            command: ["/gluetun-entrypoint", "update", "-enduser", "-providers", "$(VPN_SERVICE_PROVIDER)"]
+            env:
+              VPN_SERVICE_PROVIDER:
+                valueFrom:
+                  secretKeyRef:
+                    name: gluetun-secrets
+                    key: VPN_SERVICE_PROVIDER
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 100Mi
           # Native sidecar (restartPolicy: Always): the kubelet starts it before every app container and holds them
           # until its startup probe passes. gluetun's healthcheck only passes once the tunnel is up, and its kill
           # switch is installed before the tunnel, so qBittorrent can never send traffic outside the VPN. As a
           # regular container started after qBittorrent, it left a few seconds at each pod start in which
           # qBittorrent reached trackers from the home IPv4/IPv6 addresses.
           gluetun:
-            dependsOn: run-permissions
+            dependsOn: [run-permissions, gluetun-servers]
             restartPolicy: Always
             image:
               repository: ghcr.io/qdm12/gluetun
@@ -248,6 +280,14 @@ spec:
           main:
             gluetun:
               - path: /gluetun/auth
+      gluetun-servers:
+        type: emptyDir
+        advancedMounts:
+          main:
+            gluetun-servers:
+              - path: /gluetun
+            gluetun:
+              - path: /gluetun
       gluetun-data:
         type: emptyDir
         advancedMounts:
