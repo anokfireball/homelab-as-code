@@ -7,6 +7,15 @@ metadata:
 spec:
   calicoNetwork:
     bgp: Disabled
+    # eth0 holds three global IPv6 addresses: the static ULA from 60-k8s-ipv6.yaml.j2, a SLAAC ULA and a SLAAC
+    # address in the ISP-delegated prefix, which changes. The default (firstFound) takes whichever the kernel lists
+    # first, which differs per node and per boot: nodes ended up in different /64s, VXLANCrossSubnet then wanted
+    # vxlan-v6 routes that the kernel rejected (EINVAL) behind stale direct ones, and an ISP prefix change would leave
+    # stale node addresses behind. Only the static address lies in this /112 (SLAAC EUI-64 interface IDs never do;
+    # MetalLB L2 does not bind its VIPs to eth0), so all nodes share one on-link /64 and pod IPv6 is routed directly.
+    nodeAddressAutodetectionV6:
+      cidrs:
+        - "{{ node_ula_prefix }}/112"
     ipPools:
     - name: default-ipv4-ippool
       blockSize: {{ calico_node_subnet_prefix_length_v4 }}
