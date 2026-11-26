@@ -284,27 +284,39 @@ spec:
             #!/bin/sh
             # One push every 5 minutes; the Gatus endpoint's heartbeat covers pushes that never arrive. Gatus matches
             # the key literally, so the brackets stay in the URL and curl runs with -g. The token is never printed.
+            # gluetun writes its public IP and forwarded port only after the tunnel is up, so the first push waits up to
+            # 3 minutes for both instead of reporting a false failure; a push that never reached Gatus (HTTP 000, e.g.
+            # tunnel down) is retried after 30 s so a recovery shows up quickly.
+            state() {
+              err=""
+              [ -s /tmp/gluetun/ip ] || err="gluetun reports no public IP; "
+              case "$(cat /tmp/gluetun/forwarded_port 2>/dev/null)" in
+                "" | 0 | *[!0-9]*) err="$err""gluetun reports no forwarded port" ;;
+              esac
+            }
+            waited=0
+            state
+            while [ -n "$err" ] && [ "$waited" -lt 180 ]; do
+              sleep 10
+              waited=$((waited + 10))
+              state
+            done
             while true; do
               if [ -z "$GATUS_TOKEN" ]; then
                 echo "no GATUS_TOKEN, not reporting"
-              else
-                err=""
-                ip=$(cat /tmp/gluetun/ip 2>/dev/null)
-                port=$(cat /tmp/gluetun/forwarded_port 2>/dev/null)
-                [ -n "$ip" ] || err="gluetun reports no public IP; "
-                case "$port" in
-                  "" | 0 | *[!0-9]*) err="$err""gluetun reports no forwarded port" ;;
-                esac
-                if [ -z "$err" ]; then
-                  query="success=true"
-                else
-                  query="success=false&error=$(jq -rn --arg e "$err" '$e | @uri')"
-                fi
-                code=$(curl -g -sS -o /dev/null -w '%{http_code}' -m 20 -X POST \
-                  -H "Authorization: Bearer $GATUS_TOKEN" "$GATUS_URL?$query")
-                echo "$(date -u +%FT%TZ) $query -> HTTP $code"
+                sleep 300
+                continue
               fi
-              sleep 300
+              state
+              if [ -z "$err" ]; then
+                query="success=true"
+              else
+                query="success=false&error=$(jq -rn --arg e "$err" '$e | @uri')"
+              fi
+              code=$(curl -g -sS -o /dev/null -w '%{http_code}' -m 20 -X POST \
+                -H "Authorization: Bearer $GATUS_TOKEN" "$GATUS_URL?$query")
+              echo "$(date -u +%FT%TZ) $query -> HTTP $code"
+              if [ "$code" = 000 ]; then sleep 30; else sleep 300; fi
             done
     persistence:
       run:
