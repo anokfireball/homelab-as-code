@@ -219,7 +219,7 @@ spec:
               tag: 3.24.4@sha256:b20f348d6e11ca59a350ca7cb6e7c99df691dbfb74f9615bc5d83d624ed0d9e8
             command: ["sh", "/healthcheck/report-vpn.sh"]
             env:
-              GATUS_URL: https://gatus.${SERVICE_DOMAIN}/api/v1/endpoints/services_qbittorrent-vpn-[push]/external
+              GATUS_URL: https://gatus.${SERVICE_DOMAIN}/api/v1/endpoints/services_gluetun-vpn-[push]/external
             envFrom:
               - secretRef:
                   name: qbittorrent-gatus
