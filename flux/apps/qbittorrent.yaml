@@ -294,6 +294,14 @@ spec:
                 "" | 0 | *[!0-9]*) err="$err""gluetun reports no forwarded port" ;;
               esac
             }
+            # Average round trip to the VPN server's tunnel-side gateway (the next hop of gluetun's 0.0.0.0/1 route),
+            # pushed as the result's duration so Gatus charts it as response time. Unprivileged ICMP works because the
+            # pod's net.ipv4.ping_group_range allows it; without a reply the push simply carries no duration.
+            latency() {
+              gw=$(ip -4 route show 0.0.0.0/1 2>/dev/null | awk '{print $3; exit}')
+              [ -n "$gw" ] || return 0
+              ping -c 3 -W 2 "$gw" 2>/dev/null | sed -n 's|.*= [0-9.]*/\([0-9.]*\)/.*|\1|p'
+            }
             waited=0
             state
             while [ -n "$err" ] && [ "$waited" -lt 180 ]; do
@@ -313,6 +321,8 @@ spec:
               else
                 query="success=false&error=$(jq -rn --arg e "$err" '$e | @uri')"
               fi
+              rtt=$(latency)
+              [ -n "$rtt" ] && query="$query&duration=$rtt""ms"
               code=$(curl -g -sS -o /dev/null -w '%{http_code}' -m 20 -X POST \
                 -H "Authorization: Bearer $GATUS_TOKEN" "$GATUS_URL?$query")
               echo "$(date -u +%FT%TZ) $query -> HTTP $code"
