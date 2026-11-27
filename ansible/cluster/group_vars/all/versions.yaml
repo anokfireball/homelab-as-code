@@ -5,7 +5,7 @@
 k8s_version: "1.37.1"
 # Docker's apt repo does not publish every upstream release; track the package the nodes install.
 # renovate: datasource=deb depName=containerd.io registryUrl=https://download.docker.com/linux/ubuntu?suite=noble&components=stable&binaryArch=amd64 extractVersion=^(?<version>\d+\.\d+\.\d+)-
-containerd_version: "2.4.1"
+containerd_version: "2.4.2"
 # renovate: datasource=github-releases depName=kube-vip/kube-vip extractVersion=^(?<version>v\d+\.\d+\.\d+)$
 kube_vip_version: v1.2.4
 
