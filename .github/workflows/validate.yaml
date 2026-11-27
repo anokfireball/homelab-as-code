@@ -92,7 +92,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           # renovate: datasource=github-releases depName=home-operations/flate
-          FLATE_VERSION: v0.7.3
+          FLATE_VERSION: v0.8.0
         run: |
           archive="flate_${FLATE_VERSION#v}_linux_amd64.tar.gz"
           bindir="$RUNNER_TEMP/flate-bin"
