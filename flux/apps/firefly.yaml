@@ -51,7 +51,7 @@ spec:
   values:
     image:
       repository: fireflyiii/core
-      tag: version-6.7.9@sha256:10bbe21fbdc68b8fa955d85827aeed197ab46d62c8c745e949d322b9f4b73ff5
+      tag: version-6.7.12@sha256:99319a6ce1370eba9e85f78e4d506e76267af0e7acc40fb4189b34d5fe83c874
     persistence:
       enabled: false
     config:
@@ -164,7 +164,7 @@ spec:
                     initContainers:
                       - name: seed
                         # renovate: datasource=docker depName=fireflyiii/core
-                        image: docker.io/fireflyiii/core:version-6.7.9@sha256:10bbe21fbdc68b8fa955d85827aeed197ab46d62c8c745e949d322b9f4b73ff5
+                        image: docker.io/fireflyiii/core:version-6.7.12@sha256:99319a6ce1370eba9e85f78e4d506e76267af0e7acc40fb4189b34d5fe83c874
                         command: ["sh", "-c", "cp -R /var/www/html/storage/. /seed/storage/ && cp -R /var/www/html/bootstrap/cache/. /seed/bootstrap-cache/ && cp -R /etc/nginx/. /seed/nginx-conf/"]
                         securityContext:
                           allowPrivilegeEscalation: false
