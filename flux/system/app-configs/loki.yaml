@@ -87,7 +87,7 @@ spec:
       image:
         registry: docker.io
         repository: grafana/loki-canary
-        tag: "3.7.10@sha256:fb5e3e189f46c61196067c88afc37f82dcc9bd5a886180cdd4370b0b0110669e"
+        tag: "3.7.11@sha256:2f68b6884874ad79c0dc1b26b55d997575df243455d80bd78065acab7a3e0d09"
     memcached:
       image:
         repository: memcached
