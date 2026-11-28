@@ -116,7 +116,7 @@ spec:
           app:
             image:
               repository: ghcr.io/tasmoadmin/tasmoadmin
-              tag: v5.1.1@sha256:78eae5e6e8813a9c33eafb1cd18ff8cffcfd23bff5ecd0ef73ba729e5308a076
+              tag: v5.1.2@sha256:c88e45c6776e24c8a4fbbfde774839eca51c38770f2dade0369c2186d5972899
             env:
               TZ: Europe/Berlin
             probes:
